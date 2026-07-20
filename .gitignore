@@ -1,0 +1,35 @@
+# === Python ===
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# === Node / React ===
+node_modules/
+dist/
+build/
+.next/
+*.local
+
+# === Terraform ===
+# state contains resource IDs / secrets — never commit
+*.tfstate
+*.tfstate.*
+.terraform/
+# .terraform.lock.hcl IS committed on purpose (pins provider versions)
+
+# === Secrets / env ===
+.env
+.env.*
+!.env.example
+*.pem
+credentials.csv
+
+# === OS / editor ===
+.DS_Store
+.idea/
+.vscode/
