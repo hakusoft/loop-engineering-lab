@@ -42,20 +42,27 @@ flowchart LR
     subgraph AWS["AWS ap-northeast-1"]
         AGW[API Gateway] --> LAMBDA[Lambda / FastAPI]
         LAMBDA -.-> LOGS[CloudWatch Logs]
+        CF[CloudFront / OAC] --> S3[(S3 静的ファイル)]
     end
-    CLIENT[Client] --> AGW
+    BROWSER[Browser] --> CF
+    BROWSER -->|fetch| AGW
     LAMBDA --> OM[Open-Meteo]
     LAMBDA -.-> SENTRY[Sentry]
     GHA[GitHub Actions] -->|OIDC| LAMBDA
+    GHA -->|OIDC| S3
 
     classDef aws fill:#ff9900,stroke:#232f3e,color:#232f3e
     classDef ext fill:#e8e8e8,stroke:#666,color:#333
-    class AGW,LAMBDA,LOGS aws
-    class OM,SENTRY,GHA,CLIENT ext
+    class AGW,LAMBDA,LOGS,CF,S3 aws
+    class OM,SENTRY,GHA,BROWSER ext
 ```
+
+ブラウザは静的ファイルを CloudFront から取り、データは API Gateway を直接 fetch する。
 
 | 層 | 技術 |
 |---|---|
+| フロント | React + Recharts（Vite ビルド） |
+| フロント配信 | S3 + CloudFront（OAC で S3 は非公開） |
 | API | FastAPI（Mangum で Lambda に載せる） |
 | 実行基盤 | Lambda + API Gateway |
 | IaC | Terraform（state は S3） |
