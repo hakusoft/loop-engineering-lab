@@ -16,7 +16,7 @@ STUB_RESPONSE = {
         "wind_direction_10m": "°",
         "apparent_temperature": "°C",
         "precipitation": "mm",
-        "pressure_msl": "hPa",
+        "surface_pressure": "hPa",
     },
     "current": {
         "time": "2026-07-21T09:00",
@@ -26,7 +26,7 @@ STUB_RESPONSE = {
         "wind_direction_10m": 250,
         "apparent_temperature": 33.1,
         "precipitation": 0.0,
-        "pressure_msl": 1008.2,
+        "surface_pressure": 1008.2,
     },
 }
 
@@ -128,3 +128,14 @@ def test_format_forecast_falls_back_when_units_missing():
 
     assert result["temperature"] == {"value": 28.4, "unit": "°C"}
     assert result["wind_speed"] == {"value": 12.3, "unit": "km/h"}
+
+
+def test_format_forecast_reads_pressure_from_requested_field():
+    """気圧は fetch_forecast が要求する surface_pressure キーで読む。
+
+    pressure_msl は要求していないので current に含まれない。
+    別のキー名で読むと KeyError になる（LOOP-ENGINEERING-LAB-4 の再発防止）。
+    """
+    result = format_forecast(STUB_RESPONSE)
+
+    assert result["pressure"] == {"value": 1008.2, "unit": "hPa"}
