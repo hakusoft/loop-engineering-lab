@@ -47,7 +47,7 @@ resource "aws_iam_role" "github_deploy" {
   assume_role_policy = data.aws_iam_policy_document.github_assume_role.json
 }
 
-# CI がやるのはコード更新だけ。IAM も API Gateway も触らせない。
+# CI がやるのは Lambda コード更新とフロント配信だけ。IAM も API Gateway も触らせない。
 # CI が暴走しても被害が広がらないようにするため。
 data "aws_iam_policy_document" "github_deploy" {
   statement {
@@ -57,6 +57,31 @@ data "aws_iam_policy_document" "github_deploy" {
       "lambda:GetFunctionConfiguration",
     ]
     resources = [aws_lambda_function.api.arn]
+  }
+
+  # フロントの配信: ビルド成果物を S3 に同期する。
+  # 対象はフロント用バケットだけに絞る（他バケットには触らせない）。
+  statement {
+    actions = [
+      "s3:PutObject",
+      "s3:DeleteObject",
+      "s3:ListBucket",
+    ]
+    resources = [
+      aws_s3_bucket.frontend.arn,
+      "${aws_s3_bucket.frontend.arn}/*",
+    ]
+  }
+
+  # 配信後に CloudFront のキャッシュを無効化する。
+  # CreateInvalidation は distribution ARN に絞れるが、GetInvalidation で完了を
+  # 待てるようにしておく。
+  statement {
+    actions = [
+      "cloudfront:CreateInvalidation",
+      "cloudfront:GetInvalidation",
+    ]
+    resources = [aws_cloudfront_distribution.frontend.arn]
   }
 }
 

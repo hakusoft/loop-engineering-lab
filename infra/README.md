@@ -9,10 +9,17 @@ flowchart LR
     LAMBDA --> OM[Open-Meteo]
     LAMBDA -.-> SENTRY[Sentry]
     LAMBDA -.-> LOGS[CloudWatch Logs]
+    BROWSER[Browser] --> CF[CloudFront / OAC]
+    CF --> S3[(S3 frontend)]
+    BROWSER -.->|fetch /weather/series| AGW
 ```
 
 DB は使う段階で足す。今のアプリは DB を持たないため、
 RDS を先に立てても無料枠を消費するだけになる。
+
+フロント（`frontend.tf`）は S3 + CloudFront。S3 は直接公開せず、OAC 経由で
+CloudFront からのみ読める。ブラウザは静的ファイルを CloudFront から取り、
+データは API Gateway を直接 fetch する（CORS は `apigateway.tf` で許可）。
 
 ## デプロイ
 
@@ -43,6 +50,21 @@ terraform apply -var="sentry_dsn=https://...ingest.us.sentry.io/..."
 ```
 
 DSN を省くと Sentry は初期化されない（アプリ側でそう分岐している）。
+
+### フロントの初回配信
+
+`terraform apply` で S3 バケットと CloudFront ができた後、初回だけ手で配信する
+（以降は main マージで自動）。デモ URL を README に貼るのもこのタイミング。
+
+```bash
+cd frontend && npm ci && npm run build && cd ..
+aws s3 sync frontend/dist "s3://$(terraform -chdir=infra output -raw frontend_bucket)" --delete
+aws cloudfront create-invalidation \
+  --distribution-id "$(terraform -chdir=infra output -raw frontend_distribution_id)" --paths '/*'
+terraform -chdir=infra output -raw frontend_url   # この URL を README に貼る
+```
+
+CloudFront は配信開始まで数分かかる。すぐに 403 でも慌てず待つ。
 
 ## 確認
 
