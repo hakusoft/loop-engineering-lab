@@ -15,6 +15,8 @@ STUB_RESPONSE = {
         "wind_speed_10m": "km/h",
         "wind_direction_10m": "°",
         "apparent_temperature": "°C",
+        "precipitation": "mm",
+        "pressure_msl": "hPa",
     },
     "current": {
         "time": "2026-07-21T09:00",
@@ -23,6 +25,8 @@ STUB_RESPONSE = {
         "wind_speed_10m": 12.3,
         "wind_direction_10m": 250,
         "apparent_temperature": 33.1,
+        "precipitation": 0.0,
+        "pressure_msl": 1008.2,
     },
 }
 
@@ -36,6 +40,8 @@ def test_format_forecast_maps_values_and_units():
     assert result["humidity"] == {"value": 71, "unit": "%"}
     assert result["wind_speed"] == {"value": 12.3, "unit": "km/h"}
     assert result["wind_direction"] == {"value": 250, "unit": "°", "compass": "西南西"}
+    assert result["precipitation"] == {"value": 0.0, "unit": "mm"}
+    assert result["pressure"] == {"value": 1008.2, "unit": "hPa"}
     assert result["coordinates"] == {"latitude": 35.68, "longitude": 139.76}
 
 
