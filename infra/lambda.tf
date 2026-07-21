@@ -53,6 +53,19 @@ resource "aws_lambda_function" "api" {
     }
   }
 
+  lifecycle {
+    # コードのデプロイは GitHub Actions が行う（.github/workflows/deploy.yml）。
+    # CI がビルドした zip と手元の zip はバイト単位では一致しないため、
+    # Terraform に管理させると毎回「差分あり」になり、apply のたびに
+    # CI のデプロイを巻き戻してしまう。
+    #
+    # 初回作成時の filename は必要なので残し、以降の変更だけ無視する。
+    ignore_changes = [
+      filename,
+      source_code_hash,
+    ]
+  }
+
   depends_on = [
     aws_iam_role_policy_attachment.lambda_logs,
     aws_cloudwatch_log_group.lambda,
