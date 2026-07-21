@@ -16,13 +16,18 @@ RDS を先に立てても無料枠を消費するだけになる。
 
 ## デプロイ
 
-```bash
-# 1. デプロイパッケージを作る（Linux 向けに依存を解決する）
-./scripts/build_lambda.sh
+**アプリのコードは自動。** main にマージすると
+[`deploy.yml`](../.github/workflows/deploy.yml) が Lambda を更新する。
+認証は OIDC で、長期のアクセスキーは GitHub に置いていない。
 
-# 2. 適用
+**インフラの変更は手動。** コードは毎日変わるがインフラは滅多に変わらず、
+`apply` は作り替えを伴い得るので、`plan` を目で見てから適用する。
+
+```bash
+./scripts/build_lambda.sh   # パッケージを作る（Linux 向けに依存を解決）
 cd infra
 terraform init
+terraform plan              # 差分を確認してから
 terraform apply
 ```
 
