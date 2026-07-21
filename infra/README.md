@@ -43,12 +43,33 @@ curl "$(terraform output -raw api_url)/weather"
 
 ## tfstate について
 
-**現状はローカル state。** 最初から S3 backend を組むと、
-その bucket を作るのに Terraform が要るという鶏卵問題になるため、
-まず動かしてから移す。`.gitignore` で `*.tfstate` は除外済み。
+**S3 backend。** bucket は `loop-engineering-lab-tfstate-417441750247`。
 
-state には `sentry_dsn` が平文で入る。ローカル state のうちは許容し、
-S3 backend に移す際に暗号化する。
+```
+バージョニング  有効（誤って壊しても戻せる）
+暗号化          AES256（state に sentry_dsn が平文で入るため）
+パブリック      全ブロック
+```
+
+**bucket 自体は Terraform の管理外**（AWS CLI で作成）。同じ Terraform で
+管理すると「state を置く場所を作るのに state が要る」という循環になるため。
+一度作れば触らないので、これで足りる。
+
+state ロック（DynamoDB）は入れていない。ソロ開発で同時実行が起きないため、
+必要になった時点で足す。
+
+## sentry_dsn の渡し方
+
+**`terraform.tfvars` に置く。** これを忘れて `terraform apply` すると、
+既定値の空文字が適用されて **本番の Sentry 送信が止まる**。
+
+```bash
+cp example.tfvars terraform.tfvars
+# terraform.tfvars を編集して DSN を入れる
+```
+
+`terraform.tfvars` は `.gitignore` で除外済み。DSN は
+https://hakusoft.sentry.io/settings/projects/loop-engineering-lab/keys/ で確認できる。
 
 ## 変数
 
