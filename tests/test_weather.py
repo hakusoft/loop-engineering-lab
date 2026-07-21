@@ -17,6 +17,7 @@ STUB_RESPONSE = {
         "apparent_temperature": "°C",
         "precipitation": "mm",
         "surface_pressure": "hPa",
+        "cloudcover": "%",
     },
     "current": {
         "time": "2026-07-21T09:00",
@@ -27,6 +28,15 @@ STUB_RESPONSE = {
         "apparent_temperature": 33.1,
         "precipitation": 0.0,
         "surface_pressure": 1008.2,
+        "cloudcover": 40,
+    },
+    "daily_units": {
+        "time": "iso8601",
+        "uv_index_max": "",
+    },
+    "daily": {
+        "time": ["2026-07-21"],
+        "uv_index_max": [7.8],
     },
 }
 
@@ -42,6 +52,8 @@ def test_format_forecast_maps_values_and_units():
     assert result["wind_direction"] == {"value": 250, "unit": "°", "compass": "西南西"}
     assert result["precipitation"] == {"value": 0.0, "unit": "mm"}
     assert result["pressure"] == {"value": 1008.2, "unit": "hPa"}
+    assert result["cloud_cover"] == {"value": 40, "unit": "%"}
+    assert result["uv_index_max"] == {"value": 7.8, "unit": ""}
     assert result["coordinates"] == {"latitude": 35.68, "longitude": 139.76}
 
 
@@ -121,13 +133,15 @@ def test_series_tolerates_missing_values():
 
 
 def test_format_forecast_falls_back_when_units_missing():
-    """current_units が欠けても既定の単位で返す。"""
-    raw = {k: v for k, v in STUB_RESPONSE.items() if k != "current_units"}
+    """current_units / daily_units が欠けても既定の単位で返す。"""
+    raw = {k: v for k, v in STUB_RESPONSE.items() if k not in ("current_units", "daily_units")}
 
     result = format_forecast(raw)
 
     assert result["temperature"] == {"value": 28.4, "unit": "°C"}
     assert result["wind_speed"] == {"value": 12.3, "unit": "km/h"}
+    assert result["cloud_cover"] == {"value": 40, "unit": "%"}
+    assert result["uv_index_max"] == {"value": 7.8, "unit": ""}
 
 
 def test_format_forecast_reads_pressure_from_requested_field():
