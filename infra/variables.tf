@@ -24,7 +24,18 @@ variable "log_retention_days" {
 }
 
 variable "github_repository" {
-  description = "デプロイを許可する GitHub リポジトリ（owner/repo）。OIDC の信頼条件に使う"
+  description = "デプロイを許可する GitHub リポジトリ（owner/repo）"
   type        = string
   default     = "hakusoft/loop-engineering-lab"
+}
+
+variable "github_sub_claim_prefix" {
+  description = <<-EOT
+    OIDC トークンの sub の接頭辞。owner/repo の数値 ID を含む。
+    リポジトリ名を変えても壊れないよう GitHub が ID を埋めるため、
+    名前だけで書くと信頼ポリシーが一致しない。
+    確認: gh api repos/<owner>/<repo>/actions/oidc/customization/sub
+  EOT
+  type        = string
+  default     = "repo:hakusoft@261719523/loop-engineering-lab@1307073366"
 }
