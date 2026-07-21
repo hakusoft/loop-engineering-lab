@@ -29,6 +29,18 @@ variable "github_repository" {
   default     = "hakusoft/loop-engineering-lab"
 }
 
+variable "billing_alert_email" {
+  description = "請求アラートの通知先。apply 後に確認メールのリンクを踏むまで購読は有効にならない"
+  type        = string
+  default     = "kazuichi.hirano@gmail.com"
+}
+
+variable "monthly_budget_usd" {
+  description = "月額の閾値（USD）。無料枠内なら $0 のはずなので、超えたら何かおかしい"
+  type        = string
+  default     = "1"
+}
+
 variable "github_sub_claim_prefix" {
   description = <<-EOT
     OIDC トークンの sub の接頭辞。owner/repo の数値 ID を含む。
