@@ -19,6 +19,10 @@ build/
 # state contains resource IDs / secrets — never commit
 *.tfstate
 *.tfstate.*
+# 変数ファイルは DSN 等の秘密を持つのでコミットしない
+*.tfvars
+*.tfvars.json
+!example.tfvars
 .terraform/
 # .terraform.lock.hcl IS committed on purpose (pins provider versions)
 
