@@ -30,6 +30,45 @@ def _compass_direction(degrees: float) -> str:
     return COMPASS_POINTS[index]
 
 
+# WMO Weather interpretation codes（Open-Meteo の weather_code）→ 日本語表記。
+# https://open-meteo.com/en/docs で定義されているコード表に基づく。
+WEATHER_CODES = {
+    0: "快晴",
+    1: "晴れ",
+    2: "薄曇り",
+    3: "曇り",
+    45: "霧",
+    48: "霧（着氷性）",
+    51: "霧雨（弱い）",
+    53: "霧雨",
+    55: "霧雨（強い）",
+    56: "霧雨（着氷性・弱い）",
+    57: "霧雨（着氷性・強い）",
+    61: "雨（弱い）",
+    63: "雨",
+    65: "雨（強い）",
+    66: "雨（着氷性・弱い）",
+    67: "雨（着氷性・強い）",
+    71: "雪（弱い）",
+    73: "雪",
+    75: "雪（強い）",
+    77: "雪（霧状）",
+    80: "にわか雨（弱い）",
+    81: "にわか雨",
+    82: "にわか雨（強い）",
+    85: "にわか雪（弱い）",
+    86: "にわか雪（強い）",
+    95: "雷雨",
+    96: "雷雨（ひょうを伴う・弱い）",
+    99: "雷雨（ひょうを伴う・強い）",
+}
+
+
+def _weather_description(code: int) -> str:
+    """WMO Weather code を日本語の天気表記に変換する。未知のコードは不明として返す。"""
+    return WEATHER_CODES.get(code, "不明")
+
+
 def fetch_forecast(
     latitude: float = DEFAULT_LATITUDE,
     longitude: float = DEFAULT_LONGITUDE,
@@ -44,7 +83,7 @@ def fetch_forecast(
             "current": (
                 "temperature_2m,relative_humidity_2m,wind_speed_10m,"
                 "wind_direction_10m,apparent_temperature,"
-                "precipitation,surface_pressure"
+                "precipitation,surface_pressure,weather_code"
             ),
         },
         timeout=timeout,
@@ -114,6 +153,10 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
         "pressure": {
             "value": current["surface_pressure"],
             "unit": units.get("surface_pressure", "hPa"),
+        },
+        "condition": {
+            "code": current["weather_code"],
+            "description": _weather_description(current["weather_code"]),
         },
         "coordinates": {
             "latitude": raw["latitude"],
