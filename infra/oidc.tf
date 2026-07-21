@@ -26,10 +26,16 @@ data "aws_iam_policy_document" "github_assume_role" {
 
     # このリポジトリの main ブランチからのみ引き受け可能にする。
     # 他リポジトリや PR ブランチから借りられないようにするための肝。
+    #
+    # sub には owner/repo の数値 ID が埋め込まれる:
+    #   repo:hakusoft@261719523/loop-engineering-lab@1307073366:ref:refs/heads/main
+    # 名前だけで書くと一致せず AssumeRoleWithWebIdentity が拒否される（実際に踏んだ）。
+    # 実際の形式は次で確認できる:
+    #   gh api repos/<owner>/<repo>/actions/oidc/customization/sub
     condition {
       test     = "StringEquals"
       variable = "token.actions.githubusercontent.com:sub"
-      values   = ["repo:${var.github_repository}:ref:refs/heads/main"]
+      values   = ["${var.github_sub_claim_prefix}:ref:refs/heads/main"]
     }
   }
 }
