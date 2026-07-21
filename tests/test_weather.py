@@ -3,7 +3,12 @@
 スタブは Open-Meteo が実際に返す形をそのまま写したもの。
 """
 
-from app.weather import _compass_direction, format_forecast, format_hourly_series
+from app.weather import (
+    _compass_direction,
+    _weather_description,
+    format_forecast,
+    format_hourly_series,
+)
 
 STUB_RESPONSE = {
     "latitude": 35.68,
@@ -27,6 +32,7 @@ STUB_RESPONSE = {
         "apparent_temperature": 33.1,
         "precipitation": 0.0,
         "surface_pressure": 1008.2,
+        "weather_code": 1,
     },
 }
 
@@ -42,6 +48,7 @@ def test_format_forecast_maps_values_and_units():
     assert result["wind_direction"] == {"value": 250, "unit": "°", "compass": "西南西"}
     assert result["precipitation"] == {"value": 0.0, "unit": "mm"}
     assert result["pressure"] == {"value": 1008.2, "unit": "hPa"}
+    assert result["condition"] == {"code": 1, "description": "晴れ"}
     assert result["coordinates"] == {"latitude": 35.68, "longitude": 139.76}
 
 
@@ -128,6 +135,18 @@ def test_format_forecast_falls_back_when_units_missing():
 
     assert result["temperature"] == {"value": 28.4, "unit": "°C"}
     assert result["wind_speed"] == {"value": 12.3, "unit": "km/h"}
+
+
+def test_weather_description_maps_representative_codes():
+    assert _weather_description(0) == "快晴"
+    assert _weather_description(3) == "曇り"
+    assert _weather_description(63) == "雨"
+    assert _weather_description(73) == "雪"
+    assert _weather_description(95) == "雷雨"
+
+
+def test_weather_description_falls_back_for_unknown_code():
+    assert _weather_description(1234) == "不明"
 
 
 def test_format_forecast_reads_pressure_from_requested_field():
