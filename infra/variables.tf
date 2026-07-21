@@ -22,3 +22,9 @@ variable "log_retention_days" {
   type        = number
   default     = 14
 }
+
+variable "github_repository" {
+  description = "デプロイを許可する GitHub リポジトリ（owner/repo）。OIDC の信頼条件に使う"
+  type        = string
+  default     = "hakusoft/loop-engineering-lab"
+}
