@@ -27,7 +27,7 @@ def fetch_forecast(
         params={
             "latitude": latitude,
             "longitude": longitude,
-            "current": "temperature_2m,relative_humidity_2m,wind_speed_10m",
+            "current": "temperature_2m,relative_humidity_2m,wind_speed_10m,apparent_temperature",
         },
         timeout=timeout,
     )
@@ -71,6 +71,10 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
         "temperature": {
             "value": current["temperature_2m"],
             "unit": units.get("temperature_2m", "°C"),
+        },
+        "apparent_temperature": {
+            "value": current["apparent_temperature"],
+            "unit": units.get("apparent_temperature", "°C"),
         },
         "humidity": {
             "value": current["relative_humidity_2m"],
