@@ -1,0 +1,49 @@
+name: Slack to Issue
+
+# Slack の :ticket: が付いた依頼を Issue にする。
+# 重複防止は起票済み Issue の permalink 照合で行うので、
+# 何度走っても同じ投稿が二重に Issue になることはない。
+on:
+  schedule:
+    # 毎朝 5:00 JST（cron は UTC なので前日 20:00）。
+    # 人間がやるのは朝イチのレビューとマージだけ、という運用に合わせる。
+    # 起きた時点で Issue が揃っているよう、レビューより前の時間に回す。
+    # すぐ拾いたいときは workflow_dispatch で手動実行する。
+    - cron: "0 20 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "起票せずに対象だけ表示する"
+        type: boolean
+        default: false
+
+concurrency:
+  group: slack-to-issue
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Collect requests
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL_ID: ${{ vars.SLACK_CHANNEL_ID }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: python -m app.slack_to_issue
