@@ -15,6 +15,20 @@ OPEN_METEO_URL = "https://api.open-meteo.com/v1/forecast"
 DEFAULT_LATITUDE = 35.68
 DEFAULT_LONGITUDE = 139.76
 
+# 度数 → 16 方位。北を境界の中心（348.75°〜11.25°）として 22.5° 刻みで割り当てる。
+COMPASS_POINTS = [
+    "北", "北北東", "北東", "東北東",
+    "東", "東南東", "南東", "南南東",
+    "南", "南南西", "南西", "西南西",
+    "西", "西北西", "北西", "北北西",
+]
+
+
+def _compass_direction(degrees: float) -> str:
+    """度数（0〜360）を 16 方位の方角表記に変換する。"""
+    index = int((degrees + 11.25) / 22.5)
+    return COMPASS_POINTS[index]
+
 
 def fetch_forecast(
     latitude: float = DEFAULT_LATITUDE,
@@ -27,7 +41,7 @@ def fetch_forecast(
         params={
             "latitude": latitude,
             "longitude": longitude,
-            "current": "temperature_2m,relative_humidity_2m,wind_speed_10m",
+            "current": "temperature_2m,relative_humidity_2m,wind_speed_10m,wind_direction_10m",
         },
         timeout=timeout,
     )
@@ -79,6 +93,11 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
         "wind_speed": {
             "value": current["wind_speed_10m"],
             "unit": units.get("wind_speed_10m", "km/h"),
+        },
+        "wind_direction": {
+            "value": current["wind_direction_10m"],
+            "unit": units.get("wind_direction_10m", "°"),
+            "compass": _compass_direction(current["wind_direction_10m"]),
         },
         "coordinates": {
             "latitude": raw["latitude"],
