@@ -1,97 +1,93 @@
 # loop-engineering-lab
 
-天気データを取得・可視化する Web アプリを題材に、
-**「壊れる → 自動で検知 → Issue 起票 → 修正 PR 作成 → CI 確認」までを無人で回す**
-Loop Engineering の実証リポジトリ。
+**依頼から実装、障害から修復までを無人で回す。人間はレビューとマージだけ。**
 
-**人間がやるのは、朝イチのレビューとマージだけ。** それ以外は自動で回ることを目指す。
-
-> このリポジトリの主役は天気データそのものではなく、**無人で回り続ける改良ループ自体**。
-> 題材（天気）は「安定して毎日取得できて、可視化しやすい」という理由で選んだ、いわば的。
+天気 API を題材に、Claude Code のクラウドルーチンが毎朝ループを一周させる。
 
 ## ループ
 
 ```mermaid
 flowchart LR
-    REQ[依頼] --> ISSUE[Issue]
+    SLACK[Slack の依頼] --> ISSUE[Issue]
     ISSUE --> PR[PR]
     PR --> CI{CI}
-    CI -->|緑| HUMAN([人間がマージ])
     CI -->|赤| PR
-    HUMAN --> APP[動くアプリ]
-    APP -->|エラー| DETECT[検知]
-    DETECT --> ISSUE
+    CI -->|緑| HUMAN([人間がマージ])
+    HUMAN --> PROD[本番]
+    PROD -->|実行時エラー| SENTRY[Sentry]
+    SENTRY --> ISSUE
 ```
 
-依頼は Slack から、エラーは Sentry から入る。
-**人間が触れるのは、マージの一点だけ。**
+毎朝 05:00 JST、ルーチンが順に処理する。
 
-## アプリ
+1. **Sentry** を見る。壊れていれば修正 Issue と PR を作る
+2. **Slack** を読む。依頼か雑談かを判断し、あいまいなら質問を返す
+3. 依頼を構造化した Issue にし、実装して PR を出す
+4. CI が緑になるまで見届ける
 
-ループを回すための的。天気データを取得して返す。
+**承認とマージは自動化しない。** そこが人間の仕事。
+
+04:30 に別のルーチンがデモ用の依頼を Slack へ投稿する（ネタは Open-Meteo の未使用パラメータ）。
+実装 PR には約 1/3 の確率で、CI をすり抜けて実行時にだけ出るバグが混入する。
+これが翌朝の修復対象になる。
+
+定義は [`prompts/`](prompts/) にある。
+
+## 構成
 
 ```mermaid
 flowchart LR
-    OM[Open-Meteo] --> API[FastAPI]
-    API --> VIEW[可視化]
-    API -.-> SENTRY[Sentry]
+    subgraph AWS["AWS ap-northeast-1"]
+        AGW[API Gateway] --> LAMBDA[Lambda / FastAPI]
+        LAMBDA -.-> LOGS[CloudWatch Logs]
+    end
+    CLIENT[Client] --> AGW
+    LAMBDA --> OM[Open-Meteo]
+    LAMBDA -.-> SENTRY[Sentry]
+    GHA[GitHub Actions] -->|OIDC| LAMBDA
+
+    classDef aws fill:#ff9900,stroke:#232f3e,color:#232f3e
+    classDef ext fill:#e8e8e8,stroke:#666,color:#333
+    class AGW,LAMBDA,LOGS aws
+    class OM,SENTRY,GHA,CLIENT ext
 ```
 
-## 技術構成
+| 層 | 技術 |
+|---|---|
+| API | FastAPI（Mangum で Lambda に載せる） |
+| 実行基盤 | Lambda + API Gateway |
+| IaC | Terraform（state は S3） |
+| CI/CD | GitHub Actions。main マージで自動デプロイ（OIDC） |
+| 監視 | Sentry |
+| 自動化 | Claude Code のクラウドルーチン |
 
-| 層 | 技術 | 状態 |
-|---|---|---|
-| API | FastAPI | 稼働 |
-| 実行基盤 | AWS Lambda + API Gateway | 稼働 |
-| IaC | Terraform | 稼働 |
-| 監視 | Sentry | 稼働 |
-| CI | GitHub Actions（ruff / pytest） | 稼働 |
-| 依頼の入口 | Slack | 整形部のみ |
-| DB | MySQL（RDS） | 未着手 |
-| フロント | React + Recharts / D3.js | 未着手 |
+DB とフロントは未着手。必要になった段階で足す。
 
-DB とフロントは、必要になった段階で足す。
+## エンドポイント
 
-## 進め方のルール
+```
+GET /health          稼働確認
+GET /weather         現在の気温・湿度・風速・風向き・体感温度・降水量・気圧
+GET /weather/series  気温と湿度の時系列（48h、系列ごとに unit と min/max）
+```
 
-- `main` への直接 push は禁止。すべて **Issue 起点 → ブランチ → PR → CI 確認 → セルフレビュー → 人間がレビュー・マージ** の順で進める
-- **承認とマージは常に人間が行う**（自動化しない一線）
-- **肉付け（機能追加・改善）は日々の Loop に任せ、まず「ループが一周する骨格」を通すことを優先する**
-- 小さく段階を踏んで作る。空箱のディレクトリは並べず、各要素に着手する時点で作る
+## 設計方針
 
-## IaC の置き場所の方針
+**取得と整形を分離する。** ネットワークに触るのは `fetch_*`、整形は純関数。
+テストは整形側をスタブ入力で検証し、**外部 API を叩かない**。
+CI の赤を「コードが壊れた」と読めるようにするため。
 
-- **この Lab では IaC をリポジトリ内（`infra/`）に同居させる。** 技術証明が目的で、
-  「1 リポジトリを覗けばアプリ・インフラ・ループの全体像が一目で分かる」ことを優先するため
-- **将来のビジネス本番では、IaC を専用リポジトリに切り出す。** 運用規模が大きくなると、
-  管理性・権限分離・レビュー体制の面でインフラを独立させた方が良いため（実務の王道）
-- この「小規模＝同居 / 本番規模＝分離」という使い分け自体が、インフラ設計の判断力の証明になる
+**CI の赤は検知シグナル。** 外部要因で赤くなると、その意味が失われる。
 
-## 骨格を通す順序
+**インフラ変更は手動。** コードは毎日変わるがインフラは滅多に変わらず、
+`apply` は作り替えを伴い得る。`plan` は人間が読む。
 
-1. ~~器（README・.gitignore・最小アプリ・CI）~~
-2. ~~最小アプリをデプロイする IaC（`infra/`）~~
-3. カオス注入 → 検知 → Issue → PR → CI の Loop を一周させる ← いまここ
-4. スケジューリングして無人で毎日回す
-
-## 現状
-
-**ループは一周した。ただし各ステップを人間が手で叩いている。**
-
-Slack の依頼を Issue にし、実装 PR を出して CI 緑まで通す経路は実データで確認済み。
-Sentry がエラーを受け取ることも確認済み。残るのは、これらを繋いで無人で回すこと。
-
-無人化に必要なもの:
-
-- **Slack Bot アプリ** — 現状は人間の権限で読んでいるため、無人では動かない
-- **カオス注入** — 壊す仕組みそのもの
-- **スケジューリング** — 定期実行
-
-## デプロイ
+## 開発
 
 ```bash
-./scripts/build_lambda.sh
-cd infra && terraform apply
+python3 -m venv .venv && .venv/bin/pip install -r requirements-dev.txt
+.venv/bin/ruff check . && .venv/bin/python -m pytest -q
+.venv/bin/uvicorn app.main:app --reload   # http://127.0.0.1:8000/docs
 ```
 
-詳細は [`infra/README.md`](infra/README.md)。
+デプロイ手順は [`infra/README.md`](infra/README.md)。
