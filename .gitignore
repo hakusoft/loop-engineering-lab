@@ -33,3 +33,6 @@ credentials.csv
 .DS_Store
 .idea/
 .vscode/
+
+# === Lambda build artifacts ===
+infra/build/
