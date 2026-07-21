@@ -3,6 +3,20 @@
 resource "aws_apigatewayv2_api" "api" {
   name          = local.name
   protocol_type = "HTTP"
+
+  # フロント（CloudFront 配信）から fetch で叩くため CORS を許可する。
+  # ここで設定すると OPTIONS プリフライトを API Gateway が捌き、Lambda に届かない。
+  # FastAPI 側の CORSMiddleware にすると Mangum 経由で OPTIONS を通すことになり、
+  # 確認事項が増えるので Gateway 側で完結させる。
+  #
+  # 認証も Cookie も無い公開の読み取り専用 API なので origin は "*" で足りる。
+  # CloudFront の URL は apply 後に決まり、ここに書くと二度手間になるのも理由。
+  cors_configuration {
+    allow_origins = ["*"]
+    allow_methods = ["GET", "OPTIONS"]
+    allow_headers = ["*"]
+    max_age       = 3600
+  }
 }
 
 resource "aws_apigatewayv2_integration" "lambda" {

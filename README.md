@@ -61,7 +61,17 @@ flowchart LR
 | 監視 | Sentry |
 | 自動化 | Claude Code のクラウドルーチン |
 
-DB とフロントは未着手。必要になった段階で足す。
+DB は未着手。必要になった段階で足す。
+
+## デモ
+
+気温の折れ線グラフ（`/weather/series` を描画）:
+
+<!-- apply 後に CloudFront の URL を貼る。`terraform output frontend_url` で取れる。 -->
+**https://\<CloudFront\>.cloudfront.net**
+
+React + Recharts の最小構成。ソースは [`frontend/`](frontend/)、配信は S3 + CloudFront（OAC）。
+main マージで GitHub Actions が S3 に同期し、CloudFront を invalidate する。
 
 ## エンドポイント
 
@@ -88,6 +98,14 @@ CI の赤を「コードが壊れた」と読めるようにするため。
 python3 -m venv .venv && .venv/bin/pip install -r requirements-dev.txt
 .venv/bin/ruff check . && .venv/bin/python -m pytest -q
 .venv/bin/uvicorn app.main:app --reload   # http://127.0.0.1:8000/docs
+```
+
+フロント:
+
+```bash
+cd frontend && npm install
+npm run dev      # http://localhost:5173/ 既定で本番 API を叩く
+npm run build    # 型チェック(tsc) + 本番ビルド
 ```
 
 デプロイ手順は [`infra/README.md`](infra/README.md)。
