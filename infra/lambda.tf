@@ -33,8 +33,11 @@ resource "aws_lambda_function" "api" {
   function_name = local.name
   role          = aws_iam_role.lambda.arn
 
-  filename         = local.package_path
-  source_code_hash = filebase64sha256(local.package_path)
+  filename = local.package_path
+
+  # パッケージ未ビルドでも terraform validate が通るようにする。
+  # ビルド前に filebase64sha256 を直接呼ぶと、ファイルが無くて評価に失敗する。
+  source_code_hash = fileexists(local.package_path) ? filebase64sha256(local.package_path) : null
 
   runtime = "python3.12"
   handler = "app.lambda_handler.handler"
