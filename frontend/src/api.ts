@@ -1,8 +1,13 @@
-// API のベース URL。ビルド時に VITE_API_BASE で差し替えられる。
-// 未指定なら本番の API Gateway を叩く（デモ用途のデフォルト）。
+// API のベース URL。VITE_API_BASE を指定すればそれを最優先で使う。
+//
+// 未指定のとき:
+// - 開発（dev サーバー）は "/api"。vite.config.ts のプロキシが本番へ中継する。
+//   本番 API Gateway の CORS 有無に関わらずローカルで動く。
+// - 本番ビルドは API Gateway を直接叩く。ブラウザから叩くので API 側の
+//   CORS が要る（infra/apigateway.tf。apply 済みが前提）。
+const PROD_API = "https://9sa9pqvlsc.execute-api.ap-northeast-1.amazonaws.com";
 const API_BASE =
-  import.meta.env.VITE_API_BASE ??
-  "https://9sa9pqvlsc.execute-api.ap-northeast-1.amazonaws.com";
+  import.meta.env.VITE_API_BASE ?? (import.meta.env.DEV ? "/api" : PROD_API);
 
 // /weather/series のレスポンス。系列ごとに unit と min/max を持つ。
 export type Series = {
