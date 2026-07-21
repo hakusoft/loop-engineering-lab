@@ -2,7 +2,7 @@
 
 **依頼から実装、障害から修復までを無人で回す。人間はレビューとマージだけ。**
 
-デモ: **https://d10o14tv6y0g4t.cloudfront.net**（気温の折れ線グラフ）
+デモ: **[https://d10o14tv6y0g4t.cloudfront.net](https://d10o14tv6y0g4t.cloudfront.net)**（気温の折れ線グラフ）
 
 天気 API を題材に、Claude Code のクラウドルーチンが毎朝ループを一周させる。
 
@@ -74,7 +74,7 @@ DB は未着手。必要になった段階で足す。
 
 ## デモ
 
-**https://d10o14tv6y0g4t.cloudfront.net** — 気温の折れ線グラフ（`/weather/series` を描画）。
+[https://d10o14tv6y0g4t.cloudfront.net](https://d10o14tv6y0g4t.cloudfront.net) — 気温の折れ線グラフ（`/weather/series` を描画）。
 
 React + Recharts の最小構成。ソースは [`frontend/`](frontend/)、配信は S3 + CloudFront（OAC）。
 `frontend/` を変更して main にマージすると、GitHub Actions が自動でビルドして
