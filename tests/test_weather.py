@@ -3,7 +3,7 @@
 スタブは Open-Meteo が実際に返す形をそのまま写したもの。
 """
 
-from app.weather import format_forecast, format_hourly_series
+from app.weather import _compass_direction, format_forecast, format_hourly_series
 
 STUB_RESPONSE = {
     "latitude": 35.68,
@@ -13,6 +13,7 @@ STUB_RESPONSE = {
         "temperature_2m": "°C",
         "relative_humidity_2m": "%",
         "wind_speed_10m": "km/h",
+        "wind_direction_10m": "°",
         "apparent_temperature": "°C",
     },
     "current": {
@@ -20,6 +21,7 @@ STUB_RESPONSE = {
         "temperature_2m": 28.4,
         "relative_humidity_2m": 71,
         "wind_speed_10m": 12.3,
+        "wind_direction_10m": 250,
         "apparent_temperature": 33.1,
     },
 }
@@ -33,7 +35,20 @@ def test_format_forecast_maps_values_and_units():
     assert result["apparent_temperature"] == {"value": 33.1, "unit": "°C"}
     assert result["humidity"] == {"value": 71, "unit": "%"}
     assert result["wind_speed"] == {"value": 12.3, "unit": "km/h"}
+    assert result["wind_direction"] == {"value": 250, "unit": "°", "compass": "西南西"}
     assert result["coordinates"] == {"latitude": 35.68, "longitude": 139.76}
+
+
+def test_compass_direction_maps_cardinal_points():
+    assert _compass_direction(0) == "北"
+    assert _compass_direction(90) == "東"
+    assert _compass_direction(180) == "南"
+    assert _compass_direction(270) == "西"
+
+
+def test_compass_direction_maps_boundary_values():
+    assert _compass_direction(11.24) == "北"
+    assert _compass_direction(11.25) == "北北東"
 
 
 STUB_SERIES = {
