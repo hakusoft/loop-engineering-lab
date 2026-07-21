@@ -5,11 +5,11 @@ name: Slack to Issue
 # 何度走っても同じ投稿が二重に Issue になることはない。
 on:
   schedule:
-    # 毎朝 8:00 JST（cron は UTC なので 23:00）。
+    # 毎朝 5:00 JST（cron は UTC なので前日 20:00）。
     # 人間がやるのは朝イチのレビューとマージだけ、という運用に合わせる。
-    # レビューが 1 日 1 回なら、それより短い間隔で回しても意味がない。
+    # 起きた時点で Issue が揃っているよう、レビューより前の時間に回す。
     # すぐ拾いたいときは workflow_dispatch で手動実行する。
-    - cron: "0 23 * * *"
+    - cron: "0 20 * * *"
   workflow_dispatch:
     inputs:
       dry_run:
