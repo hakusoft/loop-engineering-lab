@@ -22,7 +22,7 @@ STUB_RESPONSE = {
         "apparent_temperature": "°C",
         "precipitation": "mm",
         "surface_pressure": "hPa",
-        "cloudcover": "%",
+        "cloud_cover": "%",
     },
     "current": {
         "time": "2026-07-21T09:00",
@@ -33,7 +33,7 @@ STUB_RESPONSE = {
         "apparent_temperature": 33.1,
         "precipitation": 0.0,
         "surface_pressure": 1008.2,
-        "cloudcover": 40,
+        "cloud_cover": 40,
         "weather_code": 1,
     },
     "daily_units": {
@@ -172,3 +172,14 @@ def test_format_forecast_reads_pressure_from_requested_field():
     result = format_forecast(STUB_RESPONSE)
 
     assert result["pressure"] == {"value": 1008.2, "unit": "hPa"}
+
+
+def test_format_forecast_reads_cloud_cover_from_requested_field():
+    """雲量は fetch_forecast が要求する cloud_cover キーで読む。
+
+    cloudcover は要求していないので current に含まれない。
+    別のキー名で読むと KeyError になる（LOOP-ENGINEERING-LAB-5 の再発防止）。
+    """
+    result = format_forecast(STUB_RESPONSE)
+
+    assert result["cloud_cover"] == {"value": 40, "unit": "%"}

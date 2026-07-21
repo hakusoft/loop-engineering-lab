@@ -160,8 +160,8 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
             "unit": units.get("surface_pressure", "hPa"),
         },
         "cloud_cover": {
-            "value": current["cloudcover"],
-            "unit": units.get("cloudcover", "%"),
+            "value": current["cloud_cover"],
+            "unit": units.get("cloud_cover", "%"),
         },
         "uv_index_max": {
             "value": daily["uv_index_max"][0],
