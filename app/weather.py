@@ -112,8 +112,8 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
             "unit": units.get("precipitation", "mm"),
         },
         "pressure": {
-            "value": current["pressure_msl"],
-            "unit": units.get("pressure_msl", "hPa"),
+            "value": current["surface_pressure"],
+            "unit": units.get("surface_pressure", "hPa"),
         },
         "coordinates": {
             "latitude": raw["latitude"],
