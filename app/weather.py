@@ -83,8 +83,11 @@ def fetch_forecast(
             "current": (
                 "temperature_2m,relative_humidity_2m,wind_speed_10m,"
                 "wind_direction_10m,apparent_temperature,"
-                "precipitation,surface_pressure,weather_code"
+                "precipitation,surface_pressure,cloud_cover,weather_code"
             ),
+            "daily": "uv_index_max",
+            "timezone": "Asia/Tokyo",
+            "forecast_days": 1,
         },
         timeout=timeout,
     )
@@ -122,6 +125,8 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
     """
     current = raw["current"]
     units = raw.get("current_units", {})
+    daily = raw["daily"]
+    daily_units = raw.get("daily_units", {})
 
     return {
         "observed_at": current["time"],
@@ -153,6 +158,14 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
         "pressure": {
             "value": current["surface_pressure"],
             "unit": units.get("surface_pressure", "hPa"),
+        },
+        "cloud_cover": {
+            "value": current["cloudcover"],
+            "unit": units.get("cloudcover", "%"),
+        },
+        "uv_index_max": {
+            "value": daily["uv_index_max"][0],
+            "unit": daily_units.get("uv_index_max", ""),
         },
         "condition": {
             "code": current["weather_code"],
