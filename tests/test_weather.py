@@ -39,10 +39,14 @@ STUB_RESPONSE = {
     "daily_units": {
         "time": "iso8601",
         "uv_index_max": "",
+        "sunrise": "iso8601",
+        "sunset": "iso8601",
     },
     "daily": {
         "time": ["2026-07-21"],
         "uv_index_max": [7.8],
+        "sunrise": ["2026-07-21T04:44"],
+        "sunset": ["2026-07-21T18:47"],
     },
 }
 
@@ -60,6 +64,8 @@ def test_format_forecast_maps_values_and_units():
     assert result["pressure"] == {"value": 1008.2, "unit": "hPa"}
     assert result["cloud_cover"] == {"value": 40, "unit": "%"}
     assert result["uv_index_max"] == {"value": 7.8, "unit": ""}
+    assert result["sunrise"] == "2026-07-21T04:44"
+    assert result["sunset"] == "2026-07-21T18:47"
     assert result["condition"] == {"code": 1, "description": "晴れ"}
     assert result["coordinates"] == {"latitude": 35.68, "longitude": 139.76}
 

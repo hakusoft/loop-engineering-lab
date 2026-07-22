@@ -85,7 +85,7 @@ def fetch_forecast(
                 "wind_direction_10m,apparent_temperature,"
                 "precipitation,surface_pressure,cloud_cover,weather_code"
             ),
-            "daily": "uv_index_max",
+            "daily": "uv_index_max,sunrise,sunset",
             "timezone": "Asia/Tokyo",
             "forecast_days": 1,
         },
@@ -167,6 +167,8 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
             "value": daily["uv_index_max"][0],
             "unit": daily_units.get("uv_index_max", ""),
         },
+        "sunrise": daily["sunrise"][0],
+        "sunset": daily["sunset"][0],
         "condition": {
             "code": current["weather_code"],
             "description": _weather_description(current["weather_code"]),
