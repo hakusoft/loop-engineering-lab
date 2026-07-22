@@ -61,33 +61,15 @@ flowchart LR
 
 | 層 | 技術 |
 |---|---|
-| フロント | React + Recharts（Vite ビルド） |
+| 実行基盤 | Lambda + API Gateway（FastAPI を Mangum で載せる） |
 | フロント配信 | S3 + CloudFront（OAC で S3 は非公開） |
-| API | FastAPI（Mangum で Lambda に載せる） |
-| 実行基盤 | Lambda + API Gateway |
-| IaC | Terraform（state は S3） |
-| CI/CD | GitHub Actions。main マージで自動デプロイ（OIDC） |
+| IaC | Terraform（state は S3。変更は手動 `apply`） |
+| CI/CD | GitHub Actions。main マージで自動デプロイ（OIDC、鍵を置かない） |
 | 監視 | Sentry |
-| 自動化 | Claude Code のクラウドルーチン |
+| 自動化 | Claude Code のクラウドルーチン（[`prompts/`](prompts/)） |
 
-DB は未着手。必要になった段階で足す。
-
-## デモ
-
-デモ: https://d10o14tv6y0g4t.cloudfront.net
-
-気温の折れ線グラフ（`/weather/series` を描画）。React + Recharts の最小構成。
-ソースは [`frontend/`](frontend/)、配信は S3 + CloudFront（OAC）。
-`frontend/` を変更して main にマージすると、GitHub Actions が自動でビルドして
-S3 に同期し、CloudFront を invalidate する（[`deploy.yml`](.github/workflows/deploy.yml) の `frontend` ジョブ）。
-
-## エンドポイント
-
-```
-GET /health          稼働確認
-GET /weather         現在の気温・湿度・風速・風向き・体感温度・降水量・気圧
-GET /weather/series  気温と湿度の時系列（48h、系列ごとに unit と min/max）
-```
+題材は天気 API（Open-Meteo）。アプリのコードはループが実装する成果物で、
+主題ではない。DB は未着手で、必要になった段階で足す。
 
 ## 設計方針
 
@@ -104,16 +86,7 @@ CI の赤を「コードが壊れた」と読めるようにするため。
 
 ```bash
 python3 -m venv .venv && .venv/bin/pip install -r requirements-dev.txt
-.venv/bin/ruff check . && .venv/bin/python -m pytest -q
-.venv/bin/uvicorn app.main:app --reload   # http://127.0.0.1:8000/docs
+.venv/bin/ruff check . && .venv/bin/python -m pytest -q   # CI と同じ
 ```
 
-フロント:
-
-```bash
-cd frontend && npm install
-npm run dev      # http://localhost:5173/ 既定で本番 API を叩く
-npm run build    # 型チェック(tsc) + 本番ビルド
-```
-
-デプロイ手順は [`infra/README.md`](infra/README.md)。
+フロントは [`frontend/`](frontend/)、デプロイ手順は [`infra/README.md`](infra/README.md)。
