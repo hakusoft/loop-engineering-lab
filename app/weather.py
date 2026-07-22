@@ -26,7 +26,7 @@ COMPASS_POINTS = [
 
 def _compass_direction(degrees: float) -> str:
     """度数（0〜360）を 16 方位の方角表記に変換する。"""
-    index = int((degrees + 11.25) / 22.5)
+    index = int((degrees + 11.25) / 22.5) % len(COMPASS_POINTS)
     return COMPASS_POINTS[index]
 
 

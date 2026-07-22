@@ -76,6 +76,13 @@ def test_compass_direction_maps_boundary_values():
     assert _compass_direction(11.25) == "北北東"
 
 
+def test_compass_direction_wraps_around_north():
+    assert _compass_direction(348.74) == "北北西"
+    assert _compass_direction(348.75) == "北"
+    assert _compass_direction(349) == "北"
+    assert _compass_direction(360) == "北"
+
+
 STUB_SERIES = {
     "latitude": 35.68,
     "longitude": 139.76,
