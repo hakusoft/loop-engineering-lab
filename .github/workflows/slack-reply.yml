@@ -1,0 +1,51 @@
+name: Slack Reply
+
+# Slack のスレッドに bot（loop-engineering-lab アプリ）名義で返信する。
+#
+# 朝のループ（クラウドルーチン）の返信の出口。ルーチンが Slack MCP で
+# 直接返信すると依頼者（kaz）と同一アカウントになるため、
+# 返信だけをこのワークフロー経由で bot 名義にする。
+#
+# 使い方:
+#   gh workflow run slack-reply -f thread_ts=1784748786.516029 -f text="返信本文"
+on:
+  workflow_dispatch:
+    inputs:
+      thread_ts:
+        description: "返信先スレッドの親メッセージ ts（例: 1784748786.516029）"
+        type: string
+        required: true
+      text:
+        description: "返信本文"
+        type: string
+        required: true
+
+concurrency:
+  group: slack-reply
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  reply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Post reply
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL_ID: ${{ vars.SLACK_CHANNEL_ID }}
+          # inputs をシェルに直接展開するとコマンドインジェクションになるため env 経由で渡す
+          THREAD_TS: ${{ inputs.thread_ts }}
+          TEXT: ${{ inputs.text }}
+        run: python -m app.slack_reply "$THREAD_TS" "$TEXT"
