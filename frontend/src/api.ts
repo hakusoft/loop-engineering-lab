@@ -24,8 +24,21 @@ export type SeriesResponse = {
   coordinates: { latitude: number; longitude: number };
 };
 
+// /weather のレスポンス。現在値の表示に使うのは temperature のみ。
+export type WeatherResponse = {
+  temperature: { value: number; unit: string };
+};
+
 export async function fetchSeries(): Promise<SeriesResponse> {
   const res = await fetch(`${API_BASE}/weather/series`);
+  if (!res.ok) {
+    throw new Error(`API returned ${res.status}`);
+  }
+  return res.json();
+}
+
+export async function fetchWeather(): Promise<WeatherResponse> {
+  const res = await fetch(`${API_BASE}/weather`);
   if (!res.ok) {
     throw new Error(`API returned ${res.status}`);
   }
