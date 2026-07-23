@@ -19,6 +19,7 @@ STUB_RESPONSE = {
         "relative_humidity_2m": "%",
         "wind_speed_10m": "km/h",
         "wind_direction_10m": "°",
+        "wind_gusts_10m": "km/h",
         "apparent_temperature": "°C",
         "precipitation": "mm",
         "surface_pressure": "hPa",
@@ -30,11 +31,13 @@ STUB_RESPONSE = {
         "relative_humidity_2m": 71,
         "wind_speed_10m": 12.3,
         "wind_direction_10m": 250,
+        "wind_gusts_10m": 24.8,
         "apparent_temperature": 33.1,
         "precipitation": 0.0,
         "surface_pressure": 1008.2,
         "cloud_cover": 40,
         "weather_code": 1,
+        "is_day": 1,
     },
     "daily_units": {
         "time": "iso8601",
@@ -60,12 +63,14 @@ def test_format_forecast_maps_values_and_units():
     assert result["humidity"] == {"value": 71, "unit": "%"}
     assert result["wind_speed"] == {"value": 12.3, "unit": "km/h"}
     assert result["wind_direction"] == {"value": 250, "unit": "°", "compass": "西南西"}
+    assert result["wind_gusts"] == {"value": 24.8, "unit": "km/h"}
     assert result["precipitation"] == {"value": 0.0, "unit": "mm"}
     assert result["pressure"] == {"value": 1008.2, "unit": "hPa"}
     assert result["cloud_cover"] == {"value": 40, "unit": "%"}
     assert result["uv_index_max"] == {"value": 7.8, "unit": ""}
     assert result["sunrise"] == "2026-07-21T04:44"
     assert result["sunset"] == "2026-07-21T18:47"
+    assert result["is_day"] is True
     assert result["condition"] == {"code": 1, "description": "晴れ"}
     assert result["coordinates"] == {"latitude": 35.68, "longitude": 139.76}
 
@@ -160,8 +165,18 @@ def test_format_forecast_falls_back_when_units_missing():
 
     assert result["temperature"] == {"value": 28.4, "unit": "°C"}
     assert result["wind_speed"] == {"value": 12.3, "unit": "km/h"}
+    assert result["wind_gusts"] == {"value": 24.8, "unit": "km/h"}
     assert result["cloud_cover"] == {"value": 40, "unit": "%"}
     assert result["uv_index_max"] == {"value": 7.8, "unit": ""}
+
+
+def test_format_forecast_maps_is_day_false_at_night():
+    """Open-Meteo は is_day を 1/0 の整数で返すので、真偽値に変換する。"""
+    raw = {**STUB_RESPONSE, "current": {**STUB_RESPONSE["current"], "is_day": 0}}
+
+    result = format_forecast(raw)
+
+    assert result["is_day"] is False
 
 
 def test_weather_description_maps_representative_codes():
