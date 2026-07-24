@@ -44,12 +44,18 @@ STUB_RESPONSE = {
         "uv_index_max": "",
         "sunrise": "iso8601",
         "sunset": "iso8601",
+        "temperature_2m_max": "°C",
+        "temperature_2m_min": "°C",
+        "precipitation_probability_max": "%",
     },
     "daily": {
         "time": ["2026-07-21"],
         "uv_index_max": [7.8],
         "sunrise": ["2026-07-21T04:44"],
         "sunset": ["2026-07-21T18:47"],
+        "temperature_2m_max": [33.2],
+        "temperature_2m_min": [24.7],
+        "precipitation_probability_max": [20],
     },
 }
 
@@ -68,6 +74,9 @@ def test_format_forecast_maps_values_and_units():
     assert result["pressure"] == {"value": 1008.2, "unit": "hPa"}
     assert result["cloud_cover"] == {"value": 40, "unit": "%"}
     assert result["uv_index_max"] == {"value": 7.8, "unit": ""}
+    assert result["temperature_max"] == {"value": 33.2, "unit": "°C"}
+    assert result["temperature_min"] == {"value": 24.7, "unit": "°C"}
+    assert result["precipitation_probability"] == {"value": 20, "unit": "%"}
     assert result["sunrise"] == "2026-07-21T04:44"
     assert result["sunset"] == "2026-07-21T18:47"
     assert result["is_day"] is True
@@ -168,6 +177,8 @@ def test_format_forecast_falls_back_when_units_missing():
     assert result["wind_gusts"] == {"value": 24.8, "unit": "km/h"}
     assert result["cloud_cover"] == {"value": 40, "unit": "%"}
     assert result["uv_index_max"] == {"value": 7.8, "unit": ""}
+    assert result["temperature_max"] == {"value": 33.2, "unit": "°C"}
+    assert result["precipitation_probability"] == {"value": 20, "unit": "%"}
 
 
 def test_format_forecast_maps_is_day_false_at_night():

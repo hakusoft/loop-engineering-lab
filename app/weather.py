@@ -85,7 +85,10 @@ def fetch_forecast(
                 "wind_direction_10m,wind_gusts_10m,apparent_temperature,"
                 "precipitation,surface_pressure,cloud_cover,weather_code,is_day"
             ),
-            "daily": "uv_index_max,sunrise,sunset",
+            "daily": (
+                "uv_index_max,sunrise,sunset,"
+                "temperature_2m_max,temperature_2m_min,precipitation_probability_max"
+            ),
             "timezone": "Asia/Tokyo",
             "forecast_days": 1,
         },
@@ -170,6 +173,18 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
         "uv_index_max": {
             "value": daily["uv_index_max"][0],
             "unit": daily_units.get("uv_index_max", ""),
+        },
+        "temperature_max": {
+            "value": daily["temperature_2m_max"][0],
+            "unit": daily_units.get("temperature_2m_max", "°C"),
+        },
+        "temperature_min": {
+            "value": daily["temperature_2m_min"][0],
+            "unit": daily_units.get("temperature_2m_min", "°C"),
+        },
+        "precipitation_probability": {
+            "value": daily["precipitation_probability_max"][0],
+            "unit": daily_units.get("precipitation_probability_max", "%"),
         },
         "sunrise": daily["sunrise"][0],
         "sunset": daily["sunset"][0],
