@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { fetchSeries, fetchWeather, type SeriesResponse, type WeatherResponse } from "./api";
 import { CurrentTemperature } from "./CurrentTemperature";
+import { SunTimes } from "./SunTimes";
 import { TemperatureChart } from "./TemperatureChart";
 
 type State =
@@ -53,7 +54,12 @@ export default function App() {
         loop-engineering-lab / <code>/weather/series</code>
       </p>
 
-      {weatherState.status === "ready" && <CurrentTemperature data={weatherState.data} />}
+      {weatherState.status === "ready" && (
+        <>
+          <CurrentTemperature data={weatherState.data} />
+          <SunTimes data={weatherState.data} />
+        </>
+      )}
 
       {state.status === "loading" && <p>読み込み中…</p>}
       {state.status === "error" && (

@@ -24,9 +24,11 @@ export type SeriesResponse = {
   coordinates: { latitude: number; longitude: number };
 };
 
-// /weather のレスポンス。現在値の表示に使うのは temperature のみ。
+// /weather のレスポンス。現在値の表示に使うのは temperature と sunrise/sunset のみ。
 export type WeatherResponse = {
   temperature: { value: number; unit: string };
+  sunrise: string;
+  sunset: string;
 };
 
 export async function fetchSeries(): Promise<SeriesResponse> {
