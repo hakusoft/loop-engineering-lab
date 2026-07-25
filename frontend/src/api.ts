@@ -29,6 +29,7 @@ export type WeatherResponse = {
   temperature: { value: number; unit: string };
   sunrise: string;
   sunset: string;
+  condition: { code: number; description: string };
 };
 
 export async function fetchSeries(): Promise<SeriesResponse> {

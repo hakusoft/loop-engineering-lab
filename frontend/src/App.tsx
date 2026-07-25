@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { fetchSeries, fetchWeather, type SeriesResponse, type WeatherResponse } from "./api";
+import { Condition } from "./Condition";
 import { CurrentTemperature } from "./CurrentTemperature";
 import { SunTimes } from "./SunTimes";
 import { TemperatureChart } from "./TemperatureChart";
@@ -56,6 +57,7 @@ export default function App() {
 
       {weatherState.status === "ready" && (
         <>
+          <Condition data={weatherState.data} />
           <CurrentTemperature data={weatherState.data} />
           <SunTimes data={weatherState.data} />
         </>
