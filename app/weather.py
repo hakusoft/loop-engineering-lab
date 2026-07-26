@@ -173,7 +173,7 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
             "unit": units.get("cloud_cover", "%"),
         },
         "visibility": {
-            "value": current["visibility_m"],
+            "value": current["visibility"],
             "unit": units.get("visibility", "m"),
         },
         "uv_index_max": {
