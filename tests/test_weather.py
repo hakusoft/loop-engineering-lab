@@ -24,6 +24,7 @@ STUB_RESPONSE = {
         "precipitation": "mm",
         "surface_pressure": "hPa",
         "cloud_cover": "%",
+        "visibility": "m",
     },
     "current": {
         "time": "2026-07-21T09:00",
@@ -38,6 +39,7 @@ STUB_RESPONSE = {
         "cloud_cover": 40,
         "weather_code": 1,
         "is_day": 1,
+        "visibility_m": 24140.0,
     },
     "daily_units": {
         "time": "iso8601",
@@ -47,6 +49,7 @@ STUB_RESPONSE = {
         "temperature_2m_max": "°C",
         "temperature_2m_min": "°C",
         "precipitation_probability_max": "%",
+        "sunshine_duration": "s",
     },
     "daily": {
         "time": ["2026-07-21"],
@@ -56,6 +59,7 @@ STUB_RESPONSE = {
         "temperature_2m_max": [33.2],
         "temperature_2m_min": [24.7],
         "precipitation_probability_max": [20],
+        "sunshine_duration": [36420.0],
     },
 }
 
@@ -73,10 +77,12 @@ def test_format_forecast_maps_values_and_units():
     assert result["precipitation"] == {"value": 0.0, "unit": "mm"}
     assert result["pressure"] == {"value": 1008.2, "unit": "hPa"}
     assert result["cloud_cover"] == {"value": 40, "unit": "%"}
+    assert result["visibility"] == {"value": 24140.0, "unit": "m"}
     assert result["uv_index_max"] == {"value": 7.8, "unit": ""}
     assert result["temperature_max"] == {"value": 33.2, "unit": "°C"}
     assert result["temperature_min"] == {"value": 24.7, "unit": "°C"}
     assert result["precipitation_probability"] == {"value": 20, "unit": "%"}
+    assert result["sunshine_duration"] == {"value": 36420.0, "unit": "s"}
     assert result["sunrise"] == "2026-07-21T04:44"
     assert result["sunset"] == "2026-07-21T18:47"
     assert result["is_day"] is True
@@ -179,6 +185,8 @@ def test_format_forecast_falls_back_when_units_missing():
     assert result["uv_index_max"] == {"value": 7.8, "unit": ""}
     assert result["temperature_max"] == {"value": 33.2, "unit": "°C"}
     assert result["precipitation_probability"] == {"value": 20, "unit": "%"}
+    assert result["sunshine_duration"] == {"value": 36420.0, "unit": "s"}
+    assert result["visibility"] == {"value": 24140.0, "unit": "m"}
 
 
 def test_format_forecast_maps_is_day_false_at_night():
