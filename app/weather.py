@@ -89,7 +89,7 @@ def fetch_forecast(
             "daily": (
                 "uv_index_max,sunrise,sunset,"
                 "temperature_2m_max,temperature_2m_min,precipitation_probability_max,"
-                "sunshine_duration"
+                "sunshine_duration,precipitation_hours"
             ),
             "timezone": "Asia/Tokyo",
             "forecast_days": 1,
@@ -195,6 +195,10 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
         "sunshine_duration": {
             "value": daily["sunshine_duration"][0],
             "unit": daily_units.get("sunshine_duration", "s"),
+        },
+        "precipitation_hours": {
+            "value": daily["precipitation_hours"][0],
+            "unit": daily_units.get("precipitation_hours", "h"),
         },
         "sunrise": daily["sunrise"][0],
         "sunset": daily["sunset"][0],
