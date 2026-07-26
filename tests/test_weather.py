@@ -39,7 +39,7 @@ STUB_RESPONSE = {
         "cloud_cover": 40,
         "weather_code": 1,
         "is_day": 1,
-        "visibility_m": 24140.0,
+        "visibility": 24140.0,
     },
     "daily_units": {
         "time": "iso8601",
@@ -230,3 +230,14 @@ def test_format_forecast_reads_cloud_cover_from_requested_field():
     result = format_forecast(STUB_RESPONSE)
 
     assert result["cloud_cover"] == {"value": 40, "unit": "%"}
+
+
+def test_format_forecast_reads_visibility_from_requested_field():
+    """視程は fetch_forecast が要求する visibility キーで読む。
+
+    visibility_m は要求していないので current に含まれない。
+    別のキー名で読むと KeyError になる（LOOP-ENGINEERING-LAB-8 の再発防止）。
+    """
+    result = format_forecast(STUB_RESPONSE)
+
+    assert result["visibility"] == {"value": 24140.0, "unit": "m"}
