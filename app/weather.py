@@ -84,7 +84,7 @@ def fetch_forecast(
                 "temperature_2m,relative_humidity_2m,wind_speed_10m,"
                 "wind_direction_10m,wind_gusts_10m,apparent_temperature,"
                 "precipitation,surface_pressure,cloud_cover,weather_code,is_day,"
-                "visibility"
+                "visibility,dew_point_2m"
             ),
             "daily": (
                 "uv_index_max,sunrise,sunset,"
@@ -142,6 +142,10 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
         "apparent_temperature": {
             "value": current["apparent_temperature"],
             "unit": units.get("apparent_temperature", "°C"),
+        },
+        "dew_point": {
+            "value": current["dew_point_2m"],
+            "unit": units.get("dew_point_2m", "°C"),
         },
         "humidity": {
             "value": current["relative_humidity_2m"],
