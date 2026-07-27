@@ -4,6 +4,7 @@ import { Condition } from "./Condition";
 import { CurrentTemperature } from "./CurrentTemperature";
 import { SunTimes } from "./SunTimes";
 import { TemperatureChart } from "./TemperatureChart";
+import { TemperatureRange } from "./TemperatureRange";
 
 type State =
   | { status: "loading" }
@@ -59,6 +60,7 @@ export default function App() {
         <>
           <Condition data={weatherState.data} />
           <CurrentTemperature data={weatherState.data} />
+          <TemperatureRange data={weatherState.data} />
           <SunTimes data={weatherState.data} />
         </>
       )}

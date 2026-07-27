@@ -27,6 +27,8 @@ export type SeriesResponse = {
 // /weather のレスポンス。現在値の表示に使うのは temperature と sunrise/sunset のみ。
 export type WeatherResponse = {
   temperature: { value: number; unit: string };
+  temperature_max: { value: number; unit: string };
+  temperature_min: { value: number; unit: string };
   sunrise: string;
   sunset: string;
   condition: { code: number; description: string };
