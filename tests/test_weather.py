@@ -25,6 +25,7 @@ STUB_RESPONSE = {
         "surface_pressure": "hPa",
         "cloud_cover": "%",
         "visibility": "m",
+        "dew_point_2m": "°C",
     },
     "current": {
         "time": "2026-07-21T09:00",
@@ -40,6 +41,7 @@ STUB_RESPONSE = {
         "weather_code": 1,
         "is_day": 1,
         "visibility": 24140.0,
+        "dew_point_2m": 22.6,
     },
     "daily_units": {
         "time": "iso8601",
@@ -72,6 +74,7 @@ def test_format_forecast_maps_values_and_units():
     assert result["observed_at"] == "2026-07-21T09:00"
     assert result["temperature"] == {"value": 28.4, "unit": "°C"}
     assert result["apparent_temperature"] == {"value": 33.1, "unit": "°C"}
+    assert result["dew_point"] == {"value": 22.6, "unit": "°C"}
     assert result["humidity"] == {"value": 71, "unit": "%"}
     assert result["wind_speed"] == {"value": 12.3, "unit": "km/h"}
     assert result["wind_direction"] == {"value": 250, "unit": "°", "compass": "西南西"}
@@ -191,6 +194,7 @@ def test_format_forecast_falls_back_when_units_missing():
     assert result["sunshine_duration"] == {"value": 36420.0, "unit": "s"}
     assert result["precipitation_hours"] == {"value": 3.0, "unit": "h"}
     assert result["visibility"] == {"value": 24140.0, "unit": "m"}
+    assert result["dew_point"] == {"value": 22.6, "unit": "°C"}
 
 
 def test_format_forecast_maps_is_day_false_at_night():
