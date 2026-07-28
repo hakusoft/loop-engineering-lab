@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import {
   CartesianGrid,
+  Legend,
   Line,
   LineChart,
   ResponsiveContainer,
@@ -10,18 +11,20 @@ import {
 } from "recharts";
 import type { SeriesResponse } from "./api";
 
-// series の中から気温を取り出し、Recharts が食える {time, value}[] にする。
+// series の中から気温・湿度を取り出し、Recharts が食える {time, temperature, humidity}[] にする。
 // 時刻は共通の timestamps を、値は該当系列の values を突き合わせる。
 function toChartData(data: SeriesResponse) {
-  const temp = data.series.find((s) => s.label === "気温");
-  if (!temp) return { rows: [], unit: "°C" };
+  const temperature = data.series.find((s) => s.label === "気温");
+  const humidity = data.series.find((s) => s.label === "湿度");
+  if (!temperature) return { rows: [], temperatureUnit: "°C", humidity: undefined };
 
   const rows = data.timestamps.map((t, i) => ({
     // "2026-07-21T00:00" -> "21日 00:00" 程度の短い表示に。
     time: t.slice(8, 10) + "日 " + t.slice(11, 16),
-    value: temp.values[i],
+    temperature: temperature.values[i],
+    humidity: humidity?.values[i] ?? null,
   }));
-  return { rows, unit: temp.unit };
+  return { rows, temperatureUnit: temperature.unit, humidity };
 }
 
 const NARROW_VIEWPORT_QUERY = "(max-width: 480px)";
@@ -44,7 +47,7 @@ function useIsNarrowViewport(): boolean {
 }
 
 export function TemperatureChart({ data }: { data: SeriesResponse }) {
-  const { rows, unit } = toChartData(data);
+  const { rows, temperatureUnit, humidity } = toChartData(data);
   const isNarrow = useIsNarrowViewport();
   const tickFontSize = isNarrow ? 15 : 12;
   const axisWidth = isNarrow ? 68 : 56;
@@ -55,21 +58,51 @@ export function TemperatureChart({ data }: { data: SeriesResponse }) {
         <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
         <XAxis dataKey="time" minTickGap={40} tick={{ fontSize: tickFontSize }} />
         <YAxis
-          unit={unit}
+          yAxisId="temperature"
+          unit={temperatureUnit}
           width={axisWidth}
           domain={["dataMin - 1", "dataMax + 1"]}
           tick={{ fontSize: tickFontSize }}
         />
-        <Tooltip formatter={(v: number) => [`${v}${unit}`, "気温"]} />
+        {humidity && (
+          <YAxis
+            yAxisId="humidity"
+            orientation="right"
+            unit={humidity.unit}
+            width={axisWidth}
+            domain={[humidity.min as number, humidity.max as number]}
+            tick={{ fontSize: tickFontSize }}
+          />
+        )}
+        <Tooltip
+          formatter={(v: number, name: string) => [
+            `${v}${name === "気温" ? temperatureUnit : humidity?.unit ?? ""}`,
+            name,
+          ]}
+        />
+        <Legend />
         <Line
+          yAxisId="temperature"
           type="monotone"
-          dataKey="value"
+          dataKey="temperature"
           stroke="#e2492c"
           strokeWidth={2}
           dot={false}
           isAnimationActive={false}
           name="気温"
         />
+        {humidity && (
+          <Line
+            yAxisId="humidity"
+            type="monotone"
+            dataKey="humidity"
+            stroke="#2c7be2"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="湿度"
+          />
+        )}
       </LineChart>
     </ResponsiveContainer>
   );
