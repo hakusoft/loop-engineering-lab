@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { fetchSeries, fetchWeather, type SeriesResponse, type WeatherResponse } from "./api";
 import { Condition } from "./Condition";
 import { CurrentTemperature } from "./CurrentTemperature";
+import { ObservedAt } from "./ObservedAt";
 import { SunTimes } from "./SunTimes";
 import { TemperatureChart } from "./TemperatureChart";
 import { TemperatureRange } from "./TemperatureRange";
@@ -60,6 +61,7 @@ export default function App() {
         <>
           <Condition data={weatherState.data} />
           <CurrentTemperature data={weatherState.data} />
+          <ObservedAt data={weatherState.data} />
           <TemperatureRange data={weatherState.data} />
           <SunTimes data={weatherState.data} />
         </>
