@@ -53,6 +53,7 @@ STUB_RESPONSE = {
         "precipitation_probability_max": "%",
         "sunshine_duration": "s",
         "precipitation_hours": "h",
+        "precipitation_sum": "mm",
     },
     "daily": {
         "time": ["2026-07-21"],
@@ -64,6 +65,7 @@ STUB_RESPONSE = {
         "precipitation_probability_max": [20],
         "sunshine_duration": [36420.0],
         "precipitation_hours": [3.0],
+        "precipitation_sum": [12.5],
     },
 }
 
@@ -89,6 +91,7 @@ def test_format_forecast_maps_values_and_units():
     assert result["precipitation_probability"] == {"value": 20, "unit": "%"}
     assert result["sunshine_duration"] == {"value": 36420.0, "unit": "s"}
     assert result["precipitation_hours"] == {"value": 3.0, "unit": "h"}
+    assert result["precipitation_sum"] == {"value": 12.5, "unit": "mm"}
     assert result["sunrise"] == "2026-07-21T04:44"
     assert result["sunset"] == "2026-07-21T18:47"
     assert result["is_day"] is True
@@ -193,6 +196,7 @@ def test_format_forecast_falls_back_when_units_missing():
     assert result["precipitation_probability"] == {"value": 20, "unit": "%"}
     assert result["sunshine_duration"] == {"value": 36420.0, "unit": "s"}
     assert result["precipitation_hours"] == {"value": 3.0, "unit": "h"}
+    assert result["precipitation_sum"] == {"value": 12.5, "unit": "mm"}
     assert result["visibility"] == {"value": 24140.0, "unit": "m"}
     assert result["dew_point"] == {"value": 22.6, "unit": "°C"}
 
