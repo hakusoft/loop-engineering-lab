@@ -14,6 +14,7 @@ OPEN_METEO_URL = "https://api.open-meteo.com/v1/forecast"
 # 東京。題材が固定でよい段階なので定数で持つ。
 DEFAULT_LATITUDE = 35.68
 DEFAULT_LONGITUDE = 139.76
+DEFAULT_LOCATION_NAME = "東京"
 
 # 度数 → 16 方位。北を境界の中心（348.75°〜11.25°）として 22.5° 刻みで割り当てる。
 COMPASS_POINTS = [
@@ -219,6 +220,7 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
             "latitude": raw["latitude"],
             "longitude": raw["longitude"],
         },
+        "location_name": DEFAULT_LOCATION_NAME,
     }
 
 
