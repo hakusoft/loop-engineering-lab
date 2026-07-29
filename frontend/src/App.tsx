@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { fetchSeries, fetchWeather, type SeriesResponse, type WeatherResponse } from "./api";
 import { Condition } from "./Condition";
 import { CurrentTemperature } from "./CurrentTemperature";
+import { LocationName } from "./LocationName";
 import { ObservedAt } from "./ObservedAt";
 import { SunTimes } from "./SunTimes";
 import { TemperatureChart } from "./TemperatureChart";
@@ -52,7 +53,12 @@ export default function App() {
         fontFamily: "system-ui, sans-serif",
       }}
     >
-      <h1 style={{ fontSize: 20, marginBottom: 4 }}>東京の気温（48時間）</h1>
+      <div style={{ display: "flex", alignItems: "baseline" }}>
+        <h1 style={{ fontSize: 20, marginBottom: 4 }}>東京の気温（48時間）</h1>
+        {weatherState.status === "ready" && state.status === "ready" && (
+          <LocationName data={weatherState.data} />
+        )}
+      </div>
       <p style={{ color: "#666", marginTop: 0, fontSize: 14 }}>
         loop-engineering-lab / <code>/weather/series</code>
       </p>
