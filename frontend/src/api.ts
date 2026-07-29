@@ -33,6 +33,7 @@ export type WeatherResponse = {
   sunset: string;
   condition: { code: number; description: string };
   observed_at: string;
+  location_name: string;
 };
 
 export async function fetchSeries(): Promise<SeriesResponse> {
