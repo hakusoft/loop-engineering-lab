@@ -4,7 +4,7 @@
 
 デモ: https://d10o14tv6y0g4t.cloudfront.net
 
-「今日一日の合計降水量も知りたいです」——Slack にそう書くだけでいい。
+「今日一日でどれくらい雨降ったか、合計の降水量も知りたいです」——Slack にそう書くだけでいい。
 翌朝には仕様に整理された Issue が立ち、実装され、テストが書かれ、レビューされ、
 本番に出ている。**人間が触るのは、最初の一言だけ。**
 
@@ -103,6 +103,8 @@ flowchart LR
     class AGW,LAMBDA,LOGS,CF,S3 aws
     class OM,SENTRY,GHA,BROWSER ext
 ```
+
+ブラウザは静的ファイルを CloudFront から取り、データは API Gateway を直接 fetch する。
 
 | 層 | 技術 |
 |---|---|
