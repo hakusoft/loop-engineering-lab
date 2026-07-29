@@ -14,10 +14,9 @@ flowchart LR
     CI -->|赤| PR
     CI -->|緑| REVIEW[AI レビュー]
     REVIEW -->|問題あり| PR
-    REVIEW -->|承認| MERGE([マージ])
-    MERGE --> PROD[本番]
+    REVIEW -->|承認| PROD[マージ → 本番]
     PROD -->|実行時エラー| SENTRY[Sentry]
-    SENTRY --> ISSUE
+    SENTRY -->|修正 Issue| ISSUE
 
     classDef human fill:#0b7285,stroke:#075c6b,color:#fff
     class SLACK human
@@ -50,8 +49,9 @@ CI をすり抜け、本番で実際に動いて初めて表に出る種類の�
 | 視程のキー名が違い `/weather` が 500 になる | Sentry | [#67](../../issues/67) → [#68](../../pull/68) |
 | 日の出と日の入りの時刻が逆に表示される | レビュー | [#61](../../issues/61) → [#62](../../pull/62) |
 
-3 つ目は例外を投げず動いてしまうため、Sentry には出ません。
-差分を読んで気づくしかないバグで、これはレビューが見つけました。
+上 2 つは 500 エラーになるので Sentry が拾います。
+一方 3 つ目は例外を投げず、時刻が入れ替わったまま動いてしまうため Sentry には出ません。
+差分を読んで気づくしかなく、これはレビューが見つけました。
 
 ### あいまいな依頼は、聞き返す
 
@@ -66,17 +66,19 @@ CI をすり抜け、本番で実際に動いて初めて表に出る種類の�
 
 ```mermaid
 flowchart LR
+    BROWSER[Browser]
     subgraph AWS["AWS ap-northeast-1"]
+        direction TB
         AGW[API Gateway] --> LAMBDA[Lambda / FastAPI]
-        LAMBDA -.-> LOGS[CloudWatch Logs]
         CF[CloudFront / OAC] --> S3[(S3 静的ファイル)]
+        LAMBDA -.-> LOGS[CloudWatch Logs]
     end
-    BROWSER[Browser] --> CF
     BROWSER -->|fetch| AGW
+    BROWSER --> CF
+    GHA[GitHub Actions] -->|OIDC: API 更新| LAMBDA
+    GHA -->|OIDC: 画面更新| S3
     LAMBDA --> OM[Open-Meteo]
     LAMBDA -.-> SENTRY[Sentry]
-    GHA[GitHub Actions] -->|OIDC| LAMBDA
-    GHA -->|OIDC| S3
 
     classDef aws fill:#ff9900,stroke:#232f3e,color:#232f3e
     classDef ext fill:#e8e8e8,stroke:#666,color:#333
@@ -92,6 +94,13 @@ flowchart LR
 | CI/CD | GitHub Actions。main マージで自動デプロイ（OIDC、鍵を置かない） |
 | 監視 | Sentry |
 | 自動化 | Claude Code のクラウドルーチン（[`prompts/`](prompts/)） |
+
+**常時稼働するサーバーは置いていません。** EC2・RDS・NAT Gateway は使わず、
+ECS / Fargate も見送りました。1 日 1 回のループと個人利用のデモという負荷に対して、
+コンテナやインスタンスを 24 時間動かし続ける必要がないためです。DB も同じ理由で未着手。
+
+全体を**無料枠の範囲**に収める前提で、月 $1 の予算アラートを置いています
+（無料枠内なら $0 のはずで、超えたら何かがおかしい、という閾値）。
 
 天気アプリはループが実装した成果物であって主題ではありません。
 ループの定義は [`prompts/`](prompts/) にあります。
