@@ -7,7 +7,7 @@ Slack に依頼を書くと、翌朝には本番に出ている。その一周�
 人間が手を動かすのは、最初の依頼を書くところだけ。
 
 ```mermaid
-flowchart TD
+flowchart LR
     SLACK[Slack の依頼] --> ISSUE[Issue]
     ISSUE --> PR[実装 PR]
     PR --> CI{CI}
