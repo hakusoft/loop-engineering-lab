@@ -66,17 +66,19 @@ CI をすり抜け、本番で実際に動いて初めて表に出る種類の�
 
 ```mermaid
 flowchart LR
+    BROWSER[Browser]
     subgraph AWS["AWS ap-northeast-1"]
+        direction TB
         AGW[API Gateway] --> LAMBDA[Lambda / FastAPI]
-        LAMBDA -.-> LOGS[CloudWatch Logs]
         CF[CloudFront / OAC] --> S3[(S3 静的ファイル)]
+        LAMBDA -.-> LOGS[CloudWatch Logs]
     end
-    BROWSER[Browser] --> CF
     BROWSER -->|fetch| AGW
+    BROWSER --> CF
+    GHA[GitHub Actions] -->|OIDC: API 更新| LAMBDA
+    GHA -->|OIDC: 画面更新| S3
     LAMBDA --> OM[Open-Meteo]
     LAMBDA -.-> SENTRY[Sentry]
-    GHA[GitHub Actions] -->|OIDC| LAMBDA
-    GHA -->|OIDC| S3
 
     classDef aws fill:#ff9900,stroke:#232f3e,color:#232f3e
     classDef ext fill:#e8e8e8,stroke:#666,color:#333
