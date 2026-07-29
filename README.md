@@ -14,10 +14,9 @@ flowchart LR
     CI -->|赤| PR
     CI -->|緑| REVIEW[AI レビュー]
     REVIEW -->|問題あり| PR
-    REVIEW -->|承認| MERGE([マージ])
-    MERGE --> PROD[本番]
+    REVIEW -->|承認| PROD[マージ → 本番]
     PROD -->|実行時エラー| SENTRY[Sentry]
-    SENTRY --> ISSUE
+    SENTRY -->|修正 Issue| ISSUE
 
     classDef human fill:#0b7285,stroke:#075c6b,color:#fff
     class SLACK human
