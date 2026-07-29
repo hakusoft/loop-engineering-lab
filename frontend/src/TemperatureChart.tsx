@@ -51,10 +51,12 @@ export function TemperatureChart({ data }: { data: SeriesResponse }) {
   const isNarrow = useIsNarrowViewport();
   const tickFontSize = isNarrow ? 15 : 12;
   const axisWidth = isNarrow ? 68 : 56;
+  // 目盛りを拡大した分、右端のラベルが枠からはみ出さないよう余白も広げる。
+  const chartRightMargin = isNarrow ? 40 : 24;
 
   return (
     <ResponsiveContainer width="100%" height={360}>
-      <LineChart data={rows} margin={{ top: 16, right: 24, bottom: 8, left: 0 }}>
+      <LineChart data={rows} margin={{ top: 16, right: chartRightMargin, bottom: 8, left: 0 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
         <XAxis dataKey="time" minTickGap={40} tick={{ fontSize: tickFontSize }} />
         <YAxis
