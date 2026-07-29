@@ -100,6 +100,24 @@ def test_format_forecast_maps_values_and_units():
     assert result["location_name"] == "東京"
 
 
+def test_format_forecast_groups_location_and_precipitation_fields():
+    """地点名・観測時刻は先頭に、降水関連の項目はまとめて連続させる。"""
+    result = format_forecast(STUB_RESPONSE)
+    keys = list(result.keys())
+
+    assert keys.index("location_name") < keys.index("temperature")
+    assert keys.index("observed_at") < keys.index("temperature")
+
+    precipitation_keys = [
+        "precipitation",
+        "precipitation_probability",
+        "precipitation_hours",
+        "precipitation_sum",
+    ]
+    positions = sorted(keys.index(k) for k in precipitation_keys)
+    assert positions[-1] - positions[0] == len(precipitation_keys) - 1
+
+
 def test_compass_direction_maps_cardinal_points():
     assert _compass_direction(0) == "北"
     assert _compass_direction(90) == "東"

@@ -135,7 +135,12 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
     daily_units = raw.get("daily_units", {})
 
     return {
+        "location_name": DEFAULT_LOCATION_NAME,
         "observed_at": current["time"],
+        "coordinates": {
+            "latitude": raw["latitude"],
+            "longitude": raw["longitude"],
+        },
         "temperature": {
             "value": current["temperature_2m"],
             "unit": units.get("temperature_2m", "°C"),
@@ -169,6 +174,18 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
             "value": current["precipitation"],
             "unit": units.get("precipitation", "mm"),
         },
+        "precipitation_probability": {
+            "value": daily["precipitation_probability_max"][0],
+            "unit": daily_units.get("precipitation_probability_max", "%"),
+        },
+        "precipitation_hours": {
+            "value": daily["precipitation_hours"][0],
+            "unit": daily_units.get("precipitation_hours", "h"),
+        },
+        "precipitation_sum": {
+            "value": daily["precipitation_sum"][0],
+            "unit": daily_units.get("precipitation_sum", "mm"),
+        },
         "pressure": {
             "value": current["surface_pressure"],
             "unit": units.get("surface_pressure", "hPa"),
@@ -193,21 +210,9 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
             "value": daily["temperature_2m_min"][0],
             "unit": daily_units.get("temperature_2m_min", "°C"),
         },
-        "precipitation_probability": {
-            "value": daily["precipitation_probability_max"][0],
-            "unit": daily_units.get("precipitation_probability_max", "%"),
-        },
         "sunshine_duration": {
             "value": daily["sunshine_duration"][0],
             "unit": daily_units.get("sunshine_duration", "s"),
-        },
-        "precipitation_hours": {
-            "value": daily["precipitation_hours"][0],
-            "unit": daily_units.get("precipitation_hours", "h"),
-        },
-        "precipitation_sum": {
-            "value": daily["precipitation_sum"][0],
-            "unit": daily_units.get("precipitation_sum", "mm"),
         },
         "sunrise": daily["sunrise"][0],
         "sunset": daily["sunset"][0],
@@ -216,11 +221,6 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
             "code": current["weather_code"],
             "description": _weather_description(current["weather_code"]),
         },
-        "coordinates": {
-            "latitude": raw["latitude"],
-            "longitude": raw["longitude"],
-        },
-        "location_name": DEFAULT_LOCATION_NAME,
     }
 
 
