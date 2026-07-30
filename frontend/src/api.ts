@@ -29,6 +29,7 @@ export type WeatherResponse = {
   temperature: { value: number; unit: string };
   temperature_max: { value: number; unit: string };
   temperature_min: { value: number; unit: string };
+  humidity: { value: number; unit: string };
   sunrise: string;
   sunset: string;
   condition: { code: number; description: string };
