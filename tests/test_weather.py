@@ -13,6 +13,7 @@ from app.weather import (
 STUB_RESPONSE = {
     "latitude": 35.68,
     "longitude": 139.76,
+    "elevation": 40.0,
     "current_units": {
         "time": "iso8601",
         "temperature_2m": "°C",
@@ -101,6 +102,7 @@ def test_format_forecast_maps_values_and_units():
     assert result["condition"] == {"code": 1, "description": "晴れ"}
     assert result["coordinates"] == {"latitude": 35.68, "longitude": 139.76}
     assert result["location_name"] == "東京"
+    assert result["elevation"] == {"value": 40.0, "unit": "m"}
 
 
 def test_compass_direction_maps_cardinal_points():
@@ -205,6 +207,7 @@ def test_format_forecast_falls_back_when_units_missing():
     assert result["visibility"] == {"value": 24140.0, "unit": "m"}
     assert result["dew_point"] == {"value": 22.6, "unit": "°C"}
     assert result["location_name"] == "東京"
+    assert result["elevation"] == {"value": 40.0, "unit": "m"}
 
 
 def test_format_forecast_maps_is_day_false_at_night():

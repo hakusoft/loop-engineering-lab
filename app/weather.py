@@ -226,6 +226,10 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
             "longitude": raw["longitude"],
         },
         "location_name": DEFAULT_LOCATION_NAME,
+        "elevation": {
+            "value": raw["elevation"],
+            "unit": "m",
+        },
     }
 
 
