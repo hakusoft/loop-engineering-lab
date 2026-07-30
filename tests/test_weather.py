@@ -105,6 +105,24 @@ def test_format_forecast_maps_values_and_units():
     assert result["elevation"] == {"value": 40.0, "unit": "m"}
 
 
+def test_format_forecast_groups_location_and_precipitation_fields():
+    """地点名・観測時刻は先頭に、降水関連の項目はまとめて連続させる。"""
+    result = format_forecast(STUB_RESPONSE)
+    keys = list(result.keys())
+
+    assert keys.index("location_name") < keys.index("temperature")
+    assert keys.index("observed_at") < keys.index("temperature")
+
+    precipitation_keys = [
+        "precipitation",
+        "precipitation_probability",
+        "precipitation_hours",
+        "precipitation_sum",
+    ]
+    positions = sorted(keys.index(k) for k in precipitation_keys)
+    assert positions[-1] - positions[0] == len(precipitation_keys) - 1
+
+
 def test_compass_direction_maps_cardinal_points():
     assert _compass_direction(0) == "北"
     assert _compass_direction(90) == "東"
@@ -131,11 +149,13 @@ STUB_SERIES = {
         "time": "iso8601",
         "temperature_2m": "°C",
         "relative_humidity_2m": "%",
+        "precipitation": "mm",
     },
     "hourly": {
         "time": ["2026-07-21T00:00", "2026-07-21T01:00", "2026-07-21T02:00"],
         "temperature_2m": [26.1, 25.4, 24.9],
         "relative_humidity_2m": [78, 81, 85],
+        "precipitation": [0.0, 0.5, 1.2],
     },
 }
 
@@ -151,21 +171,24 @@ def test_series_shares_one_timeline():
 def test_series_keeps_units_separate_for_split_axes():
     """気温と湿度は単位が違うので、系列ごとに unit を持つ。"""
     result = format_hourly_series(STUB_SERIES)
-    temperature, humidity = result["series"]
+    temperature, humidity, precipitation = result["series"]
 
     assert temperature["label"] == "気温"
     assert temperature["unit"] == "°C"
     assert humidity["label"] == "湿度"
     assert humidity["unit"] == "%"
+    assert precipitation["label"] == "降水量"
+    assert precipitation["unit"] == "mm"
 
 
 def test_series_exposes_min_max_for_axis_scaling():
     """軸を分けて描けるよう、系列ごとに範囲を持つ。"""
     result = format_hourly_series(STUB_SERIES)
-    temperature, humidity = result["series"]
+    temperature, humidity, precipitation = result["series"]
 
     assert (temperature["min"], temperature["max"]) == (24.9, 26.1)
     assert (humidity["min"], humidity["max"]) == (78, 85)
+    assert (precipitation["min"], precipitation["max"]) == (0.0, 1.2)
 
 
 def test_series_tolerates_missing_values():
@@ -176,15 +199,17 @@ def test_series_tolerates_missing_values():
             "time": ["2026-07-21T00:00", "2026-07-21T01:00"],
             "temperature_2m": [26.1, None],
             "relative_humidity_2m": [None, None],
+            "precipitation": [0.0, None],
         },
     }
 
     result = format_hourly_series(raw)
-    temperature, humidity = result["series"]
+    temperature, humidity, precipitation = result["series"]
 
     assert temperature["min"] == 26.1
     assert humidity["min"] is None  # 全欠測でも例外にしない
     assert len(humidity["values"]) == 2
+    assert precipitation["min"] == 0.0
 
 
 def test_format_forecast_falls_back_when_units_missing():

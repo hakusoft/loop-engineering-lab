@@ -11,20 +11,25 @@ import {
 } from "recharts";
 import type { SeriesResponse } from "./api";
 
-// series の中から気温・湿度を取り出し、Recharts が食える {time, temperature, humidity}[] にする。
+// series の中から気温・湿度・降水量を取り出し、
+// Recharts が食える {time, temperature, humidity, precipitation}[] にする。
 // 時刻は共通の timestamps を、値は該当系列の values を突き合わせる。
 function toChartData(data: SeriesResponse) {
   const temperature = data.series.find((s) => s.label === "気温");
   const humidity = data.series.find((s) => s.label === "湿度");
-  if (!temperature) return { rows: [], temperatureUnit: "°C", humidity: undefined };
+  const precipitation = data.series.find((s) => s.label === "降水量");
+  if (!temperature) {
+    return { rows: [], temperatureUnit: "°C", humidity: undefined, precipitation: undefined };
+  }
 
   const rows = data.timestamps.map((t, i) => ({
     // "2026-07-21T00:00" -> "21日 00:00" 程度の短い表示に。
     time: t.slice(8, 10) + "日 " + t.slice(11, 16),
     temperature: temperature.values[i],
     humidity: humidity?.values[i] ?? null,
+    precipitation: precipitation?.values[i] ?? null,
   }));
-  return { rows, temperatureUnit: temperature.unit, humidity };
+  return { rows, temperatureUnit: temperature.unit, humidity, precipitation };
 }
 
 const NARROW_VIEWPORT_QUERY = "(max-width: 480px)";
@@ -47,7 +52,7 @@ function useIsNarrowViewport(): boolean {
 }
 
 export function TemperatureChart({ data }: { data: SeriesResponse }) {
-  const { rows, temperatureUnit, humidity } = toChartData(data);
+  const { rows, temperatureUnit, humidity, precipitation } = toChartData(data);
   const isNarrow = useIsNarrowViewport();
   const tickFontSize = isNarrow ? 15 : 12;
   const axisWidth = isNarrow ? 68 : 56;
@@ -76,11 +81,20 @@ export function TemperatureChart({ data }: { data: SeriesResponse }) {
             tick={{ fontSize: tickFontSize }}
           />
         )}
+        {precipitation && (
+          // 気温・湿度と軸が重ならないよう、降水量の軸は目盛りを描画しない（スケールのみ利用）。
+          <YAxis
+            yAxisId="precipitation"
+            hide
+            domain={[0, (precipitation.max as number) + 1]}
+          />
+        )}
         <Tooltip
-          formatter={(v: number, name: string) => [
-            `${v}${name === "気温" ? temperatureUnit : humidity?.unit ?? ""}`,
-            name,
-          ]}
+          formatter={(v: number, name: string) => {
+            const unit =
+              name === "気温" ? temperatureUnit : name === "湿度" ? humidity?.unit : precipitation?.unit;
+            return [`${v}${unit ?? ""}`, name];
+          }}
         />
         <Legend />
         <Line
@@ -103,6 +117,18 @@ export function TemperatureChart({ data }: { data: SeriesResponse }) {
             dot={false}
             isAnimationActive={false}
             name="湿度"
+          />
+        )}
+        {precipitation && (
+          <Line
+            yAxisId="precipitation"
+            type="monotone"
+            dataKey="precipitation"
+            stroke="#12b886"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="降水量"
           />
         )}
       </LineChart>
