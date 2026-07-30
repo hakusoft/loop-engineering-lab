@@ -91,7 +91,7 @@ def fetch_forecast(
                 "uv_index_max,sunrise,sunset,"
                 "temperature_2m_max,temperature_2m_min,precipitation_probability_max,"
                 "sunshine_duration,precipitation_hours,precipitation_sum,"
-                "wind_speed_10m_max"
+                "wind_speed_10m_max,wind_direction_10m_dominant"
             ),
             "timezone": "Asia/Tokyo",
             "forecast_days": 1,
@@ -213,6 +213,11 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
         "wind_speed_max": {
             "value": daily["wind_speed_10m_max"][0],
             "unit": daily_units.get("wind_speed_10m_max", "km/h"),
+        },
+        "wind_direction_dominant": {
+            "value": daily["wind_direction_10m_dominant"][0],
+            "unit": daily_units.get("wind_direction_10m_dominant", "°"),
+            "compass": _compass_direction(daily["wind_direction_10m_dominant"][0]),
         },
         "sunrise": daily["sunrise"][0],
         "sunset": daily["sunset"][0],
