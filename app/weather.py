@@ -231,6 +231,10 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
             "code": current["weather_code"],
             "description": _weather_description(current["weather_code"]),
         },
+        "elevation": {
+            "value": raw["elevation"],
+            "unit": "m",
+        },
     }
 
 
