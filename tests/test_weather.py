@@ -5,6 +5,7 @@
 
 from app.weather import (
     _compass_direction,
+    _daylight_duration_hours,
     _weather_description,
     format_forecast,
     format_hourly_series,
@@ -105,6 +106,7 @@ def test_format_forecast_maps_values_and_units():
     }
     assert result["sunrise"] == "2026-07-21T04:44"
     assert result["sunset"] == "2026-07-21T18:47"
+    assert result["daylight_duration"] == {"value": 14.05, "unit": "h"}
     assert result["is_day"] is True
     assert result["condition"] == {"code": 1, "description": "晴れ"}
     assert result["coordinates"] == {"latitude": 35.68, "longitude": 139.76}
@@ -261,6 +263,16 @@ def test_weather_description_maps_representative_codes():
 
 def test_weather_description_falls_back_for_unknown_code():
     assert _weather_description(1234) == "不明"
+
+
+def test_daylight_duration_hours_computes_difference_in_hours():
+    assert _daylight_duration_hours("2026-07-21T04:44", "2026-07-21T18:47") == 14.05
+
+
+def test_format_forecast_includes_daylight_duration():
+    result = format_forecast(STUB_RESPONSE)
+
+    assert result["daylight_duration"] == {"value": 14.05, "unit": "h"}
 
 
 def test_format_forecast_reads_pressure_from_requested_field():
