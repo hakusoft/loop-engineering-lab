@@ -5,6 +5,7 @@
 
 from app.weather import (
     _compass_direction,
+    _daylight_duration_hours,
     _round_coordinate,
     _weather_description,
     format_forecast,
@@ -14,6 +15,7 @@ from app.weather import (
 STUB_RESPONSE = {
     "latitude": 35.68,
     "longitude": 139.76,
+    "elevation": 40.0,
     "current_units": {
         "time": "iso8601",
         "temperature_2m": "°C",
@@ -56,6 +58,7 @@ STUB_RESPONSE = {
         "precipitation_hours": "h",
         "precipitation_sum": "mm",
         "wind_speed_10m_max": "km/h",
+        "wind_direction_10m_dominant": "°",
     },
     "daily": {
         "time": ["2026-07-21"],
@@ -69,6 +72,7 @@ STUB_RESPONSE = {
         "precipitation_hours": [3.0],
         "precipitation_sum": [12.5],
         "wind_speed_10m_max": [18.4],
+        "wind_direction_10m_dominant": [250],
     },
 }
 
@@ -96,12 +100,19 @@ def test_format_forecast_maps_values_and_units():
     assert result["precipitation_hours"] == {"value": 3.0, "unit": "h"}
     assert result["precipitation_sum"] == {"value": 12.5, "unit": "mm"}
     assert result["wind_speed_max"] == {"value": 18.4, "unit": "km/h"}
+    assert result["wind_direction_dominant"] == {
+        "value": 250,
+        "unit": "°",
+        "compass": "西南西",
+    }
     assert result["sunrise"] == "2026-07-21T04:44"
     assert result["sunset"] == "2026-07-21T18:47"
+    assert result["daylight_duration"] == {"value": 14.05, "unit": "h"}
     assert result["is_day"] is True
     assert result["condition"] == {"code": 1, "description": "晴れ"}
     assert result["coordinates"] == {"latitude": 35.68, "longitude": 139.76}
     assert result["location_name"] == "東京"
+    assert result["elevation"] == {"value": 40.0, "unit": "m"}
 
 
 def test_format_forecast_groups_location_and_precipitation_fields():
@@ -231,6 +242,7 @@ def test_format_forecast_falls_back_when_units_missing():
     assert result["visibility"] == {"value": 24140.0, "unit": "m"}
     assert result["dew_point"] == {"value": 22.6, "unit": "°C"}
     assert result["location_name"] == "東京"
+    assert result["elevation"] == {"value": 40.0, "unit": "m"}
 
 
 def test_format_forecast_maps_is_day_false_at_night():
@@ -273,6 +285,16 @@ def test_format_hourly_series_rounds_coordinates():
     result = format_hourly_series(raw)
 
     assert result["coordinates"] == {"latitude": 35.7, "longitude": 139.76}
+
+
+def test_daylight_duration_hours_computes_difference_in_hours():
+    assert _daylight_duration_hours("2026-07-21T04:44", "2026-07-21T18:47") == 14.05
+
+
+def test_format_forecast_includes_daylight_duration():
+    result = format_forecast(STUB_RESPONSE)
+
+    assert result["daylight_duration"] == {"value": 14.05, "unit": "h"}
 
 
 def test_format_forecast_reads_pressure_from_requested_field():

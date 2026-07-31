@@ -5,6 +5,7 @@
 CI が赤いとき「外部 API が落ちた」ではなく「コードが壊れた」と読めるようにするため。
 """
 
+from datetime import datetime
 from typing import Any
 
 import httpx
@@ -78,6 +79,11 @@ def _round_coordinate(value: float) -> float:
     return round(value, COORDINATE_PRECISION)
 
 
+def _daylight_duration_hours(sunrise: str, sunset: str) -> float:
+    """sunrise / sunset（ISO8601）から可照時間を時間単位で計算する。"""
+    return (datetime.fromisoformat(sunset) - datetime.fromisoformat(sunrise)).total_seconds() / 3600
+
+
 def fetch_forecast(
     latitude: float = DEFAULT_LATITUDE,
     longitude: float = DEFAULT_LONGITUDE,
@@ -99,7 +105,7 @@ def fetch_forecast(
                 "uv_index_max,sunrise,sunset,"
                 "temperature_2m_max,temperature_2m_min,precipitation_probability_max,"
                 "sunshine_duration,precipitation_hours,precipitation_sum,"
-                "wind_speed_10m_max"
+                "wind_speed_10m_max,wind_direction_10m_dominant"
             ),
             "timezone": "Asia/Tokyo",
             "forecast_days": 1,
@@ -183,6 +189,11 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
             "value": daily["wind_speed_10m_max"][0],
             "unit": daily_units.get("wind_speed_10m_max", "km/h"),
         },
+        "wind_direction_dominant": {
+            "value": daily["wind_direction_10m_dominant"][0],
+            "unit": daily_units.get("wind_direction_10m_dominant", "°"),
+            "compass": _compass_direction(daily["wind_direction_10m_dominant"][0]),
+        },
         "precipitation": {
             "value": current["precipitation"],
             "unit": units.get("precipitation", "mm"),
@@ -229,10 +240,18 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
         },
         "sunrise": daily["sunrise"][0],
         "sunset": daily["sunset"][0],
+        "daylight_duration": {
+            "value": _daylight_duration_hours(daily["sunrise"][0], daily["sunset"][0]),
+            "unit": "h",
+        },
         "is_day": bool(current["is_day"]),
         "condition": {
             "code": current["weather_code"],
             "description": _weather_description(current["weather_code"]),
+        },
+        "elevation": {
+            "value": raw["elevation"],
+            "unit": "m",
         },
     }
 

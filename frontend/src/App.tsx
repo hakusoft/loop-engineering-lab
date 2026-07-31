@@ -8,6 +8,7 @@ import { ObservedAt } from "./ObservedAt";
 import { SunTimes } from "./SunTimes";
 import { TemperatureChart } from "./TemperatureChart";
 import { TemperatureRange } from "./TemperatureRange";
+import { Wind } from "./Wind";
 
 type State =
   | { status: "loading" }
@@ -69,6 +70,7 @@ export default function App() {
           <Condition data={weatherState.data} />
           <CurrentTemperature data={weatherState.data} />
           <Humidity data={weatherState.data} />
+          <Wind data={weatherState.data} />
           <ObservedAt data={weatherState.data} />
           <TemperatureRange data={weatherState.data} />
           <SunTimes data={weatherState.data} />
