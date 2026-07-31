@@ -70,6 +70,14 @@ def _weather_description(code: int) -> str:
     return WEATHER_CODES.get(code, "不明")
 
 
+COORDINATE_PRECISION = 2
+
+
+def _round_coordinate(value: float) -> float:
+    """緯度・経度を小数第2位に丸める。Open-Meteo はグリッドに合わせた長い小数を返すことがある。"""
+    return round(value, COORDINATE_PRECISION)
+
+
 def fetch_forecast(
     latitude: float = DEFAULT_LATITUDE,
     longitude: float = DEFAULT_LONGITUDE,
@@ -139,8 +147,8 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
         "location_name": DEFAULT_LOCATION_NAME,
         "observed_at": current["time"],
         "coordinates": {
-            "latitude": raw["latitude"],
-            "longitude": raw["longitude"],
+            "latitude": _round_coordinate(raw["latitude"]),
+            "longitude": _round_coordinate(raw["longitude"]),
         },
         "temperature": {
             "value": current["temperature_2m"],
@@ -259,7 +267,7 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
             _series("precipitation", "降水量", "mm"),
         ],
         "coordinates": {
-            "latitude": raw["latitude"],
-            "longitude": raw["longitude"],
+            "latitude": _round_coordinate(raw["latitude"]),
+            "longitude": _round_coordinate(raw["longitude"]),
         },
     }
