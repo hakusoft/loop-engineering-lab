@@ -5,6 +5,7 @@
 CI が赤いとき「外部 API が落ちた」ではなく「コードが壊れた」と読めるようにするため。
 """
 
+from datetime import datetime
 from typing import Any
 
 import httpx
@@ -68,6 +69,11 @@ WEATHER_CODES = {
 def _weather_description(code: int) -> str:
     """WMO Weather code を日本語の天気表記に変換する。未知のコードは不明として返す。"""
     return WEATHER_CODES.get(code, "不明")
+
+
+def _daylight_duration_hours(sunrise: str, sunset: str) -> float:
+    """sunrise / sunset（ISO8601）から可照時間を時間単位で計算する。"""
+    return (datetime.fromisoformat(sunset) - datetime.fromisoformat(sunrise)).total_seconds() / 3600
 
 
 def fetch_forecast(
@@ -221,6 +227,10 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
         },
         "sunrise": daily["sunrise"][0],
         "sunset": daily["sunset"][0],
+        "daylight_duration": {
+            "value": _daylight_duration_hours(daily["sunrise"][0], daily["sunset"][0]),
+            "unit": "h",
+        },
         "is_day": bool(current["is_day"]),
         "condition": {
             "code": current["weather_code"],
