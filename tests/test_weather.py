@@ -55,6 +55,7 @@ STUB_RESPONSE = {
         "precipitation_hours": "h",
         "precipitation_sum": "mm",
         "wind_speed_10m_max": "km/h",
+        "wind_direction_10m_dominant": "°",
     },
     "daily": {
         "time": ["2026-07-21"],
@@ -68,6 +69,7 @@ STUB_RESPONSE = {
         "precipitation_hours": [3.0],
         "precipitation_sum": [12.5],
         "wind_speed_10m_max": [18.4],
+        "wind_direction_10m_dominant": [250],
     },
 }
 
@@ -95,6 +97,11 @@ def test_format_forecast_maps_values_and_units():
     assert result["precipitation_hours"] == {"value": 3.0, "unit": "h"}
     assert result["precipitation_sum"] == {"value": 12.5, "unit": "mm"}
     assert result["wind_speed_max"] == {"value": 18.4, "unit": "km/h"}
+    assert result["wind_direction_dominant"] == {
+        "value": 250,
+        "unit": "°",
+        "compass": "西南西",
+    }
     assert result["sunrise"] == "2026-07-21T04:44"
     assert result["sunset"] == "2026-07-21T18:47"
     assert result["is_day"] is True
