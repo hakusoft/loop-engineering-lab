@@ -66,7 +66,7 @@ export default function App() {
       </p>
 
       {weatherState.status === "ready" && (
-        <>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 16 }}>
           <Condition data={weatherState.data} />
           <CurrentTemperature data={weatherState.data} />
           <Humidity data={weatherState.data} />
@@ -74,7 +74,7 @@ export default function App() {
           <ObservedAt data={weatherState.data} />
           <TemperatureRange data={weatherState.data} />
           <SunTimes data={weatherState.data} />
-        </>
+        </div>
       )}
 
       {state.status === "loading" && <p>読み込み中…</p>}
