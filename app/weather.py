@@ -181,6 +181,10 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
             "value": daily["wind_speed_10m_max"][0],
             "unit": daily_units.get("wind_speed_10m_max", "km/h"),
         },
+        "wind_gusts_max": {
+            "value": daily["wind_gusts_10m_max"][0],
+            "unit": daily_units.get("wind_gusts_10m_max", "km/h"),
+        },
         "wind_direction_dominant": {
             "value": daily["wind_direction_10m_dominant"][0],
             "unit": daily_units.get("wind_direction_10m_dominant", "°"),
