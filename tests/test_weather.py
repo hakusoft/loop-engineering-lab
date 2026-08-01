@@ -6,6 +6,7 @@
 from app.weather import (
     _compass_direction,
     _daylight_duration_hours,
+    _round_coordinate,
     _weather_description,
     format_forecast,
     format_hourly_series,
@@ -263,6 +264,27 @@ def test_weather_description_maps_representative_codes():
 
 def test_weather_description_falls_back_for_unknown_code():
     assert _weather_description(1234) == "不明"
+
+
+def test_round_coordinate_rounds_to_two_decimal_places():
+    assert _round_coordinate(35.700001) == 35.7
+    assert _round_coordinate(139.759999) == 139.76
+
+
+def test_format_forecast_rounds_coordinates():
+    raw = {**STUB_RESPONSE, "latitude": 35.700001, "longitude": 139.759999}
+
+    result = format_forecast(raw)
+
+    assert result["coordinates"] == {"latitude": 35.7, "longitude": 139.76}
+
+
+def test_format_hourly_series_rounds_coordinates():
+    raw = {**STUB_SERIES, "latitude": 35.700001, "longitude": 139.759999}
+
+    result = format_hourly_series(raw)
+
+    assert result["coordinates"] == {"latitude": 35.7, "longitude": 139.76}
 
 
 def test_daylight_duration_hours_computes_difference_in_hours():
