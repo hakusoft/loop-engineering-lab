@@ -96,7 +96,7 @@ export function TemperatureChart({ data }: { data: SeriesResponse }) {
             return [`${v}${unit ?? ""}`, name];
           }}
         />
-        <Legend />
+        <Legend wrapperStyle={{ fontSize: tickFontSize }} />
         <Line
           yAxisId="temperature"
           type="monotone"
