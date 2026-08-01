@@ -97,7 +97,7 @@ def fetch_forecast(
                 "uv_index_max,sunrise,sunset,"
                 "temperature_2m_max,temperature_2m_min,precipitation_probability_max,"
                 "sunshine_duration,precipitation_hours,precipitation_sum,"
-                "wind_speed_10m_max,wind_direction_10m_dominant"
+                "wind_speed_10m_max,wind_direction_10m_dominant,wind_gusts_10m_max"
             ),
             "timezone": "Asia/Tokyo",
             "forecast_days": 1,
