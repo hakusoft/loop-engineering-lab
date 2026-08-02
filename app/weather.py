@@ -236,12 +236,12 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
             "unit": daily_units.get("temperature_2m_min", "°C"),
         },
         "apparent_temperature_max": {
-            "value": daily["apparent_temperature_2m_max"][0],
-            "unit": daily_units.get("apparent_temperature_2m_max", "°C"),
+            "value": daily["apparent_temperature_max"][0],
+            "unit": daily_units.get("apparent_temperature_max", "°C"),
         },
         "apparent_temperature_min": {
-            "value": daily["apparent_temperature_2m_min"][0],
-            "unit": daily_units.get("apparent_temperature_2m_min", "°C"),
+            "value": daily["apparent_temperature_min"][0],
+            "unit": daily_units.get("apparent_temperature_min", "°C"),
         },
         "sunshine_duration": {
             "value": daily["sunshine_duration"][0],

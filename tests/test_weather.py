@@ -59,8 +59,8 @@ STUB_RESPONSE = {
         "precipitation_sum": "mm",
         "wind_speed_10m_max": "km/h",
         "wind_direction_10m_dominant": "°",
-        "apparent_temperature_2m_max": "°C",
-        "apparent_temperature_2m_min": "°C",
+        "apparent_temperature_max": "°C",
+        "apparent_temperature_min": "°C",
     },
     "daily": {
         "time": ["2026-07-21"],
@@ -75,8 +75,8 @@ STUB_RESPONSE = {
         "precipitation_sum": [12.5],
         "wind_speed_10m_max": [18.4],
         "wind_direction_10m_dominant": [250],
-        "apparent_temperature_2m_max": [36.9],
-        "apparent_temperature_2m_min": [26.1],
+        "apparent_temperature_max": [36.9],
+        "apparent_temperature_min": [26.1],
     },
 }
 
