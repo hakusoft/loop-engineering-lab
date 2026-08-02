@@ -9,6 +9,7 @@ import { PrecipitationProbability } from "./PrecipitationProbability";
 import { SunTimes } from "./SunTimes";
 import { TemperatureChart } from "./TemperatureChart";
 import { TemperatureRange } from "./TemperatureRange";
+import { Visibility } from "./Visibility";
 import { Wind } from "./Wind";
 
 type State =
@@ -71,6 +72,7 @@ export default function App() {
           <Condition data={weatherState.data} />
           <CurrentTemperature data={weatherState.data} />
           <Humidity data={weatherState.data} />
+          <Visibility data={weatherState.data} />
           <Wind data={weatherState.data} />
           <ObservedAt data={weatherState.data} />
           <TemperatureRange data={weatherState.data} />
