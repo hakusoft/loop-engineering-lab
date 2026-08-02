@@ -2,8 +2,8 @@ import type { WeatherResponse } from "./api";
 
 // 表示ロジックを純関数に切り出す。Humidity.tsx の formatHumidity と同様。
 export function formatVisibility(data: WeatherResponse): string {
-  const { value } = data.visibility;
-  return `視程 ${Math.round(value)}km`;
+  const { value, unit } = data.visibility;
+  return `視程 ${Math.round(value)}${unit}`;
 }
 
 export function Visibility({ data }: { data: WeatherResponse }) {

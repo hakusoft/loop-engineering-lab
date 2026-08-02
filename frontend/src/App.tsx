@@ -9,6 +9,7 @@ import { PrecipitationProbability } from "./PrecipitationProbability";
 import { SunTimes } from "./SunTimes";
 import { TemperatureChart } from "./TemperatureChart";
 import { TemperatureRange } from "./TemperatureRange";
+import { UvIndex } from "./UvIndex";
 import { Visibility } from "./Visibility";
 import { Wind } from "./Wind";
 
@@ -76,6 +77,7 @@ export default function App() {
           <Wind data={weatherState.data} />
           <ObservedAt data={weatherState.data} />
           <TemperatureRange data={weatherState.data} />
+          <UvIndex data={weatherState.data} />
           <PrecipitationProbability data={weatherState.data} />
           <SunTimes data={weatherState.data} />
         </div>
