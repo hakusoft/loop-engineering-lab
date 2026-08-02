@@ -10,6 +10,7 @@ import { Pressure } from "./Pressure";
 import { SunTimes } from "./SunTimes";
 import { TemperatureChart } from "./TemperatureChart";
 import { TemperatureRange } from "./TemperatureRange";
+import { UvIndex } from "./UvIndex";
 import { Wind } from "./Wind";
 
 type State =
@@ -76,6 +77,7 @@ export default function App() {
           <Wind data={weatherState.data} />
           <ObservedAt data={weatherState.data} />
           <TemperatureRange data={weatherState.data} />
+          <UvIndex data={weatherState.data} />
           <PrecipitationProbability data={weatherState.data} />
           <SunTimes data={weatherState.data} />
         </div>
