@@ -59,6 +59,8 @@ STUB_RESPONSE = {
         "precipitation_sum": "mm",
         "wind_speed_10m_max": "km/h",
         "wind_direction_10m_dominant": "°",
+        "apparent_temperature_2m_max": "°C",
+        "apparent_temperature_2m_min": "°C",
     },
     "daily": {
         "time": ["2026-07-21"],
@@ -73,6 +75,8 @@ STUB_RESPONSE = {
         "precipitation_sum": [12.5],
         "wind_speed_10m_max": [18.4],
         "wind_direction_10m_dominant": [250],
+        "apparent_temperature_2m_max": [36.9],
+        "apparent_temperature_2m_min": [26.1],
     },
 }
 
@@ -95,6 +99,8 @@ def test_format_forecast_maps_values_and_units():
     assert result["uv_index_max"] == {"value": 7.8, "unit": ""}
     assert result["temperature_max"] == {"value": 33.2, "unit": "°C"}
     assert result["temperature_min"] == {"value": 24.7, "unit": "°C"}
+    assert result["apparent_temperature_max"] == {"value": 36.9, "unit": "°C"}
+    assert result["apparent_temperature_min"] == {"value": 26.1, "unit": "°C"}
     assert result["precipitation_probability"] == {"value": 20, "unit": "%"}
     assert result["sunshine_duration"] == {"value": 36420.0, "unit": "s"}
     assert result["precipitation_hours"] == {"value": 3.0, "unit": "h"}
