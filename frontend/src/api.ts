@@ -39,6 +39,7 @@ export type WeatherResponse = {
   condition: { code: number; description: string };
   observed_at: string;
   location_name: string;
+  elevation: { value: number; unit: string };
 };
 
 export async function fetchSeries(): Promise<SeriesResponse> {
