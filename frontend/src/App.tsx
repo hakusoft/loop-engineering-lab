@@ -3,12 +3,14 @@ import { fetchSeries, fetchWeather, type SeriesResponse, type WeatherResponse } 
 import { Condition } from "./Condition";
 import { CurrentTemperature } from "./CurrentTemperature";
 import { DewPoint } from "./DewPoint";
+import { Elevation } from "./Elevation";
 import { Humidity } from "./Humidity";
 import { LocationName } from "./LocationName";
 import { ObservedAt } from "./ObservedAt";
 import { PrecipitationProbability } from "./PrecipitationProbability";
 import { Pressure } from "./Pressure";
 import { SunTimes } from "./SunTimes";
+import { SunshineDuration } from "./SunshineDuration";
 import { TemperatureChart } from "./TemperatureChart";
 import { TemperatureRange } from "./TemperatureRange";
 import { UvIndex } from "./UvIndex";
@@ -77,11 +79,13 @@ export default function App() {
           <DewPoint data={weatherState.data} />
           <Pressure data={weatherState.data} />
           <Wind data={weatherState.data} />
+          <Elevation data={weatherState.data} />
           <ObservedAt data={weatherState.data} />
           <TemperatureRange data={weatherState.data} />
           <UvIndex data={weatherState.data} />
           <PrecipitationProbability data={weatherState.data} />
           <SunTimes data={weatherState.data} />
+          <SunshineDuration data={weatherState.data} />
         </div>
       )}
 

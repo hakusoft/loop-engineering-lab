@@ -38,9 +38,11 @@ export type WeatherResponse = {
   wind_direction: { value: number; unit: string; compass: string };
   sunrise: string;
   sunset: string;
+  sunshine_duration: { value: number; unit: string };
   condition: { code: number; description: string };
   observed_at: string;
   location_name: string;
+  elevation: { value: number; unit: string };
 };
 
 export async function fetchSeries(): Promise<SeriesResponse> {
