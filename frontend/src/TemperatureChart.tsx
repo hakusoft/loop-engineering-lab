@@ -120,12 +120,13 @@ export function TemperatureChart({ data }: { data: SeriesResponse }) {
           />
         )}
         {precipitation && (
+          // 気温・湿度よりスケールが小さく見えにくいという声があったため、線を太くする。
           <Line
             yAxisId="precipitation"
             type="monotone"
             dataKey="precipitation"
             stroke="#12b886"
-            strokeWidth={2}
+            strokeWidth={3}
             dot={false}
             isAnimationActive={false}
             name="降水量"
