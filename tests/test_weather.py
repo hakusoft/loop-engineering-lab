@@ -169,14 +169,14 @@ STUB_SERIES = {
         "temperature_2m": "°C",
         "relative_humidity_2m": "%",
         "rain": "mm",
-        "snow": "cm",
+        "snowfall": "cm",
     },
     "hourly": {
         "time": ["2026-07-21T00:00", "2026-07-21T01:00", "2026-07-21T02:00"],
         "temperature_2m": [26.1, 25.4, 24.9],
         "relative_humidity_2m": [78, 81, 85],
         "rain": [0.0, 0.5, 1.2],
-        "snow": [0.0, 0.0, 0.0],
+        "snowfall": [0.0, 0.0, 0.0],
     },
 }
 
@@ -224,7 +224,7 @@ def test_series_tolerates_missing_values():
             "temperature_2m": [26.1, None],
             "relative_humidity_2m": [None, None],
             "rain": [0.0, None],
-            "snow": [None, None],
+            "snowfall": [None, None],
         },
     }
 

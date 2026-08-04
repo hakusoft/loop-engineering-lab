@@ -297,7 +297,7 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
             _series("temperature_2m", "気温", "°C"),
             _series("relative_humidity_2m", "湿度", "%"),
             _series("rain", "雨量", "mm"),
-            _series("snow", "降雪量", "cm"),
+            _series("snowfall", "降雪量", "cm"),
         ],
         "coordinates": {
             "latitude": _round_coordinate(raw["latitude"]),
