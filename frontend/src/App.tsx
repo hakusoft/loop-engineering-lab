@@ -7,6 +7,7 @@ import { Humidity } from "./Humidity";
 import { LocationName } from "./LocationName";
 import { ObservedAt } from "./ObservedAt";
 import { PrecipitationProbability } from "./PrecipitationProbability";
+import { PrecipitationSum } from "./PrecipitationSum";
 import { Pressure } from "./Pressure";
 import { SunTimes } from "./SunTimes";
 import { SunshineDuration } from "./SunshineDuration";
@@ -82,6 +83,7 @@ export default function App() {
           <TemperatureRange data={weatherState.data} />
           <UvIndex data={weatherState.data} />
           <PrecipitationProbability data={weatherState.data} />
+          <PrecipitationSum data={weatherState.data} />
           <SunTimes data={weatherState.data} />
           <SunshineDuration data={weatherState.data} />
         </div>
