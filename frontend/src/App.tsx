@@ -4,6 +4,7 @@ import { Condition } from "./Condition";
 import { CurrentTemperature } from "./CurrentTemperature";
 import { Elevation } from "./Elevation";
 import { Humidity } from "./Humidity";
+import { LaundryDryness } from "./LaundryDryness";
 import { LocationName } from "./LocationName";
 import { ObservedAt } from "./ObservedAt";
 import { PrecipitationProbability } from "./PrecipitationProbability";
@@ -84,6 +85,7 @@ export default function App() {
           <PrecipitationProbability data={weatherState.data} />
           <SunTimes data={weatherState.data} />
           <SunshineDuration data={weatherState.data} />
+          <LaundryDryness data={weatherState.data} />
         </div>
       )}
 
