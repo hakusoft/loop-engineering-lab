@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { fetchSeries, fetchWeather, type SeriesResponse, type WeatherResponse } from "./api";
+import { CloudCover } from "./CloudCover";
 import { Condition } from "./Condition";
 import { CurrentTemperature } from "./CurrentTemperature";
 import { Elevation } from "./Elevation";
@@ -76,6 +77,7 @@ export default function App() {
           <CurrentTemperature data={weatherState.data} />
           <Humidity data={weatherState.data} />
           <Pressure data={weatherState.data} />
+          <CloudCover data={weatherState.data} />
           <Wind data={weatherState.data} />
           <Elevation data={weatherState.data} />
           <ObservedAt data={weatherState.data} />
