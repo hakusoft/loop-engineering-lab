@@ -3,6 +3,7 @@ import { fetchSeries, fetchWeather, type SeriesResponse, type WeatherResponse } 
 import { CloudCover } from "./CloudCover";
 import { Condition } from "./Condition";
 import { CurrentTemperature } from "./CurrentTemperature";
+import { DewPoint } from "./DewPoint";
 import { Elevation } from "./Elevation";
 import { Humidity } from "./Humidity";
 import { LocationName } from "./LocationName";
@@ -76,6 +77,7 @@ export default function App() {
           <Condition data={weatherState.data} />
           <CurrentTemperature data={weatherState.data} />
           <Humidity data={weatherState.data} />
+          <DewPoint data={weatherState.data} />
           <Pressure data={weatherState.data} />
           <CloudCover data={weatherState.data} />
           <Wind data={weatherState.data} />

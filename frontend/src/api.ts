@@ -30,6 +30,7 @@ export type WeatherResponse = {
   temperature_max: { value: number; unit: string };
   temperature_min: { value: number; unit: string };
   humidity: { value: number; unit: string };
+  dew_point: { value: number; unit: string };
   pressure: { value: number; unit: string };
   cloud_cover: { value: number; unit: string };
   uv_index_max: { value: number; unit: string };
