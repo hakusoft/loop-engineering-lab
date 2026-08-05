@@ -11,20 +11,22 @@ import {
 } from "recharts";
 import type { SeriesResponse } from "./api";
 
-// series の中から気温・湿度・降水量を取り出し、
-// Recharts が食える {time, temperature, humidity, precipitation}[] にする。
+// series の中から気温・湿度・雨量・降雪量・降水確率を取り出し、
+// Recharts が食える {time, temperature, humidity, rain, snow, precipitationProbability}[] にする。
 // 時刻は共通の timestamps を、値は該当系列の values を突き合わせる。
 function toChartData(data: SeriesResponse) {
   const temperature = data.series.find((s) => s.label === "気温");
   const humidity = data.series.find((s) => s.label === "湿度");
-  const precipitation = data.series.find((s) => s.label === "降水量");
+  const rain = data.series.find((s) => s.label === "雨量");
+  const snow = data.series.find((s) => s.label === "降雪量");
   const precipitationProbability = data.series.find((s) => s.label === "降水確率");
   if (!temperature) {
     return {
       rows: [],
       temperatureUnit: "°C",
       humidity: undefined,
-      precipitation: undefined,
+      rain: undefined,
+      snow: undefined,
       precipitationProbability: undefined,
     };
   }
@@ -34,10 +36,11 @@ function toChartData(data: SeriesResponse) {
     time: t.slice(8, 10) + "日 " + t.slice(11, 16),
     temperature: temperature.values[i],
     humidity: humidity?.values[i] ?? null,
-    precipitation: precipitation?.values[i] ?? null,
+    rain: rain?.values[i] ?? null,
+    snow: snow?.values[i] ?? null,
     precipitationProbability: precipitationProbability?.values[i] ?? null,
   }));
-  return { rows, temperatureUnit: temperature.unit, humidity, precipitation, precipitationProbability };
+  return { rows, temperatureUnit: temperature.unit, humidity, rain, snow, precipitationProbability };
 }
 
 const NARROW_VIEWPORT_QUERY = "(max-width: 480px)";
@@ -60,7 +63,7 @@ function useIsNarrowViewport(): boolean {
 }
 
 export function TemperatureChart({ data }: { data: SeriesResponse }) {
-  const { rows, temperatureUnit, humidity, precipitation, precipitationProbability } = toChartData(data);
+  const { rows, temperatureUnit, humidity, rain, snow, precipitationProbability } = toChartData(data);
   const isNarrow = useIsNarrowViewport();
   const tickFontSize = isNarrow ? 15 : 12;
   const axisWidth = isNarrow ? 68 : 56;
@@ -89,12 +92,12 @@ export function TemperatureChart({ data }: { data: SeriesResponse }) {
             tick={{ fontSize: tickFontSize }}
           />
         )}
-        {precipitation && (
+        {(rain || snow) && (
           // 気温・湿度と軸が重ならないよう、降水量の軸は目盛りを描画しない（スケールのみ利用）。
           <YAxis
             yAxisId="precipitation"
             hide
-            domain={[0, (precipitation.max as number) + 1]}
+            domain={[0, Math.max(rain?.max ?? 0, snow?.max ?? 0) + 1]}
           />
         )}
         {precipitationProbability && (
@@ -108,9 +111,11 @@ export function TemperatureChart({ data }: { data: SeriesResponse }) {
                 ? temperatureUnit
                 : name === "湿度"
                   ? humidity?.unit
-                  : name === "降水確率"
-                    ? precipitationProbability?.unit
-                    : precipitation?.unit;
+                  : name === "雨量"
+                    ? rain?.unit
+                    : name === "降雪量"
+                      ? snow?.unit
+                      : precipitationProbability?.unit;
             return [`${v}${unit ?? ""}`, name];
           }}
         />
@@ -137,17 +142,29 @@ export function TemperatureChart({ data }: { data: SeriesResponse }) {
             name="湿度"
           />
         )}
-        {precipitation && (
+        {rain && (
           // 気温・湿度よりスケールが小さく見えにくいという声があったため、線を太くする。
           <Line
             yAxisId="precipitation"
             type="monotone"
-            dataKey="precipitation"
+            dataKey="rain"
             stroke="#12b886"
             strokeWidth={3}
             dot={false}
             isAnimationActive={false}
-            name="降水量"
+            name="雨量"
+          />
+        )}
+        {snow && (
+          <Line
+            yAxisId="precipitation"
+            type="monotone"
+            dataKey="snow"
+            stroke="#4dabf7"
+            strokeWidth={3}
+            dot={false}
+            isAnimationActive={false}
+            name="降雪量"
           />
         )}
         {precipitationProbability && (

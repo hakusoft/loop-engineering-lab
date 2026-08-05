@@ -168,14 +168,16 @@ STUB_SERIES = {
         "time": "iso8601",
         "temperature_2m": "°C",
         "relative_humidity_2m": "%",
-        "precipitation": "mm",
+        "rain": "mm",
+        "snowfall": "cm",
         "precipitation_probability": "%",
     },
     "hourly": {
         "time": ["2026-07-21T00:00", "2026-07-21T01:00", "2026-07-21T02:00"],
         "temperature_2m": [26.1, 25.4, 24.9],
         "relative_humidity_2m": [78, 81, 85],
-        "precipitation": [0.0, 0.5, 1.2],
+        "rain": [0.0, 0.5, 1.2],
+        "snowfall": [0.0, 0.0, 0.0],
         "precipitation_probability": [10, 30, 60],
     },
 }
@@ -192,14 +194,16 @@ def test_series_shares_one_timeline():
 def test_series_keeps_units_separate_for_split_axes():
     """気温と湿度は単位が違うので、系列ごとに unit を持つ。"""
     result = format_hourly_series(STUB_SERIES)
-    temperature, humidity, precipitation, precipitation_probability = result["series"]
+    temperature, humidity, rain, snow, precipitation_probability = result["series"]
 
     assert temperature["label"] == "気温"
     assert temperature["unit"] == "°C"
     assert humidity["label"] == "湿度"
     assert humidity["unit"] == "%"
-    assert precipitation["label"] == "降水量"
-    assert precipitation["unit"] == "mm"
+    assert rain["label"] == "雨量"
+    assert rain["unit"] == "mm"
+    assert snow["label"] == "降雪量"
+    assert snow["unit"] == "cm"
     assert precipitation_probability["label"] == "降水確率"
     assert precipitation_probability["unit"] == "%"
 
@@ -207,11 +211,12 @@ def test_series_keeps_units_separate_for_split_axes():
 def test_series_exposes_min_max_for_axis_scaling():
     """軸を分けて描けるよう、系列ごとに範囲を持つ。"""
     result = format_hourly_series(STUB_SERIES)
-    temperature, humidity, precipitation, precipitation_probability = result["series"]
+    temperature, humidity, rain, snow, precipitation_probability = result["series"]
 
     assert (temperature["min"], temperature["max"]) == (24.9, 26.1)
     assert (humidity["min"], humidity["max"]) == (78, 85)
-    assert (precipitation["min"], precipitation["max"]) == (0.0, 1.2)
+    assert (rain["min"], rain["max"]) == (0.0, 1.2)
+    assert (snow["min"], snow["max"]) == (0.0, 0.0)
     assert (precipitation_probability["min"], precipitation_probability["max"]) == (10, 60)
 
 
@@ -226,18 +231,20 @@ def test_series_tolerates_missing_values():
             "time": ["2026-07-21T00:00", "2026-07-21T01:00"],
             "temperature_2m": [26.1, None],
             "relative_humidity_2m": [None, None],
-            "precipitation": [0.0, None],
+            "rain": [0.0, None],
+            "snowfall": [None, None],
             "precipitation_probability": [None, None],
         },
     }
 
     result = format_hourly_series(raw)
-    temperature, humidity, precipitation, precipitation_probability = result["series"]
+    temperature, humidity, rain, snow, precipitation_probability = result["series"]
 
     assert temperature["min"] == 26.1
     assert humidity["min"] is None  # 全欠測でも例外にしない
     assert len(humidity["values"]) == 2
-    assert precipitation["min"] == 0.0
+    assert rain["min"] == 0.0
+    assert snow["min"] is None
     assert precipitation_probability["min"] is None
 
 
