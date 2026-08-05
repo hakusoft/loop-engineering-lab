@@ -129,7 +129,7 @@ def fetch_hourly_series(
         params={
             "latitude": latitude,
             "longitude": longitude,
-            "hourly": "temperature_2m,relative_humidity_2m,precipitation",
+            "hourly": "temperature_2m,relative_humidity_2m,precipitation,precipitation_probability",
             "past_days": past_days,
             "forecast_days": 1,
         },
@@ -297,6 +297,7 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
             _series("temperature_2m", "気温", "°C"),
             _series("relative_humidity_2m", "湿度", "%"),
             _series("precipitation", "降水量", "mm"),
+            _series("precipitation_probability", "降水確率", "%"),
         ],
         "coordinates": {
             "latitude": _round_coordinate(raw["latitude"]),

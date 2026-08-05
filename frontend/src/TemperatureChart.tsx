@@ -18,8 +18,15 @@ function toChartData(data: SeriesResponse) {
   const temperature = data.series.find((s) => s.label === "気温");
   const humidity = data.series.find((s) => s.label === "湿度");
   const precipitation = data.series.find((s) => s.label === "降水量");
+  const precipitationProbability = data.series.find((s) => s.label === "降水確率");
   if (!temperature) {
-    return { rows: [], temperatureUnit: "°C", humidity: undefined, precipitation: undefined };
+    return {
+      rows: [],
+      temperatureUnit: "°C",
+      humidity: undefined,
+      precipitation: undefined,
+      precipitationProbability: undefined,
+    };
   }
 
   const rows = data.timestamps.map((t, i) => ({
@@ -28,8 +35,9 @@ function toChartData(data: SeriesResponse) {
     temperature: temperature.values[i],
     humidity: humidity?.values[i] ?? null,
     precipitation: precipitation?.values[i] ?? null,
+    precipitationProbability: precipitationProbability?.values[i] ?? null,
   }));
-  return { rows, temperatureUnit: temperature.unit, humidity, precipitation };
+  return { rows, temperatureUnit: temperature.unit, humidity, precipitation, precipitationProbability };
 }
 
 const NARROW_VIEWPORT_QUERY = "(max-width: 480px)";
@@ -52,7 +60,7 @@ function useIsNarrowViewport(): boolean {
 }
 
 export function TemperatureChart({ data }: { data: SeriesResponse }) {
-  const { rows, temperatureUnit, humidity, precipitation } = toChartData(data);
+  const { rows, temperatureUnit, humidity, precipitation, precipitationProbability } = toChartData(data);
   const isNarrow = useIsNarrowViewport();
   const tickFontSize = isNarrow ? 15 : 12;
   const axisWidth = isNarrow ? 68 : 56;
@@ -89,10 +97,20 @@ export function TemperatureChart({ data }: { data: SeriesResponse }) {
             domain={[0, (precipitation.max as number) + 1]}
           />
         )}
+        {precipitationProbability && (
+          // 降水確率は % 固定なので 0〜100 のスケールで、他系列とは別軸にする。
+          <YAxis yAxisId="precipitationProbability" hide domain={[0, 100]} />
+        )}
         <Tooltip
           formatter={(v: number, name: string) => {
             const unit =
-              name === "気温" ? temperatureUnit : name === "湿度" ? humidity?.unit : precipitation?.unit;
+              name === "気温"
+                ? temperatureUnit
+                : name === "湿度"
+                  ? humidity?.unit
+                  : name === "降水確率"
+                    ? precipitationProbability?.unit
+                    : precipitation?.unit;
             return [`${v}${unit ?? ""}`, name];
           }}
         />
@@ -130,6 +148,19 @@ export function TemperatureChart({ data }: { data: SeriesResponse }) {
             dot={false}
             isAnimationActive={false}
             name="降水量"
+          />
+        )}
+        {precipitationProbability && (
+          <Line
+            yAxisId="precipitationProbability"
+            type="monotone"
+            dataKey="precipitationProbability"
+            stroke="#748ffc"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="降水確率"
+            connectNulls
           />
         )}
       </LineChart>
