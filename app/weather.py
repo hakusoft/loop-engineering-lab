@@ -220,8 +220,8 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
             "unit": units.get("surface_pressure", "hPa"),
         },
         "sea_level_pressure": {
-            "value": current["sea_level_pressure"],
-            "unit": units.get("sea_level_pressure", "hPa"),
+            "value": current["pressure_msl"],
+            "unit": units.get("pressure_msl", "hPa"),
         },
         "cloud_cover": {
             "value": current["cloud_cover"],

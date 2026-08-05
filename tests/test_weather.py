@@ -26,7 +26,7 @@ STUB_RESPONSE = {
         "apparent_temperature": "°C",
         "precipitation": "mm",
         "surface_pressure": "hPa",
-        "sea_level_pressure": "hPa",
+        "pressure_msl": "hPa",
         "cloud_cover": "%",
         "visibility": "m",
         "dew_point_2m": "°C",
@@ -41,7 +41,7 @@ STUB_RESPONSE = {
         "apparent_temperature": 33.1,
         "precipitation": 0.0,
         "surface_pressure": 1008.2,
-        "sea_level_pressure": 1012.6,
+        "pressure_msl": 1012.6,
         "cloud_cover": 40,
         "weather_code": 1,
         "is_day": 1,
@@ -319,14 +319,15 @@ def test_format_forecast_includes_daylight_duration():
 
 
 def test_format_forecast_reads_pressure_from_requested_field():
-    """気圧は fetch_forecast が要求する surface_pressure キーで読む。
+    """地上気圧（pressure）は surface_pressure キーで読む。
 
-    pressure_msl は要求していないので current に含まれない。
-    別のキー名で読むと KeyError になる（LOOP-ENGINEERING-LAB-4 の再発防止）。
+    current には海面気圧（pressure_msl）も含まれるが、取り違えて
+    読むと KeyError になる（LOOP-ENGINEERING-LAB-4 の再発防止）。
     """
     result = format_forecast(STUB_RESPONSE)
 
     assert result["pressure"] == {"value": 1008.2, "unit": "hPa"}
+    assert result["sea_level_pressure"] == {"value": 1012.6, "unit": "hPa"}
 
 
 def test_format_forecast_reads_cloud_cover_from_requested_field():
