@@ -18,6 +18,7 @@ import { SunshineDuration } from "./SunshineDuration";
 import { TemperatureChart } from "./TemperatureChart";
 import { TemperatureRange } from "./TemperatureRange";
 import { UvIndex } from "./UvIndex";
+import { Visibility } from "./Visibility";
 import { Wind } from "./Wind";
 
 type State =
@@ -83,6 +84,7 @@ export default function App() {
           <DewPoint data={weatherState.data} />
           <Pressure data={weatherState.data} />
           <CloudCover data={weatherState.data} />
+          <Visibility data={weatherState.data} />
           <SolarRadiation data={weatherState.data} />
           <Wind data={weatherState.data} />
           <Elevation data={weatherState.data} />
