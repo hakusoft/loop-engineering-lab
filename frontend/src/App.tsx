@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { fetchSeries, fetchWeather, type SeriesResponse, type WeatherResponse } from "./api";
+import { ApparentTemperature } from "./ApparentTemperature";
 import { CloudCover } from "./CloudCover";
 import { Condition } from "./Condition";
 import { CurrentTemperature } from "./CurrentTemperature";
@@ -78,6 +79,7 @@ export default function App() {
         <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 16 }}>
           <Condition data={weatherState.data} />
           <CurrentTemperature data={weatherState.data} />
+          <ApparentTemperature data={weatherState.data} />
           <Humidity data={weatherState.data} />
           <DewPoint data={weatherState.data} />
           <Pressure data={weatherState.data} />
