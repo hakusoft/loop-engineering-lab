@@ -17,6 +17,7 @@ import { SunshineDuration } from "./SunshineDuration";
 import { TemperatureChart } from "./TemperatureChart";
 import { TemperatureRange } from "./TemperatureRange";
 import { UvIndex } from "./UvIndex";
+import { Visibility } from "./Visibility";
 import { Wind } from "./Wind";
 
 type State =
@@ -107,6 +108,7 @@ export default function App() {
           <CategoryGroup title="環境">
             <Pressure data={weatherState.data} />
             <CloudCover data={weatherState.data} />
+            <Visibility data={weatherState.data} />
             <UvIndex data={weatherState.data} />
             <Elevation data={weatherState.data} />
           </CategoryGroup>
