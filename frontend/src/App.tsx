@@ -12,6 +12,7 @@ import { ObservedAt } from "./ObservedAt";
 import { PrecipitationProbability } from "./PrecipitationProbability";
 import { PrecipitationSum } from "./PrecipitationSum";
 import { Pressure } from "./Pressure";
+import { SeaLevelPressure } from "./SeaLevelPressure";
 import { SunTimes } from "./SunTimes";
 import { SunshineDuration } from "./SunshineDuration";
 import { TemperatureChart } from "./TemperatureChart";
@@ -81,6 +82,7 @@ export default function App() {
           <Humidity data={weatherState.data} />
           <DewPoint data={weatherState.data} />
           <Pressure data={weatherState.data} />
+          <SeaLevelPressure data={weatherState.data} />
           <CloudCover data={weatherState.data} />
           <Wind data={weatherState.data} />
           <Elevation data={weatherState.data} />

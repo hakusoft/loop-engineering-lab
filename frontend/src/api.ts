@@ -32,6 +32,7 @@ export type WeatherResponse = {
   humidity: { value: number; unit: string };
   dew_point: { value: number; unit: string };
   pressure: { value: number; unit: string };
+  sea_level_pressure: { value: number; unit: string };
   cloud_cover: { value: number; unit: string };
   uv_index_max: { value: number; unit: string };
   precipitation_probability: { value: number; unit: string };

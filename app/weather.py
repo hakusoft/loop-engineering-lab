@@ -98,8 +98,8 @@ def fetch_forecast(
             "current": (
                 "temperature_2m,relative_humidity_2m,wind_speed_10m,"
                 "wind_direction_10m,wind_gusts_10m,apparent_temperature,"
-                "precipitation,surface_pressure,cloud_cover,weather_code,is_day,"
-                "visibility,dew_point_2m"
+                "precipitation,surface_pressure,pressure_msl,cloud_cover,weather_code,"
+                "is_day,visibility,dew_point_2m"
             ),
             "daily": (
                 "uv_index_max,sunrise,sunset,"
@@ -218,6 +218,10 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
         "pressure": {
             "value": current["surface_pressure"],
             "unit": units.get("surface_pressure", "hPa"),
+        },
+        "sea_level_pressure": {
+            "value": current["sea_level_pressure"],
+            "unit": units.get("sea_level_pressure", "hPa"),
         },
         "cloud_cover": {
             "value": current["cloud_cover"],

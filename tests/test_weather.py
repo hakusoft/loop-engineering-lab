@@ -26,6 +26,7 @@ STUB_RESPONSE = {
         "apparent_temperature": "°C",
         "precipitation": "mm",
         "surface_pressure": "hPa",
+        "sea_level_pressure": "hPa",
         "cloud_cover": "%",
         "visibility": "m",
         "dew_point_2m": "°C",
@@ -40,6 +41,7 @@ STUB_RESPONSE = {
         "apparent_temperature": 33.1,
         "precipitation": 0.0,
         "surface_pressure": 1008.2,
+        "sea_level_pressure": 1012.6,
         "cloud_cover": 40,
         "weather_code": 1,
         "is_day": 1,
@@ -96,6 +98,7 @@ def test_format_forecast_maps_values_and_units():
     assert result["wind_gusts"] == {"value": 24.8, "unit": "km/h"}
     assert result["precipitation"] == {"value": 0.0, "unit": "mm"}
     assert result["pressure"] == {"value": 1008.2, "unit": "hPa"}
+    assert result["sea_level_pressure"] == {"value": 1012.6, "unit": "hPa"}
     assert result["cloud_cover"] == {"value": 40, "unit": "%"}
     assert result["visibility"] == {"value": 24140.0, "unit": "m"}
     assert result["uv_index_max"] == {"value": 7.8, "unit": ""}
@@ -250,6 +253,7 @@ def test_format_forecast_falls_back_when_units_missing():
     assert result["wind_speed_max"] == {"value": 18.4, "unit": "km/h"}
     assert result["wind_gusts_max"] == {"value": 42.6, "unit": "km/h"}
     assert result["visibility"] == {"value": 24140.0, "unit": "m"}
+    assert result["sea_level_pressure"] == {"value": 1012.6, "unit": "hPa"}
     assert result["dew_point"] == {"value": 22.6, "unit": "°C"}
     assert result["location_name"] == "東京"
     assert result["elevation"] == {"value": 40.0, "unit": "m"}
