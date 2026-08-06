@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { fetchSeries, fetchWeather, type SeriesResponse, type WeatherResponse } from "./api";
+import { ApparentTemperature } from "./ApparentTemperature";
 import { CloudCover } from "./CloudCover";
 import { Condition } from "./Condition";
 import { CurrentTemperature } from "./CurrentTemperature";
@@ -13,6 +14,7 @@ import { PrecipitationProbability } from "./PrecipitationProbability";
 import { PrecipitationSum } from "./PrecipitationSum";
 import { Pressure } from "./Pressure";
 import { SeaLevelPressure } from "./SeaLevelPressure";
+import { SolarRadiation } from "./SolarRadiation";
 import { SunTimes } from "./SunTimes";
 import { SunshineDuration } from "./SunshineDuration";
 import { TemperatureChart } from "./TemperatureChart";
@@ -80,12 +82,14 @@ export default function App() {
         <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 16 }}>
           <Condition data={weatherState.data} />
           <CurrentTemperature data={weatherState.data} />
+          <ApparentTemperature data={weatherState.data} />
           <Humidity data={weatherState.data} />
           <DewPoint data={weatherState.data} />
           <Pressure data={weatherState.data} />
           <SeaLevelPressure data={weatherState.data} />
           <CloudCover data={weatherState.data} />
           <Visibility data={weatherState.data} />
+          <SolarRadiation data={weatherState.data} />
           <Wind data={weatherState.data} />
           <Elevation data={weatherState.data} />
           <ObservedAt data={weatherState.data} />

@@ -27,6 +27,7 @@ export type SeriesResponse = {
 // /weather のレスポンス。現在値の表示に使うのは temperature と sunrise/sunset のみ。
 export type WeatherResponse = {
   temperature: { value: number; unit: string };
+  apparent_temperature: { value: number; unit: string };
   temperature_max: { value: number; unit: string };
   temperature_min: { value: number; unit: string };
   humidity: { value: number; unit: string };
@@ -38,6 +39,7 @@ export type WeatherResponse = {
   uv_index_max: { value: number; unit: string };
   precipitation_probability: { value: number; unit: string };
   precipitation_sum: { value: number; unit: string };
+  solar_radiation: { value: number; unit: string };
   wind_speed: { value: number; unit: string };
   wind_direction: { value: number; unit: string; compass: string };
   wind_gusts_max: { value: number; unit: string };
