@@ -99,7 +99,7 @@ def fetch_forecast(
                 "temperature_2m,relative_humidity_2m,wind_speed_10m,"
                 "wind_direction_10m,wind_gusts_10m,apparent_temperature,"
                 "precipitation,surface_pressure,cloud_cover,weather_code,is_day,"
-                "visibility,dew_point_2m"
+                "visibility,dew_point_2m,uv_index"
             ),
             "daily": (
                 "uv_index_max,sunrise,sunset,"
@@ -226,6 +226,10 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
         "visibility": {
             "value": current["visibility"],
             "unit": units.get("visibility", "m"),
+        },
+        "uv_index": {
+            "value": current["uv_index"],
+            "unit": units.get("uv_index", ""),
         },
         "uv_index_max": {
             "value": daily["uv_index_max"][0],
