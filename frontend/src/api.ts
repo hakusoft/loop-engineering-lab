@@ -39,6 +39,7 @@ export type WeatherResponse = {
   uv_index_max: { value: number; unit: string };
   precipitation_probability: { value: number; unit: string };
   precipitation_sum: { value: number; unit: string };
+  solar_radiation: { value: number; unit: string };
   wind_speed: { value: number; unit: string };
   wind_direction: { value: number; unit: string; compass: string };
   wind_gusts_max: { value: number; unit: string };
