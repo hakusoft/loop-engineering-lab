@@ -13,6 +13,7 @@ import { ObservedAt } from "./ObservedAt";
 import { PrecipitationProbability } from "./PrecipitationProbability";
 import { PrecipitationSum } from "./PrecipitationSum";
 import { Pressure } from "./Pressure";
+import { SolarRadiation } from "./SolarRadiation";
 import { SunTimes } from "./SunTimes";
 import { SunshineDuration } from "./SunshineDuration";
 import { TemperatureChart } from "./TemperatureChart";
@@ -111,6 +112,7 @@ export default function App() {
             <Pressure data={weatherState.data} />
             <CloudCover data={weatherState.data} />
             <Visibility data={weatherState.data} />
+            <SolarRadiation data={weatherState.data} />
             <UvIndex data={weatherState.data} />
             <Elevation data={weatherState.data} />
           </CategoryGroup>
