@@ -29,6 +29,7 @@ STUB_RESPONSE = {
         "cloud_cover": "%",
         "visibility": "m",
         "dew_point_2m": "°C",
+        "snow_depth_cm": "m",
     },
     "current": {
         "time": "2026-07-21T09:00",
@@ -45,6 +46,7 @@ STUB_RESPONSE = {
         "is_day": 1,
         "visibility": 24140.0,
         "dew_point_2m": 22.6,
+        "snow_depth_cm": 0.0,
     },
     "daily_units": {
         "time": "iso8601",
@@ -98,6 +100,7 @@ def test_format_forecast_maps_values_and_units():
     assert result["pressure"] == {"value": 1008.2, "unit": "hPa"}
     assert result["cloud_cover"] == {"value": 40, "unit": "%"}
     assert result["visibility"] == {"value": 24140.0, "unit": "m"}
+    assert result["snow_depth"] == {"value": 0.0, "unit": "m"}
     assert result["uv_index_max"] == {"value": 7.8, "unit": ""}
     assert result["temperature_max"] == {"value": 33.2, "unit": "°C"}
     assert result["temperature_min"] == {"value": 24.7, "unit": "°C"}
