@@ -16,6 +16,7 @@ import type { SeriesResponse } from "./api";
 // 時刻は共通の timestamps を、値は該当系列の values を突き合わせる。
 function toChartData(data: SeriesResponse) {
   const temperature = data.series.find((s) => s.label === "気温");
+  const apparentTemperature = data.series.find((s) => s.label === "体感温度");
   const humidity = data.series.find((s) => s.label === "湿度");
   const rain = data.series.find((s) => s.label === "雨量");
   const snow = data.series.find((s) => s.label === "降雪量");
@@ -23,6 +24,7 @@ function toChartData(data: SeriesResponse) {
     return {
       rows: [],
       temperatureUnit: "°C",
+      apparentTemperature: undefined,
       humidity: undefined,
       rain: undefined,
       snow: undefined,
@@ -33,11 +35,12 @@ function toChartData(data: SeriesResponse) {
     // "2026-07-21T00:00" -> "21日 00:00" 程度の短い表示に。
     time: t.slice(8, 10) + "日 " + t.slice(11, 16),
     temperature: temperature.values[i],
+    apparentTemperature: apparentTemperature?.values[i] ?? null,
     humidity: humidity?.values[i] ?? null,
     rain: rain?.values[i] ?? null,
     snow: snow?.values[i] ?? null,
   }));
-  return { rows, temperatureUnit: temperature.unit, humidity, rain, snow };
+  return { rows, temperatureUnit: temperature.unit, apparentTemperature, humidity, rain, snow };
 }
 
 const NARROW_VIEWPORT_QUERY = "(max-width: 480px)";
@@ -60,7 +63,7 @@ function useIsNarrowViewport(): boolean {
 }
 
 export function TemperatureChart({ data }: { data: SeriesResponse }) {
-  const { rows, temperatureUnit, humidity, rain, snow } = toChartData(data);
+  const { rows, temperatureUnit, apparentTemperature, humidity, rain, snow } = toChartData(data);
   const isNarrow = useIsNarrowViewport();
   const tickFontSize = isNarrow ? 15 : 12;
   const axisWidth = isNarrow ? 68 : 56;
@@ -102,11 +105,13 @@ export function TemperatureChart({ data }: { data: SeriesResponse }) {
             const unit =
               name === "気温"
                 ? temperatureUnit
-                : name === "湿度"
-                  ? humidity?.unit
-                  : name === "雨量"
-                    ? rain?.unit
-                    : snow?.unit;
+                : name === "体感温度"
+                  ? apparentTemperature?.unit
+                  : name === "湿度"
+                    ? humidity?.unit
+                    : name === "雨量"
+                      ? rain?.unit
+                      : snow?.unit;
             return [`${v}${unit ?? ""}`, name];
           }}
         />
@@ -121,6 +126,19 @@ export function TemperatureChart({ data }: { data: SeriesResponse }) {
           isAnimationActive={false}
           name="気温"
         />
+        {apparentTemperature && (
+          <Line
+            yAxisId="temperature"
+            type="monotone"
+            dataKey="apparentTemperature"
+            stroke="#e2492c"
+            strokeDasharray="4 3"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="体感温度"
+          />
+        )}
         {humidity && (
           <Line
             yAxisId="humidity"
