@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { fetchSeries, fetchWeather, type SeriesResponse, type WeatherResponse } from "./api";
+import { ApparentTemperature } from "./ApparentTemperature";
 import { CloudCover } from "./CloudCover";
 import { Condition } from "./Condition";
 import { CurrentTemperature } from "./CurrentTemperature";
@@ -90,6 +91,7 @@ export default function App() {
           <CategoryGroup title="気温">
             <Condition data={weatherState.data} />
             <CurrentTemperature data={weatherState.data} />
+            <ApparentTemperature data={weatherState.data} />
             <TemperatureRange data={weatherState.data} />
             <DewPoint data={weatherState.data} />
           </CategoryGroup>
