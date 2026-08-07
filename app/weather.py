@@ -131,7 +131,7 @@ def fetch_hourly_series(
             "longitude": longitude,
             "hourly": (
                 "temperature_2m,relative_humidity_2m,precipitation,rain,snowfall,"
-                "precipitation_probability,apparent_temperature"
+                "precipitation_probability,apparent_temperature,uv_index"
             ),
             "past_days": past_days,
             "forecast_days": 1,
@@ -319,6 +319,7 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
             _series("rain", "雨量", "mm"),
             _series("snowfall", "降雪量", "cm"),
             _series("precipitation_probability", "降水確率", "%"),
+            _series("uv_index", "紫外線指数", ""),
         ],
         "coordinates": {
             "latitude": _round_coordinate(raw["latitude"]),
