@@ -12,6 +12,7 @@ import { HumidityRange } from "./HumidityRange";
 import { LaundryDryness } from "./LaundryDryness";
 import { LocationName } from "./LocationName";
 import { ObservedAt } from "./ObservedAt";
+import { Precipitation } from "./Precipitation";
 import { PrecipitationProbability } from "./PrecipitationProbability";
 import { PrecipitationSum } from "./PrecipitationSum";
 import { PrecipitationWarning } from "./PrecipitationWarning";
@@ -109,6 +110,7 @@ export default function App() {
           <CategoryGroup title="降水・湿度">
             <Humidity data={weatherState.data} />
             <HumidityRange data={weatherState.data} />
+            <Precipitation data={weatherState.data} />
             <PrecipitationProbability data={weatherState.data} />
             <PrecipitationSum data={weatherState.data} />
             <PrecipitationWarning data={weatherState.data} />
