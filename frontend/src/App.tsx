@@ -12,6 +12,7 @@ import { LocationName } from "./LocationName";
 import { ObservedAt } from "./ObservedAt";
 import { PrecipitationProbability } from "./PrecipitationProbability";
 import { PrecipitationSum } from "./PrecipitationSum";
+import { PrecipitationWarning } from "./PrecipitationWarning";
 import { Pressure } from "./Pressure";
 import { SeaLevelPressure } from "./SeaLevelPressure";
 import { SolarRadiation } from "./SolarRadiation";
@@ -99,6 +100,7 @@ export default function App() {
           <UvIndex data={weatherState.data} />
           <PrecipitationProbability data={weatherState.data} />
           <PrecipitationSum data={weatherState.data} />
+          <PrecipitationWarning data={weatherState.data} />
           <SunTimes data={weatherState.data} />
           <SunshineDuration data={weatherState.data} />
           <LaundryDryness data={weatherState.data} />
