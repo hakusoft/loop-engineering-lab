@@ -1,12 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { fetchSeries, fetchWeather, type SeriesResponse, type WeatherResponse } from "./api";
 import { ApparentTemperature } from "./ApparentTemperature";
 import { CloudCover } from "./CloudCover";
 import { Condition } from "./Condition";
 import { CurrentTemperature } from "./CurrentTemperature";
+import { DaylightDuration } from "./DaylightDuration";
 import { DewPoint } from "./DewPoint";
 import { Elevation } from "./Elevation";
 import { Humidity } from "./Humidity";
+import { HumidityRange } from "./HumidityRange";
 import { LaundryDryness } from "./LaundryDryness";
 import { LocationName } from "./LocationName";
 import { ObservedAt } from "./ObservedAt";
@@ -35,6 +37,16 @@ type WeatherState =
   | { status: "loading" }
   | { status: "error" }
   | { status: "ready"; data: WeatherResponse };
+
+// 表示項目をカテゴリごとに区切る。値・表示ロジックは各コンポーネントのまま変えない。
+function CategoryGroup({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <div>
+      <p style={{ color: "#999", fontSize: 12, fontWeight: 600, margin: "0 0 6px" }}>{title}</p>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>{children}</div>
+    </div>
+  );
+}
 
 export default function App() {
   const [state, setState] = useState<State>({ status: "loading" });
@@ -82,30 +94,46 @@ export default function App() {
       </p>
 
       {weatherState.status === "ready" && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 16 }}>
-          <Condition data={weatherState.data} />
-          <CurrentTemperature data={weatherState.data} />
-          <ApparentTemperature data={weatherState.data} />
-          <Humidity data={weatherState.data} />
-          <DewPoint data={weatherState.data} />
-          <Pressure data={weatherState.data} />
-          <SeaLevelPressure data={weatherState.data} />
-          <CloudCover data={weatherState.data} />
-          <Visibility data={weatherState.data} />
-          <SolarRadiation data={weatherState.data} />
-          <SnowDepth data={weatherState.data} />
-          <Wind data={weatherState.data} />
-          <Elevation data={weatherState.data} />
-          <ObservedAt data={weatherState.data} />
-          <TemperatureRange data={weatherState.data} />
-          <UvIndex data={weatherState.data} />
-          <PrecipitationProbability data={weatherState.data} />
-          <Precipitation data={weatherState.data} />
-          <PrecipitationSum data={weatherState.data} />
-          <PrecipitationWarning data={weatherState.data} />
-          <SunTimes data={weatherState.data} />
-          <SunshineDuration data={weatherState.data} />
-          <LaundryDryness data={weatherState.data} />
+        <div style={{ display: "flex", flexDirection: "column", gap: 20, marginBottom: 16 }}>
+          <CategoryGroup title="気温">
+            <Condition data={weatherState.data} />
+            <CurrentTemperature data={weatherState.data} />
+            <ApparentTemperature data={weatherState.data} />
+            <TemperatureRange data={weatherState.data} />
+            <DewPoint data={weatherState.data} />
+          </CategoryGroup>
+
+          <CategoryGroup title="風">
+            <Wind data={weatherState.data} />
+          </CategoryGroup>
+
+          <CategoryGroup title="降水・湿度">
+            <Humidity data={weatherState.data} />
+            <HumidityRange data={weatherState.data} />
+            <Precipitation data={weatherState.data} />
+            <PrecipitationProbability data={weatherState.data} />
+            <PrecipitationSum data={weatherState.data} />
+            <PrecipitationWarning data={weatherState.data} />
+            <SnowDepth data={weatherState.data} />
+            <LaundryDryness data={weatherState.data} />
+          </CategoryGroup>
+
+          <CategoryGroup title="環境">
+            <Pressure data={weatherState.data} />
+            <SeaLevelPressure data={weatherState.data} />
+            <CloudCover data={weatherState.data} />
+            <Visibility data={weatherState.data} />
+            <SolarRadiation data={weatherState.data} />
+            <UvIndex data={weatherState.data} />
+            <Elevation data={weatherState.data} />
+          </CategoryGroup>
+
+          <CategoryGroup title="日照・時刻">
+            <SunTimes data={weatherState.data} />
+            <DaylightDuration data={weatherState.data} />
+            <SunshineDuration data={weatherState.data} />
+            <ObservedAt data={weatherState.data} />
+          </CategoryGroup>
         </div>
       )}
 
