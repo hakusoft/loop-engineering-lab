@@ -11,8 +11,8 @@ import {
 } from "recharts";
 import type { SeriesResponse } from "./api";
 
-// series の中から気温・湿度・雨量・降雪量・降水確率を取り出し、
-// Recharts が食える {time, temperature, humidity, rain, snow, precipitationProbability}[] にする。
+// series の中から気温・湿度・雨量・降雪量・降水確率・紫外線指数を取り出し、
+// Recharts が食える {time, temperature, humidity, rain, snow, precipitationProbability, uvIndex}[] にする。
 // 時刻は共通の timestamps を、値は該当系列の values を突き合わせる。
 function toChartData(data: SeriesResponse) {
   const temperature = data.series.find((s) => s.label === "気温");
@@ -21,6 +21,7 @@ function toChartData(data: SeriesResponse) {
   const rain = data.series.find((s) => s.label === "雨量");
   const snow = data.series.find((s) => s.label === "降雪量");
   const precipitationProbability = data.series.find((s) => s.label === "降水確率");
+  const uvIndex = data.series.find((s) => s.label === "紫外線指数");
   if (!temperature) {
     return {
       rows: [],
@@ -30,6 +31,7 @@ function toChartData(data: SeriesResponse) {
       rain: undefined,
       snow: undefined,
       precipitationProbability: undefined,
+      uvIndex: undefined,
     };
   }
 
@@ -42,6 +44,7 @@ function toChartData(data: SeriesResponse) {
     rain: rain?.values[i] ?? null,
     snow: snow?.values[i] ?? null,
     precipitationProbability: precipitationProbability?.values[i] ?? null,
+    uvIndex: uvIndex?.values[i] ?? null,
   }));
   return {
     rows,
@@ -51,6 +54,7 @@ function toChartData(data: SeriesResponse) {
     rain,
     snow,
     precipitationProbability,
+    uvIndex,
   };
 }
 
@@ -74,7 +78,7 @@ function useIsNarrowViewport(): boolean {
 }
 
 export function TemperatureChart({ data }: { data: SeriesResponse }) {
-  const { rows, temperatureUnit, apparentTemperature, humidity, rain, snow, precipitationProbability } =
+  const { rows, temperatureUnit, apparentTemperature, humidity, rain, snow, precipitationProbability, uvIndex } =
     toChartData(data);
   const isNarrow = useIsNarrowViewport();
   const tickFontSize = isNarrow ? 15 : 12;
@@ -116,6 +120,10 @@ export function TemperatureChart({ data }: { data: SeriesResponse }) {
           // 降水確率は % 固定なので 0〜100 のスケールで、他系列とは別軸にする。
           <YAxis yAxisId="precipitationProbability" hide domain={[0, 100]} />
         )}
+        {uvIndex && (
+          // 紫外線指数は他系列と単位もスケールも違うので、独立した軸にする。
+          <YAxis yAxisId="uvIndex" hide domain={[0, Math.max(uvIndex.max ?? 0, 1) + 1]} />
+        )}
         <Tooltip
           formatter={(v: number, name: string) => {
             const unit =
@@ -129,7 +137,9 @@ export function TemperatureChart({ data }: { data: SeriesResponse }) {
                       ? rain?.unit
                       : name === "降雪量"
                         ? snow?.unit
-                        : precipitationProbability?.unit;
+                        : name === "降水確率"
+                          ? precipitationProbability?.unit
+                          : uvIndex?.unit;
             return [`${v}${unit ?? ""}`, name];
           }}
         />
@@ -204,6 +214,19 @@ export function TemperatureChart({ data }: { data: SeriesResponse }) {
             dot={false}
             isAnimationActive={false}
             name="降水確率"
+            connectNulls
+          />
+        )}
+        {uvIndex && (
+          <Line
+            yAxisId="uvIndex"
+            type="monotone"
+            dataKey="uvIndex"
+            stroke="#f59f00"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="紫外線指数"
             connectNulls
           />
         )}

@@ -8,6 +8,7 @@ import { DaylightDuration } from "./DaylightDuration";
 import { DewPoint } from "./DewPoint";
 import { Elevation } from "./Elevation";
 import { Humidity } from "./Humidity";
+import { HumidityRange } from "./HumidityRange";
 import { LaundryDryness } from "./LaundryDryness";
 import { LocationName } from "./LocationName";
 import { ObservedAt } from "./ObservedAt";
@@ -107,6 +108,7 @@ export default function App() {
 
           <CategoryGroup title="降水・湿度">
             <Humidity data={weatherState.data} />
+            <HumidityRange data={weatherState.data} />
             <PrecipitationProbability data={weatherState.data} />
             <PrecipitationSum data={weatherState.data} />
             <PrecipitationWarning data={weatherState.data} />

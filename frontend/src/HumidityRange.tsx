@@ -1,0 +1,17 @@
+import type { WeatherResponse } from "./api";
+
+// 表示ロジックを純関数に切り出す。値の丸め・単位の組み立てだけなのでテスト基盤は不要だが、
+// コンポーネントから分離しておくと後から検証しやすい。
+export function formatHumidityRange(data: WeatherResponse): string {
+  const { value: max, unit } = data.humidity_max;
+  const { value: min } = data.humidity_min;
+  return `最高 ${Math.round(max * 10) / 10}${unit} ・ 最低 ${Math.round(min * 10) / 10}${unit}`;
+}
+
+export function HumidityRange({ data }: { data: WeatherResponse }) {
+  return (
+    <p style={{ color: "#666", fontSize: 14, margin: "4px 0" }}>
+      {formatHumidityRange(data)}
+    </p>
+  );
+}
