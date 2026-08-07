@@ -106,7 +106,8 @@ def fetch_forecast(
                 "temperature_2m_max,temperature_2m_min,precipitation_probability_max,"
                 "sunshine_duration,precipitation_hours,precipitation_sum,"
                 "wind_speed_10m_max,wind_direction_10m_dominant,wind_gusts_10m_max,"
-                "apparent_temperature_max,apparent_temperature_min"
+                "apparent_temperature_max,apparent_temperature_min,"
+                "relative_humidity_2m_max,relative_humidity_2m_min"
             ),
             "timezone": "Asia/Tokyo",
             "forecast_days": 1,
@@ -265,6 +266,14 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
         "apparent_temperature_min": {
             "value": daily["apparent_temperature_min"][0],
             "unit": daily_units.get("apparent_temperature_min", "°C"),
+        },
+        "humidity_max": {
+            "value": daily["relative_humidity_2m_max"][0],
+            "unit": daily_units.get("relative_humidity_2m_max", "%"),
+        },
+        "humidity_min": {
+            "value": daily["relative_humidity_2m_min"][0],
+            "unit": daily_units.get("relative_humidity_2m_min", "%"),
         },
         "sunshine_duration": {
             "value": daily["sunshine_duration"][0],
