@@ -14,6 +14,7 @@ import { PrecipitationProbability } from "./PrecipitationProbability";
 import { PrecipitationSum } from "./PrecipitationSum";
 import { Pressure } from "./Pressure";
 import { SolarRadiation } from "./SolarRadiation";
+import { SnowDepth } from "./SnowDepth";
 import { SunTimes } from "./SunTimes";
 import { SunshineDuration } from "./SunshineDuration";
 import { TemperatureChart } from "./TemperatureChart";
@@ -105,6 +106,7 @@ export default function App() {
             <Humidity data={weatherState.data} />
             <PrecipitationProbability data={weatherState.data} />
             <PrecipitationSum data={weatherState.data} />
+            <SnowDepth data={weatherState.data} />
             <LaundryDryness data={weatherState.data} />
           </CategoryGroup>
 
