@@ -7,6 +7,7 @@ import { CurrentTemperature } from "./CurrentTemperature";
 import { DewPoint } from "./DewPoint";
 import { Elevation } from "./Elevation";
 import { Humidity } from "./Humidity";
+import { HumidityRange } from "./HumidityRange";
 import { LaundryDryness } from "./LaundryDryness";
 import { LocationName } from "./LocationName";
 import { ObservedAt } from "./ObservedAt";
@@ -86,6 +87,7 @@ export default function App() {
           <CurrentTemperature data={weatherState.data} />
           <ApparentTemperature data={weatherState.data} />
           <Humidity data={weatherState.data} />
+          <HumidityRange data={weatherState.data} />
           <DewPoint data={weatherState.data} />
           <Pressure data={weatherState.data} />
           <SeaLevelPressure data={weatherState.data} />
