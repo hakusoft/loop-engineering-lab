@@ -99,7 +99,7 @@ def fetch_forecast(
                 "temperature_2m,relative_humidity_2m,wind_speed_10m,"
                 "wind_direction_10m,wind_gusts_10m,apparent_temperature,"
                 "precipitation,surface_pressure,cloud_cover,weather_code,is_day,"
-                "visibility,dew_point_2m,shortwave_radiation,snow_depth"
+                "visibility,dew_point_2m,shortwave_radiation,snow_depth,uv_index"
             ),
             "daily": (
                 "uv_index_max,sunrise,sunset,"
@@ -131,7 +131,7 @@ def fetch_hourly_series(
             "longitude": longitude,
             "hourly": (
                 "temperature_2m,relative_humidity_2m,precipitation,rain,snowfall,"
-                "precipitation_probability"
+                "precipitation_probability,apparent_temperature"
             ),
             "past_days": past_days,
             "forecast_days": 1,
@@ -238,6 +238,10 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
             "value": current["snow_depth"],
             "unit": units.get("snow_depth", "m"),
         },
+        "uv_index": {
+            "value": current["uv_index"],
+            "unit": units.get("uv_index", ""),
+        },
         "uv_index_max": {
             "value": daily["uv_index_max"][0],
             "unit": daily_units.get("uv_index_max", ""),
@@ -306,6 +310,7 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
         "timestamps": timestamps,
         "series": [
             _series("temperature_2m", "気温", "°C"),
+            _series("apparent_temperature", "体感温度", "°C"),
             _series("relative_humidity_2m", "湿度", "%"),
             _series("rain", "雨量", "mm"),
             _series("snowfall", "降雪量", "cm"),

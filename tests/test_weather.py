@@ -31,6 +31,7 @@ STUB_RESPONSE = {
         "dew_point_2m": "°C",
         "shortwave_radiation": "W/m²",
         "snow_depth": "m",
+        "uv_index": "",
     },
     "current": {
         "time": "2026-07-21T09:00",
@@ -49,6 +50,7 @@ STUB_RESPONSE = {
         "dew_point_2m": 22.6,
         "shortwave_radiation": 412.0,
         "snow_depth": 0.0,
+        "uv_index": 5.2,
     },
     "daily_units": {
         "time": "iso8601",
@@ -104,6 +106,7 @@ def test_format_forecast_maps_values_and_units():
     assert result["visibility"] == {"value": 24140.0, "unit": "m"}
     assert result["solar_radiation"] == {"value": 412.0, "unit": "W/m²"}
     assert result["snow_depth"] == {"value": 0.0, "unit": "m"}
+    assert result["uv_index"] == {"value": 5.2, "unit": ""}
     assert result["uv_index_max"] == {"value": 7.8, "unit": ""}
     assert result["temperature_max"] == {"value": 33.2, "unit": "°C"}
     assert result["temperature_min"] == {"value": 24.7, "unit": "°C"}
@@ -173,6 +176,7 @@ STUB_SERIES = {
     "hourly_units": {
         "time": "iso8601",
         "temperature_2m": "°C",
+        "apparent_temperature": "°C",
         "relative_humidity_2m": "%",
         "rain": "mm",
         "snowfall": "cm",
@@ -181,6 +185,7 @@ STUB_SERIES = {
     "hourly": {
         "time": ["2026-07-21T00:00", "2026-07-21T01:00", "2026-07-21T02:00"],
         "temperature_2m": [26.1, 25.4, 24.9],
+        "apparent_temperature": [27.3, 26.5, 25.8],
         "relative_humidity_2m": [78, 81, 85],
         "rain": [0.0, 0.5, 1.2],
         "snowfall": [0.0, 0.0, 0.0],
@@ -200,10 +205,12 @@ def test_series_shares_one_timeline():
 def test_series_keeps_units_separate_for_split_axes():
     """気温と湿度は単位が違うので、系列ごとに unit を持つ。"""
     result = format_hourly_series(STUB_SERIES)
-    temperature, humidity, rain, snow, precipitation_probability = result["series"]
+    temperature, apparent_temperature, humidity, rain, snow, precipitation_probability = result["series"]
 
     assert temperature["label"] == "気温"
     assert temperature["unit"] == "°C"
+    assert apparent_temperature["label"] == "体感温度"
+    assert apparent_temperature["unit"] == "°C"
     assert humidity["label"] == "湿度"
     assert humidity["unit"] == "%"
     assert rain["label"] == "雨量"
@@ -217,9 +224,10 @@ def test_series_keeps_units_separate_for_split_axes():
 def test_series_exposes_min_max_for_axis_scaling():
     """軸を分けて描けるよう、系列ごとに範囲を持つ。"""
     result = format_hourly_series(STUB_SERIES)
-    temperature, humidity, rain, snow, precipitation_probability = result["series"]
+    temperature, apparent_temperature, humidity, rain, snow, precipitation_probability = result["series"]
 
     assert (temperature["min"], temperature["max"]) == (24.9, 26.1)
+    assert (apparent_temperature["min"], apparent_temperature["max"]) == (25.8, 27.3)
     assert (humidity["min"], humidity["max"]) == (78, 85)
     assert (rain["min"], rain["max"]) == (0.0, 1.2)
     assert (snow["min"], snow["max"]) == (0.0, 0.0)
@@ -236,6 +244,7 @@ def test_series_tolerates_missing_values():
         "hourly": {
             "time": ["2026-07-21T00:00", "2026-07-21T01:00"],
             "temperature_2m": [26.1, None],
+            "apparent_temperature": [None, None],
             "relative_humidity_2m": [None, None],
             "rain": [0.0, None],
             "snowfall": [None, None],
@@ -244,9 +253,10 @@ def test_series_tolerates_missing_values():
     }
 
     result = format_hourly_series(raw)
-    temperature, humidity, rain, snow, precipitation_probability = result["series"]
+    temperature, apparent_temperature, humidity, rain, snow, precipitation_probability = result["series"]
 
     assert temperature["min"] == 26.1
+    assert apparent_temperature["min"] is None  # 全欠測でも例外にしない
     assert humidity["min"] is None  # 全欠測でも例外にしない
     assert len(humidity["values"]) == 2
     assert rain["min"] == 0.0
