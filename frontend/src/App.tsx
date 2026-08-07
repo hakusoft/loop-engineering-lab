@@ -4,6 +4,7 @@ import { ApparentTemperature } from "./ApparentTemperature";
 import { CloudCover } from "./CloudCover";
 import { Condition } from "./Condition";
 import { CurrentTemperature } from "./CurrentTemperature";
+import { DaylightDuration } from "./DaylightDuration";
 import { DewPoint } from "./DewPoint";
 import { Elevation } from "./Elevation";
 import { Humidity } from "./Humidity";
@@ -102,6 +103,7 @@ export default function App() {
           <PrecipitationSum data={weatherState.data} />
           <PrecipitationWarning data={weatherState.data} />
           <SunTimes data={weatherState.data} />
+          <DaylightDuration data={weatherState.data} />
           <SunshineDuration data={weatherState.data} />
           <LaundryDryness data={weatherState.data} />
         </div>
