@@ -10,6 +10,7 @@ import { Humidity } from "./Humidity";
 import { LaundryDryness } from "./LaundryDryness";
 import { LocationName } from "./LocationName";
 import { ObservedAt } from "./ObservedAt";
+import { Precipitation } from "./Precipitation";
 import { PrecipitationProbability } from "./PrecipitationProbability";
 import { PrecipitationSum } from "./PrecipitationSum";
 import { PrecipitationWarning } from "./PrecipitationWarning";
@@ -99,6 +100,7 @@ export default function App() {
           <TemperatureRange data={weatherState.data} />
           <UvIndex data={weatherState.data} />
           <PrecipitationProbability data={weatherState.data} />
+          <Precipitation data={weatherState.data} />
           <PrecipitationSum data={weatherState.data} />
           <PrecipitationWarning data={weatherState.data} />
           <SunTimes data={weatherState.data} />

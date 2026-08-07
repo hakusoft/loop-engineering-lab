@@ -39,6 +39,7 @@ export type WeatherResponse = {
   snow_depth: { value: number; unit: string };
   uv_index: { value: number; unit: string };
   uv_index_max: { value: number; unit: string };
+  precipitation: { value: number; unit: string };
   precipitation_probability: { value: number; unit: string };
   precipitation_sum: { value: number; unit: string };
   solar_radiation: { value: number; unit: string };
