@@ -33,6 +33,7 @@ export type WeatherResponse = {
   humidity: { value: number; unit: string };
   dew_point: { value: number; unit: string };
   pressure: { value: number; unit: string };
+  sea_level_pressure: { value: number; unit: string };
   cloud_cover: { value: number; unit: string };
   visibility: { value: number; unit: string };
   snow_depth: { value: number; unit: string };
@@ -47,6 +48,7 @@ export type WeatherResponse = {
   sunrise: string;
   sunset: string;
   sunshine_duration: { value: number; unit: string };
+  daylight_duration: { value: number; unit: string };
   condition: { code: number; description: string };
   observed_at: string;
   location_name: string;

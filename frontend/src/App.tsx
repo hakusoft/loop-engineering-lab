@@ -4,6 +4,7 @@ import { ApparentTemperature } from "./ApparentTemperature";
 import { CloudCover } from "./CloudCover";
 import { Condition } from "./Condition";
 import { CurrentTemperature } from "./CurrentTemperature";
+import { DaylightDuration } from "./DaylightDuration";
 import { DewPoint } from "./DewPoint";
 import { Elevation } from "./Elevation";
 import { Humidity } from "./Humidity";
@@ -14,6 +15,7 @@ import { PrecipitationProbability } from "./PrecipitationProbability";
 import { PrecipitationSum } from "./PrecipitationSum";
 import { PrecipitationWarning } from "./PrecipitationWarning";
 import { Pressure } from "./Pressure";
+import { SeaLevelPressure } from "./SeaLevelPressure";
 import { SolarRadiation } from "./SolarRadiation";
 import { SnowDepth } from "./SnowDepth";
 import { SunTimes } from "./SunTimes";
@@ -114,6 +116,7 @@ export default function App() {
 
           <CategoryGroup title="環境">
             <Pressure data={weatherState.data} />
+            <SeaLevelPressure data={weatherState.data} />
             <CloudCover data={weatherState.data} />
             <Visibility data={weatherState.data} />
             <SolarRadiation data={weatherState.data} />
@@ -123,6 +126,7 @@ export default function App() {
 
           <CategoryGroup title="日照・時刻">
             <SunTimes data={weatherState.data} />
+            <DaylightDuration data={weatherState.data} />
             <SunshineDuration data={weatherState.data} />
             <ObservedAt data={weatherState.data} />
           </CategoryGroup>
