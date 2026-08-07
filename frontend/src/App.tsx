@@ -14,6 +14,7 @@ import { PrecipitationProbability } from "./PrecipitationProbability";
 import { PrecipitationSum } from "./PrecipitationSum";
 import { Pressure } from "./Pressure";
 import { SolarRadiation } from "./SolarRadiation";
+import { SnowDepth } from "./SnowDepth";
 import { SunTimes } from "./SunTimes";
 import { SunshineDuration } from "./SunshineDuration";
 import { TemperatureChart } from "./TemperatureChart";
@@ -88,6 +89,7 @@ export default function App() {
           <CloudCover data={weatherState.data} />
           <Visibility data={weatherState.data} />
           <SolarRadiation data={weatherState.data} />
+          <SnowDepth data={weatherState.data} />
           <Wind data={weatherState.data} />
           <Elevation data={weatherState.data} />
           <ObservedAt data={weatherState.data} />

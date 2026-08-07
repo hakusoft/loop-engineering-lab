@@ -99,7 +99,7 @@ def fetch_forecast(
                 "temperature_2m,relative_humidity_2m,wind_speed_10m,"
                 "wind_direction_10m,wind_gusts_10m,apparent_temperature,"
                 "precipitation,surface_pressure,cloud_cover,weather_code,is_day,"
-                "visibility,dew_point_2m,shortwave_radiation"
+                "visibility,dew_point_2m,shortwave_radiation,snow_depth"
             ),
             "daily": (
                 "uv_index_max,sunrise,sunset,"
@@ -233,6 +233,10 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
         "solar_radiation": {
             "value": current["shortwave_radiation"],
             "unit": units.get("shortwave_radiation", "W/m²"),
+        },
+        "snow_depth": {
+            "value": current["snow_depth"],
+            "unit": units.get("snow_depth", "m"),
         },
         "uv_index_max": {
             "value": daily["uv_index_max"][0],
