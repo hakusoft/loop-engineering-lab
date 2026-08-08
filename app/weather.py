@@ -114,6 +114,7 @@ CURRENT_FIELDS = [
 
 DAILY_FIELDS = [
     "uv_index_max",
+    "shortwave_radiation_sum",
     "sunrise",
     "sunset",
     "temperature_2m_max",
@@ -282,6 +283,10 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
         "solar_radiation": {
             "value": current["shortwave_radiation"],
             "unit": units.get("shortwave_radiation", "W/m²"),
+        },
+        "solar_radiation_sum": {
+            "value": daily["shortwave_radiation_sum"][0],
+            "unit": daily_units.get("shortwave_radiation_sum", "MJ/m²"),
         },
         "snow_depth": {
             "value": current["snow_depth"],

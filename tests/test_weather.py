@@ -63,6 +63,7 @@ STUB_RESPONSE = {
     "daily_units": {
         "time": "iso8601",
         "uv_index_max": "",
+        "shortwave_radiation_sum": "MJ/m²",
         "sunrise": "iso8601",
         "sunset": "iso8601",
         "temperature_2m_max": "°C",
@@ -82,6 +83,7 @@ STUB_RESPONSE = {
     "daily": {
         "time": ["2026-07-21"],
         "uv_index_max": [7.8],
+        "shortwave_radiation_sum": [23.4],
         "sunrise": ["2026-07-21T04:44"],
         "sunset": ["2026-07-21T18:47"],
         "temperature_2m_max": [33.2],
@@ -118,6 +120,7 @@ def test_format_forecast_maps_values_and_units():
     assert result["cloud_cover"] == {"value": 40, "unit": "%"}
     assert result["visibility"] == {"value": 24140.0, "unit": "m"}
     assert result["solar_radiation"] == {"value": 412.0, "unit": "W/m²"}
+    assert result["solar_radiation_sum"] == {"value": 23.4, "unit": "MJ/m²"}
     assert result["snow_depth"] == {"value": 0.0, "unit": "m"}
     assert result["uv_index"] == {"value": 5.2, "unit": ""}
     assert result["uv_index_max"] == {"value": 7.8, "unit": ""}

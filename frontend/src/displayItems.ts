@@ -19,6 +19,7 @@ import { Pressure } from "./Pressure";
 import { SeaLevelPressure } from "./SeaLevelPressure";
 import { SnowDepth } from "./SnowDepth";
 import { SolarRadiation } from "./SolarRadiation";
+import { SolarRadiationSum } from "./SolarRadiationSum";
 import { SunTimes } from "./SunTimes";
 import { SunshineDuration } from "./SunshineDuration";
 import { TemperatureRange } from "./TemperatureRange";
@@ -74,6 +75,7 @@ export const DISPLAY_ITEMS: DisplayItem[] = [
   { category: "環境", component: CloudCover },
   { category: "環境", component: Visibility },
   { category: "環境", component: SolarRadiation },
+  { category: "環境", component: SolarRadiationSum },
   { category: "環境", component: UvIndex },
   { category: "環境", component: Elevation },
 
