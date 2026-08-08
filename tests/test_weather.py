@@ -4,6 +4,9 @@
 """
 
 from app.weather import (
+    CURRENT_FIELDS,
+    DAILY_FIELDS,
+    HOURLY_FIELDS,
     _compass_direction,
     _daylight_duration_hours,
     _round_coordinate,
@@ -396,3 +399,36 @@ def test_format_forecast_reads_visibility_from_requested_field():
     result = format_forecast(STUB_RESPONSE)
 
     assert result["visibility"] == {"value": 24140.0, "unit": "m"}
+
+
+def test_requested_fields_have_no_empty_or_duplicated_names():
+    """要求する項目名が空でなく、重複もしていないこと。
+
+    以前はカンマ区切りの文字列を暗黙の連結で組み立てていたため、行を
+    足すときにカンマを落とすと "aaabbb" のような 1 つの項目名になり、
+    構文エラーにもテストの失敗にもならず実 API でだけ壊れていた。
+    リスト化した今その事故は起きないが、項目名そのものの取り違えを
+    ここで止める。
+    """
+    for name, fields in [
+        ("current", CURRENT_FIELDS),
+        ("daily", DAILY_FIELDS),
+        ("hourly", HOURLY_FIELDS),
+    ]:
+        assert fields, f"{name} の項目が空"
+        assert all(f.strip() == f for f in fields), f"{name} に前後の空白を含む項目がある"
+        assert all("," not in f for f in fields), f"{name} にカンマを含む項目がある"
+        assert len(fields) == len(set(fields)), f"{name} に重複した項目がある"
+
+
+def test_stub_current_matches_requested_current_fields():
+    """スタブの current が、実際に要求している項目と一致していること。
+
+    format_forecast は current の値を読むが、スタブが要求項目とずれて
+    いると、実装とスタブが同じ誤りを共有したまま緑になる。実際 #164 は
+    snow_depth を要求しながら snow_depth_cm を読み、スタブも同じキーに
+    していたため CI をすり抜けて本番で KeyError になった。
+    """
+    stub_keys = set(STUB_RESPONSE["current"]) - {"time", "interval"}
+
+    assert stub_keys == set(CURRENT_FIELDS)

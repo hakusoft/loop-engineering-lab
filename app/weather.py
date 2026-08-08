@@ -84,6 +84,65 @@ def _daylight_duration_hours(sunrise: str, sunset: str) -> float:
     return (datetime.fromisoformat(sunset) - datetime.fromisoformat(sunrise)).total_seconds() / 3600
 
 
+# Open-Meteo に要求する項目。1 項目 1 行で書く。
+#
+# 以前はカンマ区切りの文字列を暗黙の連結で組み立てていたが、項目を足す変更が
+# 必ず同じ行の末尾を編集することになり、項目追加の PR 同士が毎回競合していた。
+# さらに競合を「両方残す」で解決しようとすると、連結して
+# "...shortwave_radiationvisibility,..." のような 1 つの項目名になってしまう。
+# 構文エラーにならず既存のスタブでもテストが通るため、実際に API を叩くまで
+# 気づけない。1 項目 1 行なら追加は行の挿入だけになり、どちらも起きない。
+CURRENT_FIELDS = [
+    "temperature_2m",
+    "relative_humidity_2m",
+    "wind_speed_10m",
+    "wind_direction_10m",
+    "wind_gusts_10m",
+    "apparent_temperature",
+    "precipitation",
+    "surface_pressure",
+    "pressure_msl",
+    "cloud_cover",
+    "weather_code",
+    "is_day",
+    "visibility",
+    "dew_point_2m",
+    "shortwave_radiation",
+    "snow_depth",
+    "uv_index",
+]
+
+DAILY_FIELDS = [
+    "uv_index_max",
+    "sunrise",
+    "sunset",
+    "temperature_2m_max",
+    "temperature_2m_min",
+    "precipitation_probability_max",
+    "sunshine_duration",
+    "precipitation_hours",
+    "precipitation_sum",
+    "wind_speed_10m_max",
+    "wind_direction_10m_dominant",
+    "wind_gusts_10m_max",
+    "apparent_temperature_max",
+    "apparent_temperature_min",
+    "relative_humidity_2m_max",
+    "relative_humidity_2m_min",
+]
+
+HOURLY_FIELDS = [
+    "temperature_2m",
+    "relative_humidity_2m",
+    "precipitation",
+    "rain",
+    "snowfall",
+    "precipitation_probability",
+    "apparent_temperature",
+    "uv_index",
+]
+
+
 def fetch_forecast(
     latitude: float = DEFAULT_LATITUDE,
     longitude: float = DEFAULT_LONGITUDE,
@@ -95,20 +154,8 @@ def fetch_forecast(
         params={
             "latitude": latitude,
             "longitude": longitude,
-            "current": (
-                "temperature_2m,relative_humidity_2m,wind_speed_10m,"
-                "wind_direction_10m,wind_gusts_10m,apparent_temperature,"
-                "precipitation,surface_pressure,pressure_msl,cloud_cover,weather_code,"
-                "is_day,visibility,dew_point_2m,shortwave_radiation,snow_depth,uv_index"
-            ),
-            "daily": (
-                "uv_index_max,sunrise,sunset,"
-                "temperature_2m_max,temperature_2m_min,precipitation_probability_max,"
-                "sunshine_duration,precipitation_hours,precipitation_sum,"
-                "wind_speed_10m_max,wind_direction_10m_dominant,wind_gusts_10m_max,"
-                "apparent_temperature_max,apparent_temperature_min,"
-                "relative_humidity_2m_max,relative_humidity_2m_min"
-            ),
+            "current": ",".join(CURRENT_FIELDS),
+            "daily": ",".join(DAILY_FIELDS),
             "timezone": "Asia/Tokyo",
             "forecast_days": 1,
         },
@@ -130,10 +177,7 @@ def fetch_hourly_series(
         params={
             "latitude": latitude,
             "longitude": longitude,
-            "hourly": (
-                "temperature_2m,relative_humidity_2m,precipitation,rain,snowfall,"
-                "precipitation_probability,apparent_temperature,uv_index"
-            ),
+            "hourly": ",".join(HOURLY_FIELDS),
             "past_days": past_days,
             "forecast_days": 1,
         },
