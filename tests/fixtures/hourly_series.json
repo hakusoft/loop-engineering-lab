@@ -1,0 +1,67 @@
+{
+  "elevation": 12.0,
+  "generationtime_ms": 0.1443624496459961,
+  "hourly": {
+    "apparent_temperature": [
+      36.2,
+      37.9,
+      39.5
+    ],
+    "precipitation": [
+      0.1,
+      0.0,
+      0.0
+    ],
+    "precipitation_probability": [
+      6,
+      8,
+      13
+    ],
+    "rain": [
+      0.1,
+      0.0,
+      0.0
+    ],
+    "relative_humidity_2m": [
+      80,
+      76,
+      71
+    ],
+    "snowfall": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "temperature_2m": [
+      29.5,
+      30.7,
+      31.8
+    ],
+    "time": [
+      "2026-08-07T00:00",
+      "2026-08-07T01:00",
+      "2026-08-07T02:00"
+    ],
+    "uv_index": [
+      4.7,
+      6.3,
+      7.45
+    ]
+  },
+  "hourly_units": {
+    "apparent_temperature": "°C",
+    "precipitation": "mm",
+    "precipitation_probability": "%",
+    "rain": "mm",
+    "relative_humidity_2m": "%",
+    "snowfall": "cm",
+    "temperature_2m": "°C",
+    "time": "iso8601",
+    "uv_index": ""
+  },
+  "latitude": 35.7,
+  "longitude": 139.75,
+  "timezone": "GMT",
+  "timezone_abbreviation": "GMT",
+  "utc_offset_seconds": 0
+}
