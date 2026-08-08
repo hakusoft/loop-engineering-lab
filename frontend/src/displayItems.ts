@@ -1,6 +1,7 @@
 import type { ComponentType } from "react";
 import type { WeatherResponse } from "./api";
 import { ApparentTemperature } from "./ApparentTemperature";
+import { ApparentTemperatureRange } from "./ApparentTemperatureRange";
 import { CloudCover } from "./CloudCover";
 import { Condition } from "./Condition";
 import { CurrentTemperature } from "./CurrentTemperature";
@@ -55,6 +56,7 @@ export const DISPLAY_ITEMS: DisplayItem[] = [
   { category: "気温", component: Condition },
   { category: "気温", component: CurrentTemperature },
   { category: "気温", component: ApparentTemperature },
+  { category: "気温", component: ApparentTemperatureRange },
   { category: "気温", component: TemperatureRange },
   { category: "気温", component: DewPoint },
 
