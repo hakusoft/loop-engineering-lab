@@ -63,6 +63,9 @@
     "relative_humidity_2m_min": [
       49
     ],
+    "shortwave_radiation_sum": [
+      25.8
+    ],
     "sunrise": [
       "2026-08-08T04:54"
     ],
@@ -102,6 +105,7 @@
     "precipitation_sum": "mm",
     "relative_humidity_2m_max": "%",
     "relative_humidity_2m_min": "%",
+    "shortwave_radiation_sum": "MJ/m²",
     "sunrise": "iso8601",
     "sunset": "iso8601",
     "sunshine_duration": "s",
