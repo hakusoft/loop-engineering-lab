@@ -1,32 +1,8 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { fetchSeries, fetchWeather, type SeriesResponse, type WeatherResponse } from "./api";
-import { ApparentTemperature } from "./ApparentTemperature";
-import { CloudCover } from "./CloudCover";
-import { Condition } from "./Condition";
-import { CurrentTemperature } from "./CurrentTemperature";
-import { DaylightDuration } from "./DaylightDuration";
-import { DewPoint } from "./DewPoint";
-import { Elevation } from "./Elevation";
-import { Humidity } from "./Humidity";
-import { HumidityRange } from "./HumidityRange";
-import { LaundryDryness } from "./LaundryDryness";
+import { CATEGORY_ORDER, DISPLAY_ITEMS } from "./displayItems";
 import { LocationName } from "./LocationName";
-import { ObservedAt } from "./ObservedAt";
-import { Precipitation } from "./Precipitation";
-import { PrecipitationProbability } from "./PrecipitationProbability";
-import { PrecipitationSum } from "./PrecipitationSum";
-import { PrecipitationWarning } from "./PrecipitationWarning";
-import { Pressure } from "./Pressure";
-import { SeaLevelPressure } from "./SeaLevelPressure";
-import { SolarRadiation } from "./SolarRadiation";
-import { SnowDepth } from "./SnowDepth";
-import { SunTimes } from "./SunTimes";
-import { SunshineDuration } from "./SunshineDuration";
 import { TemperatureChart } from "./TemperatureChart";
-import { TemperatureRange } from "./TemperatureRange";
-import { UvIndex } from "./UvIndex";
-import { Visibility } from "./Visibility";
-import { Wind } from "./Wind";
 
 type State =
   | { status: "loading" }
@@ -95,45 +71,17 @@ export default function App() {
 
       {weatherState.status === "ready" && (
         <div style={{ display: "flex", flexDirection: "column", gap: 20, marginBottom: 16 }}>
-          <CategoryGroup title="気温">
-            <Condition data={weatherState.data} />
-            <CurrentTemperature data={weatherState.data} />
-            <ApparentTemperature data={weatherState.data} />
-            <TemperatureRange data={weatherState.data} />
-            <DewPoint data={weatherState.data} />
-          </CategoryGroup>
-
-          <CategoryGroup title="風">
-            <Wind data={weatherState.data} />
-          </CategoryGroup>
-
-          <CategoryGroup title="降水・湿度">
-            <Humidity data={weatherState.data} />
-            <HumidityRange data={weatherState.data} />
-            <Precipitation data={weatherState.data} />
-            <PrecipitationProbability data={weatherState.data} />
-            <PrecipitationSum data={weatherState.data} />
-            <PrecipitationWarning data={weatherState.data} />
-            <SnowDepth data={weatherState.data} />
-            <LaundryDryness data={weatherState.data} />
-          </CategoryGroup>
-
-          <CategoryGroup title="環境">
-            <Pressure data={weatherState.data} />
-            <SeaLevelPressure data={weatherState.data} />
-            <CloudCover data={weatherState.data} />
-            <Visibility data={weatherState.data} />
-            <SolarRadiation data={weatherState.data} />
-            <UvIndex data={weatherState.data} />
-            <Elevation data={weatherState.data} />
-          </CategoryGroup>
-
-          <CategoryGroup title="日照・時刻">
-            <SunTimes data={weatherState.data} />
-            <DaylightDuration data={weatherState.data} />
-            <SunshineDuration data={weatherState.data} />
-            <ObservedAt data={weatherState.data} />
-          </CategoryGroup>
+          {CATEGORY_ORDER.map((category) => {
+            const items = DISPLAY_ITEMS.filter((item) => item.category === category);
+            if (items.length === 0) return null;
+            return (
+              <CategoryGroup key={category} title={category}>
+                {items.map(({ component: Item }, i) => (
+                  <Item key={i} data={weatherState.data} />
+                ))}
+              </CategoryGroup>
+            );
+          })}
         </div>
       )}
 
