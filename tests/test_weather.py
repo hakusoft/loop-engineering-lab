@@ -3,6 +3,9 @@
 スタブは Open-Meteo が実際に返す形をそのまま写したもの。
 """
 
+import json
+from pathlib import Path
+
 from app.weather import (
     CURRENT_FIELDS,
     DAILY_FIELDS,
@@ -432,3 +435,108 @@ def test_stub_current_matches_requested_current_fields():
     stub_keys = set(STUB_RESPONSE["current"]) - {"time", "interval"}
 
     assert stub_keys == set(CURRENT_FIELDS)
+
+
+# 実 API の応答を記録したもの。値ではなく「キーの形」を固定するのが目的。
+# 手書きのスタブは実装と同じ誤りを共有しうるが、これは Open-Meteo が実際に
+# 返したものなので、キー名の取り違えをここで止められる。
+# 更新するときは fetch_forecast() / fetch_hourly_series() の戻り値を
+# そのまま書き出す（時系列は先頭 3 点に間引いてよい）。
+FIXTURES = Path(__file__).parent / "fixtures"
+
+
+def _load_fixture(name: str) -> dict:
+    with (FIXTURES / name).open() as f:
+        return json.load(f)
+
+
+def test_format_forecast_works_against_real_api_shape():
+    """実 API の応答の形で format_forecast が通ること。
+
+    手書きのスタブは、実装がキー名を間違えるとスタブも同じ間違いになり、
+    テストが緑のまま通ってしまう。#164 は snow_depth を要求しながら
+    snow_depth_cm を読み、スタブも snow_depth_cm だったため CI をすり抜け、
+    本番で KeyError になった。記録した実応答なら同じ誤りを共有できない。
+    """
+    result = format_forecast(_load_fixture("forecast.json"))
+
+    # 値は取得時点のものなので、キーが揃っていることだけを見る。
+    assert result["snow_depth"]["unit"] == "m"
+    assert set(result) >= {
+        "temperature",
+        "pressure",
+        "sea_level_pressure",
+        "cloud_cover",
+        "visibility",
+        "solar_radiation",
+        "snow_depth",
+        "uv_index",
+    }
+
+
+def test_format_hourly_series_works_against_real_api_shape():
+    """実 API の応答の形で format_hourly_series が通ること。"""
+    result = format_hourly_series(_load_fixture("hourly_series.json"))
+
+    assert [s["label"] for s in result["series"]] == [
+        "気温",
+        "体感温度",
+        "湿度",
+        "雨量",
+        "降雪量",
+        "降水確率",
+        "紫外線指数",
+    ]
+
+
+def test_fixture_current_matches_requested_current_fields():
+    """記録した実応答の current が、要求している項目と一致すること。
+
+    ずれていたら、要求から漏れた項目を読んでいるか、逆に要求したまま
+    使っていない項目があるということ。フィクスチャが古い可能性もある。
+    """
+    fixture_keys = set(_load_fixture("forecast.json")["current"]) - {"time", "interval"}
+
+    assert fixture_keys == set(CURRENT_FIELDS)
+
+
+def test_fixture_hourly_matches_requested_hourly_fields():
+    """記録した実応答の hourly が、要求している項目と一致すること。"""
+    fixture_keys = set(_load_fixture("hourly_series.json")["hourly"]) - {"time"}
+
+    assert fixture_keys == set(HOURLY_FIELDS)
+
+
+def test_stub_and_fixture_agree_on_current_keys():
+    """手書きのスタブと記録した実応答で、current のキーが一致すること。
+
+    既存のテストは読みやすさのため手書きのスタブを使っている。実応答と
+    突き合わせておけば、スタブだけが古くなったり、実装に合わせて誤った
+    キーに書き換えられたりしたときに気づける。
+    """
+    stub_keys = set(STUB_RESPONSE["current"]) - {"time", "interval"}
+    fixture_keys = set(_load_fixture("forecast.json")["current"]) - {"time", "interval"}
+
+    assert stub_keys == fixture_keys
+
+
+def test_hourly_fields_are_all_used_by_format_hourly_series():
+    """要求した hourly の項目が、全て系列として使われていること。
+
+    使わない項目を要求し続けても壊れはしないが、要求と実装がずれている
+    合図なので気づけるようにする。降水量（precipitation）は雨量（rain）と
+    降雪量（snowfall）に分けて出しているため、系列としては使っていない。
+    """
+    result = format_hourly_series(_load_fixture("hourly_series.json"))
+    used = {
+        "temperature_2m",
+        "apparent_temperature",
+        "relative_humidity_2m",
+        "rain",
+        "snowfall",
+        "precipitation_probability",
+        "uv_index",
+    }
+
+    assert len(result["series"]) == len(used)
+    assert set(HOURLY_FIELDS) - used == {"precipitation"}
