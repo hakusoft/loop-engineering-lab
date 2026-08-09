@@ -31,6 +31,8 @@ STUB_RESPONSE = {
         "wind_gusts_10m": "km/h",
         "apparent_temperature": "°C",
         "precipitation": "mm",
+        "rain": "mm",
+        "snowfall": "cm",
         "surface_pressure": "hPa",
         "pressure_msl": "hPa",
         "cloud_cover": "%",
@@ -49,6 +51,8 @@ STUB_RESPONSE = {
         "wind_gusts_10m": 24.8,
         "apparent_temperature": 33.1,
         "precipitation": 0.0,
+        "rain": 0.0,
+        "snowfall": 0.0,
         "surface_pressure": 1008.2,
         "pressure_msl": 1012.6,
         "cloud_cover": 40,
@@ -115,6 +119,8 @@ def test_format_forecast_maps_values_and_units():
     assert result["wind_direction"] == {"value": 250, "unit": "°", "compass": "西南西"}
     assert result["wind_gusts"] == {"value": 24.8, "unit": "km/h"}
     assert result["precipitation"] == {"value": 0.0, "unit": "mm"}
+    assert result["rain"] == {"value": 0.0, "unit": "mm"}
+    assert result["snowfall"] == {"value": 0.0, "unit": "cm"}
     assert result["pressure"] == {"value": 1008.2, "unit": "hPa"}
     assert result["sea_level_pressure"] == {"value": 1012.6, "unit": "hPa"}
     assert result["cloud_cover"] == {"value": 40, "unit": "%"}

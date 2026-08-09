@@ -100,6 +100,8 @@ CURRENT_FIELDS = [
     "wind_gusts_10m",
     "apparent_temperature",
     "precipitation",
+    "rain",
+    "snowfall",
     "surface_pressure",
     "pressure_msl",
     "cloud_cover",
@@ -263,6 +265,14 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
         "precipitation_sum": {
             "value": daily["precipitation_sum"][0],
             "unit": daily_units.get("precipitation_sum", "mm"),
+        },
+        "rain": {
+            "value": current["rain"],
+            "unit": units.get("rain", "mm"),
+        },
+        "snowfall": {
+            "value": current["snowfall"],
+            "unit": units.get("snowfall", "cm"),
         },
         "pressure": {
             "value": current["surface_pressure"],

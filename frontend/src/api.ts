@@ -46,6 +46,8 @@ export type WeatherResponse = {
   precipitation: { value: number; unit: string };
   precipitation_probability: { value: number; unit: string };
   precipitation_sum: { value: number; unit: string };
+  rain: { value: number; unit: string };
+  snowfall: { value: number; unit: string };
   solar_radiation: { value: number; unit: string };
   solar_radiation_sum: { value: number; unit: string };
   wind_speed: { value: number; unit: string };
