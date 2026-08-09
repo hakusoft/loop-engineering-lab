@@ -8,10 +8,17 @@ export function formatWind(data: WeatherResponse): string {
   return `風速 ${Math.round(speed * 10) / 10}${speedUnit}（${compass}） / 最大瞬間風速 ${Math.round(gustsMax * 10) / 10}${gustsUnit}`;
 }
 
+export function formatWindDirectionDominant(data: WeatherResponse): string {
+  const { compass } = data.wind_direction_dominant;
+  return `本日の主風向 ${compass}`;
+}
+
 export function Wind({ data }: { data: WeatherResponse }) {
   return (
     <p style={{ color: "#666", fontSize: 14, margin: "0 0 8px" }}>
       {formatWind(data)}
+      <br />
+      {formatWindDirectionDominant(data)}
     </p>
   );
 }
