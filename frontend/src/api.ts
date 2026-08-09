@@ -58,6 +58,7 @@ export type WeatherResponse = {
   sunshine_duration: { value: number; unit: string };
   daylight_duration: { value: number; unit: string };
   condition: { code: number; description: string };
+  is_day: boolean;
   observed_at: string;
   location_name: string;
   elevation: { value: number; unit: string };

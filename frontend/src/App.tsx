@@ -24,6 +24,15 @@ function CategoryGroup({ title, children }: { title: string; children: ReactNode
   );
 }
 
+// /weather の is_day を基準に、昼夜で背景・文字色を切り替える。
+// OS のダークモード設定とは連動せず、あくまで観測地点の昼夜だけを見る。
+const DAY_THEME = { background: "#ffffff", color: "#111111" };
+const NIGHT_THEME = { background: "#1a1a2e", color: "#e8e8e8" };
+
+function themeFor(isDay: boolean | undefined) {
+  return isDay === false ? NIGHT_THEME : DAY_THEME;
+}
+
 export default function App() {
   const [state, setState] = useState<State>({ status: "loading" });
   const [weatherState, setWeatherState] = useState<WeatherState>({ status: "loading" });
@@ -50,13 +59,18 @@ export default function App() {
     };
   }, []);
 
+  const theme = themeFor(weatherState.status === "ready" ? weatherState.data.is_day : undefined);
+
   return (
     <main
       style={{
         maxWidth: 880,
+        minHeight: "100vh",
         margin: "0 auto",
         padding: "24px 16px",
         fontFamily: "system-ui, sans-serif",
+        background: theme.background,
+        color: theme.color,
       }}
     >
       <div style={{ display: "flex", alignItems: "baseline" }}>
