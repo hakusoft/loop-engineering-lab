@@ -4,6 +4,7 @@ import {
   Legend,
   Line,
   LineChart,
+  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -58,6 +59,28 @@ function toChartData(data: SeriesResponse) {
   };
 }
 
+// timestamps（rows と同じ並び）の中から now に最も近い時刻の行ラベルを返す。
+// x 軸が rows[].time の文字列（カテゴリ）なので、ReferenceLine の x にはこのラベルを渡す。
+export function nearestTimeLabel(
+  timestamps: string[],
+  rows: { time: string }[],
+  now: Date,
+): string | undefined {
+  if (timestamps.length === 0 || timestamps.length !== rows.length) {
+    return undefined;
+  }
+  let bestIndex = 0;
+  let bestDiff = Infinity;
+  timestamps.forEach((t, i) => {
+    const diff = Math.abs(new Date(t).getTime() - now.getTime());
+    if (diff < bestDiff) {
+      bestDiff = diff;
+      bestIndex = i;
+    }
+  });
+  return rows[bestIndex].time;
+}
+
 const NARROW_VIEWPORT_QUERY = "(max-width: 480px)";
 
 // スマホ幅では固定 12px の目盛りが相対的に読みにくいという声があったため、
@@ -85,12 +108,22 @@ export function TemperatureChart({ data }: { data: SeriesResponse }) {
   const axisWidth = isNarrow ? 68 : 56;
   // 目盛りを拡大した分、右端のラベルが枠からはみ出さないよう余白も広げる。
   const chartRightMargin = isNarrow ? 40 : 24;
+  const nowLabel = nearestTimeLabel(data.timestamps, rows, new Date());
 
   return (
     <ResponsiveContainer width="100%" height={360}>
       <LineChart data={rows} margin={{ top: 16, right: chartRightMargin, bottom: 8, left: 0 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
         <XAxis dataKey="time" minTickGap={40} tick={{ fontSize: tickFontSize }} />
+        {nowLabel && (
+          <ReferenceLine
+            yAxisId="temperature"
+            x={nowLabel}
+            stroke="#888"
+            strokeDasharray="4 4"
+            label={{ value: "現在", position: "top", fontSize: tickFontSize, fill: "#888" }}
+          />
+        )}
         <YAxis
           yAxisId="temperature"
           unit={temperatureUnit}
