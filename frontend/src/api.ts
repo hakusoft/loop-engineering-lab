@@ -53,6 +53,7 @@ export type WeatherResponse = {
   wind_speed: { value: number; unit: string };
   wind_direction: { value: number; unit: string; compass: string };
   wind_direction_dominant: { value: number; unit: string; compass: string };
+  wind_speed_max: { value: number; unit: string };
   wind_gusts_max: { value: number; unit: string };
   sunrise: string;
   sunset: string;
