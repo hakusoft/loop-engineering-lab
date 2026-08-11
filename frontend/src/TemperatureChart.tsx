@@ -81,6 +81,30 @@ export function nearestTimeLabel(
   return rows[bestIndex].time;
 }
 
+// timestamps（rows と同じ並び）の中で日付（年月日）が前の要素から変わるインデックスの
+// 行ラベルを、変わった先の日付ラベル（例: "8/12"）とセットで返す。
+// 48時間分のグラフだと日付の境目がどこか分かりにくいという声があったため、
+// ReferenceLine で区切り線を引けるようにする。
+export function dateBoundaryLabels(
+  timestamps: string[],
+  rows: { time: string }[],
+): { time: string; date: string }[] {
+  if (timestamps.length === 0 || timestamps.length !== rows.length) {
+    return [];
+  }
+  const boundaries: { time: string; date: string }[] = [];
+  for (let i = 1; i < timestamps.length; i++) {
+    const previousDate = timestamps[i - 1].slice(0, 10);
+    const currentDate = timestamps[i].slice(0, 10);
+    if (currentDate !== previousDate) {
+      const month = Number(currentDate.slice(5, 7));
+      const day = Number(currentDate.slice(8, 10));
+      boundaries.push({ time: rows[i].time, date: `${month}/${day}` });
+    }
+  }
+  return boundaries;
+}
+
 const NARROW_VIEWPORT_QUERY = "(max-width: 480px)";
 
 // スマホ幅では固定 12px の目盛りが相対的に読みにくいという声があったため、
@@ -109,6 +133,7 @@ export function TemperatureChart({ data }: { data: SeriesResponse }) {
   // 目盛りを拡大した分、右端のラベルが枠からはみ出さないよう余白も広げる。
   const chartRightMargin = isNarrow ? 40 : 24;
   const nowLabel = nearestTimeLabel(data.timestamps, rows, new Date());
+  const dateBoundaries = dateBoundaryLabels(data.timestamps, rows);
 
   return (
     <ResponsiveContainer width="100%" height={360}>
@@ -124,6 +149,15 @@ export function TemperatureChart({ data }: { data: SeriesResponse }) {
             label={{ value: "現在", position: "top", fontSize: tickFontSize, fill: "#888" }}
           />
         )}
+        {dateBoundaries.map((boundary) => (
+          <ReferenceLine
+            key={boundary.time}
+            yAxisId="temperature"
+            x={boundary.time}
+            stroke="#ccc"
+            label={{ value: boundary.date, position: "top", fontSize: tickFontSize, fill: "#999" }}
+          />
+        ))}
         <YAxis
           yAxisId="temperature"
           unit={temperatureUnit}
