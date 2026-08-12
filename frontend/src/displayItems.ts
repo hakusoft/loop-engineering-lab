@@ -8,6 +8,7 @@ import { CurrentTemperature } from "./CurrentTemperature";
 import { DaylightDuration } from "./DaylightDuration";
 import { DewPoint } from "./DewPoint";
 import { Elevation } from "./Elevation";
+import { GardenWatering } from "./GardenWatering";
 import { Humidity } from "./Humidity";
 import { HumidityRange } from "./HumidityRange";
 import { LaundryDryness } from "./LaundryDryness";
@@ -73,6 +74,7 @@ export const DISPLAY_ITEMS: DisplayItem[] = [
   { category: "降水・湿度", component: PrecipitationWarning },
   { category: "降水・湿度", component: SnowDepth },
   { category: "降水・湿度", component: LaundryDryness },
+  { category: "降水・湿度", component: GardenWatering },
 
   { category: "環境", component: Pressure },
   { category: "環境", component: SeaLevelPressure },
