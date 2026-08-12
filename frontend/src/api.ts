@@ -45,6 +45,7 @@ export type WeatherResponse = {
   uv_index_max: { value: number; unit: string };
   precipitation: { value: number; unit: string };
   precipitation_probability: { value: number; unit: string };
+  precipitation_hours: { value: number; unit: string };
   precipitation_sum: { value: number; unit: string };
   rain: { value: number; unit: string };
   snowfall: { value: number; unit: string };
