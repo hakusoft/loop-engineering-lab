@@ -220,9 +220,33 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
             "value": current["dew_point_2m"],
             "unit": units.get("dew_point_2m", "°C"),
         },
+        "temperature_max": {
+            "value": daily["temperature_2m_max"][0],
+            "unit": daily_units.get("temperature_2m_max", "°C"),
+        },
+        "temperature_min": {
+            "value": daily["temperature_2m_min"][0],
+            "unit": daily_units.get("temperature_2m_min", "°C"),
+        },
+        "apparent_temperature_max": {
+            "value": daily["apparent_temperature_max"][0],
+            "unit": daily_units.get("apparent_temperature_max", "°C"),
+        },
+        "apparent_temperature_min": {
+            "value": daily["apparent_temperature_min"][0],
+            "unit": daily_units.get("apparent_temperature_min", "°C"),
+        },
         "humidity": {
             "value": current["relative_humidity_2m"],
             "unit": units.get("relative_humidity_2m", "%"),
+        },
+        "humidity_max": {
+            "value": daily["relative_humidity_2m_max"][0],
+            "unit": daily_units.get("relative_humidity_2m_max", "%"),
+        },
+        "humidity_min": {
+            "value": daily["relative_humidity_2m_min"][0],
+            "unit": daily_units.get("relative_humidity_2m_min", "%"),
         },
         "wind_speed": {
             "value": current["wind_speed_10m"],
@@ -309,30 +333,6 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
         "uv_index_max": {
             "value": daily["uv_index_max"][0],
             "unit": daily_units.get("uv_index_max", ""),
-        },
-        "temperature_max": {
-            "value": daily["temperature_2m_max"][0],
-            "unit": daily_units.get("temperature_2m_max", "°C"),
-        },
-        "temperature_min": {
-            "value": daily["temperature_2m_min"][0],
-            "unit": daily_units.get("temperature_2m_min", "°C"),
-        },
-        "apparent_temperature_max": {
-            "value": daily["apparent_temperature_max"][0],
-            "unit": daily_units.get("apparent_temperature_max", "°C"),
-        },
-        "apparent_temperature_min": {
-            "value": daily["apparent_temperature_min"][0],
-            "unit": daily_units.get("apparent_temperature_min", "°C"),
-        },
-        "humidity_max": {
-            "value": daily["relative_humidity_2m_max"][0],
-            "unit": daily_units.get("relative_humidity_2m_max", "%"),
-        },
-        "humidity_min": {
-            "value": daily["relative_humidity_2m_min"][0],
-            "unit": daily_units.get("relative_humidity_2m_min", "%"),
         },
         "sunshine_duration": {
             "value": daily["sunshine_duration"][0],
