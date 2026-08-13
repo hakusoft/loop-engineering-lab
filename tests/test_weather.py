@@ -175,6 +175,28 @@ def test_format_forecast_groups_location_and_precipitation_fields():
     assert positions[-1] - positions[0] == len(precipitation_keys) - 1
 
 
+def test_format_forecast_groups_temperature_and_humidity_fields():
+    """気温系・湿度系は、現在値と本日の最高・最低が隣接するようにまとめる。"""
+    result = format_forecast(STUB_RESPONSE)
+    keys = list(result.keys())
+
+    temperature_keys = [
+        "temperature",
+        "apparent_temperature",
+        "dew_point",
+        "temperature_max",
+        "temperature_min",
+        "apparent_temperature_max",
+        "apparent_temperature_min",
+    ]
+    positions = sorted(keys.index(k) for k in temperature_keys)
+    assert positions[-1] - positions[0] == len(temperature_keys) - 1
+
+    humidity_keys = ["humidity", "humidity_max", "humidity_min"]
+    positions = sorted(keys.index(k) for k in humidity_keys)
+    assert positions[-1] - positions[0] == len(humidity_keys) - 1
+
+
 def test_compass_direction_maps_cardinal_points():
     assert _compass_direction(0) == "北"
     assert _compass_direction(90) == "東"
