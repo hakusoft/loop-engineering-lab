@@ -4,8 +4,7 @@ import type { WeatherResponse } from "./api";
 // API の値は既に時間単位（sunshine_duration.unit === "h"）なので変換不要。
 export function formatSunshineDuration(data: WeatherResponse): string {
   const { value } = data.sunshine_duration;
-  const hours = value / 3600;
-  return `日照時間 ${Math.round(hours * 10) / 10}時間`;
+  return `日照時間 ${Math.round(value * 10) / 10}時間`;
 }
 
 export function SunshineDuration({ data }: { data: WeatherResponse }) {
