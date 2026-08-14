@@ -1,7 +1,7 @@
 import type { WeatherResponse } from "./api";
 
 // 表示ロジックを純関数に切り出す。Humidity.tsx の formatHumidity と同様。
-// API の値は秒単位（sunshine_duration）なので、時間に変換して表示する。
+// API の値は既に時間単位（sunshine_duration.unit === "h"）なので変換不要。
 export function formatSunshineDuration(data: WeatherResponse): string {
   const { value } = data.sunshine_duration;
   const hours = value / 3600;

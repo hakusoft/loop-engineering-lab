@@ -335,8 +335,8 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
             "unit": daily_units.get("uv_index_max", ""),
         },
         "sunshine_duration": {
-            "value": daily["sunshine_duration"][0],
-            "unit": daily_units.get("sunshine_duration", "s"),
+            "value": daily["sunshine_duration"][0] / 3600,
+            "unit": "h",
         },
         "sunrise": daily["sunrise"][0],
         "sunset": daily["sunset"][0],

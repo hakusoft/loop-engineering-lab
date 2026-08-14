@@ -137,7 +137,7 @@ def test_format_forecast_maps_values_and_units():
     assert result["humidity_max"] == {"value": 85, "unit": "%"}
     assert result["humidity_min"] == {"value": 55, "unit": "%"}
     assert result["precipitation_probability"] == {"value": 20, "unit": "%"}
-    assert result["sunshine_duration"] == {"value": 36420.0, "unit": "s"}
+    assert result["sunshine_duration"] == {"value": 36420.0 / 3600, "unit": "h"}
     assert result["precipitation_hours"] == {"value": 3.0, "unit": "h"}
     assert result["precipitation_sum"] == {"value": 12.5, "unit": "mm"}
     assert result["wind_speed_max"] == {"value": 18.4, "unit": "km/h"}
@@ -336,7 +336,7 @@ def test_format_forecast_falls_back_when_units_missing():
     assert result["uv_index_max"] == {"value": 7.8, "unit": ""}
     assert result["temperature_max"] == {"value": 33.2, "unit": "°C"}
     assert result["precipitation_probability"] == {"value": 20, "unit": "%"}
-    assert result["sunshine_duration"] == {"value": 36420.0, "unit": "s"}
+    assert result["sunshine_duration"] == {"value": 36420.0 / 3600, "unit": "h"}
     assert result["precipitation_hours"] == {"value": 3.0, "unit": "h"}
     assert result["precipitation_sum"] == {"value": 12.5, "unit": "mm"}
     assert result["wind_speed_max"] == {"value": 18.4, "unit": "km/h"}
