@@ -79,6 +79,14 @@ def _round_coordinate(value: float) -> float:
     return round(value, COORDINATE_PRECISION)
 
 
+PRESSURE_PRECISION = 1
+
+
+def _round_pressure(value: float) -> float:
+    """気圧を小数第1位に丸める。他の項目と桁数が揃うようにする。"""
+    return round(value, PRESSURE_PRECISION)
+
+
 def _daylight_duration_hours(sunrise: str, sunset: str) -> float:
     """sunrise / sunset（ISO8601）から可照時間を時間単位で計算する。"""
     return (datetime.fromisoformat(sunset) - datetime.fromisoformat(sunrise)).total_seconds() / 3600
@@ -299,11 +307,11 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
             "unit": units.get("snowfall", "cm"),
         },
         "pressure": {
-            "value": current["surface_pressure"],
+            "value": _round_pressure(current["surface_pressure"]),
             "unit": units.get("surface_pressure", "hPa"),
         },
         "sea_level_pressure": {
-            "value": current["pressure_msl"],
+            "value": _round_pressure(current["pressure_msl"]),
             "unit": units.get("pressure_msl", "hPa"),
         },
         "cloud_cover": {
