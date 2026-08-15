@@ -13,6 +13,7 @@ from app.weather import (
     _compass_direction,
     _daylight_duration_hours,
     _round_coordinate,
+    _seconds_to_hours,
     _weather_description,
     format_forecast,
     format_hourly_series,
@@ -399,6 +400,23 @@ def test_format_forecast_includes_daylight_duration():
     result = format_forecast(STUB_RESPONSE)
 
     assert result["daylight_duration"] == {"value": 14.05, "unit": "h"}
+
+
+def test_seconds_to_hours_passes_through_none():
+    assert _seconds_to_hours(None) is None
+
+
+def test_seconds_to_hours_converts_seconds_to_hours():
+    assert _seconds_to_hours(36420.0) == 36420.0 / 3600
+
+
+def test_format_forecast_handles_missing_sunshine_duration():
+    """Open-Meteo が sunshine_duration に null を返すことがある（PR #215 で退行）。"""
+    raw = {**STUB_RESPONSE, "daily": {**STUB_RESPONSE["daily"], "sunshine_duration": [None]}}
+
+    result = format_forecast(raw)
+
+    assert result["sunshine_duration"] == {"value": None, "unit": "h"}
 
 
 def test_format_forecast_reads_pressure_from_requested_field():
