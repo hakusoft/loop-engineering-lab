@@ -397,6 +397,28 @@ def test_round_pressure_rounds_to_one_decimal_place():
     assert _round_pressure(998.153) == 998.2
 
 
+def test_round_pressure_passes_through_none():
+    """欠測（None）は丸めずにそのまま返す。round(None, 1) は TypeError になるため。"""
+    assert _round_pressure(None) is None
+
+
+def test_format_forecast_tolerates_missing_pressure():
+    """current の気圧が欠測（None）でも例外にしない。"""
+    raw = {
+        **STUB_RESPONSE,
+        "current": {
+            **STUB_RESPONSE["current"],
+            "surface_pressure": None,
+            "pressure_msl": None,
+        },
+    }
+
+    result = format_forecast(raw)
+
+    assert result["pressure"]["value"] is None
+    assert result["sea_level_pressure"]["value"] is None
+
+
 def test_format_forecast_rounds_pressure():
     """気圧は Open-Meteo が桁の長い小数を返すことがあるため、小数第1位に丸める。"""
     raw = {

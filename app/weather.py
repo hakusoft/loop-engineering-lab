@@ -82,9 +82,13 @@ def _round_coordinate(value: float) -> float:
 PRESSURE_PRECISION = 1
 
 
-def _round_pressure(value: float) -> float:
-    """気圧を小数第1位に丸める。他の項目と桁数が揃うようにする。"""
-    return round(value, PRESSURE_PRECISION)
+def _round_pressure(value: float | None) -> float | None:
+    """気圧を小数第1位に丸める。他の項目と桁数が揃うようにする。
+
+    欠測（None）はそのまま返す。丸め処理を挟む前は current の値をそのまま
+    返しており None でも問題なかったため、丸め処理側で欠測を吸収する。
+    """
+    return value if value is None else round(value, PRESSURE_PRECISION)
 
 
 def _daylight_duration_hours(sunrise: str, sunset: str) -> float:
