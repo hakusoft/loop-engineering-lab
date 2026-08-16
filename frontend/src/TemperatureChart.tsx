@@ -226,7 +226,7 @@ export function TemperatureChart({ data }: { data: SeriesResponse }) {
             yAxisId="temperature"
             type="monotone"
             dataKey="apparentTemperature"
-            stroke="#e2492c"
+            stroke="#f4a300"
             strokeDasharray="4 3"
             strokeWidth={2}
             dot={false}
