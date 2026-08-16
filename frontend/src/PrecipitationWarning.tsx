@@ -17,6 +17,6 @@ export function PrecipitationWarning({ data }: { data: WeatherResponse }) {
     return null;
   }
   return (
-    <p style={{ color: "#1c7ed6", fontSize: 14, margin: "4px 0" }}>{message}</p>
+    <p style={{ color: "#1c7ed6", fontSize: 16, margin: "4px 0" }}>{message}</p>
   );
 }

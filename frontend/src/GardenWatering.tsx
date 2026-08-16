@@ -12,7 +12,7 @@ export function gardenWateringLevel(
   if (precipitationSum >= 5) {
     return "水やり不要";
   }
-  if (precipitationSum < 1 && temperatureMax >= 30 && humidityMin <= 50) {
+  if (precipitationSum < 1 && temperatureMax >= 30 && humidityMin < 50) {
     return "水やり推奨";
   }
   return "普通";
@@ -27,7 +27,7 @@ export function formatGardenWatering(data: WeatherResponse): string {
 
 export function GardenWatering({ data }: { data: WeatherResponse }) {
   return (
-    <p style={{ color: "#666", fontSize: 14, margin: "4px 0" }}>
+    <p style={{ color: "#666", fontSize: 16, margin: "4px 0" }}>
       {formatGardenWatering(data)}
     </p>
   );

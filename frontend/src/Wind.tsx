@@ -16,7 +16,7 @@ export function formatWindDirectionDominant(data: WeatherResponse): string {
 
 export function Wind({ data }: { data: WeatherResponse }) {
   return (
-    <p style={{ color: "#666", fontSize: 14, margin: "0 0 8px" }}>
+    <p style={{ color: "#666", fontSize: 16, margin: "0 0 8px" }}>
       {formatWind(data)}
       <br />
       {formatWindDirectionDominant(data)}
