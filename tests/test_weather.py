@@ -14,6 +14,7 @@ from app.weather import (
     _daylight_duration_hours,
     _round_coordinate,
     _round_pressure,
+    _seconds_to_hours,
     _weather_description,
     format_forecast,
     format_hourly_series,
@@ -138,7 +139,7 @@ def test_format_forecast_maps_values_and_units():
     assert result["humidity_max"] == {"value": 85, "unit": "%"}
     assert result["humidity_min"] == {"value": 55, "unit": "%"}
     assert result["precipitation_probability"] == {"value": 20, "unit": "%"}
-    assert result["sunshine_duration"] == {"value": 36420.0, "unit": "s"}
+    assert result["sunshine_duration"] == {"value": 36420.0 / 3600, "unit": "h"}
     assert result["precipitation_hours"] == {"value": 3.0, "unit": "h"}
     assert result["precipitation_sum"] == {"value": 12.5, "unit": "mm"}
     assert result["wind_speed_max"] == {"value": 18.4, "unit": "km/h"}
@@ -337,7 +338,7 @@ def test_format_forecast_falls_back_when_units_missing():
     assert result["uv_index_max"] == {"value": 7.8, "unit": ""}
     assert result["temperature_max"] == {"value": 33.2, "unit": "°C"}
     assert result["precipitation_probability"] == {"value": 20, "unit": "%"}
-    assert result["sunshine_duration"] == {"value": 36420.0, "unit": "s"}
+    assert result["sunshine_duration"] == {"value": 36420.0 / 3600, "unit": "h"}
     assert result["precipitation_hours"] == {"value": 3.0, "unit": "h"}
     assert result["precipitation_sum"] == {"value": 12.5, "unit": "mm"}
     assert result["wind_speed_max"] == {"value": 18.4, "unit": "km/h"}
@@ -444,6 +445,23 @@ def test_format_forecast_includes_daylight_duration():
     result = format_forecast(STUB_RESPONSE)
 
     assert result["daylight_duration"] == {"value": 14.05, "unit": "h"}
+
+
+def test_seconds_to_hours_passes_through_none():
+    assert _seconds_to_hours(None) is None
+
+
+def test_seconds_to_hours_converts_seconds_to_hours():
+    assert _seconds_to_hours(36420.0) == 36420.0 / 3600
+
+
+def test_format_forecast_handles_missing_sunshine_duration():
+    """Open-Meteo が sunshine_duration に null を返すことがある（PR #215 で退行）。"""
+    raw = {**STUB_RESPONSE, "daily": {**STUB_RESPONSE["daily"], "sunshine_duration": [None]}}
+
+    result = format_forecast(raw)
+
+    assert result["sunshine_duration"] == {"value": None, "unit": "h"}
 
 
 def test_format_forecast_reads_pressure_from_requested_field():
