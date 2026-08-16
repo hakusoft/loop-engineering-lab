@@ -84,6 +84,11 @@ def _daylight_duration_hours(sunrise: str, sunset: str) -> float:
     return (datetime.fromisoformat(sunset) - datetime.fromisoformat(sunrise)).total_seconds() / 3600
 
 
+def _seconds_to_hours(seconds: float | None) -> float | None:
+    """秒を時間に変換する。Open-Meteo が値なしで null を返すことがあるため None を素通しする。"""
+    return seconds / 3600 if seconds is not None else None
+
+
 # Open-Meteo に要求する項目。1 項目 1 行で書く。
 #
 # 以前はカンマ区切りの文字列を暗黙の連結で組み立てていたが、項目を足す変更が
@@ -335,8 +340,8 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
             "unit": daily_units.get("uv_index_max", ""),
         },
         "sunshine_duration": {
-            "value": daily["sunshine_duration"][0],
-            "unit": daily_units.get("sunshine_duration", "s"),
+            "value": _seconds_to_hours(daily["sunshine_duration"][0]),
+            "unit": "h",
         },
         "sunrise": daily["sunrise"][0],
         "sunset": daily["sunset"][0],
