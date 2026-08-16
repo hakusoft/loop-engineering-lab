@@ -15,12 +15,28 @@ type WeatherState =
   | { status: "ready"; data: WeatherResponse };
 
 // 表示項目をカテゴリごとに区切る。値・表示ロジックは各コンポーネントのまま変えない。
-function CategoryGroup({ title, children }: { title: string; children: ReactNode }) {
+// 項目が増えて画面が縦に長くなり全体を把握しづらいという要望を受け、カテゴリごとに
+// 折りたたみ表示にする（Issue #222）。先頭カテゴリ（気温）だけは初期状態で開いておく。
+function CategoryGroup({
+  title,
+  defaultOpen,
+  children,
+}: {
+  title: string;
+  defaultOpen: boolean;
+  children: ReactNode;
+}) {
   return (
-    <div>
-      <p style={{ color: "#999", fontSize: 12, fontWeight: 600, margin: "0 0 6px" }}>{title}</p>
-      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>{children}</div>
-    </div>
+    <details open={defaultOpen}>
+      <summary
+        style={{ color: "#999", fontSize: 12, fontWeight: 600, margin: "0 0 6px", cursor: "pointer" }}
+      >
+        {title}
+      </summary>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 8 }}>
+        {children}
+      </div>
+    </details>
   );
 }
 
@@ -85,11 +101,11 @@ export default function App() {
 
       {weatherState.status === "ready" && (
         <div style={{ display: "flex", flexDirection: "column", gap: 20, marginBottom: 16 }}>
-          {CATEGORY_ORDER.map((category) => {
+          {CATEGORY_ORDER.map((category, categoryIndex) => {
             const items = DISPLAY_ITEMS.filter((item) => item.category === category);
             if (items.length === 0) return null;
             return (
-              <CategoryGroup key={category} title={category}>
+              <CategoryGroup key={category} title={category} defaultOpen={categoryIndex === 0}>
                 {items.map(({ component: Item }, i) => (
                   <Item key={i} data={weatherState.data} />
                 ))}
