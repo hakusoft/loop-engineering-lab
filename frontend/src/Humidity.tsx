@@ -8,7 +8,7 @@ export function formatHumidity(data: WeatherResponse): string {
 
 export function Humidity({ data }: { data: WeatherResponse }) {
   return (
-    <p style={{ color: "#666", fontSize: 14, margin: "0 0 8px" }}>
+    <p style={{ color: "#666", fontSize: 16, margin: "0 0 8px" }}>
       {formatHumidity(data)}
     </p>
   );

@@ -9,7 +9,7 @@ export function formatSunshineDuration(data: WeatherResponse): string {
 
 export function SunshineDuration({ data }: { data: WeatherResponse }) {
   return (
-    <p style={{ color: "#666", fontSize: 14, margin: "4px 0" }}>
+    <p style={{ color: "#666", fontSize: 16, margin: "4px 0" }}>
       {formatSunshineDuration(data)}
     </p>
   );

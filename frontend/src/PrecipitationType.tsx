@@ -9,7 +9,7 @@ export function formatPrecipitationType(data: WeatherResponse): string {
 
 export function PrecipitationType({ data }: { data: WeatherResponse }) {
   return (
-    <p style={{ color: "#666", fontSize: 14, margin: "4px 0" }}>
+    <p style={{ color: "#666", fontSize: 16, margin: "4px 0" }}>
       {formatPrecipitationType(data)}
     </p>
   );
