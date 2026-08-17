@@ -13,6 +13,7 @@ from app.weather import (
     _compass_direction,
     _daylight_duration_hours,
     _round_coordinate,
+    _round_pressure,
     _seconds_to_hours,
     _weather_description,
     format_forecast,
@@ -390,6 +391,50 @@ def test_format_hourly_series_rounds_coordinates():
     result = format_hourly_series(raw)
 
     assert result["coordinates"] == {"latitude": 35.7, "longitude": 139.76}
+
+
+def test_round_pressure_rounds_to_one_decimal_place():
+    assert _round_pressure(1013.943127843) == 1013.9
+    assert _round_pressure(998.153) == 998.2
+
+
+def test_round_pressure_passes_through_none():
+    """欠測（None）は丸めずにそのまま返す。round(None, 1) は TypeError になるため。"""
+    assert _round_pressure(None) is None
+
+
+def test_format_forecast_tolerates_missing_pressure():
+    """current の気圧が欠測（None）でも例外にしない。"""
+    raw = {
+        **STUB_RESPONSE,
+        "current": {
+            **STUB_RESPONSE["current"],
+            "surface_pressure": None,
+            "pressure_msl": None,
+        },
+    }
+
+    result = format_forecast(raw)
+
+    assert result["pressure"]["value"] is None
+    assert result["sea_level_pressure"]["value"] is None
+
+
+def test_format_forecast_rounds_pressure():
+    """気圧は Open-Meteo が桁の長い小数を返すことがあるため、小数第1位に丸める。"""
+    raw = {
+        **STUB_RESPONSE,
+        "current": {
+            **STUB_RESPONSE["current"],
+            "surface_pressure": 1008.243127,
+            "pressure_msl": 1012.649999,
+        },
+    }
+
+    result = format_forecast(raw)
+
+    assert result["pressure"] == {"value": 1008.2, "unit": "hPa"}
+    assert result["sea_level_pressure"] == {"value": 1012.6, "unit": "hPa"}
 
 
 def test_daylight_duration_hours_computes_difference_in_hours():
