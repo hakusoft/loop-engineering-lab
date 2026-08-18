@@ -22,6 +22,7 @@ function toChartData(data: SeriesResponse) {
   const rain = data.series.find((s) => s.label === "雨量");
   const snow = data.series.find((s) => s.label === "降雪量");
   const precipitationProbability = data.series.find((s) => s.label === "降水確率");
+  const pressure = data.series.find((s) => s.label === "気圧");
   const uvIndex = data.series.find((s) => s.label === "紫外線指数");
   if (!temperature) {
     return {
@@ -32,6 +33,7 @@ function toChartData(data: SeriesResponse) {
       rain: undefined,
       snow: undefined,
       precipitationProbability: undefined,
+      pressure: undefined,
       uvIndex: undefined,
     };
   }
@@ -45,6 +47,7 @@ function toChartData(data: SeriesResponse) {
     rain: rain?.values[i] ?? null,
     snow: snow?.values[i] ?? null,
     precipitationProbability: precipitationProbability?.values[i] ?? null,
+    pressure: pressure?.values[i] ?? null,
     uvIndex: uvIndex?.values[i] ?? null,
   }));
   return {
@@ -55,6 +58,7 @@ function toChartData(data: SeriesResponse) {
     rain,
     snow,
     precipitationProbability,
+    pressure,
     uvIndex,
   };
 }
@@ -135,8 +139,17 @@ function useIsNarrowViewport(): boolean {
 }
 
 export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?: boolean }) {
-  const { rows, temperatureUnit, apparentTemperature, humidity, rain, snow, precipitationProbability, uvIndex } =
-    toChartData(data);
+  const {
+    rows,
+    temperatureUnit,
+    apparentTemperature,
+    humidity,
+    rain,
+    snow,
+    precipitationProbability,
+    pressure,
+    uvIndex,
+  } = toChartData(data);
   const isNarrow = useIsNarrowViewport();
   const tickFontSize = isNarrow ? 15 : 12;
   const axisWidth = isNarrow ? 68 : 56;
@@ -202,6 +215,14 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
           // 紫外線指数は他系列と単位もスケールも違うので、独立した軸にする。
           <YAxis yAxisId="uvIndex" hide domain={[0, Math.max(uvIndex.max ?? 0, 1) + 1]} />
         )}
+        {pressure && (
+          // 気圧も他系列と単位・スケールが違うので、独立した軸にする。
+          <YAxis
+            yAxisId="pressure"
+            hide
+            domain={[(pressure.min ?? 0) - 1, (pressure.max ?? 0) + 1]}
+          />
+        )}
         <Tooltip
           formatter={(v: number, name: string) => {
             const unit =
@@ -217,7 +238,9 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
                         ? snow?.unit
                         : name === "降水確率"
                           ? precipitationProbability?.unit
-                          : uvIndex?.unit;
+                          : name === "気圧"
+                            ? pressure?.unit
+                            : uvIndex?.unit;
             return [`${v}${unit ?? ""}`, name];
           }}
         />
@@ -292,6 +315,19 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             dot={false}
             isAnimationActive={false}
             name="降水確率"
+            connectNulls
+          />
+        )}
+        {pressure && (
+          <Line
+            yAxisId="pressure"
+            type="monotone"
+            dataKey="pressure"
+            stroke="#495057"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="気圧"
             connectNulls
           />
         )}

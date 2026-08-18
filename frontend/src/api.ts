@@ -47,6 +47,8 @@ export type WeatherResponse = {
   precipitation_probability: { value: number; unit: string };
   precipitation_hours: { value: number; unit: string };
   precipitation_sum: { value: number; unit: string };
+  rain_sum: { value: number; unit: string };
+  snowfall_sum: { value: number; unit: string };
   rain: { value: number; unit: string };
   snowfall: { value: number; unit: string };
   solar_radiation: { value: number; unit: string };
@@ -55,6 +57,7 @@ export type WeatherResponse = {
   wind_direction: { value: number; unit: string; compass: string };
   wind_direction_dominant: { value: number; unit: string; compass: string };
   wind_speed_max: { value: number; unit: string };
+  wind_gusts: { value: number; unit: string };
   wind_gusts_max: { value: number; unit: string };
   sunrise: string;
   sunset: string;

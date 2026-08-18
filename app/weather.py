@@ -142,6 +142,8 @@ DAILY_FIELDS = [
     "sunshine_duration",
     "precipitation_hours",
     "precipitation_sum",
+    "rain_sum",
+    "snowfall_sum",
     "wind_speed_10m_max",
     "wind_direction_10m_dominant",
     "wind_gusts_10m_max",
@@ -159,6 +161,7 @@ HOURLY_FIELDS = [
     "snowfall",
     "precipitation_probability",
     "apparent_temperature",
+    "surface_pressure",
     "uv_index",
 ]
 
@@ -307,6 +310,14 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
             "value": daily["precipitation_sum"][0],
             "unit": daily_units.get("precipitation_sum", "mm"),
         },
+        "rain_sum": {
+            "value": daily["rain_sum"][0],
+            "unit": daily_units.get("rain_sum", "mm"),
+        },
+        "snowfall_sum": {
+            "value": daily["snowfall_sum"][0],
+            "unit": daily_units.get("snowfall_sum", "cm"),
+        },
         "rain": {
             "value": current["rain"],
             "unit": units.get("rain", "mm"),
@@ -404,6 +415,7 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
             _series("rain", "雨量", "mm"),
             _series("snowfall", "降雪量", "cm"),
             _series("precipitation_probability", "降水確率", "%"),
+            _series("surface_pressure", "気圧", "hPa"),
             _series("uv_index", "紫外線指数", ""),
         ],
         "coordinates": {
