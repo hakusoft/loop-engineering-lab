@@ -161,6 +161,7 @@ HOURLY_FIELDS = [
     "snowfall",
     "precipitation_probability",
     "apparent_temperature",
+    "surface_pressure",
     "uv_index",
 ]
 
@@ -414,6 +415,7 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
             _series("rain", "雨量", "mm"),
             _series("snowfall", "降雪量", "cm"),
             _series("precipitation_probability", "降水確率", "%"),
+            _series("surface_pressure", "気圧", "hPa"),
             _series("uv_index", "紫外線指数", ""),
         ],
         "coordinates": {
