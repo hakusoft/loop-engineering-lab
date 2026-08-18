@@ -142,6 +142,8 @@ DAILY_FIELDS = [
     "sunshine_duration",
     "precipitation_hours",
     "precipitation_sum",
+    "rain_sum",
+    "snowfall_sum",
     "wind_speed_10m_max",
     "wind_direction_10m_dominant",
     "wind_gusts_10m_max",
@@ -306,6 +308,14 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
         "precipitation_sum": {
             "value": daily["precipitation_sum"][0],
             "unit": daily_units.get("precipitation_sum", "mm"),
+        },
+        "rain_sum": {
+            "value": daily["rain_sum"][0],
+            "unit": daily_units.get("rain_sum", "mm"),
+        },
+        "snowfall_sum": {
+            "value": daily["snowfall_sum"][0],
+            "unit": daily_units.get("snowfall_sum", "cm"),
         },
         "rain": {
             "value": current["rain"],
