@@ -119,7 +119,12 @@ export default function App() {
       {state.status === "error" && (
         <p style={{ color: "#c00" }}>読み込みに失敗しました: {state.message}</p>
       )}
-      {state.status === "ready" && <TemperatureChart data={state.data} />}
+      {state.status === "ready" && (
+        <TemperatureChart
+          data={state.data}
+          isDay={weatherState.status === "ready" ? weatherState.data.is_day : undefined}
+        />
+      )}
     </main>
   );
 }
