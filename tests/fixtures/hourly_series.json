@@ -46,6 +46,11 @@
       4.7,
       6.3,
       7.45
+    ],
+    "surface_pressure": [
+      1009.4,
+      1009.1,
+      1008.9
     ]
   },
   "hourly_units": {
@@ -57,7 +62,8 @@
     "snowfall": "cm",
     "temperature_2m": "°C",
     "time": "iso8601",
-    "uv_index": ""
+    "uv_index": "",
+    "surface_pressure": "hPa"
   },
   "latitude": 35.7,
   "longitude": 139.75,
