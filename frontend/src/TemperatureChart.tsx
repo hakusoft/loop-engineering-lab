@@ -109,6 +109,16 @@ export function dateBoundaryLabels(
   return boundaries;
 }
 
+// 夜間表示（App.tsx の NIGHT_THEME）では背景が濃紺になるため、目盛り・グリッド線・
+// 現在時刻線のデフォルト色（グレー系）はコントラストが低く読みにくい。
+// 昼夜で色を切り替える。
+function chartColors(isDay: boolean | undefined) {
+  if (isDay === false) {
+    return { grid: "#3a3a5a", tick: "#cfcfe6", referenceLine: "#8888bb", referenceLabel: "#aaaadd" };
+  }
+  return { grid: "#eee", tick: "#666", referenceLine: "#888", referenceLabel: "#888" };
+}
+
 // now と同じローカル日付（年月日）の部分だけを "YYYY-MM-DD" で返す。
 // timestamps は Asia/Tokyo のローカル時刻文字列なので、ブラウザのローカル日付と比較する。
 function localDateKey(d: Date): string {
@@ -171,7 +181,7 @@ function useIsNarrowViewport(): boolean {
   return isNarrow;
 }
 
-export function TemperatureChart({ data }: { data: SeriesResponse }) {
+export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?: boolean }) {
   const {
     rows,
     temperatureUnit,
@@ -191,23 +201,24 @@ export function TemperatureChart({ data }: { data: SeriesResponse }) {
   const nowLabel = nearestTimeLabel(data.timestamps, rows, new Date());
   const dateBoundaries = dateBoundaryLabels(data.timestamps, rows);
   const uvPeakText = formatUvIndexPeak(data, new Date());
+  const colors = chartColors(isDay);
 
   return (
     <>
     {uvPeakText && (
-      <p style={{ color: "#666", fontSize: 14, margin: "0 0 8px" }}>{uvPeakText}</p>
+      <p style={{ color: colors.tick, fontSize: 14, margin: "0 0 8px" }}>{uvPeakText}</p>
     )}
     <ResponsiveContainer width="100%" height={360}>
       <LineChart data={rows} margin={{ top: 16, right: chartRightMargin, bottom: 8, left: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
-        <XAxis dataKey="time" minTickGap={40} tick={{ fontSize: tickFontSize }} />
+        <CartesianGrid strokeDasharray="3 3" stroke={colors.grid} />
+        <XAxis dataKey="time" minTickGap={40} tick={{ fontSize: tickFontSize, fill: colors.tick }} />
         {nowLabel && (
           <ReferenceLine
             yAxisId="temperature"
             x={nowLabel}
-            stroke="#888"
+            stroke={colors.referenceLine}
             strokeDasharray="4 4"
-            label={{ value: "現在", position: "top", fontSize: tickFontSize, fill: "#888" }}
+            label={{ value: "現在", position: "top", fontSize: tickFontSize, fill: colors.referenceLine }}
           />
         )}
         {dateBoundaries.map((boundary) => (
@@ -215,8 +226,8 @@ export function TemperatureChart({ data }: { data: SeriesResponse }) {
             key={boundary.time}
             yAxisId="temperature"
             x={boundary.time}
-            stroke="#ccc"
-            label={{ value: boundary.date, position: "top", fontSize: tickFontSize, fill: "#999" }}
+            stroke={colors.grid}
+            label={{ value: boundary.date, position: "top", fontSize: tickFontSize, fill: colors.referenceLabel }}
           />
         ))}
         <YAxis
@@ -224,7 +235,7 @@ export function TemperatureChart({ data }: { data: SeriesResponse }) {
           unit={temperatureUnit}
           width={axisWidth}
           domain={["dataMin - 1", "dataMax + 1"]}
-          tick={{ fontSize: tickFontSize }}
+          tick={{ fontSize: tickFontSize, fill: colors.tick }}
         />
         {humidity && (
           <YAxis
@@ -281,7 +292,7 @@ export function TemperatureChart({ data }: { data: SeriesResponse }) {
             return [`${v}${unit ?? ""}`, name];
           }}
         />
-        <Legend wrapperStyle={{ fontSize: tickFontSize }} />
+        <Legend wrapperStyle={{ fontSize: tickFontSize, color: colors.tick }} />
         <Line
           yAxisId="temperature"
           type="monotone"

@@ -9,7 +9,7 @@ export function formatTemperature(data: WeatherResponse): string {
 
 export function CurrentTemperature({ data }: { data: WeatherResponse }) {
   return (
-    <p style={{ fontSize: 64, fontWeight: 700, margin: "8px 0", lineHeight: 1 }}>
+    <p style={{ fontSize: 96, fontWeight: 700, margin: "8px 0", lineHeight: 1 }}>
       {formatTemperature(data)}
     </p>
   );
