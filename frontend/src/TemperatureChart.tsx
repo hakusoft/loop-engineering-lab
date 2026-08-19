@@ -109,6 +109,49 @@ export function dateBoundaryLabels(
   return boundaries;
 }
 
+// now と同じローカル日付（年月日）の部分だけを "YYYY-MM-DD" で返す。
+// timestamps は Asia/Tokyo のローカル時刻文字列なので、ブラウザのローカル日付と比較する。
+function localDateKey(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+// series の紫外線指数のうち、now と同じ日の中で最大の値とその時刻を返す。
+// 該当する系列がない、または今日の値が一つもない場合は null。
+export function uvIndexPeak(
+  data: SeriesResponse,
+  now: Date,
+): { time: string; value: number } | null {
+  const uvIndex = data.series.find((s) => s.label === "紫外線指数");
+  if (!uvIndex) {
+    return null;
+  }
+  const today = localDateKey(now);
+  let bestIndex = -1;
+  let bestValue = -Infinity;
+  data.timestamps.forEach((t, i) => {
+    if (localDateKey(new Date(t)) !== today) {
+      return;
+    }
+    const value = uvIndex.values[i];
+    if (value !== null && value > bestValue) {
+      bestValue = value;
+      bestIndex = i;
+    }
+  });
+  if (bestIndex === -1) {
+    return null;
+  }
+  return { time: data.timestamps[bestIndex].slice(11, 16), value: bestValue };
+}
+
+export function formatUvIndexPeak(data: SeriesResponse, now: Date): string | null {
+  const peak = uvIndexPeak(data, now);
+  if (!peak) {
+    return null;
+  }
+  return `紫外線指数のピークは${peak.time}ごろ（指数 ${Math.round(peak.value * 10) / 10}）`;
+}
+
 const NARROW_VIEWPORT_QUERY = "(max-width: 480px)";
 
 // スマホ幅では固定 12px の目盛りが相対的に読みにくいという声があったため、
@@ -147,8 +190,13 @@ export function TemperatureChart({ data }: { data: SeriesResponse }) {
   const chartRightMargin = isNarrow ? 40 : 24;
   const nowLabel = nearestTimeLabel(data.timestamps, rows, new Date());
   const dateBoundaries = dateBoundaryLabels(data.timestamps, rows);
+  const uvPeakText = formatUvIndexPeak(data, new Date());
 
   return (
+    <>
+    {uvPeakText && (
+      <p style={{ color: "#666", fontSize: 14, margin: "0 0 8px" }}>{uvPeakText}</p>
+    )}
     <ResponsiveContainer width="100%" height={360}>
       <LineChart data={rows} margin={{ top: 16, right: chartRightMargin, bottom: 8, left: 0 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
@@ -335,5 +383,6 @@ export function TemperatureChart({ data }: { data: SeriesResponse }) {
         )}
       </LineChart>
     </ResponsiveContainer>
+    </>
   );
 }
