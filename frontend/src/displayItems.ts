@@ -20,6 +20,7 @@ import { PrecipitationProbability } from "./PrecipitationProbability";
 import { PrecipitationSum } from "./PrecipitationSum";
 import { PrecipitationSumByType } from "./PrecipitationSumByType";
 import { PrecipitationType } from "./PrecipitationType";
+import { Showers } from "./Showers";
 import { Pressure } from "./Pressure";
 import { SeaLevelPressure } from "./SeaLevelPressure";
 import { SnowDepth } from "./SnowDepth";
@@ -71,6 +72,7 @@ export const DISPLAY_ITEMS: DisplayItem[] = [
   { category: "降水・湿度", component: HumidityRange },
   { category: "降水・湿度", component: Precipitation },
   { category: "降水・湿度", component: PrecipitationType },
+  { category: "降水・湿度", component: Showers },
   { category: "降水・湿度", component: PrecipitationProbability },
   { category: "降水・湿度", component: PrecipitationHours },
   { category: "降水・湿度", component: PrecipitationSum },

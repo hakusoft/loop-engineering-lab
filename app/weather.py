@@ -118,6 +118,7 @@ CURRENT_FIELDS = [
     "apparent_temperature",
     "precipitation",
     "rain",
+    "showers",
     "snowfall",
     "surface_pressure",
     "pressure_msl",
@@ -325,6 +326,10 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
         "rain": {
             "value": current["rain"],
             "unit": units.get("rain", "mm"),
+        },
+        "showers": {
+            "value": current["showers"],
+            "unit": units.get("showers", "mm"),
         },
         "snowfall": {
             "value": current["snowfall"],
