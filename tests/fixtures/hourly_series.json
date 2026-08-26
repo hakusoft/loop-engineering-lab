@@ -1,6 +1,6 @@
 {
   "elevation": 12.0,
-  "generationtime_ms": 0.2199411392211914,
+  "generationtime_ms": 2.935647964477539,
   "hourly": {
     "apparent_temperature": [
       35.8,
@@ -61,6 +61,11 @@
       2.6,
       4.0,
       5.4
+    ],
+    "wind_speed_850hPa": [
+      13.2,
+      18.1,
+      22.8
     ]
   },
   "hourly_units": {
@@ -75,7 +80,8 @@
     "time": "iso8601",
     "uv_index": "",
     "weather_code": "wmo code",
-    "wind_speed_10m": "km/h"
+    "wind_speed_10m": "km/h",
+    "wind_speed_850hPa": "km/h"
   },
   "latitude": 35.7,
   "longitude": 139.75,

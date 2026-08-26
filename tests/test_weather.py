@@ -259,6 +259,7 @@ STUB_SERIES = {
         "precipitation_probability": "%",
         "surface_pressure": "hPa",
         "wind_speed_10m": "km/h",
+        "wind_speed_850hPa": "km/h",
         "uv_index": "",
     },
     "hourly": {
@@ -272,6 +273,7 @@ STUB_SERIES = {
         "precipitation_probability": [10, 30, 60],
         "surface_pressure": [1008.2, 1008.0, 1007.6],
         "wind_speed_10m": [8.1, 9.4, 10.2],
+        "wind_speed_850hPa": [24.5, 26.1, 28.3],
         "uv_index": [0.2, 1.5, 3.1],
     },
 }
@@ -297,6 +299,7 @@ def test_series_keeps_units_separate_for_split_axes():
         precipitation_probability,
         pressure,
         wind_speed,
+        upper_wind_speed,
         uv_index,
     ) = result["series"]
 
@@ -330,6 +333,7 @@ def test_series_exposes_min_max_for_axis_scaling():
         precipitation_probability,
         pressure,
         wind_speed,
+        upper_wind_speed,
         uv_index,
     ) = result["series"]
 
@@ -361,6 +365,7 @@ def test_series_tolerates_missing_values():
             "precipitation_probability": [None, None],
             "surface_pressure": [None, None],
             "wind_speed_10m": [None, None],
+            "wind_speed_850hPa": [None, None],
             "uv_index": [None, None],
         },
     }
@@ -375,6 +380,7 @@ def test_series_tolerates_missing_values():
         precipitation_probability,
         pressure,
         wind_speed,
+        upper_wind_speed,
         uv_index,
     ) = result["series"]
 
@@ -647,6 +653,7 @@ def test_format_hourly_series_works_against_real_api_shape():
         "降水確率",
         "気圧",
         "風速",
+        "上空の風速",
         "紫外線指数",
     ]
 
@@ -710,6 +717,7 @@ def test_hourly_series_are_all_requested_fields():
         "降水確率": "precipitation_probability",
         "気圧": "surface_pressure",
         "風速": "wind_speed_10m",
+        "上空の風速": "wind_speed_850hPa",
         "紫外線指数": "uv_index",
     }
     used = {labels_to_keys[s["label"]] for s in result["series"] if s["label"] in labels_to_keys}
