@@ -146,6 +146,7 @@ DAILY_FIELDS = [
     "temperature_2m_min",
     "precipitation_probability_max",
     "sunshine_duration",
+    "et0_fao_evapotranspiration",
     "precipitation_hours",
     "precipitation_sum",
     "rain_sum",
