@@ -1,30 +1,36 @@
 {
   "current": {
-    "apparent_temperature": 37.8,
-    "cloud_cover": 6,
-    "dew_point_2m": 24.1,
+    "apparent_temperature": 41.5,
+    "cloud_cover": 76,
+    "cloud_cover_high": 76,
+    "cloud_cover_low": 7,
+    "cloud_cover_mid": 8,
+    "dew_point_2m": 25.9,
     "interval": 900,
     "is_day": 1,
     "precipitation": 0.0,
-    "pressure_msl": 1006.5,
+    "pressure_msl": 1009.4,
     "rain": 0.0,
-    "relative_humidity_2m": 61,
-    "shortwave_radiation": 418.0,
+    "relative_humidity_2m": 64,
+    "shortwave_radiation": 720.0,
     "snow_depth": 0.0,
     "snowfall": 0.0,
-    "surface_pressure": 1005.2,
-    "temperature_2m": 32.6,
-    "time": "2026-08-08T16:00",
-    "uv_index": 3.3,
-    "visibility": 31380.0,
-    "weather_code": 0,
-    "wind_direction_10m": 166,
-    "wind_gusts_10m": 42.1,
-    "wind_speed_10m": 5.9
+    "surface_pressure": 1008.1,
+    "temperature_2m": 33.7,
+    "time": "2026-08-26T11:15",
+    "uv_index": 5.9,
+    "visibility": 30020.0,
+    "weather_code": 2,
+    "wind_direction_10m": 145,
+    "wind_gusts_10m": 32.4,
+    "wind_speed_10m": 4.4
   },
   "current_units": {
     "apparent_temperature": "°C",
     "cloud_cover": "%",
+    "cloud_cover_high": "%",
+    "cloud_cover_low": "%",
+    "cloud_cover_mid": "%",
     "dew_point_2m": "°C",
     "interval": "seconds",
     "is_day": "",
@@ -47,64 +53,64 @@
   },
   "daily": {
     "apparent_temperature_max": [
-      39.9
+      42.8
     ],
     "apparent_temperature_min": [
-      31.3
+      30.6
     ],
     "precipitation_hours": [
       0.0
     ],
     "precipitation_probability_max": [
-      10
+      78
     ],
     "precipitation_sum": [
       0.0
     ],
+    "rain_sum": [
+      0.0
+    ],
     "relative_humidity_2m_max": [
-      90
+      96
     ],
     "relative_humidity_2m_min": [
-      49
+      64
     ],
     "shortwave_radiation_sum": [
-      25.8
+      20.04
+    ],
+    "snowfall_sum": [
+      0.0
     ],
     "sunrise": [
-      "2026-08-08T04:54"
+      "2026-08-26T05:08"
     ],
     "sunset": [
-      "2026-08-08T18:39"
+      "2026-08-26T18:17"
     ],
     "sunshine_duration": [
-      39803.81
+      39651.47
     ],
     "temperature_2m_max": [
-      34.1
+      34.2
     ],
     "temperature_2m_min": [
-      25.8
+      24.9
     ],
     "time": [
-      "2026-08-08"
+      "2026-08-26"
     ],
     "uv_index_max": [
-      7.95
+      6.65
     ],
     "wind_direction_10m_dominant": [
       174
     ],
     "wind_gusts_10m_max": [
-      42.1
+      35.3
     ],
     "wind_speed_10m_max": [
-      5.9
-    ],
-    "rain_sum": [
-      0.0
-    ],
-    "snowfall_sum": [
-      0.0
+      5.8
     ]
   },
   "daily_units": {
@@ -113,9 +119,11 @@
     "precipitation_hours": "h",
     "precipitation_probability_max": "%",
     "precipitation_sum": "mm",
+    "rain_sum": "mm",
     "relative_humidity_2m_max": "%",
     "relative_humidity_2m_min": "%",
     "shortwave_radiation_sum": "MJ/m²",
+    "snowfall_sum": "cm",
     "sunrise": "iso8601",
     "sunset": "iso8601",
     "sunshine_duration": "s",
@@ -125,12 +133,10 @@
     "uv_index_max": "",
     "wind_direction_10m_dominant": "°",
     "wind_gusts_10m_max": "km/h",
-    "wind_speed_10m_max": "km/h",
-    "rain_sum": "mm",
-    "snowfall_sum": "cm"
+    "wind_speed_10m_max": "km/h"
   },
   "elevation": 12.0,
-  "generationtime_ms": 0.5036592483520508,
+  "generationtime_ms": 0.5155801773071289,
   "latitude": 35.7,
   "longitude": 139.75,
   "timezone": "Asia/Tokyo",
