@@ -23,6 +23,7 @@ function toChartData(data: SeriesResponse) {
   const snow = data.series.find((s) => s.label === "降雪量");
   const precipitationProbability = data.series.find((s) => s.label === "降水確率");
   const pressure = data.series.find((s) => s.label === "気圧");
+  const windSpeed = data.series.find((s) => s.label === "風速");
   const uvIndex = data.series.find((s) => s.label === "紫外線指数");
   if (!temperature) {
     return {
@@ -34,6 +35,7 @@ function toChartData(data: SeriesResponse) {
       snow: undefined,
       precipitationProbability: undefined,
       pressure: undefined,
+      windSpeed: undefined,
       uvIndex: undefined,
     };
   }
@@ -48,6 +50,7 @@ function toChartData(data: SeriesResponse) {
     snow: snow?.values[i] ?? null,
     precipitationProbability: precipitationProbability?.values[i] ?? null,
     pressure: pressure?.values[i] ?? null,
+    windSpeed: windSpeed?.values[i] ?? null,
     uvIndex: uvIndex?.values[i] ?? null,
   }));
   return {
@@ -59,6 +62,7 @@ function toChartData(data: SeriesResponse) {
     snow,
     precipitationProbability,
     pressure,
+    windSpeed,
     uvIndex,
   };
 }
@@ -191,6 +195,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     snow,
     precipitationProbability,
     pressure,
+    windSpeed,
     uvIndex,
   } = toChartData(data);
   const isNarrow = useIsNarrowViewport();
@@ -263,6 +268,10 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
           // 紫外線指数は他系列と単位もスケールも違うので、独立した軸にする。
           <YAxis yAxisId="uvIndex" hide domain={[0, Math.max(uvIndex.max ?? 0, 1) + 1]} />
         )}
+        {windSpeed && (
+          // 風速も他系列と単位・スケールが違うので、独立した軸にする。
+          <YAxis yAxisId="windSpeed" hide domain={[0, Math.max(windSpeed.max ?? 0, 1) + 1]} />
+        )}
         {pressure && (
           // 気圧も他系列と単位・スケールが違うので、独立した軸にする。
           <YAxis
@@ -288,7 +297,9 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
                           ? precipitationProbability?.unit
                           : name === "気圧"
                             ? pressure?.unit
-                            : uvIndex?.unit;
+                            : name === "風速"
+                              ? windSpeed?.unit
+                              : uvIndex?.unit;
             return [`${v}${unit ?? ""}`, name];
           }}
         />
@@ -376,6 +387,19 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             dot={false}
             isAnimationActive={false}
             name="気圧"
+            connectNulls
+          />
+        )}
+        {windSpeed && (
+          <Line
+            yAxisId="windSpeed"
+            type="monotone"
+            dataKey="windSpeed"
+            stroke="#12b886"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="風速"
             connectNulls
           />
         )}
