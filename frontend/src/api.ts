@@ -24,6 +24,7 @@ export type SeriesResponse = {
   timestamps: string[];
   conditions: HourlyCondition[];
   daily_summary: string;
+  thunderstorm_hours: string[];
   series: Series[];
   coordinates: { latitude: number; longitude: number };
 };
