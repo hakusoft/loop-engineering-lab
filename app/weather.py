@@ -130,6 +130,7 @@ CURRENT_FIELDS = [
     "is_day",
     "visibility",
     "dew_point_2m",
+    "soil_temperature_0cm",
     "shortwave_radiation",
     "snow_depth",
     "uv_index",
@@ -260,6 +261,10 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
         "apparent_temperature_min": {
             "value": daily["apparent_temperature_min"][0],
             "unit": daily_units.get("apparent_temperature_min", "°C"),
+        },
+        "soil_temperature": {
+            "value": current["soil_temperature_0cm"],
+            "unit": units.get("soil_temperature_0cm", "°C"),
         },
         "humidity": {
             "value": current["relative_humidity_2m"],
