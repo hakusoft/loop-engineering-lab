@@ -3,6 +3,7 @@ import type { WeatherResponse } from "./api";
 import { ApparentTemperature } from "./ApparentTemperature";
 import { ApparentTemperatureRange } from "./ApparentTemperatureRange";
 import { CloudCover } from "./CloudCover";
+import { CloudCoverLayers } from "./CloudCoverLayers";
 import { Condition } from "./Condition";
 import { CurrentTemperature } from "./CurrentTemperature";
 import { DaylightDuration } from "./DaylightDuration";
@@ -81,6 +82,7 @@ export const DISPLAY_ITEMS: DisplayItem[] = [
   { category: "環境", component: Pressure },
   { category: "環境", component: SeaLevelPressure },
   { category: "環境", component: CloudCover },
+  { category: "環境", component: CloudCoverLayers },
   { category: "環境", component: Visibility },
   { category: "環境", component: SolarRadiation },
   { category: "環境", component: SolarRadiationSum },

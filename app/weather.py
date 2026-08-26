@@ -122,6 +122,9 @@ CURRENT_FIELDS = [
     "surface_pressure",
     "pressure_msl",
     "cloud_cover",
+    "cloud_cover_low",
+    "cloud_cover_mid",
+    "cloud_cover_high",
     "weather_code",
     "is_day",
     "visibility",
@@ -338,6 +341,18 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
         "cloud_cover": {
             "value": current["cloud_cover"],
             "unit": units.get("cloud_cover", "%"),
+        },
+        "cloud_cover_low": {
+            "value": current["cloud_cover_low"],
+            "unit": units.get("cloud_cover_low", "%"),
+        },
+        "cloud_cover_mid": {
+            "value": current["cloud_cover_mid"],
+            "unit": units.get("cloud_cover_mid", "%"),
+        },
+        "cloud_cover_high": {
+            "value": current["cloud_cover_high"],
+            "unit": units.get("cloud_cover_high", "%"),
         },
         "visibility": {
             "value": current["visibility"],

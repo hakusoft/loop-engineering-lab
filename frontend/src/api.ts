@@ -42,6 +42,9 @@ export type WeatherResponse = {
   pressure: { value: number; unit: string };
   sea_level_pressure: { value: number; unit: string };
   cloud_cover: { value: number; unit: string };
+  cloud_cover_low: { value: number; unit: string };
+  cloud_cover_mid: { value: number; unit: string };
+  cloud_cover_high: { value: number; unit: string };
   visibility: { value: number; unit: string };
   snow_depth: { value: number; unit: string };
   uv_index: { value: number; unit: string };

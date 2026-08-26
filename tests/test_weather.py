@@ -38,6 +38,9 @@ STUB_RESPONSE = {
         "surface_pressure": "hPa",
         "pressure_msl": "hPa",
         "cloud_cover": "%",
+        "cloud_cover_low": "%",
+        "cloud_cover_mid": "%",
+        "cloud_cover_high": "%",
         "visibility": "m",
         "dew_point_2m": "°C",
         "shortwave_radiation": "W/m²",
@@ -58,6 +61,9 @@ STUB_RESPONSE = {
         "surface_pressure": 1008.2,
         "pressure_msl": 1012.6,
         "cloud_cover": 40,
+        "cloud_cover_low": 10,
+        "cloud_cover_mid": 20,
+        "cloud_cover_high": 30,
         "weather_code": 1,
         "is_day": 1,
         "visibility": 24140.0,
@@ -130,6 +136,9 @@ def test_format_forecast_maps_values_and_units():
     assert result["pressure"] == {"value": 1008.2, "unit": "hPa"}
     assert result["sea_level_pressure"] == {"value": 1012.6, "unit": "hPa"}
     assert result["cloud_cover"] == {"value": 40, "unit": "%"}
+    assert result["cloud_cover_low"] == {"value": 10, "unit": "%"}
+    assert result["cloud_cover_mid"] == {"value": 20, "unit": "%"}
+    assert result["cloud_cover_high"] == {"value": 30, "unit": "%"}
     assert result["visibility"] == {"value": 24140.0, "unit": "m"}
     assert result["solar_radiation"] == {"value": 412.0, "unit": "W/m²"}
     assert result["solar_radiation_sum"] == {"value": 23.4, "unit": "MJ/m²"}
