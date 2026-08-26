@@ -132,6 +132,7 @@ CURRENT_FIELDS = [
     "freezing_level_height",
     "dew_point_2m",
     "soil_temperature_0cm",
+    "soil_moisture_0_to_1cm",
     "shortwave_radiation",
     "snow_depth",
     "uv_index",
@@ -269,6 +270,10 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
         "soil_temperature": {
             "value": current["soil_temperature_0cm"],
             "unit": units.get("soil_temperature_0cm", "°C"),
+        },
+        "soil_moisture": {
+            "value": current["soil_moisture_0_to_1cm"],
+            "unit": units.get("soil_moisture_0_to_1cm", "m³/m³"),
         },
         "humidity": {
             "value": current["relative_humidity_2m"],
