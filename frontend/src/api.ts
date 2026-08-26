@@ -71,6 +71,7 @@ export type WeatherResponse = {
   sunrise: string;
   sunset: string;
   sunshine_duration: { value: number; unit: string };
+  evapotranspiration: { value: number; unit: string };
   daylight_duration: { value: number; unit: string };
   condition: { code: number; description: string };
   is_day: boolean;
