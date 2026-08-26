@@ -31,6 +31,7 @@ import { SunTimes } from "./SunTimes";
 import { SunshineDuration } from "./SunshineDuration";
 import { TemperatureRange } from "./TemperatureRange";
 import { UvIndex } from "./UvIndex";
+import { FreezingLevel } from "./FreezingLevel";
 import { Visibility } from "./Visibility";
 import { Wind } from "./Wind";
 
@@ -88,6 +89,7 @@ export const DISPLAY_ITEMS: DisplayItem[] = [
   { category: "環境", component: CloudCover },
   { category: "環境", component: CloudCoverLayers },
   { category: "環境", component: Visibility },
+  { category: "環境", component: FreezingLevel },
   { category: "環境", component: SolarRadiation },
   { category: "環境", component: SolarRadiationSum },
   { category: "環境", component: UvIndex },

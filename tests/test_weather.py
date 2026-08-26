@@ -43,6 +43,7 @@ STUB_RESPONSE = {
         "cloud_cover_mid": "%",
         "cloud_cover_high": "%",
         "visibility": "m",
+        "freezing_level_height": "m",
         "dew_point_2m": "°C",
         "soil_temperature_0cm": "°C",
         "shortwave_radiation": "W/m²",
@@ -70,6 +71,7 @@ STUB_RESPONSE = {
         "weather_code": 1,
         "is_day": 1,
         "visibility": 24140.0,
+        "freezing_level_height": 4800.0,
         "dew_point_2m": 22.6,
         "soil_temperature_0cm": 30.5,
         "shortwave_radiation": 412.0,
@@ -146,6 +148,7 @@ def test_format_forecast_maps_values_and_units():
     assert result["cloud_cover_mid"] == {"value": 20, "unit": "%"}
     assert result["cloud_cover_high"] == {"value": 30, "unit": "%"}
     assert result["visibility"] == {"value": 24140.0, "unit": "m"}
+    assert result["freezing_level_height"] == {"value": 4800.0, "unit": "m"}
     assert result["solar_radiation"] == {"value": 412.0, "unit": "W/m²"}
     assert result["solar_radiation_sum"] == {"value": 23.4, "unit": "MJ/m²"}
     assert result["snow_depth"] == {"value": 0.0, "unit": "m"}
