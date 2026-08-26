@@ -18,8 +18,11 @@ export type Series = {
   max: number | null;
 };
 
+export type HourlyCondition = { code: number; description: string };
+
 export type SeriesResponse = {
   timestamps: string[];
+  conditions: HourlyCondition[];
   series: Series[];
   coordinates: { latitude: number; longitude: number };
 };
