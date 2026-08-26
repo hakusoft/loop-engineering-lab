@@ -27,7 +27,7 @@ export function formatGardenWatering(data: WeatherResponse): string {
 
 export function GardenWatering({ data }: { data: WeatherResponse }) {
   return (
-    <p style={{ color: "#666", fontSize: 16, margin: "4px 0" }}>
+    <p style={{ color: "var(--text-secondary)", fontSize: 16, margin: "4px 0" }}>
       {formatGardenWatering(data)}
     </p>
   );

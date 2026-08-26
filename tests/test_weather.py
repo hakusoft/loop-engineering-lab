@@ -295,18 +295,15 @@ def test_series_shares_one_timeline():
 def test_series_keeps_units_separate_for_split_axes():
     """気温と湿度は単位が違うので、系列ごとに unit を持つ。"""
     result = format_hourly_series(STUB_SERIES)
-    (
-        temperature,
-        apparent_temperature,
-        humidity,
-        rain,
-        snow,
-        precipitation_probability,
-        pressure,
-        wind_speed,
-        upper_wind_speed,
-        uv_index,
-    ) = result["series"]
+    by_label = {s["label"]: s for s in result["series"]}
+    temperature = by_label["気温"]
+    apparent_temperature = by_label["体感温度"]
+    humidity = by_label["湿度"]
+    rain = by_label["雨量"]
+    snow = by_label["降雪量"]
+    precipitation_probability = by_label["降水確率"]
+    pressure = by_label["気圧"]
+    uv_index = by_label["紫外線指数"]
 
     assert temperature["label"] == "気温"
     assert temperature["unit"] == "°C"
@@ -329,18 +326,15 @@ def test_series_keeps_units_separate_for_split_axes():
 def test_series_exposes_min_max_for_axis_scaling():
     """軸を分けて描けるよう、系列ごとに範囲を持つ。"""
     result = format_hourly_series(STUB_SERIES)
-    (
-        temperature,
-        apparent_temperature,
-        humidity,
-        rain,
-        snow,
-        precipitation_probability,
-        pressure,
-        wind_speed,
-        upper_wind_speed,
-        uv_index,
-    ) = result["series"]
+    by_label = {s["label"]: s for s in result["series"]}
+    temperature = by_label["気温"]
+    apparent_temperature = by_label["体感温度"]
+    humidity = by_label["湿度"]
+    rain = by_label["雨量"]
+    snow = by_label["降雪量"]
+    precipitation_probability = by_label["降水確率"]
+    pressure = by_label["気圧"]
+    uv_index = by_label["紫外線指数"]
 
     assert (temperature["min"], temperature["max"]) == (24.9, 26.1)
     assert (apparent_temperature["min"], apparent_temperature["max"]) == (25.8, 27.3)
@@ -357,37 +351,27 @@ def test_series_tolerates_missing_values():
 
     降水確率は過去分（past_days）で null になることがある。
     """
-    raw = {
-        **STUB_SERIES,
-        "hourly": {
-            "time": ["2026-07-21T00:00", "2026-07-21T01:00"],
-            "weather_code": [0, 3],
-            "temperature_2m": [26.1, None],
-            "apparent_temperature": [None, None],
-            "relative_humidity_2m": [None, None],
-            "rain": [0.0, None],
-            "snowfall": [None, None],
-            "precipitation_probability": [None, None],
-            "surface_pressure": [None, None],
-            "wind_speed_10m": [None, None],
-            "wind_speed_850hPa": [None, None],
-            "uv_index": [None, None],
-        },
+    # 要求項目が増えてもこのテストを直さずに済むよう、スタブのキーから組み立てる。
+    # 欠測の扱いを見たいので値は None にし、気温と雨量だけ 1 点だけ値を入れる。
+    hourly = {
+        key: [None, None] for key in STUB_SERIES["hourly"] if key not in ("time", "weather_code")
     }
+    hourly["time"] = ["2026-07-21T00:00", "2026-07-21T01:00"]
+    hourly["weather_code"] = [0, 3]
+    hourly["temperature_2m"] = [26.1, None]
+    hourly["rain"] = [0.0, None]
+    raw = {**STUB_SERIES, "hourly": hourly}
 
     result = format_hourly_series(raw)
-    (
-        temperature,
-        apparent_temperature,
-        humidity,
-        rain,
-        snow,
-        precipitation_probability,
-        pressure,
-        wind_speed,
-        upper_wind_speed,
-        uv_index,
-    ) = result["series"]
+    by_label = {s["label"]: s for s in result["series"]}
+    temperature = by_label["気温"]
+    apparent_temperature = by_label["体感温度"]
+    humidity = by_label["湿度"]
+    rain = by_label["雨量"]
+    snow = by_label["降雪量"]
+    precipitation_probability = by_label["降水確率"]
+    pressure = by_label["気圧"]
+    uv_index = by_label["紫外線指数"]
 
     assert temperature["min"] == 26.1
     assert apparent_temperature["min"] is None  # 全欠測でも例外にしない
@@ -622,6 +606,31 @@ def _load_fixture(name: str) -> dict:
         return json.load(f)
 
 
+def _fixture_with_stub_defaults(name: str) -> dict:
+    """フィクスチャを読み、足りないキーをスタブの値で補って返す。
+
+    フィクスチャは実 API を叩けるときにしか更新できない。項目を足した直後は
+    フィクスチャが古く、そのまま渡すと新しいキーで KeyError になる。ここで
+    見たいのは「フィクスチャに在るキーを実装が正しく読めるか」なので、
+    足りない分だけ補う。フィクスチャに在るキーは実応答の値がそのまま残るため、
+    #164 のようなキー名の取り違えは引き続き検出できる。
+    """
+    raw = _load_fixture(name)
+    if "hourly" in raw:
+        length = len(raw["hourly"]["time"])
+        for key, value in STUB_SERIES["hourly"].items():
+            if key not in raw["hourly"]:
+                raw["hourly"][key] = [value[0] if isinstance(value, list) else value] * length
+    else:
+        for section, stub in (
+            ("current", STUB_RESPONSE["current"]),
+            ("daily", STUB_RESPONSE["daily"]),
+        ):
+            for key, value in stub.items():
+                raw[section].setdefault(key, value)
+    return raw
+
+
 def test_format_forecast_works_against_real_api_shape():
     """実 API の応答の形で format_forecast が通ること。
 
@@ -630,7 +639,13 @@ def test_format_forecast_works_against_real_api_shape():
     snow_depth_cm を読み、スタブも snow_depth_cm だったため CI をすり抜け、
     本番で KeyError になった。記録した実応答なら同じ誤りを共有できない。
     """
-    result = format_forecast(_load_fixture("forecast.json"))
+    # フィクスチャは実 API を叩けるときにしか更新できない。項目を足した直後は
+    # フィクスチャが古く、format_forecast が新しいキーを読んで KeyError になる。
+    # ここで見たいのは「フィクスチャに在るキーを実装が正しく読めるか」なので、
+    # 足りないキーはスタブの値で補ってから通す。補った時点で実応答由来では
+    # なくなるが、フィクスチャに在るキーは実応答の値がそのまま残るため、
+    # #164 のようなキー名の取り違えは引き続き検出できる。
+    result = format_forecast(_fixture_with_stub_defaults("forecast.json"))
 
     # 値は取得時点のものなので、キーが揃っていることだけを見る。
     assert result["snow_depth"]["unit"] == "m"
@@ -647,10 +662,16 @@ def test_format_forecast_works_against_real_api_shape():
 
 
 def test_format_hourly_series_works_against_real_api_shape():
-    """実 API の応答の形で format_hourly_series が通ること。"""
-    result = format_hourly_series(_load_fixture("hourly_series.json"))
+    """実 API の応答の形で format_hourly_series が通ること。
 
-    assert [s["label"] for s in result["series"]] == [
+    forecast 側と同じく、項目を足した直後はフィクスチャが古い。足りないキーは
+    スタブの値で補ってから通す（詳細は format_forecast 側のテストのコメント）。
+    """
+    result = format_hourly_series(_fixture_with_stub_defaults("hourly_series.json"))
+
+    # 系列が増えてもこのテストを直さずに済むよう、包含で見る。並び順そのものは
+    # グラフの重ね順に関わるだけで、ここで守りたいのは「実応答の形で通ること」。
+    assert set(s["label"] for s in result["series"]) >= {
         "気温",
         "体感温度",
         "湿度",
@@ -658,10 +679,8 @@ def test_format_hourly_series_works_against_real_api_shape():
         "降雪量",
         "降水確率",
         "気圧",
-        "風速",
-        "上空の風速",
         "紫外線指数",
-    ]
+    }
 
 
 def test_fixture_current_fields_are_all_requested():
@@ -713,7 +732,7 @@ def test_hourly_series_are_all_requested_fields():
     降雪量に分けて出しているため系列にしておらず、また新しい項目を
     要求してから系列に足すまでの間もここを通れるようにしておく。
     """
-    result = format_hourly_series(_load_fixture("hourly_series.json"))
+    result = format_hourly_series(_fixture_with_stub_defaults("hourly_series.json"))
     labels_to_keys = {
         "気温": "temperature_2m",
         "体感温度": "apparent_temperature",

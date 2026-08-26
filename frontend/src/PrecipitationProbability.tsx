@@ -20,7 +20,7 @@ export function formatPrecipitationWarning(data: WeatherResponse): string | null
 export function PrecipitationProbability({ data }: { data: WeatherResponse }) {
   const warning = formatPrecipitationWarning(data);
   return (
-    <p style={{ color: "#666", fontSize: 16, margin: "4px 0" }}>
+    <p style={{ color: "var(--text-secondary)", fontSize: 16, margin: "4px 0" }}>
       {formatPrecipitationProbability(data)}
       {warning ? ` ${warning}` : ""}
     </p>

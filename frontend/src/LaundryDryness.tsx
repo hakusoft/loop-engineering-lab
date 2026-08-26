@@ -23,7 +23,7 @@ export function formatLaundryDryness(data: WeatherResponse): string {
 
 export function LaundryDryness({ data }: { data: WeatherResponse }) {
   return (
-    <p style={{ color: "#666", fontSize: 16, margin: "4px 0" }}>
+    <p style={{ color: "var(--text-secondary)", fontSize: 16, margin: "4px 0" }}>
       {formatLaundryDryness(data)}
     </p>
   );

@@ -50,7 +50,7 @@ export function HourlyConditions({ data }: { data: SeriesResponse }) {
             minWidth: 44,
             textAlign: "center",
             fontSize: 12,
-            color: "#666",
+            color: "var(--text-secondary)",
           }}
         >
           <div style={{ fontSize: 18, lineHeight: 1.4 }}>{cell.icon ?? "—"}</div>

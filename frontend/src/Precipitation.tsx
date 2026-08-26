@@ -8,7 +8,7 @@ export function formatPrecipitation(data: WeatherResponse): string {
 
 export function Precipitation({ data }: { data: WeatherResponse }) {
   return (
-    <p style={{ color: "#666", fontSize: 16, margin: "4px 0" }}>
+    <p style={{ color: "var(--text-secondary)", fontSize: 16, margin: "4px 0" }}>
       {formatPrecipitation(data)}
     </p>
   );
