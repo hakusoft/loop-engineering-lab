@@ -164,6 +164,7 @@ def test_format_forecast_maps_values_and_units():
     assert result["humidity_min"] == {"value": 55, "unit": "%"}
     assert result["precipitation_probability"] == {"value": 20, "unit": "%"}
     assert result["sunshine_duration"] == {"value": 36420.0 / 3600, "unit": "h"}
+    assert result["evapotranspiration"] == {"value": 4.33, "unit": "mm"}
     assert result["precipitation_hours"] == {"value": 3.0, "unit": "h"}
     assert result["precipitation_sum"] == {"value": 12.5, "unit": "mm"}
     assert result["rain_sum"] == {"value": 12.5, "unit": "mm"}
@@ -257,6 +258,7 @@ STUB_SERIES = {
         "snowfall": "cm",
         "precipitation_probability": "%",
         "surface_pressure": "hPa",
+        "wind_speed_10m": "km/h",
         "uv_index": "",
     },
     "hourly": {
@@ -269,6 +271,7 @@ STUB_SERIES = {
         "snowfall": [0.0, 0.0, 0.0],
         "precipitation_probability": [10, 30, 60],
         "surface_pressure": [1008.2, 1008.0, 1007.6],
+        "wind_speed_10m": [8.1, 9.4, 10.2],
         "uv_index": [0.2, 1.5, 3.1],
     },
 }
@@ -285,9 +288,17 @@ def test_series_shares_one_timeline():
 def test_series_keeps_units_separate_for_split_axes():
     """気温と湿度は単位が違うので、系列ごとに unit を持つ。"""
     result = format_hourly_series(STUB_SERIES)
-    temperature, apparent_temperature, humidity, rain, snow, precipitation_probability, pressure, uv_index = (
-        result["series"]
-    )
+    (
+        temperature,
+        apparent_temperature,
+        humidity,
+        rain,
+        snow,
+        precipitation_probability,
+        pressure,
+        wind_speed,
+        uv_index,
+    ) = result["series"]
 
     assert temperature["label"] == "気温"
     assert temperature["unit"] == "°C"
@@ -310,9 +321,17 @@ def test_series_keeps_units_separate_for_split_axes():
 def test_series_exposes_min_max_for_axis_scaling():
     """軸を分けて描けるよう、系列ごとに範囲を持つ。"""
     result = format_hourly_series(STUB_SERIES)
-    temperature, apparent_temperature, humidity, rain, snow, precipitation_probability, pressure, uv_index = (
-        result["series"]
-    )
+    (
+        temperature,
+        apparent_temperature,
+        humidity,
+        rain,
+        snow,
+        precipitation_probability,
+        pressure,
+        wind_speed,
+        uv_index,
+    ) = result["series"]
 
     assert (temperature["min"], temperature["max"]) == (24.9, 26.1)
     assert (apparent_temperature["min"], apparent_temperature["max"]) == (25.8, 27.3)
@@ -341,14 +360,23 @@ def test_series_tolerates_missing_values():
             "snowfall": [None, None],
             "precipitation_probability": [None, None],
             "surface_pressure": [None, None],
+            "wind_speed_10m": [None, None],
             "uv_index": [None, None],
         },
     }
 
     result = format_hourly_series(raw)
-    temperature, apparent_temperature, humidity, rain, snow, precipitation_probability, pressure, uv_index = (
-        result["series"]
-    )
+    (
+        temperature,
+        apparent_temperature,
+        humidity,
+        rain,
+        snow,
+        precipitation_probability,
+        pressure,
+        wind_speed,
+        uv_index,
+    ) = result["series"]
 
     assert temperature["min"] == 26.1
     assert apparent_temperature["min"] is None  # 全欠測でも例外にしない
@@ -618,6 +646,7 @@ def test_format_hourly_series_works_against_real_api_shape():
         "降雪量",
         "降水確率",
         "気圧",
+        "風速",
         "紫外線指数",
     ]
 
@@ -680,6 +709,7 @@ def test_hourly_series_are_all_requested_fields():
         "降雪量": "snowfall",
         "降水確率": "precipitation_probability",
         "気圧": "surface_pressure",
+        "風速": "wind_speed_10m",
         "紫外線指数": "uv_index",
     }
     used = {labels_to_keys[s["label"]] for s in result["series"] if s["label"] in labels_to_keys}
