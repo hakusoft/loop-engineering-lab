@@ -154,6 +154,7 @@ DAILY_FIELDS = [
 ]
 
 HOURLY_FIELDS = [
+    "weather_code",
     "temperature_2m",
     "relative_humidity_2m",
     "precipitation",
@@ -406,8 +407,16 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
             "max": max(present) if present else None,
         }
 
+    # 天気コードは数値の大小に意味がなく、他の系列と同じ軸には載せられない。
+    # グラフに重ねるのではなく時刻ごとのアイコンとして出すため、series とは別に返す。
+    conditions = [
+        {"code": code, "description": _weather_description(code)}
+        for code in hourly["weather_code"]
+    ]
+
     return {
         "timestamps": timestamps,
+        "conditions": conditions,
         "series": [
             _series("temperature_2m", "気温", "°C"),
             _series("apparent_temperature", "体感温度", "°C"),

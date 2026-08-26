@@ -229,6 +229,7 @@ STUB_SERIES = {
     "longitude": 139.76,
     "hourly_units": {
         "time": "iso8601",
+        "weather_code": "wmo code",
         "temperature_2m": "°C",
         "apparent_temperature": "°C",
         "relative_humidity_2m": "%",
@@ -240,6 +241,7 @@ STUB_SERIES = {
     },
     "hourly": {
         "time": ["2026-07-21T00:00", "2026-07-21T01:00", "2026-07-21T02:00"],
+        "weather_code": [0, 3, 61],
         "temperature_2m": [26.1, 25.4, 24.9],
         "apparent_temperature": [27.3, 26.5, 25.8],
         "relative_humidity_2m": [78, 81, 85],
@@ -311,6 +313,7 @@ def test_series_tolerates_missing_values():
         **STUB_SERIES,
         "hourly": {
             "time": ["2026-07-21T00:00", "2026-07-21T01:00"],
+            "weather_code": [0, 3],
             "temperature_2m": [26.1, None],
             "apparent_temperature": [None, None],
             "relative_humidity_2m": [None, None],

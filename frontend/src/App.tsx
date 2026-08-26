@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { fetchSeries, fetchWeather, type SeriesResponse, type WeatherResponse } from "./api";
 import { CATEGORY_ORDER, DISPLAY_ITEMS } from "./displayItems";
 import { LocationName } from "./LocationName";
+import { HourlyConditions } from "./HourlyConditions";
 import { TemperatureChart } from "./TemperatureChart";
 
 type State =
@@ -120,10 +121,13 @@ export default function App() {
         <p style={{ color: "#c00" }}>読み込みに失敗しました: {state.message}</p>
       )}
       {state.status === "ready" && (
-        <TemperatureChart
-          data={state.data}
-          isDay={weatherState.status === "ready" ? weatherState.data.is_day : undefined}
-        />
+        <>
+          <TemperatureChart
+            data={state.data}
+            isDay={weatherState.status === "ready" ? weatherState.data.is_day : undefined}
+          />
+          <HourlyConditions data={state.data} />
+        </>
       )}
     </main>
   );
