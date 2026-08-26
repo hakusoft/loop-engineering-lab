@@ -17,9 +17,31 @@ type WeatherState =
   | { status: "error" }
   | { status: "ready"; data: WeatherResponse };
 
+// カテゴリの開閉状態を保存するキーの接頭辞。カテゴリ名ごとに分けて保存する。
+const CATEGORY_OPEN_STORAGE_PREFIX = "loop-engineering-lab:category-open:";
+
+// localStorage が使えない環境（プライベートブラウジング等）でも落ちないようにする。
+function readStoredCategoryOpen(title: string): boolean | undefined {
+  try {
+    const stored = localStorage.getItem(CATEGORY_OPEN_STORAGE_PREFIX + title);
+    return stored === null ? undefined : stored === "true";
+  } catch {
+    return undefined;
+  }
+}
+
+function writeStoredCategoryOpen(title: string, open: boolean) {
+  try {
+    localStorage.setItem(CATEGORY_OPEN_STORAGE_PREFIX + title, String(open));
+  } catch {
+    // 保存できなくても表示は続行する。
+  }
+}
+
 // 表示項目をカテゴリごとに区切る。値・表示ロジックは各コンポーネントのまま変えない。
 // 項目が増えて画面が縦に長くなり全体を把握しづらいという要望を受け、カテゴリごとに
-// 折りたたみ表示にする（Issue #222）。先頭カテゴリ（気温）だけは初期状態で開いておく。
+// 折りたたみ表示にする（Issue #222）。開閉状態は localStorage に保存し、保存が無い
+// カテゴリは先頭カテゴリ（気温）だけ初期状態で開く（Issue #255）。
 function CategoryGroup({
   title,
   defaultOpen,
@@ -29,8 +51,17 @@ function CategoryGroup({
   defaultOpen: boolean;
   children: ReactNode;
 }) {
+  const [open, setOpen] = useState(() => readStoredCategoryOpen(title) ?? defaultOpen);
+
   return (
-    <details open={defaultOpen}>
+    <details
+      open={open}
+      onToggle={(e) => {
+        const isOpen = (e.target as HTMLDetailsElement).open;
+        setOpen(isOpen);
+        writeStoredCategoryOpen(title, isOpen);
+      }}
+    >
       <summary
         style={{ color: "#999", fontSize: 12, fontWeight: 600, margin: "0 0 6px", cursor: "pointer" }}
       >
