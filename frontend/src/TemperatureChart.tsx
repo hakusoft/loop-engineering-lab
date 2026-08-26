@@ -24,6 +24,7 @@ function toChartData(data: SeriesResponse) {
   const precipitationProbability = data.series.find((s) => s.label === "降水確率");
   const pressure = data.series.find((s) => s.label === "気圧");
   const windSpeed = data.series.find((s) => s.label === "風速");
+  const upperWindSpeed = data.series.find((s) => s.label === "上空の風速");
   const uvIndex = data.series.find((s) => s.label === "紫外線指数");
   if (!temperature) {
     return {
@@ -36,6 +37,7 @@ function toChartData(data: SeriesResponse) {
       precipitationProbability: undefined,
       pressure: undefined,
       windSpeed: undefined,
+      upperWindSpeed: undefined,
       uvIndex: undefined,
     };
   }
@@ -51,6 +53,7 @@ function toChartData(data: SeriesResponse) {
     precipitationProbability: precipitationProbability?.values[i] ?? null,
     pressure: pressure?.values[i] ?? null,
     windSpeed: windSpeed?.values[i] ?? null,
+    upperWindSpeed: upperWindSpeed?.values[i] ?? null,
     uvIndex: uvIndex?.values[i] ?? null,
   }));
   return {
@@ -63,6 +66,7 @@ function toChartData(data: SeriesResponse) {
     precipitationProbability,
     pressure,
     windSpeed,
+    upperWindSpeed,
     uvIndex,
   };
 }
@@ -196,6 +200,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     precipitationProbability,
     pressure,
     windSpeed,
+    upperWindSpeed,
     uvIndex,
   } = toChartData(data);
   const isNarrow = useIsNarrowViewport();
@@ -272,6 +277,14 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
           // 風速も他系列と単位・スケールが違うので、独立した軸にする。
           <YAxis yAxisId="windSpeed" hide domain={[0, Math.max(windSpeed.max ?? 0, 1) + 1]} />
         )}
+        {upperWindSpeed && (
+          // 上空の風速は地上より大きくなるので、地上の風速とも軸を分ける。
+          <YAxis
+            yAxisId="upperWindSpeed"
+            hide
+            domain={[0, Math.max(upperWindSpeed.max ?? 0, 1) + 1]}
+          />
+        )}
         {pressure && (
           // 気圧も他系列と単位・スケールが違うので、独立した軸にする。
           <YAxis
@@ -299,7 +312,9 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
                             ? pressure?.unit
                             : name === "風速"
                               ? windSpeed?.unit
-                              : uvIndex?.unit;
+                              : name === "上空の風速"
+                                ? upperWindSpeed?.unit
+                                : uvIndex?.unit;
             return [`${v}${unit ?? ""}`, name];
           }}
         />
@@ -400,6 +415,20 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             dot={false}
             isAnimationActive={false}
             name="風速"
+            connectNulls
+          />
+        )}
+        {upperWindSpeed && (
+          <Line
+            yAxisId="upperWindSpeed"
+            type="monotone"
+            dataKey="upperWindSpeed"
+            stroke="#7048e8"
+            strokeWidth={2}
+            strokeDasharray="4 2"
+            dot={false}
+            isAnimationActive={false}
+            name="上空の風速"
             connectNulls
           />
         )}
