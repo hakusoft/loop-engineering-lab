@@ -4,6 +4,7 @@ import { CATEGORY_ORDER, DISPLAY_ITEMS } from "./displayItems";
 import { LocationName } from "./LocationName";
 import { DailySummary } from "./DailySummary";
 import { HourlyConditions } from "./HourlyConditions";
+import { ThunderstormOutlook } from "./ThunderstormOutlook";
 import { TemperatureChart } from "./TemperatureChart";
 
 type State =
@@ -102,6 +103,7 @@ export default function App() {
       </p>
 
       {state.status === "ready" && <DailySummary data={state.data} />}
+      {state.status === "ready" && <ThunderstormOutlook data={state.data} />}
 
       {weatherState.status === "ready" && (
         <div style={{ display: "flex", flexDirection: "column", gap: 20, marginBottom: 16 }}>

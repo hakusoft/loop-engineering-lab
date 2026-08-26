@@ -8,6 +8,7 @@ from pathlib import Path
 
 from app.weather import (
     summarize_day,
+    thunderstorm_hours,
     CURRENT_FIELDS,
     DAILY_FIELDS,
     HOURLY_FIELDS,
@@ -765,3 +766,22 @@ def test_summarize_day_avoids_repeating_the_same_weather():
 def test_summarize_day_handles_empty_input():
     """データが無いときも落ちない。"""
     assert summarize_day([], []) == "天気の情報がありません"
+
+
+def test_thunderstorm_hours_lists_hours_with_thunder():
+    """雷を伴うコード（95/96/99）の時刻を返す。"""
+    timestamps = [f"2026-08-26T{h:02d}:00" for h in range(24)]
+    codes = [0] * 14 + [95, 96, 99] + [0] * 7
+
+    assert thunderstorm_hours(timestamps, codes) == [
+        "2026-08-26T14:00",
+        "2026-08-26T15:00",
+        "2026-08-26T16:00",
+    ]
+
+
+def test_thunderstorm_hours_is_empty_without_thunder():
+    """雷が無ければ空。画面では何も出さない。"""
+    timestamps = [f"2026-08-26T{h:02d}:00" for h in range(24)]
+
+    assert thunderstorm_hours(timestamps, [0, 3, 61] * 8) == []

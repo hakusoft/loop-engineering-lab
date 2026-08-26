@@ -488,6 +488,19 @@ def summarize_day(timestamps: list[str], codes: list[int]) -> str:
     return summary
 
 
+# 雷を伴う天気の WMO コード。95=雷雨、96/99=ひょうを伴う雷雨。
+THUNDERSTORM_CODES = (95, 96, 99)
+
+
+def thunderstorm_hours(timestamps: list[str], codes: list[int]) -> list[str]:
+    """雷を伴う天気になる時刻を返す。無ければ空リスト。
+
+    夕立が来そうかを知りたいという用途なので、時刻そのものを返して
+    利用側で「何時ごろ」と伝えられるようにする。
+    """
+    return [t for t, c in zip(timestamps, codes) if c in THUNDERSTORM_CODES]
+
+
 def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
     """時系列の生 JSON を、1 つのチャートに重ねられる形に整える。
 
@@ -526,10 +539,16 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
         [hourly["weather_code"][i] for i in today_index],
     )
 
+    thunder_hours = thunderstorm_hours(
+        [timestamps[i] for i in today_index],
+        [hourly["weather_code"][i] for i in today_index],
+    )
+
     return {
         "timestamps": timestamps,
         "conditions": conditions,
         "daily_summary": daily_summary,
+        "thunderstorm_hours": thunder_hours,
         "series": [
             _series("temperature_2m", "気温", "°C"),
             _series("apparent_temperature", "体感温度", "°C"),
