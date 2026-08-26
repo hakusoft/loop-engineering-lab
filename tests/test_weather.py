@@ -96,6 +96,7 @@ STUB_RESPONSE = {
         "precipitation_hours": "h",
         "precipitation_sum": "mm",
         "rain_sum": "mm",
+        "showers_sum": "mm",
         "snowfall_sum": "cm",
         "wind_speed_10m_max": "km/h",
         "wind_direction_10m_dominant": "°",
@@ -119,6 +120,7 @@ STUB_RESPONSE = {
         "precipitation_hours": [3.0],
         "precipitation_sum": [12.5],
         "rain_sum": [12.5],
+        "showers_sum": [1.5],
         "snowfall_sum": [0.0],
         "wind_speed_10m_max": [18.4],
         "wind_direction_10m_dominant": [250],
@@ -173,6 +175,7 @@ def test_format_forecast_maps_values_and_units():
     assert result["precipitation_hours"] == {"value": 3.0, "unit": "h"}
     assert result["precipitation_sum"] == {"value": 12.5, "unit": "mm"}
     assert result["rain_sum"] == {"value": 12.5, "unit": "mm"}
+    assert result["showers_sum"] == {"value": 1.5, "unit": "mm"}
     assert result["snowfall_sum"] == {"value": 0.0, "unit": "cm"}
     assert result["wind_speed_max"] == {"value": 18.4, "unit": "km/h"}
     assert result["wind_gusts_max"] == {"value": 42.6, "unit": "km/h"}
@@ -401,6 +404,7 @@ def test_format_forecast_falls_back_when_units_missing():
     assert result["precipitation_hours"] == {"value": 3.0, "unit": "h"}
     assert result["precipitation_sum"] == {"value": 12.5, "unit": "mm"}
     assert result["rain_sum"] == {"value": 12.5, "unit": "mm"}
+    assert result["showers_sum"] == {"value": 1.5, "unit": "mm"}
     assert result["snowfall_sum"] == {"value": 0.0, "unit": "cm"}
     assert result["wind_speed_max"] == {"value": 18.4, "unit": "km/h"}
     assert result["wind_gusts_max"] == {"value": 42.6, "unit": "km/h"}

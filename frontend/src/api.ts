@@ -59,6 +59,7 @@ export type WeatherResponse = {
   precipitation_hours: { value: number; unit: string };
   precipitation_sum: { value: number; unit: string };
   rain_sum: { value: number; unit: string };
+  showers_sum: { value: number; unit: string };
   snowfall_sum: { value: number; unit: string };
   rain: { value: number; unit: string };
   showers: { value: number; unit: string };
