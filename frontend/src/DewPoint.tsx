@@ -8,7 +8,7 @@ export function formatDewPoint(data: WeatherResponse): string {
 
 export function DewPoint({ data }: { data: WeatherResponse }) {
   return (
-    <p style={{ color: "#666", fontSize: 16, margin: "0 0 8px" }}>
+    <p style={{ color: "var(--text-secondary)", fontSize: 16, margin: "0 0 8px" }}>
       {formatDewPoint(data)}
     </p>
   );
