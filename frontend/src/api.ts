@@ -23,6 +23,7 @@ export type HourlyCondition = { code: number; description: string };
 export type SeriesResponse = {
   timestamps: string[];
   conditions: HourlyCondition[];
+  daily_summary: string;
   series: Series[];
   coordinates: { latitude: number; longitude: number };
 };

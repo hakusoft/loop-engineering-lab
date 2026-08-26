@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { fetchSeries, fetchWeather, type SeriesResponse, type WeatherResponse } from "./api";
 import { CATEGORY_ORDER, DISPLAY_ITEMS } from "./displayItems";
 import { LocationName } from "./LocationName";
+import { DailySummary } from "./DailySummary";
 import { HourlyConditions } from "./HourlyConditions";
 import { TemperatureChart } from "./TemperatureChart";
 
@@ -99,6 +100,8 @@ export default function App() {
       <p style={{ color: "#666", marginTop: 0, fontSize: 14 }}>
         loop-engineering-lab / <code>/weather/series</code>
       </p>
+
+      {state.status === "ready" && <DailySummary data={state.data} />}
 
       {weatherState.status === "ready" && (
         <div style={{ display: "flex", flexDirection: "column", gap: 20, marginBottom: 16 }}>
