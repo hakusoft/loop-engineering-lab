@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import { fetchSeries, fetchWeather, type SeriesResponse, type WeatherResponse } from "./api";
 import { CATEGORY_ORDER, DISPLAY_ITEMS } from "./displayItems";
 import { LocationName } from "./LocationName";
@@ -32,7 +32,7 @@ function CategoryGroup({
   return (
     <details open={defaultOpen}>
       <summary
-        style={{ color: "#999", fontSize: 12, fontWeight: 600, margin: "0 0 6px", cursor: "pointer" }}
+        style={{ color: "var(--text-tertiary)", fontSize: 12, fontWeight: 600, margin: "0 0 6px", cursor: "pointer" }}
       >
         {title}
       </summary>
@@ -45,8 +45,23 @@ function CategoryGroup({
 
 // /weather の is_day を基準に、昼夜で背景・文字色を切り替える。
 // OS のダークモード設定とは連動せず、あくまで観測地点の昼夜だけを見る。
-const DAY_THEME = { background: "#ffffff", color: "#111111" };
-const NIGHT_THEME = { background: "#1a1a2e", color: "#e8e8e8" };
+//
+// 各表示コンポーネントの補助テキストは固定の #666 / #999 を使っていたが、
+// 夜間の暗い背景（#1a1a2e）に対してコントラストが低く読みにくいという
+// 指摘があった（Issue #256）。CSS カスタムプロパティとして昼夜で値を
+// 切り替え、各コンポーネントはそれを参照するだけで済むようにする。
+const DAY_THEME = {
+  background: "#ffffff",
+  color: "#111111",
+  textSecondary: "#666666",
+  textTertiary: "#999999",
+};
+const NIGHT_THEME = {
+  background: "#1a1a2e",
+  color: "#e8e8e8",
+  textSecondary: "#b8b8d0",
+  textTertiary: "#9a9ac0",
+};
 
 function themeFor(isDay: boolean | undefined) {
   return isDay === false ? NIGHT_THEME : DAY_THEME;
@@ -82,15 +97,19 @@ export default function App() {
 
   return (
     <main
-      style={{
-        maxWidth: 880,
-        minHeight: "100vh",
-        margin: "0 auto",
-        padding: "24px 16px",
-        fontFamily: "system-ui, sans-serif",
-        background: theme.background,
-        color: theme.color,
-      }}
+      style={
+        {
+          maxWidth: 880,
+          minHeight: "100vh",
+          margin: "0 auto",
+          padding: "24px 16px",
+          fontFamily: "system-ui, sans-serif",
+          background: theme.background,
+          color: theme.color,
+          "--text-secondary": theme.textSecondary,
+          "--text-tertiary": theme.textTertiary,
+        } as CSSProperties
+      }
     >
       <div style={{ display: "flex", alignItems: "baseline" }}>
         <h1 style={{ fontSize: 20, marginBottom: 4 }}>東京の気温（48時間）</h1>
@@ -98,7 +117,7 @@ export default function App() {
           <LocationName data={weatherState.data} />
         )}
       </div>
-      <p style={{ color: "#666", marginTop: 0, fontSize: 14 }}>
+      <p style={{ color: "var(--text-secondary)", marginTop: 0, fontSize: 14 }}>
         loop-engineering-lab / <code>/weather/series</code>
       </p>
 

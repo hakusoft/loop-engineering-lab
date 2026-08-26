@@ -8,7 +8,7 @@ export function formatEvapotranspiration(data: WeatherResponse): string {
 
 export function Evapotranspiration({ data }: { data: WeatherResponse }) {
   return (
-    <p style={{ color: "#666", fontSize: 14, margin: "4px 0" }}>
+    <p style={{ color: "var(--text-secondary)", fontSize: 14, margin: "4px 0" }}>
       {formatEvapotranspiration(data)}
     </p>
   );

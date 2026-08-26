@@ -8,6 +8,6 @@ export function formatShowers(data: WeatherResponse): string {
 
 export function Showers({ data }: { data: WeatherResponse }) {
   return (
-    <p style={{ color: "#666", fontSize: 14, margin: "4px 0" }}>{formatShowers(data)}</p>
+    <p style={{ color: "var(--text-secondary)", fontSize: 14, margin: "4px 0" }}>{formatShowers(data)}</p>
   );
 }
