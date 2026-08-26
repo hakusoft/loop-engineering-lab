@@ -170,6 +170,7 @@ HOURLY_FIELDS = [
     "precipitation_probability",
     "apparent_temperature",
     "surface_pressure",
+    "wind_speed_10m",
     "uv_index",
 ]
 
@@ -398,6 +399,10 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
             "value": _seconds_to_hours(daily["sunshine_duration"][0]),
             "unit": "h",
         },
+        "evapotranspiration": {
+            "value": daily["et0_fao_evapotranspiration"][0],
+            "unit": daily_units.get("et0_fao_evapotranspiration", "mm"),
+        },
         "sunrise": daily["sunrise"][0],
         "sunset": daily["sunset"][0],
         "daylight_duration": {
@@ -456,6 +461,7 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
             _series("snowfall", "降雪量", "cm"),
             _series("precipitation_probability", "降水確率", "%"),
             _series("surface_pressure", "気圧", "hPa"),
+            _series("wind_speed_10m", "風速", "km/h"),
             _series("uv_index", "紫外線指数", ""),
         ],
         "coordinates": {
