@@ -47,6 +47,7 @@ export type WeatherResponse = {
   cloud_cover_mid: { value: number; unit: string };
   cloud_cover_high: { value: number; unit: string };
   visibility: { value: number; unit: string };
+  freezing_level_height: { value: number; unit: string };
   snow_depth: { value: number; unit: string };
   uv_index: { value: number; unit: string };
   uv_index_max: { value: number; unit: string };
