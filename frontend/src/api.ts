@@ -56,6 +56,7 @@ export type WeatherResponse = {
   rain_sum: { value: number; unit: string };
   snowfall_sum: { value: number; unit: string };
   rain: { value: number; unit: string };
+  showers: { value: number; unit: string };
   snowfall: { value: number; unit: string };
   solar_radiation: { value: number; unit: string };
   solar_radiation_sum: { value: number; unit: string };
