@@ -422,6 +422,72 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+# 天気コードを、サマリーで使う粗い区分にまとめる。
+# 「晴れ時々曇り」程度の粒度なので、コードの細かい差（弱い/強い）は落とす。
+def _weather_group(code: int) -> str:
+    if code in (0, 1):
+        return "晴れ"
+    if code in (2, 3):
+        return "曇り"
+    if code in (45, 48):
+        return "霧"
+    if code in (71, 73, 75, 77, 85, 86):
+        return "雪"
+    if code in (95, 96, 99):
+        return "雷雨"
+    return "雨"
+
+
+# 時刻を「朝・昼・夕方・夜」に割り当てる。変化を伝えるときの言い回しに使う。
+def _time_of_day(hour: int) -> str:
+    if 5 <= hour < 11:
+        return "朝"
+    if 11 <= hour < 16:
+        return "昼"
+    if 16 <= hour < 19:
+        return "夕方"
+    return "夜"
+
+
+def summarize_day(timestamps: list[str], codes: list[int]) -> str:
+    """1 日の天気コードの推移を「晴れ時々曇り、夕方から雨」のような一言にする。
+
+    多いものを主、次点を従として「A 時々 B」と並べ、後半で天気が変わるなら
+    「〜から C」を足す。時系列の細部ではなく、一日の印象を伝えるのが目的。
+    """
+    groups = [_weather_group(c) for c in codes]
+    if not groups:
+        return "天気の情報がありません"
+
+    counts: dict[str, int] = {}
+    for g in groups:
+        counts[g] = counts.get(g, 0) + 1
+    ranked = sorted(counts.items(), key=lambda kv: (-kv[1], groups.index(kv[0])))
+
+    main = ranked[0][0]
+
+    # 天気が変わるなら、変わり始めの時間帯を添える。
+    # 主たる天気と違う区分が現れ、そこから最後まで続く箇所を探す。
+    changed_to = None
+    for i in range(1, len(groups)):
+        if groups[i] == main:
+            continue
+        if all(g != main for g in groups[i:]):
+            changed_to = (groups[i], _time_of_day(int(timestamps[i][11:13])))
+            break
+
+    summary = main
+    # 「時々」の相手が変化先と同じだと「晴れ時々雨、夕方から雨」と重複するので、
+    # そのときは「時々」を省いて変化の言い回しだけにする。
+    sub = ranked[1][0] if len(ranked) > 1 and ranked[1][1] >= max(2, len(groups) // 8) else None
+    if sub and (changed_to is None or sub != changed_to[0]):
+        summary = f"{main}時々{sub}"
+    if changed_to:
+        summary += f"、{changed_to[1]}から{changed_to[0]}"
+
+    return summary
+
+
 def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
     """時系列の生 JSON を、1 つのチャートに重ねられる形に整える。
 
@@ -451,9 +517,19 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
         for code in hourly["weather_code"]
     ]
 
+    # サマリーは「今日一日」の話なので、末尾の日付（＝当日）の分だけを見る。
+    # timestamps は past_days を含む 48 点あり、全体を平均すると前日が混ざる。
+    today = timestamps[-1][:10]
+    today_index = [i for i, t in enumerate(timestamps) if t[:10] == today]
+    daily_summary = summarize_day(
+        [timestamps[i] for i in today_index],
+        [hourly["weather_code"][i] for i in today_index],
+    )
+
     return {
         "timestamps": timestamps,
         "conditions": conditions,
+        "daily_summary": daily_summary,
         "series": [
             _series("temperature_2m", "気温", "°C"),
             _series("apparent_temperature", "体感温度", "°C"),

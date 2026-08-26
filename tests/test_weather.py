@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 
 from app.weather import (
+    summarize_day,
     CURRENT_FIELDS,
     DAILY_FIELDS,
     HOURLY_FIELDS,
@@ -723,3 +724,44 @@ def test_hourly_series_are_all_requested_fields():
     used = {labels_to_keys[s["label"]] for s in result["series"] if s["label"] in labels_to_keys}
 
     assert used <= set(HOURLY_FIELDS)
+
+
+def test_summarize_day_reports_a_single_weather_plainly():
+    """一日ずっと同じ天気なら、余計な言い回しをつけない。"""
+    timestamps = [f"2026-08-26T{h:02d}:00" for h in range(24)]
+
+    assert summarize_day(timestamps, [0] * 24) == "晴れ"
+
+
+def test_summarize_day_mentions_the_second_most_common_weather():
+    """混ざっているときは「A 時々 B」と並べる。"""
+    timestamps = [f"2026-08-26T{h:02d}:00" for h in range(24)]
+    codes = [0, 0, 0, 3, 0, 0, 3, 0] * 3
+
+    assert summarize_day(timestamps, codes) == "晴れ時々曇り"
+
+
+def test_summarize_day_mentions_when_the_weather_changes():
+    """後半で変わって戻らないなら、変わり始めの時間帯を添える。"""
+    timestamps = [f"2026-08-26T{h:02d}:00" for h in range(24)]
+    codes = [0] * 16 + [61] * 8
+
+    assert summarize_day(timestamps, codes) == "晴れ、夕方から雨"
+
+
+def test_summarize_day_avoids_repeating_the_same_weather():
+    """「時々」の相手と変化先が同じなら、重複しないよう「時々」を落とす。
+
+    「晴れ時々雨、夕方から雨」のように同じ語が二度出るのを避ける。
+    """
+    timestamps = [f"2026-08-26T{h:02d}:00" for h in range(24)]
+    codes = [0] * 14 + [61] * 10
+    summary = summarize_day(timestamps, codes)
+
+    assert summary == "晴れ、昼から雨"
+    assert summary.count("雨") == 1
+
+
+def test_summarize_day_handles_empty_input():
+    """データが無いときも落ちない。"""
+    assert summarize_day([], []) == "天気の情報がありません"
