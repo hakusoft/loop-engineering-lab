@@ -13,6 +13,7 @@ import { GardenWatering } from "./GardenWatering";
 import { Humidity } from "./Humidity";
 import { HumidityRange } from "./HumidityRange";
 import { LaundryDryness } from "./LaundryDryness";
+import { SoilTemperature } from "./SoilTemperature";
 import { ObservedAt } from "./ObservedAt";
 import { Precipitation } from "./Precipitation";
 import { PrecipitationHours } from "./PrecipitationHours";
@@ -79,6 +80,7 @@ export const DISPLAY_ITEMS: DisplayItem[] = [
   { category: "降水・湿度", component: PrecipitationSumByType },
   { category: "降水・湿度", component: SnowDepth },
   { category: "降水・湿度", component: LaundryDryness },
+  { category: "降水・湿度", component: SoilTemperature },
   { category: "降水・湿度", component: GardenWatering },
 
   { category: "環境", component: Pressure },
