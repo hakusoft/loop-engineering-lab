@@ -7,7 +7,7 @@ export function formatTime(iso: string): string {
 
 export function SunTimes({ data }: { data: WeatherResponse }) {
   return (
-    <p style={{ color: "#666", fontSize: 16, margin: "4px 0 16px" }}>
+    <p style={{ color: "var(--text-secondary)", fontSize: 16, margin: "4px 0 16px" }}>
       日の出 {formatTime(data.sunrise)} ・ 日の入り {formatTime(data.sunset)}
     </p>
   );

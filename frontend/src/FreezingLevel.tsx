@@ -8,7 +8,7 @@ export function formatFreezingLevel(data: WeatherResponse): string {
 
 export function FreezingLevel({ data }: { data: WeatherResponse }) {
   return (
-    <p style={{ color: "#666", fontSize: 14, margin: "4px 0" }}>
+    <p style={{ color: "var(--text-secondary)", fontSize: 14, margin: "4px 0" }}>
       {formatFreezingLevel(data)}
     </p>
   );

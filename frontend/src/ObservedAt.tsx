@@ -14,7 +14,7 @@ export function formatObservedAt(iso: string): string {
 
 export function ObservedAt({ data }: { data: WeatherResponse }) {
   return (
-    <p style={{ color: "#999", fontSize: 12, margin: "0 0 8px" }}>
+    <p style={{ color: "var(--text-tertiary)", fontSize: 12, margin: "0 0 8px" }}>
       {formatObservedAt(data.observed_at)}
     </p>
   );

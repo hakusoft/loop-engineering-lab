@@ -10,7 +10,7 @@ export function formatTemperatureRange(data: WeatherResponse): string {
 
 export function TemperatureRange({ data }: { data: WeatherResponse }) {
   return (
-    <p style={{ color: "#666", fontSize: 16, margin: "4px 0" }}>
+    <p style={{ color: "var(--text-secondary)", fontSize: 16, margin: "4px 0" }}>
       {formatTemperatureRange(data)}
     </p>
   );

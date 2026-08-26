@@ -8,7 +8,7 @@ export function formatSolarRadiation(data: WeatherResponse): string {
 
 export function SolarRadiation({ data }: { data: WeatherResponse }) {
   return (
-    <p style={{ color: "#666", fontSize: 16, margin: "4px 0" }}>
+    <p style={{ color: "var(--text-secondary)", fontSize: 16, margin: "4px 0" }}>
       {formatSolarRadiation(data)}
     </p>
   );

@@ -10,7 +10,7 @@ export function formatCloudCoverLayers(data: WeatherResponse): string {
 
 export function CloudCoverLayers({ data }: { data: WeatherResponse }) {
   return (
-    <p style={{ color: "#666", fontSize: 14, margin: "4px 0" }}>
+    <p style={{ color: "var(--text-secondary)", fontSize: 14, margin: "4px 0" }}>
       {formatCloudCoverLayers(data)}
     </p>
   );
