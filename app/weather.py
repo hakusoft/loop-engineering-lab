@@ -144,6 +144,7 @@ CURRENT_FIELDS = [
     "dew_point_2m",
     "soil_temperature_0cm",
     "soil_moisture_0_to_1cm",
+    "soil_moisture_1_to_3cm",
     "shortwave_radiation",
     "snow_depth",
     "uv_index",
@@ -286,6 +287,14 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
         "soil_moisture": {
             "value": current["soil_moisture_0_to_1cm"],
             "unit": units.get("soil_moisture_0_to_1cm", "m³/m³"),
+        },
+        "soil_moisture_deep": {
+            # soil_moisture_1_to_3cm は今回新規に要求した項目で、実 API での
+            # 応答確認ができていない（フィクスチャ未更新）。実際にはこのキーで
+            # 返らない可能性を排除できないため、他の項目と違い .get() で読み、
+            # 無ければ None を返す（#164 / #67-#68 と同型の KeyError を避ける）。
+            "value": current.get("soil_moisture_1_to_3cm"),
+            "unit": units.get("soil_moisture_1_to_3cm", "m³/m³"),
         },
         "humidity": {
             "value": current["relative_humidity_2m"],
