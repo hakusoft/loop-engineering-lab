@@ -16,6 +16,7 @@ from app.weather import (
     _daylight_duration_hours,
     _round_coordinate,
     _round_pressure,
+    _round_wind_speed,
     _seconds_to_hours,
     _weather_description,
     format_forecast,
@@ -500,6 +501,40 @@ def test_format_forecast_rounds_pressure():
 
     assert result["pressure"] == {"value": 1008.2, "unit": "hPa"}
     assert result["sea_level_pressure"] == {"value": 1012.6, "unit": "hPa"}
+
+
+def test_round_wind_speed_rounds_to_one_decimal_place():
+    assert _round_wind_speed(12.349999) == 12.3
+    assert _round_wind_speed(24.849999) == 24.8
+
+
+def test_round_wind_speed_passes_through_none():
+    """欠測（None）は丸めずにそのまま返す。round(None, 1) は TypeError になるため。"""
+    assert _round_wind_speed(None) is None
+
+
+def test_format_forecast_rounds_wind_speed():
+    """風速・突風は Open-Meteo が桁の長い小数を返すことがあるため、小数第1位に丸める。"""
+    raw = {
+        **STUB_RESPONSE,
+        "current": {
+            **STUB_RESPONSE["current"],
+            "wind_speed_10m": 12.349999,
+            "wind_gusts_10m": 24.849999,
+        },
+        "daily": {
+            **STUB_RESPONSE["daily"],
+            "wind_speed_10m_max": [18.449999],
+            "wind_gusts_10m_max": [42.649999],
+        },
+    }
+
+    result = format_forecast(raw)
+
+    assert result["wind_speed"] == {"value": 12.3, "unit": "km/h"}
+    assert result["wind_gusts"] == {"value": 24.8, "unit": "km/h"}
+    assert result["wind_speed_max"] == {"value": 18.4, "unit": "km/h"}
+    assert result["wind_gusts_max"] == {"value": 42.6, "unit": "km/h"}
 
 
 def test_daylight_duration_hours_computes_difference_in_hours():
