@@ -43,7 +43,9 @@ export type WeatherResponse = {
   dew_point: { value: number; unit: string };
   soil_temperature: { value: number; unit: string };
   soil_moisture: { value: number; unit: string };
-  soil_moisture_deep: { value: number; unit: string };
+  // 実 API での応答未確認の項目（PR #267 のレビュー参照）。取れないときは
+  // value が null になるので、表示側で必ず null を扱う。
+  soil_moisture_deep: { value: number | null; unit: string };
   pressure: { value: number; unit: string };
   sea_level_pressure: { value: number; unit: string };
   cloud_cover: { value: number; unit: string };

@@ -488,6 +488,25 @@ def test_format_forecast_tolerates_missing_pressure():
     assert result["sea_level_pressure"]["value"] is None
 
 
+def test_format_forecast_tolerates_missing_soil_moisture_deep():
+    """soil_moisture_1_to_3cm が current に無くても KeyError にしない。
+
+    この項目は実 API での応答を確認できないまま追加した（PR #267 のレビュー
+    参照）。Open-Meteo が実際にはこのキーを返さない可能性を排除できないため、
+    #164 / #67-#68 と同型の KeyError を避けて None を返す。
+    """
+    raw = {
+        **STUB_RESPONSE,
+        "current": {
+            k: v for k, v in STUB_RESPONSE["current"].items() if k != "soil_moisture_1_to_3cm"
+        },
+    }
+
+    result = format_forecast(raw)
+
+    assert result["soil_moisture_deep"]["value"] is None
+
+
 def test_format_forecast_rounds_pressure():
     """気圧は Open-Meteo が桁の長い小数を返すことがあるため、小数第1位に丸める。"""
     raw = {
