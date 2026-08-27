@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   CartesianGrid,
   Legend,
@@ -170,6 +170,21 @@ export function formatUvIndexPeak(data: SeriesResponse, now: Date): string | nul
   return `紫外線指数のピークは${peak.time}ごろ（指数 ${Math.round(peak.value * 10) / 10}）`;
 }
 
+// 気温グラフの系列が増え、常に全部重ねて表示すると何の線か分かりにくいという
+// 声があった（Issue #262）。気温・降水（雨量・降雪量）は主要な系列として常に
+// 表示し、それ以外はチェックボックスで必要な時だけ追加できるようにする。
+const SECONDARY_SERIES = [
+  { key: "apparentTemperature", label: "体感温度" },
+  { key: "humidity", label: "湿度" },
+  { key: "precipitationProbability", label: "降水確率" },
+  { key: "pressure", label: "気圧" },
+  { key: "windSpeed", label: "風速" },
+  { key: "upperWindSpeed", label: "上空の風速" },
+  { key: "uvIndex", label: "紫外線指数" },
+] as const;
+
+type SecondarySeriesKey = (typeof SECONDARY_SERIES)[number]["key"];
+
 const NARROW_VIEWPORT_QUERY = "(max-width: 480px)";
 
 // スマホ幅では固定 12px の目盛りが相対的に読みにくいという声があったため、
@@ -213,10 +228,71 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
   const uvPeakText = formatUvIndexPeak(data, new Date());
   const colors = chartColors(isDay);
 
+  const [visibleSecondary, setVisibleSecondary] = useState<Set<SecondarySeriesKey>>(
+    () => new Set(),
+  );
+  const availableSecondary = useMemo(
+    () =>
+      SECONDARY_SERIES.filter(({ key }) => {
+        switch (key) {
+          case "apparentTemperature":
+            return Boolean(apparentTemperature);
+          case "humidity":
+            return Boolean(humidity);
+          case "precipitationProbability":
+            return Boolean(precipitationProbability);
+          case "pressure":
+            return Boolean(pressure);
+          case "windSpeed":
+            return Boolean(windSpeed);
+          case "upperWindSpeed":
+            return Boolean(upperWindSpeed);
+          case "uvIndex":
+            return Boolean(uvIndex);
+        }
+      }),
+    [apparentTemperature, humidity, precipitationProbability, pressure, windSpeed, upperWindSpeed, uvIndex],
+  );
+
+  function toggleSecondary(key: SecondarySeriesKey) {
+    setVisibleSecondary((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) {
+        next.delete(key);
+      } else {
+        next.add(key);
+      }
+      return next;
+    });
+  }
+
+  const showApparentTemperature = apparentTemperature && visibleSecondary.has("apparentTemperature");
+  const showHumidity = humidity && visibleSecondary.has("humidity");
+  const showPrecipitationProbability = precipitationProbability && visibleSecondary.has("precipitationProbability");
+  const showPressure = pressure && visibleSecondary.has("pressure");
+  const showWindSpeed = windSpeed && visibleSecondary.has("windSpeed");
+  const showUpperWindSpeed = upperWindSpeed && visibleSecondary.has("upperWindSpeed");
+  const showUvIndex = uvIndex && visibleSecondary.has("uvIndex");
+
   return (
     <>
     {uvPeakText && (
       <p style={{ color: colors.tick, fontSize: 14, margin: "0 0 8px" }}>{uvPeakText}</p>
+    )}
+    {availableSecondary.length > 0 && (
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "4px 12px", margin: "0 0 8px" }}>
+        {availableSecondary.map(({ key, label }) => (
+          <label key={key} style={{ fontSize: 13, color: colors.tick, cursor: "pointer" }}>
+            <input
+              type="checkbox"
+              checked={visibleSecondary.has(key)}
+              onChange={() => toggleSecondary(key)}
+              style={{ marginRight: 4 }}
+            />
+            {label}
+          </label>
+        ))}
+      </div>
     )}
     <ResponsiveContainer width="100%" height={360}>
       <LineChart data={rows} margin={{ top: 16, right: chartRightMargin, bottom: 8, left: 0 }}>
@@ -247,13 +323,13 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
           domain={["dataMin - 1", "dataMax + 1"]}
           tick={{ fontSize: tickFontSize, fill: colors.tick }}
         />
-        {humidity && (
+        {showHumidity && (
           <YAxis
             yAxisId="humidity"
             orientation="right"
-            unit={humidity.unit}
+            unit={humidity!.unit}
             width={axisWidth}
-            domain={[humidity.min as number, humidity.max as number]}
+            domain={[humidity!.min as number, humidity!.max as number]}
             tick={{ fontSize: tickFontSize }}
           />
         )}
@@ -265,32 +341,32 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             domain={[0, Math.max(rain?.max ?? 0, snow?.max ?? 0) + 1]}
           />
         )}
-        {precipitationProbability && (
+        {showPrecipitationProbability && (
           // 降水確率は % 固定なので 0〜100 のスケールで、他系列とは別軸にする。
           <YAxis yAxisId="precipitationProbability" hide domain={[0, 100]} />
         )}
-        {uvIndex && (
+        {showUvIndex && (
           // 紫外線指数は他系列と単位もスケールも違うので、独立した軸にする。
-          <YAxis yAxisId="uvIndex" hide domain={[0, Math.max(uvIndex.max ?? 0, 1) + 1]} />
+          <YAxis yAxisId="uvIndex" hide domain={[0, Math.max(uvIndex!.max ?? 0, 1) + 1]} />
         )}
-        {windSpeed && (
+        {showWindSpeed && (
           // 風速も他系列と単位・スケールが違うので、独立した軸にする。
-          <YAxis yAxisId="windSpeed" hide domain={[0, Math.max(windSpeed.max ?? 0, 1) + 1]} />
+          <YAxis yAxisId="windSpeed" hide domain={[0, Math.max(windSpeed!.max ?? 0, 1) + 1]} />
         )}
-        {upperWindSpeed && (
+        {showUpperWindSpeed && (
           // 上空の風速は地上より大きくなるので、地上の風速とも軸を分ける。
           <YAxis
             yAxisId="upperWindSpeed"
             hide
-            domain={[0, Math.max(upperWindSpeed.max ?? 0, 1) + 1]}
+            domain={[0, Math.max(upperWindSpeed!.max ?? 0, 1) + 1]}
           />
         )}
-        {pressure && (
+        {showPressure && (
           // 気圧も他系列と単位・スケールが違うので、独立した軸にする。
           <YAxis
             yAxisId="pressure"
             hide
-            domain={[(pressure.min ?? 0) - 1, (pressure.max ?? 0) + 1]}
+            domain={[(pressure!.min ?? 0) - 1, (pressure!.max ?? 0) + 1]}
           />
         )}
         <Tooltip
@@ -329,7 +405,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
           isAnimationActive={false}
           name="気温"
         />
-        {apparentTemperature && (
+        {showApparentTemperature && (
           <Line
             yAxisId="temperature"
             type="monotone"
@@ -342,7 +418,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             name="体感温度"
           />
         )}
-        {humidity && (
+        {showHumidity && (
           <Line
             yAxisId="humidity"
             type="monotone"
@@ -379,7 +455,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             name="降雪量"
           />
         )}
-        {precipitationProbability && (
+        {showPrecipitationProbability && (
           <Line
             yAxisId="precipitationProbability"
             type="monotone"
@@ -392,7 +468,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             connectNulls
           />
         )}
-        {pressure && (
+        {showPressure && (
           <Line
             yAxisId="pressure"
             type="monotone"
@@ -405,7 +481,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             connectNulls
           />
         )}
-        {windSpeed && (
+        {showWindSpeed && (
           <Line
             yAxisId="windSpeed"
             type="monotone"
@@ -418,7 +494,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             connectNulls
           />
         )}
-        {upperWindSpeed && (
+        {showUpperWindSpeed && (
           <Line
             yAxisId="upperWindSpeed"
             type="monotone"
@@ -432,7 +508,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             connectNulls
           />
         )}
-        {uvIndex && (
+        {showUvIndex && (
           <Line
             yAxisId="uvIndex"
             type="monotone"
