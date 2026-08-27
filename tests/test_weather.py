@@ -49,6 +49,7 @@ STUB_RESPONSE = {
         "dew_point_2m": "°C",
         "soil_temperature_0cm": "°C",
         "soil_moisture_0_to_1cm": "m³/m³",
+        "soil_moisture_1_to_3cm": "m³/m³",
         "shortwave_radiation": "W/m²",
         "snow_depth": "m",
         "uv_index": "",
@@ -78,6 +79,7 @@ STUB_RESPONSE = {
         "dew_point_2m": 22.6,
         "soil_temperature_0cm": 30.5,
         "soil_moisture_0_to_1cm": 0.28,
+        "soil_moisture_1_to_3cm": 0.31,
         "shortwave_radiation": 412.0,
         "snow_depth": 0.0,
         "uv_index": 5.2,
@@ -142,6 +144,7 @@ def test_format_forecast_maps_values_and_units():
     assert result["dew_point"] == {"value": 22.6, "unit": "°C"}
     assert result["soil_temperature"] == {"value": 30.5, "unit": "°C"}
     assert result["soil_moisture"] == {"value": 0.28, "unit": "m³/m³"}
+    assert result["soil_moisture_deep"] == {"value": 0.31, "unit": "m³/m³"}
     assert result["humidity"] == {"value": 71, "unit": "%"}
     assert result["wind_speed"] == {"value": 12.3, "unit": "km/h"}
     assert result["wind_direction"] == {"value": 250, "unit": "°", "compass": "西南西"}
