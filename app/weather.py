@@ -91,6 +91,17 @@ def _round_pressure(value: float | None) -> float | None:
     return value if value is None else round(value, PRESSURE_PRECISION)
 
 
+WIND_SPEED_PRECISION = 1
+
+
+def _round_wind_speed(value: float | None) -> float | None:
+    """風速を小数第1位に丸める。気圧と同じく、細かすぎる小数で返ってくることがある。
+
+    欠測（None）はそのまま返す（_round_pressure と同じ方針）。
+    """
+    return value if value is None else round(value, WIND_SPEED_PRECISION)
+
+
 def _daylight_duration_hours(sunrise: str, sunset: str) -> float:
     """sunrise / sunset（ISO8601）から可照時間を時間単位で計算する。"""
     return (datetime.fromisoformat(sunset) - datetime.fromisoformat(sunrise)).total_seconds() / 3600
@@ -289,7 +300,7 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
             "unit": daily_units.get("relative_humidity_2m_min", "%"),
         },
         "wind_speed": {
-            "value": current["wind_speed_10m"],
+            "value": _round_wind_speed(current["wind_speed_10m"]),
             "unit": units.get("wind_speed_10m", "km/h"),
         },
         "wind_direction": {
@@ -298,15 +309,15 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
             "compass": _compass_direction(current["wind_direction_10m"]),
         },
         "wind_gusts": {
-            "value": current["wind_gusts_10m"],
+            "value": _round_wind_speed(current["wind_gusts_10m"]),
             "unit": units.get("wind_gusts_10m", "km/h"),
         },
         "wind_speed_max": {
-            "value": daily["wind_speed_10m_max"][0],
+            "value": _round_wind_speed(daily["wind_speed_10m_max"][0]),
             "unit": daily_units.get("wind_speed_10m_max", "km/h"),
         },
         "wind_gusts_max": {
-            "value": daily["wind_gusts_10m_max"][0],
+            "value": _round_wind_speed(daily["wind_gusts_10m_max"][0]),
             "unit": daily_units.get("wind_gusts_10m_max", "km/h"),
         },
         "wind_direction_dominant": {
