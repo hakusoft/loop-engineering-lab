@@ -20,7 +20,7 @@ export function gardenWateringLevel(
   if (precipitationSum < 1 && temperatureMax >= 30 && humidityMin <= 50) {
     return "水やり推奨";
   }
-  if (precipitationSum < 1 && evapotranspiration >= HIGH_EVAPOTRANSPIRATION_MM) {
+  if (evapotranspiration >= HIGH_EVAPOTRANSPIRATION_MM) {
     return "水やり推奨";
   }
   return "普通";
