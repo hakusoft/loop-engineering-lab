@@ -228,8 +228,10 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
   const uvPeakText = formatUvIndexPeak(data, new Date());
   const colors = chartColors(isDay);
 
+  // 降水確率は「傘が要るかすぐ分かりたい」という要望から、他の副系列と違い
+  // デフォルトで表示する（Issue #272）。
   const [visibleSecondary, setVisibleSecondary] = useState<Set<SecondarySeriesKey>>(
-    () => new Set(),
+    () => new Set(["precipitationProbability"]),
   );
   const availableSecondary = useMemo(
     () =>
