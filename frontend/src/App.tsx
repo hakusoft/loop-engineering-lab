@@ -74,6 +74,44 @@ function CategoryGroup({
   );
 }
 
+// カテゴリを開いても項目が多すぎてどれが大事か分かりにくいという声を受け、
+// 主要項目（primary）だけを初期表示し、残りは「もっと見る」で展開する（Issue #274）。
+// カテゴリの開閉（CategoryGroup）とは別の状態として持ち、カテゴリごとにリセットされる
+// （開閉状態のように localStorage には保存しない）。
+function ExpandableItems({
+  primary,
+  more,
+}: {
+  primary: ReactNode[];
+  more: ReactNode[];
+}) {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <>
+      {primary}
+      {expanded && more}
+      {more.length > 0 && (
+        <button
+          type="button"
+          onClick={() => setExpanded((prev) => !prev)}
+          style={{
+            alignSelf: "flex-start",
+            background: "none",
+            border: "none",
+            color: "var(--text-tertiary)",
+            fontSize: 13,
+            cursor: "pointer",
+            padding: "2px 0",
+          }}
+        >
+          {expanded ? "閉じる" : `もっと見る（${more.length}件）`}
+        </button>
+      )}
+    </>
+  );
+}
+
 // /weather の is_day を基準に、昼夜で背景・文字色を切り替える。
 // OS のダークモード設定とは連動せず、あくまで観測地点の昼夜だけを見る。
 //
@@ -160,11 +198,15 @@ export default function App() {
           {CATEGORY_ORDER.map((category, categoryIndex) => {
             const items = DISPLAY_ITEMS.filter((item) => item.category === category);
             if (items.length === 0) return null;
+            const primary = items
+              .filter((item) => (item.tier ?? "primary") === "primary")
+              .map(({ component: Item }, i) => <Item key={`primary-${i}`} data={weatherState.data} />);
+            const more = items
+              .filter((item) => item.tier === "more")
+              .map(({ component: Item }, i) => <Item key={`more-${i}`} data={weatherState.data} />);
             return (
               <CategoryGroup key={category} title={category} defaultOpen={categoryIndex === 0}>
-                {items.map(({ component: Item }, i) => (
-                  <Item key={i} data={weatherState.data} />
-                ))}
+                <ExpandableItems primary={primary} more={more} />
               </CategoryGroup>
             );
           })}
