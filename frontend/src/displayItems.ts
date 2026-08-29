@@ -49,9 +49,15 @@ import { Wind } from "./Wind";
 
 export type DisplayCategory = "気温" | "風" | "降水・湿度" | "環境" | "日照・時刻";
 
+// カテゴリ内での表示優先度。項目が増えて何が大事か分かりにくいという声を受け、
+// primary はカテゴリを開いたときに常に表示し、more は「もっと見る」で展開する
+// （Issue #274）。省略時は primary 扱い。
+export type DisplayTier = "primary" | "more";
+
 export type DisplayItem = {
   category: DisplayCategory;
   component: ComponentType<{ data: WeatherResponse }>;
+  tier?: DisplayTier;
 };
 
 // 画面に出るカテゴリの並び。
@@ -64,45 +70,45 @@ export const CATEGORY_ORDER: DisplayCategory[] = [
 ];
 
 export const DISPLAY_ITEMS: DisplayItem[] = [
-  { category: "気温", component: Condition },
-  { category: "気温", component: CurrentTemperature },
-  { category: "気温", component: ApparentTemperature },
-  { category: "気温", component: ApparentTemperatureRange },
-  { category: "気温", component: TemperatureRange },
-  { category: "気温", component: DewPoint },
+  { category: "気温", component: Condition, tier: "primary" },
+  { category: "気温", component: CurrentTemperature, tier: "primary" },
+  { category: "気温", component: ApparentTemperature, tier: "more" },
+  { category: "気温", component: ApparentTemperatureRange, tier: "more" },
+  { category: "気温", component: TemperatureRange, tier: "primary" },
+  { category: "気温", component: DewPoint, tier: "more" },
 
-  { category: "風", component: Wind },
+  { category: "風", component: Wind, tier: "primary" },
 
-  { category: "降水・湿度", component: Humidity },
-  { category: "降水・湿度", component: HumidityRange },
-  { category: "降水・湿度", component: Precipitation },
-  { category: "降水・湿度", component: PrecipitationType },
-  { category: "降水・湿度", component: Showers },
-  { category: "降水・湿度", component: PrecipitationProbability },
-  { category: "降水・湿度", component: PrecipitationHours },
-  { category: "降水・湿度", component: PrecipitationSum },
-  { category: "降水・湿度", component: PrecipitationSumByType },
-  { category: "降水・湿度", component: SnowDepth },
-  { category: "降水・湿度", component: LaundryDryness },
-  { category: "降水・湿度", component: SoilTemperature },
-  { category: "降水・湿度", component: SoilMoisture },
-  { category: "降水・湿度", component: SoilMoistureDeep },
-  { category: "降水・湿度", component: Evapotranspiration },
-  { category: "降水・湿度", component: GardenWatering },
+  { category: "降水・湿度", component: Humidity, tier: "primary" },
+  { category: "降水・湿度", component: HumidityRange, tier: "more" },
+  { category: "降水・湿度", component: Precipitation, tier: "primary" },
+  { category: "降水・湿度", component: PrecipitationType, tier: "more" },
+  { category: "降水・湿度", component: Showers, tier: "more" },
+  { category: "降水・湿度", component: PrecipitationProbability, tier: "primary" },
+  { category: "降水・湿度", component: PrecipitationHours, tier: "more" },
+  { category: "降水・湿度", component: PrecipitationSum, tier: "more" },
+  { category: "降水・湿度", component: PrecipitationSumByType, tier: "more" },
+  { category: "降水・湿度", component: SnowDepth, tier: "more" },
+  { category: "降水・湿度", component: LaundryDryness, tier: "more" },
+  { category: "降水・湿度", component: SoilTemperature, tier: "more" },
+  { category: "降水・湿度", component: SoilMoisture, tier: "more" },
+  { category: "降水・湿度", component: SoilMoistureDeep, tier: "more" },
+  { category: "降水・湿度", component: Evapotranspiration, tier: "more" },
+  { category: "降水・湿度", component: GardenWatering, tier: "more" },
 
-  { category: "環境", component: Pressure },
-  { category: "環境", component: SeaLevelPressure },
-  { category: "環境", component: CloudCover },
-  { category: "環境", component: CloudCoverLayers },
-  { category: "環境", component: Visibility },
-  { category: "環境", component: FreezingLevel },
-  { category: "環境", component: SolarRadiation },
-  { category: "環境", component: SolarRadiationSum },
-  { category: "環境", component: UvIndex },
-  { category: "環境", component: Elevation },
+  { category: "環境", component: Pressure, tier: "primary" },
+  { category: "環境", component: SeaLevelPressure, tier: "more" },
+  { category: "環境", component: CloudCover, tier: "primary" },
+  { category: "環境", component: CloudCoverLayers, tier: "more" },
+  { category: "環境", component: Visibility, tier: "primary" },
+  { category: "環境", component: FreezingLevel, tier: "more" },
+  { category: "環境", component: SolarRadiation, tier: "more" },
+  { category: "環境", component: SolarRadiationSum, tier: "more" },
+  { category: "環境", component: UvIndex, tier: "more" },
+  { category: "環境", component: Elevation, tier: "more" },
 
-  { category: "日照・時刻", component: SunTimes },
-  { category: "日照・時刻", component: DaylightDuration },
-  { category: "日照・時刻", component: SunshineDuration },
-  { category: "日照・時刻", component: ObservedAt },
+  { category: "日照・時刻", component: SunTimes, tier: "primary" },
+  { category: "日照・時刻", component: DaylightDuration, tier: "more" },
+  { category: "日照・時刻", component: SunshineDuration, tier: "more" },
+  { category: "日照・時刻", component: ObservedAt, tier: "primary" },
 ];
