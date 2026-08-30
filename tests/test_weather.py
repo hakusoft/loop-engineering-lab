@@ -273,6 +273,7 @@ STUB_SERIES = {
         "wind_speed_10m": "km/h",
         "wind_speed_850hPa": "km/h",
         "uv_index": "",
+        "visibility": "m",
     },
     "hourly": {
         "time": ["2026-07-21T00:00", "2026-07-21T01:00", "2026-07-21T02:00"],
@@ -287,6 +288,7 @@ STUB_SERIES = {
         "wind_speed_10m": [8.1, 9.4, 10.2],
         "wind_speed_850hPa": [24.5, 26.1, 28.3],
         "uv_index": [0.2, 1.5, 3.1],
+        "visibility": [22000.0, 18500.0, 9200.0],
     },
 }
 
@@ -311,6 +313,7 @@ def test_series_keeps_units_separate_for_split_axes():
     precipitation_probability = by_label["降水確率"]
     pressure = by_label["気圧"]
     uv_index = by_label["紫外線指数"]
+    visibility = by_label["視程"]
 
     assert temperature["label"] == "気温"
     assert temperature["unit"] == "°C"
@@ -328,6 +331,8 @@ def test_series_keeps_units_separate_for_split_axes():
     assert pressure["unit"] == "hPa"
     assert uv_index["label"] == "紫外線指数"
     assert uv_index["unit"] == ""
+    assert visibility["label"] == "視程"
+    assert visibility["unit"] == "m"
 
 
 def test_series_exposes_min_max_for_axis_scaling():
@@ -342,6 +347,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     precipitation_probability = by_label["降水確率"]
     pressure = by_label["気圧"]
     uv_index = by_label["紫外線指数"]
+    visibility = by_label["視程"]
 
     assert (temperature["min"], temperature["max"]) == (24.9, 26.1)
     assert (apparent_temperature["min"], apparent_temperature["max"]) == (25.8, 27.3)
@@ -351,6 +357,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     assert (precipitation_probability["min"], precipitation_probability["max"]) == (10, 60)
     assert (pressure["min"], pressure["max"]) == (1007.6, 1008.2)
     assert (uv_index["min"], uv_index["max"]) == (0.2, 3.1)
+    assert (visibility["min"], visibility["max"]) == (9200.0, 22000.0)
 
 
 def test_series_tolerates_missing_values():
@@ -804,6 +811,7 @@ def test_hourly_series_are_all_requested_fields():
         "風速": "wind_speed_10m",
         "上空の風速": "wind_speed_850hPa",
         "紫外線指数": "uv_index",
+        "視程": "visibility",
     }
     used = {labels_to_keys[s["label"]] for s in result["series"] if s["label"] in labels_to_keys}
 
