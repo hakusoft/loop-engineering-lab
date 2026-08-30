@@ -263,6 +263,7 @@ STUB_SERIES = {
     "hourly_units": {
         "time": "iso8601",
         "weather_code": "wmo code",
+        "cloud_cover": "%",
         "temperature_2m": "°C",
         "apparent_temperature": "°C",
         "relative_humidity_2m": "%",
@@ -278,6 +279,7 @@ STUB_SERIES = {
     "hourly": {
         "time": ["2026-07-21T00:00", "2026-07-21T01:00", "2026-07-21T02:00"],
         "weather_code": [0, 3, 61],
+        "cloud_cover": [20, 55, 90],
         "temperature_2m": [26.1, 25.4, 24.9],
         "apparent_temperature": [27.3, 26.5, 25.8],
         "relative_humidity_2m": [78, 81, 85],
@@ -312,6 +314,7 @@ def test_series_keeps_units_separate_for_split_axes():
     snow = by_label["降雪量"]
     precipitation_probability = by_label["降水確率"]
     pressure = by_label["気圧"]
+    cloud_cover = by_label["雲量"]
     uv_index = by_label["紫外線指数"]
     visibility = by_label["視程"]
 
@@ -329,6 +332,8 @@ def test_series_keeps_units_separate_for_split_axes():
     assert precipitation_probability["unit"] == "%"
     assert pressure["label"] == "気圧"
     assert pressure["unit"] == "hPa"
+    assert cloud_cover["label"] == "雲量"
+    assert cloud_cover["unit"] == "%"
     assert uv_index["label"] == "紫外線指数"
     assert uv_index["unit"] == ""
     assert visibility["label"] == "視程"
@@ -346,6 +351,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     snow = by_label["降雪量"]
     precipitation_probability = by_label["降水確率"]
     pressure = by_label["気圧"]
+    cloud_cover = by_label["雲量"]
     uv_index = by_label["紫外線指数"]
     visibility = by_label["視程"]
 
@@ -356,6 +362,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     assert (snow["min"], snow["max"]) == (0.0, 0.0)
     assert (precipitation_probability["min"], precipitation_probability["max"]) == (10, 60)
     assert (pressure["min"], pressure["max"]) == (1007.6, 1008.2)
+    assert (cloud_cover["min"], cloud_cover["max"]) == (20, 90)
     assert (uv_index["min"], uv_index["max"]) == (0.2, 3.1)
     assert (visibility["min"], visibility["max"]) == (9200.0, 22000.0)
 
@@ -808,6 +815,7 @@ def test_hourly_series_are_all_requested_fields():
         "降雪量": "snowfall",
         "降水確率": "precipitation_probability",
         "気圧": "surface_pressure",
+        "雲量": "cloud_cover",
         "風速": "wind_speed_10m",
         "上空の風速": "wind_speed_850hPa",
         "紫外線指数": "uv_index",

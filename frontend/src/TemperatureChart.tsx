@@ -23,6 +23,7 @@ function toChartData(data: SeriesResponse) {
   const snow = data.series.find((s) => s.label === "降雪量");
   const precipitationProbability = data.series.find((s) => s.label === "降水確率");
   const pressure = data.series.find((s) => s.label === "気圧");
+  const cloudCover = data.series.find((s) => s.label === "雲量");
   const windSpeed = data.series.find((s) => s.label === "風速");
   const upperWindSpeed = data.series.find((s) => s.label === "上空の風速");
   const uvIndex = data.series.find((s) => s.label === "紫外線指数");
@@ -37,6 +38,7 @@ function toChartData(data: SeriesResponse) {
       snow: undefined,
       precipitationProbability: undefined,
       pressure: undefined,
+      cloudCover: undefined,
       windSpeed: undefined,
       upperWindSpeed: undefined,
       uvIndex: undefined,
@@ -54,6 +56,7 @@ function toChartData(data: SeriesResponse) {
     snow: snow?.values[i] ?? null,
     precipitationProbability: precipitationProbability?.values[i] ?? null,
     pressure: pressure?.values[i] ?? null,
+    cloudCover: cloudCover?.values[i] ?? null,
     windSpeed: windSpeed?.values[i] ?? null,
     upperWindSpeed: upperWindSpeed?.values[i] ?? null,
     uvIndex: uvIndex?.values[i] ?? null,
@@ -68,6 +71,7 @@ function toChartData(data: SeriesResponse) {
     snow,
     precipitationProbability,
     pressure,
+    cloudCover,
     windSpeed,
     upperWindSpeed,
     uvIndex,
@@ -182,6 +186,7 @@ const SECONDARY_SERIES = [
   { key: "humidity", label: "湿度" },
   { key: "precipitationProbability", label: "降水確率" },
   { key: "pressure", label: "気圧" },
+  { key: "cloudCover", label: "雲量" },
   { key: "windSpeed", label: "風速" },
   { key: "upperWindSpeed", label: "上空の風速" },
   { key: "uvIndex", label: "紫外線指数" },
@@ -219,6 +224,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     snow,
     precipitationProbability,
     pressure,
+    cloudCover,
     windSpeed,
     upperWindSpeed,
     uvIndex,
@@ -251,6 +257,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             return Boolean(precipitationProbability);
           case "pressure":
             return Boolean(pressure);
+          case "cloudCover":
+            return Boolean(cloudCover);
           case "windSpeed":
             return Boolean(windSpeed);
           case "upperWindSpeed":
@@ -266,6 +274,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
       humidity,
       precipitationProbability,
       pressure,
+      cloudCover,
       windSpeed,
       upperWindSpeed,
       uvIndex,
@@ -289,6 +298,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
   const showHumidity = humidity && visibleSecondary.has("humidity");
   const showPrecipitationProbability = precipitationProbability && visibleSecondary.has("precipitationProbability");
   const showPressure = pressure && visibleSecondary.has("pressure");
+  const showCloudCover = cloudCover && visibleSecondary.has("cloudCover");
   const showWindSpeed = windSpeed && visibleSecondary.has("windSpeed");
   const showUpperWindSpeed = upperWindSpeed && visibleSecondary.has("upperWindSpeed");
   const showUvIndex = uvIndex && visibleSecondary.has("uvIndex");
@@ -302,12 +312,28 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     {availableSecondary.length > 0 && (
       <div style={{ display: "flex", flexWrap: "wrap", gap: "4px 12px", margin: "0 0 8px" }}>
         {availableSecondary.map(({ key, label }) => (
-          <label key={key} style={{ fontSize: 13, color: colors.tick, cursor: "pointer" }}>
+          <label
+            key={key}
+            style={{
+              fontSize: isNarrow ? 15 : 13,
+              color: colors.tick,
+              cursor: "pointer",
+              display: "inline-flex",
+              alignItems: "center",
+              // スマホだと指では小さくて押しにくいという声があったため、
+              // 狭い画面ではラベル全体の余白も広げてタップ領域を確保する。
+              padding: isNarrow ? "6px 4px" : 0,
+            }}
+          >
             <input
               type="checkbox"
               checked={visibleSecondary.has(key)}
               onChange={() => toggleSecondary(key)}
-              style={{ marginRight: 4 }}
+              style={{
+                marginRight: 6,
+                width: isNarrow ? 20 : 13,
+                height: isNarrow ? 20 : 13,
+              }}
             />
             {label}
           </label>
@@ -389,6 +415,10 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             domain={[(pressure!.min ?? 0) - 1, (pressure!.max ?? 0) + 1]}
           />
         )}
+        {showCloudCover && (
+          // 雲量は % 固定なので、降水確率と同じく 0〜100 のスケールで別軸にする。
+          <YAxis yAxisId="cloudCover" hide domain={[0, 100]} />
+        )}
         {showVisibility && (
           // 視程は m 単位で他系列よりスケールが大きく違うので、独立した軸にする。
           <YAxis
@@ -414,13 +444,15 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
                           ? precipitationProbability?.unit
                           : name === "気圧"
                             ? pressure?.unit
-                            : name === "風速"
-                              ? windSpeed?.unit
-                              : name === "上空の風速"
-                                ? upperWindSpeed?.unit
-                                : name === "視程"
-                                  ? visibility?.unit
-                                  : uvIndex?.unit;
+                            : name === "雲量"
+                              ? cloudCover?.unit
+                              : name === "風速"
+                                ? windSpeed?.unit
+                                : name === "上空の風速"
+                                  ? upperWindSpeed?.unit
+                                  : name === "視程"
+                                    ? visibility?.unit
+                                    : uvIndex?.unit;
             return [`${v}${unit ?? ""}`, name];
           }}
         />
@@ -508,6 +540,19 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             dot={false}
             isAnimationActive={false}
             name="気圧"
+            connectNulls
+          />
+        )}
+        {showCloudCover && (
+          <Line
+            yAxisId="cloudCover"
+            type="monotone"
+            dataKey="cloudCover"
+            stroke="#868e96"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="雲量"
             connectNulls
           />
         )}
