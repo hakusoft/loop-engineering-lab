@@ -284,12 +284,28 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     {availableSecondary.length > 0 && (
       <div style={{ display: "flex", flexWrap: "wrap", gap: "4px 12px", margin: "0 0 8px" }}>
         {availableSecondary.map(({ key, label }) => (
-          <label key={key} style={{ fontSize: 13, color: colors.tick, cursor: "pointer" }}>
+          <label
+            key={key}
+            style={{
+              fontSize: isNarrow ? 15 : 13,
+              color: colors.tick,
+              cursor: "pointer",
+              display: "inline-flex",
+              alignItems: "center",
+              // スマホだと指では小さくて押しにくいという声があったため、
+              // 狭い画面ではラベル全体の余白も広げてタップ領域を確保する。
+              padding: isNarrow ? "6px 4px" : 0,
+            }}
+          >
             <input
               type="checkbox"
               checked={visibleSecondary.has(key)}
               onChange={() => toggleSecondary(key)}
-              style={{ marginRight: 4 }}
+              style={{
+                marginRight: 6,
+                width: isNarrow ? 20 : 13,
+                height: isNarrow ? 20 : 13,
+              }}
             />
             {label}
           </label>
