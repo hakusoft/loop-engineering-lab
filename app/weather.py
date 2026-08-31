@@ -157,6 +157,7 @@ DAILY_FIELDS = [
     "sunset",
     "temperature_2m_max",
     "temperature_2m_min",
+    "temperature_2m_mean",
     "precipitation_probability_max",
     "sunshine_duration",
     "et0_fao_evapotranspiration",
@@ -273,6 +274,10 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
         "temperature_min": {
             "value": daily["temperature_2m_min"][0],
             "unit": daily_units.get("temperature_2m_min", "°C"),
+        },
+        "temperature_mean": {
+            "value": daily["temperature_2m_mean"][0],
+            "unit": daily_units.get("temperature_2m_mean", "°C"),
         },
         "apparent_temperature_max": {
             "value": daily["apparent_temperature_max"][0],

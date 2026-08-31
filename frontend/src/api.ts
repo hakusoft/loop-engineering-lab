@@ -37,6 +37,7 @@ export type WeatherResponse = {
   apparent_temperature_min: { value: number; unit: string };
   temperature_max: { value: number; unit: string };
   temperature_min: { value: number; unit: string };
+  temperature_mean: { value: number; unit: string };
   humidity: { value: number; unit: string };
   humidity_max: { value: number; unit: string };
   humidity_min: { value: number; unit: string };
