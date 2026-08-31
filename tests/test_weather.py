@@ -93,6 +93,7 @@ STUB_RESPONSE = {
         "sunset": "iso8601",
         "temperature_2m_max": "°C",
         "temperature_2m_min": "°C",
+        "temperature_2m_mean": "°C",
         "precipitation_probability_max": "%",
         "sunshine_duration": "s",
         "et0_fao_evapotranspiration": "mm",
@@ -117,6 +118,7 @@ STUB_RESPONSE = {
         "sunset": ["2026-07-21T18:47"],
         "temperature_2m_max": [33.2],
         "temperature_2m_min": [24.7],
+        "temperature_2m_mean": [28.9],
         "precipitation_probability_max": [20],
         "sunshine_duration": [36420.0],
         "et0_fao_evapotranspiration": [4.33],
@@ -169,6 +171,7 @@ def test_format_forecast_maps_values_and_units():
     assert result["uv_index_max"] == {"value": 7.8, "unit": ""}
     assert result["temperature_max"] == {"value": 33.2, "unit": "°C"}
     assert result["temperature_min"] == {"value": 24.7, "unit": "°C"}
+    assert result["temperature_mean"] == {"value": 28.9, "unit": "°C"}
     assert result["apparent_temperature_max"] == {"value": 36.9, "unit": "°C"}
     assert result["apparent_temperature_min"] == {"value": 26.1, "unit": "°C"}
     assert result["humidity_max"] == {"value": 85, "unit": "%"}
@@ -227,6 +230,7 @@ def test_format_forecast_groups_temperature_and_humidity_fields():
         "dew_point",
         "temperature_max",
         "temperature_min",
+        "temperature_mean",
         "apparent_temperature_max",
         "apparent_temperature_min",
     ]

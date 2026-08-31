@@ -32,6 +32,7 @@ import { SolarRadiation } from "./SolarRadiation";
 import { SolarRadiationSum } from "./SolarRadiationSum";
 import { SunTimes } from "./SunTimes";
 import { SunshineDuration } from "./SunshineDuration";
+import { TemperatureMean } from "./TemperatureMean";
 import { TemperatureRange } from "./TemperatureRange";
 import { UvIndex } from "./UvIndex";
 import { FreezingLevel } from "./FreezingLevel";
@@ -75,6 +76,7 @@ export const DISPLAY_ITEMS: DisplayItem[] = [
   { category: "気温", component: ApparentTemperature, tier: "more" },
   { category: "気温", component: ApparentTemperatureRange, tier: "more" },
   { category: "気温", component: TemperatureRange, tier: "primary" },
+  { category: "気温", component: TemperatureMean, tier: "more" },
   { category: "気温", component: DewPoint, tier: "more" },
 
   { category: "風", component: Wind, tier: "primary" },
