@@ -25,6 +25,7 @@ function toChartData(data: SeriesResponse) {
   const pressure = data.series.find((s) => s.label === "気圧");
   const cloudCover = data.series.find((s) => s.label === "雲量");
   const windSpeed = data.series.find((s) => s.label === "風速");
+  const windDirection = data.series.find((s) => s.label === "風向き");
   const upperWindSpeed = data.series.find((s) => s.label === "上空の風速");
   const uvIndex = data.series.find((s) => s.label === "紫外線指数");
   if (!temperature) {
@@ -39,6 +40,7 @@ function toChartData(data: SeriesResponse) {
       pressure: undefined,
       cloudCover: undefined,
       windSpeed: undefined,
+      windDirection: undefined,
       upperWindSpeed: undefined,
       uvIndex: undefined,
     };
@@ -56,6 +58,7 @@ function toChartData(data: SeriesResponse) {
     pressure: pressure?.values[i] ?? null,
     cloudCover: cloudCover?.values[i] ?? null,
     windSpeed: windSpeed?.values[i] ?? null,
+    windDirection: windDirection?.values[i] ?? null,
     upperWindSpeed: upperWindSpeed?.values[i] ?? null,
     uvIndex: uvIndex?.values[i] ?? null,
   }));
@@ -70,6 +73,7 @@ function toChartData(data: SeriesResponse) {
     pressure,
     cloudCover,
     windSpeed,
+    windDirection,
     upperWindSpeed,
     uvIndex,
   };
@@ -184,6 +188,7 @@ const SECONDARY_SERIES = [
   { key: "pressure", label: "気圧" },
   { key: "cloudCover", label: "雲量" },
   { key: "windSpeed", label: "風速" },
+  { key: "windDirection", label: "風向き" },
   { key: "upperWindSpeed", label: "上空の風速" },
   { key: "uvIndex", label: "紫外線指数" },
 ] as const;
@@ -221,6 +226,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     pressure,
     cloudCover,
     windSpeed,
+    windDirection,
     upperWindSpeed,
     uvIndex,
   } = toChartData(data);
@@ -255,6 +261,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             return Boolean(cloudCover);
           case "windSpeed":
             return Boolean(windSpeed);
+          case "windDirection":
+            return Boolean(windDirection);
           case "upperWindSpeed":
             return Boolean(upperWindSpeed);
           case "uvIndex":
@@ -268,6 +276,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
       pressure,
       cloudCover,
       windSpeed,
+      windDirection,
       upperWindSpeed,
       uvIndex,
     ],
@@ -291,6 +300,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
   const showPressure = pressure && visibleSecondary.has("pressure");
   const showCloudCover = cloudCover && visibleSecondary.has("cloudCover");
   const showWindSpeed = windSpeed && visibleSecondary.has("windSpeed");
+  const showWindDirection = windDirection && visibleSecondary.has("windDirection");
   const showUpperWindSpeed = upperWindSpeed && visibleSecondary.has("upperWindSpeed");
   const showUvIndex = uvIndex && visibleSecondary.has("uvIndex");
 
@@ -389,6 +399,10 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
           // 風速も他系列と単位・スケールが違うので、独立した軸にする。
           <YAxis yAxisId="windSpeed" hide domain={[0, Math.max(windSpeed!.max ?? 0, 1) + 1]} />
         )}
+        {showWindDirection && (
+          // 風向きは度数（0〜360）固定なので、風速とは別軸にする。
+          <YAxis yAxisId="windDirection" hide domain={[0, 360]} />
+        )}
         {showUpperWindSpeed && (
           // 上空の風速は地上より大きくなるので、地上の風速とも軸を分ける。
           <YAxis
@@ -430,9 +444,11 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
                               ? cloudCover?.unit
                               : name === "風速"
                                 ? windSpeed?.unit
-                                : name === "上空の風速"
-                                  ? upperWindSpeed?.unit
-                                  : uvIndex?.unit;
+                                : name === "風向き"
+                                  ? windSpeed?.unit
+                                  : name === "上空の風速"
+                                    ? upperWindSpeed?.unit
+                                    : uvIndex?.unit;
             return [`${v}${unit ?? ""}`, name];
           }}
         />
@@ -546,6 +562,19 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             dot={false}
             isAnimationActive={false}
             name="風速"
+            connectNulls
+          />
+        )}
+        {showWindDirection && (
+          <Line
+            yAxisId="windDirection"
+            type="monotone"
+            dataKey="windDirection"
+            stroke="#0ca678"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="風向き"
             connectNulls
           />
         )}

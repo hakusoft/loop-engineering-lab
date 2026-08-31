@@ -272,6 +272,7 @@ STUB_SERIES = {
         "precipitation_probability": "%",
         "surface_pressure": "hPa",
         "wind_speed_10m": "km/h",
+        "wind_direction_10m": "°",
         "wind_speed_850hPa": "km/h",
         "uv_index": "",
     },
@@ -287,6 +288,7 @@ STUB_SERIES = {
         "precipitation_probability": [10, 30, 60],
         "surface_pressure": [1008.2, 1008.0, 1007.6],
         "wind_speed_10m": [8.1, 9.4, 10.2],
+        "wind_direction_10m": [200.0, 210.0, 220.0],
         "wind_speed_850hPa": [24.5, 26.1, 28.3],
         "uv_index": [0.2, 1.5, 3.1],
     },
@@ -313,6 +315,7 @@ def test_series_keeps_units_separate_for_split_axes():
     precipitation_probability = by_label["降水確率"]
     pressure = by_label["気圧"]
     cloud_cover = by_label["雲量"]
+    wind_direction = by_label["風向き"]
     uv_index = by_label["紫外線指数"]
 
     assert temperature["label"] == "気温"
@@ -331,6 +334,8 @@ def test_series_keeps_units_separate_for_split_axes():
     assert pressure["unit"] == "hPa"
     assert cloud_cover["label"] == "雲量"
     assert cloud_cover["unit"] == "%"
+    assert wind_direction["label"] == "風向き"
+    assert wind_direction["unit"] == "°"
     assert uv_index["label"] == "紫外線指数"
     assert uv_index["unit"] == ""
 
@@ -347,6 +352,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     precipitation_probability = by_label["降水確率"]
     pressure = by_label["気圧"]
     cloud_cover = by_label["雲量"]
+    wind_direction = by_label["風向き"]
     uv_index = by_label["紫外線指数"]
 
     assert (temperature["min"], temperature["max"]) == (24.9, 26.1)
@@ -357,6 +363,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     assert (precipitation_probability["min"], precipitation_probability["max"]) == (10, 60)
     assert (pressure["min"], pressure["max"]) == (1007.6, 1008.2)
     assert (cloud_cover["min"], cloud_cover["max"]) == (20, 90)
+    assert (wind_direction["min"], wind_direction["max"]) == (200.0, 220.0)
     assert (uv_index["min"], uv_index["max"]) == (0.2, 3.1)
 
 
@@ -810,6 +817,7 @@ def test_hourly_series_are_all_requested_fields():
         "気圧": "surface_pressure",
         "雲量": "cloud_cover",
         "風速": "wind_speed_10m",
+        "風向き": "wind_direction_10m",
         "上空の風速": "wind_speed_850hPa",
         "紫外線指数": "uv_index",
     }
