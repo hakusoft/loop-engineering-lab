@@ -142,7 +142,11 @@ function themeFor(isDay: boolean | undefined, forceDark: boolean) {
 const DARK_MODE_OVERRIDE_STORAGE_KEY = "loop-engineering-lab:dark-mode-override";
 
 function readStoredDarkModeOverride(): boolean {
-  return localStorage.getItem(DARK_MODE_OVERRIDE_STORAGE_KEY) === "true";
+  try {
+    return localStorage.getItem(DARK_MODE_OVERRIDE_STORAGE_KEY) === "true";
+  } catch {
+    return false;
+  }
 }
 
 function writeStoredDarkModeOverride(value: boolean) {
