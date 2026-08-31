@@ -177,6 +177,7 @@ DAILY_FIELDS = [
 
 HOURLY_FIELDS = [
     "weather_code",
+    "cloud_cover",
     "temperature_2m",
     "relative_humidity_2m",
     "precipitation",
@@ -188,6 +189,7 @@ HOURLY_FIELDS = [
     "wind_speed_10m",
     "wind_speed_850hPa",
     "uv_index",
+    "visibility",
 ]
 
 
@@ -596,9 +598,11 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
             _series("snowfall", "降雪量", "cm"),
             _series("precipitation_probability", "降水確率", "%"),
             _series("surface_pressure", "気圧", "hPa"),
+            _series("cloud_cover", "雲量", "%"),
             _series("wind_speed_10m", "風速", "km/h"),
             _series("wind_speed_850hPa", "上空の風速", "km/h"),
             _series("uv_index", "紫外線指数", ""),
+            _series("visibility", "視程", "m"),
         ],
         "coordinates": {
             "latitude": _round_coordinate(raw["latitude"]),
