@@ -445,7 +445,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
                               : name === "風速"
                                 ? windSpeed?.unit
                                 : name === "風向き"
-                                  ? windSpeed?.unit
+                                  ? windDirection?.unit
                                   : name === "上空の風速"
                                     ? upperWindSpeed?.unit
                                     : uvIndex?.unit;
