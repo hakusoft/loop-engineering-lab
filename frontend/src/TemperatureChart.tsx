@@ -27,6 +27,7 @@ function toChartData(data: SeriesResponse) {
   const windSpeed = data.series.find((s) => s.label === "風速");
   const upperWindSpeed = data.series.find((s) => s.label === "上空の風速");
   const uvIndex = data.series.find((s) => s.label === "紫外線指数");
+  const visibility = data.series.find((s) => s.label === "視程");
   if (!temperature) {
     return {
       rows: [],
@@ -41,6 +42,7 @@ function toChartData(data: SeriesResponse) {
       windSpeed: undefined,
       upperWindSpeed: undefined,
       uvIndex: undefined,
+      visibility: undefined,
     };
   }
 
@@ -58,6 +60,7 @@ function toChartData(data: SeriesResponse) {
     windSpeed: windSpeed?.values[i] ?? null,
     upperWindSpeed: upperWindSpeed?.values[i] ?? null,
     uvIndex: uvIndex?.values[i] ?? null,
+    visibility: visibility?.values[i] ?? null,
   }));
   return {
     rows,
@@ -72,6 +75,7 @@ function toChartData(data: SeriesResponse) {
     windSpeed,
     upperWindSpeed,
     uvIndex,
+    visibility,
   };
 }
 
@@ -186,6 +190,7 @@ const SECONDARY_SERIES = [
   { key: "windSpeed", label: "風速" },
   { key: "upperWindSpeed", label: "上空の風速" },
   { key: "uvIndex", label: "紫外線指数" },
+  { key: "visibility", label: "視程" },
 ] as const;
 
 type SecondarySeriesKey = (typeof SECONDARY_SERIES)[number]["key"];
@@ -223,6 +228,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     windSpeed,
     upperWindSpeed,
     uvIndex,
+    visibility,
   } = toChartData(data);
   const isNarrow = useIsNarrowViewport();
   const tickFontSize = isNarrow ? 15 : 12;
@@ -259,6 +265,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             return Boolean(upperWindSpeed);
           case "uvIndex":
             return Boolean(uvIndex);
+          case "visibility":
+            return Boolean(visibility);
         }
       }),
     [
@@ -270,6 +278,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
       windSpeed,
       upperWindSpeed,
       uvIndex,
+      visibility,
     ],
   );
 
@@ -293,6 +302,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
   const showWindSpeed = windSpeed && visibleSecondary.has("windSpeed");
   const showUpperWindSpeed = upperWindSpeed && visibleSecondary.has("upperWindSpeed");
   const showUvIndex = uvIndex && visibleSecondary.has("uvIndex");
+  const showVisibility = visibility && visibleSecondary.has("visibility");
 
   return (
     <>
@@ -409,6 +419,14 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
           // 雲量は % 固定なので、降水確率と同じく 0〜100 のスケールで別軸にする。
           <YAxis yAxisId="cloudCover" hide domain={[0, 100]} />
         )}
+        {showVisibility && (
+          // 視程は m 単位で他系列よりスケールが大きく違うので、独立した軸にする。
+          <YAxis
+            yAxisId="visibility"
+            hide
+            domain={[0, Math.max(visibility!.max ?? 0, 1) + 1]}
+          />
+        )}
         <Tooltip
           formatter={(v: number, name: string) => {
             const unit =
@@ -432,7 +450,9 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
                                 ? windSpeed?.unit
                                 : name === "上空の風速"
                                   ? upperWindSpeed?.unit
-                                  : uvIndex?.unit;
+                                  : name === "視程"
+                                    ? visibility?.unit
+                                    : uvIndex?.unit;
             return [`${v}${unit ?? ""}`, name];
           }}
         />
@@ -573,6 +593,19 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             dot={false}
             isAnimationActive={false}
             name="紫外線指数"
+            connectNulls
+          />
+        )}
+        {showVisibility && (
+          <Line
+            yAxisId="visibility"
+            type="monotone"
+            dataKey="visibility"
+            stroke="#1098ad"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="視程"
             connectNulls
           />
         )}
