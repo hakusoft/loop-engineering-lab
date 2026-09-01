@@ -15,6 +15,7 @@ import { HumidityRange } from "./HumidityRange";
 import { LaundryDryness } from "./LaundryDryness";
 import { Evapotranspiration } from "./Evapotranspiration";
 import { SoilTemperature } from "./SoilTemperature";
+import { SoilTemperatureDeep } from "./SoilTemperatureDeep";
 import { SoilMoisture } from "./SoilMoisture";
 import { SoilMoistureDeep } from "./SoilMoistureDeep";
 import { ObservedAt } from "./ObservedAt";
@@ -32,6 +33,7 @@ import { SolarRadiation } from "./SolarRadiation";
 import { SolarRadiationSum } from "./SolarRadiationSum";
 import { SunTimes } from "./SunTimes";
 import { SunshineDuration } from "./SunshineDuration";
+import { TemperatureMean } from "./TemperatureMean";
 import { TemperatureRange } from "./TemperatureRange";
 import { UvIndex } from "./UvIndex";
 import { FreezingLevel } from "./FreezingLevel";
@@ -75,6 +77,7 @@ export const DISPLAY_ITEMS: DisplayItem[] = [
   { category: "気温", component: ApparentTemperature, tier: "more" },
   { category: "気温", component: ApparentTemperatureRange, tier: "more" },
   { category: "気温", component: TemperatureRange, tier: "primary" },
+  { category: "気温", component: TemperatureMean, tier: "more" },
   { category: "気温", component: DewPoint, tier: "more" },
 
   { category: "風", component: Wind, tier: "primary" },
@@ -91,6 +94,7 @@ export const DISPLAY_ITEMS: DisplayItem[] = [
   { category: "降水・湿度", component: SnowDepth, tier: "more" },
   { category: "降水・湿度", component: LaundryDryness, tier: "more" },
   { category: "降水・湿度", component: SoilTemperature, tier: "more" },
+  { category: "降水・湿度", component: SoilTemperatureDeep, tier: "more" },
   { category: "降水・湿度", component: SoilMoisture, tier: "more" },
   { category: "降水・湿度", component: SoilMoistureDeep, tier: "more" },
   { category: "降水・湿度", component: Evapotranspiration, tier: "more" },

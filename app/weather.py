@@ -143,6 +143,7 @@ CURRENT_FIELDS = [
     "freezing_level_height",
     "dew_point_2m",
     "soil_temperature_0cm",
+    "soil_temperature_6cm",
     "soil_moisture_0_to_1cm",
     "soil_moisture_1_to_3cm",
     "shortwave_radiation",
@@ -157,6 +158,7 @@ DAILY_FIELDS = [
     "sunset",
     "temperature_2m_max",
     "temperature_2m_min",
+    "temperature_2m_mean",
     "precipitation_probability_max",
     "sunshine_duration",
     "et0_fao_evapotranspiration",
@@ -189,6 +191,7 @@ HOURLY_FIELDS = [
     "wind_direction_10m",
     "wind_speed_850hPa",
     "uv_index",
+    "visibility",
 ]
 
 
@@ -274,6 +277,10 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
             "value": daily["temperature_2m_min"][0],
             "unit": daily_units.get("temperature_2m_min", "°C"),
         },
+        "temperature_mean": {
+            "value": daily["temperature_2m_mean"][0],
+            "unit": daily_units.get("temperature_2m_mean", "°C"),
+        },
         "apparent_temperature_max": {
             "value": daily["apparent_temperature_max"][0],
             "unit": daily_units.get("apparent_temperature_max", "°C"),
@@ -285,6 +292,14 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
         "soil_temperature": {
             "value": current["soil_temperature_0cm"],
             "unit": units.get("soil_temperature_0cm", "°C"),
+        },
+        "soil_temperature_deep": {
+            # soil_temperature_6cm は今回新規に要求した項目で、実 API での
+            # 応答確認ができていない（フィクスチャ未更新）。実際にはこのキーで
+            # 返らない可能性を排除できないため、他の項目と違い .get() で読み、
+            # 無ければ None を返す（#164 / #67-#68 と同型の KeyError を避ける）。
+            "value": current.get("soil_temperature_6cm"),
+            "unit": units.get("soil_temperature_6cm", "°C"),
         },
         "soil_moisture": {
             "value": current["soil_moisture_0_to_1cm"],
@@ -594,6 +609,7 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
             _series("wind_direction_10m", "風向き", "°"),
             _series("wind_speed_850hPa", "上空の風速", "km/h"),
             _series("uv_index", "紫外線指数", ""),
+            _series("visibility", "視程", "m"),
         ],
         "coordinates": {
             "latitude": _round_coordinate(raw["latitude"]),
