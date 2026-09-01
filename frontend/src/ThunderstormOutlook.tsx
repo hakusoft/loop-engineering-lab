@@ -1,5 +1,13 @@
 import type { SeriesResponse } from "./api";
 
+// CAPE（対流有効位置エネルギー）の一般的な目安。J/kg 単位。
+// 値が大きいほど積乱雲が発達しやすく、雷雨が強まりやすい。
+function capeStrengthLabel(value: number): string {
+  if (value >= 2500) return "強い";
+  if (value >= 1000) return "中程度";
+  return "弱い";
+}
+
 // 表示ロジックを純関数に切り出す。雷の時間帯が無ければ null（表示しない）。
 export function formatThunderstormOutlook(data: SeriesResponse): string | null {
   const hours = data.thunderstorm_hours;
@@ -10,7 +18,9 @@ export function formatThunderstormOutlook(data: SeriesResponse): string | null {
   const first = toHour(hours[0]);
   const last = toHour(hours[hours.length - 1]);
   const span = first === last ? first : `${first}〜${last}`;
-  return `本日、夕立・雷の可能性あり（${span}ごろ）`;
+  const peak = data.cape_peak;
+  const strength = peak ? `、強さの目安: ${capeStrengthLabel(peak.value)}` : "";
+  return `本日、夕立・雷の可能性あり（${span}ごろ）${strength}`;
 }
 
 export function ThunderstormOutlook({ data }: { data: SeriesResponse }) {

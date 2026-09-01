@@ -9,6 +9,7 @@ from pathlib import Path
 from app.weather import (
     summarize_day,
     thunderstorm_hours,
+    cape_peak,
     CURRENT_FIELDS,
     DAILY_FIELDS,
     HOURLY_FIELDS,
@@ -270,6 +271,7 @@ STUB_SERIES = {
     "hourly_units": {
         "time": "iso8601",
         "weather_code": "wmo code",
+        "cape": "J/kg",
         "cloud_cover": "%",
         "temperature_2m": "°C",
         "apparent_temperature": "°C",
@@ -286,6 +288,7 @@ STUB_SERIES = {
     "hourly": {
         "time": ["2026-07-21T00:00", "2026-07-21T01:00", "2026-07-21T02:00"],
         "weather_code": [0, 3, 61],
+        "cape": [120.0, 480.0, 90.0],
         "cloud_cover": [20, 55, 90],
         "temperature_2m": [26.1, 25.4, 24.9],
         "apparent_temperature": [27.3, 26.5, 25.8],
@@ -910,3 +913,33 @@ def test_thunderstorm_hours_is_empty_without_thunder():
     timestamps = [f"2026-08-26T{h:02d}:00" for h in range(24)]
 
     assert thunderstorm_hours(timestamps, [0, 3, 61] * 8) == []
+
+
+def test_cape_peak_returns_time_and_value_of_max():
+    """CAPE が最大になる時刻と値を返す。"""
+    timestamps = ["2026-08-26T12:00", "2026-08-26T13:00", "2026-08-26T14:00"]
+    values = [500.0, 1800.0, 900.0]
+
+    assert cape_peak(timestamps, values) == {"time": "2026-08-26T13:00", "value": 1800.0}
+
+
+def test_cape_peak_ignores_missing_values():
+    """欠測（None）は最大値の候補から外す。"""
+    timestamps = ["2026-08-26T12:00", "2026-08-26T13:00", "2026-08-26T14:00"]
+    values = [None, 700.0, None]
+
+    assert cape_peak(timestamps, values) == {"time": "2026-08-26T13:00", "value": 700.0}
+
+
+def test_cape_peak_is_none_when_all_missing():
+    """全て欠測なら None。"""
+    timestamps = ["2026-08-26T12:00", "2026-08-26T13:00"]
+
+    assert cape_peak(timestamps, [None, None]) is None
+
+
+def test_format_hourly_series_includes_cape_peak():
+    """format_hourly_series の戻り値に、今日一日の CAPE ピークが含まれる。"""
+    result = format_hourly_series(STUB_SERIES)
+
+    assert result["cape_peak"] == {"time": "2026-07-21T01:00", "value": 480.0}
