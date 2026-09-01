@@ -132,8 +132,29 @@ const NIGHT_THEME = {
   textTertiary: "#9a9ac0",
 };
 
-function themeFor(isDay: boolean | undefined) {
-  return isDay === false ? NIGHT_THEME : DAY_THEME;
+function themeFor(isDay: boolean | undefined, forceDark: boolean) {
+  return forceDark || isDay === false ? NIGHT_THEME : DAY_THEME;
+}
+
+// 昼夜自動判定とは別に、目が疲れている時など任意のタイミングで暗めの配色に
+// 切り替えたいという要望を受け、手動トグルを追加する（Issue #294）。
+// 状態は CategoryGroup の開閉状態と同様、localStorage に保存して次回訪問時も引き継ぐ。
+const DARK_MODE_OVERRIDE_STORAGE_KEY = "loop-engineering-lab:dark-mode-override";
+
+function readStoredDarkModeOverride(): boolean {
+  try {
+    return localStorage.getItem(DARK_MODE_OVERRIDE_STORAGE_KEY) === "true";
+  } catch {
+    return false;
+  }
+}
+
+function writeStoredDarkModeOverride(value: boolean) {
+  try {
+    localStorage.setItem(DARK_MODE_OVERRIDE_STORAGE_KEY, String(value));
+  } catch {
+    // 保存できなくても表示は続行する。
+  }
 }
 
 export default function App() {
@@ -162,7 +183,14 @@ export default function App() {
     };
   }, []);
 
-  const theme = themeFor(weatherState.status === "ready" ? weatherState.data.is_day : undefined);
+  const [forceDark, setForceDark] = useState(() => readStoredDarkModeOverride());
+
+  const effectiveIsDay = forceDark
+    ? false
+    : weatherState.status === "ready"
+      ? weatherState.data.is_day
+      : undefined;
+  const theme = themeFor(effectiveIsDay, forceDark);
 
   return (
     <main
@@ -180,11 +208,35 @@ export default function App() {
         } as CSSProperties
       }
     >
-      <div style={{ display: "flex", alignItems: "baseline" }}>
-        <h1 style={{ fontSize: 20, marginBottom: 4 }}>東京の気温（48時間）</h1>
-        {weatherState.status === "ready" && state.status === "ready" && (
-          <LocationName data={weatherState.data} />
-        )}
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", alignItems: "baseline" }}>
+          <h1 style={{ fontSize: 20, marginBottom: 4 }}>東京の気温（48時間）</h1>
+          {weatherState.status === "ready" && state.status === "ready" && (
+            <LocationName data={weatherState.data} />
+          )}
+        </div>
+        <label
+          style={{
+            fontSize: 13,
+            color: "var(--text-secondary)",
+            cursor: "pointer",
+            display: "inline-flex",
+            alignItems: "center",
+            whiteSpace: "nowrap",
+          }}
+        >
+          <input
+            type="checkbox"
+            checked={forceDark}
+            onChange={(e) => {
+              const next = e.target.checked;
+              setForceDark(next);
+              writeStoredDarkModeOverride(next);
+            }}
+            style={{ marginRight: 6 }}
+          />
+          暗めの表示
+        </label>
       </div>
       <p style={{ color: "var(--text-secondary)", marginTop: 0, fontSize: 14 }}>
         loop-engineering-lab / <code>/weather/series</code>
@@ -219,10 +271,7 @@ export default function App() {
       )}
       {state.status === "ready" && (
         <>
-          <TemperatureChart
-            data={state.data}
-            isDay={weatherState.status === "ready" ? weatherState.data.is_day : undefined}
-          />
+          <TemperatureChart data={state.data} isDay={effectiveIsDay} />
           <HourlyConditions data={state.data} />
         </>
       )}
