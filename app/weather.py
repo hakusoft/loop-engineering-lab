@@ -177,6 +177,7 @@ DAILY_FIELDS = [
 
 HOURLY_FIELDS = [
     "weather_code",
+    "cape",
     "cloud_cover",
     "temperature_2m",
     "relative_humidity_2m",
@@ -538,6 +539,25 @@ def thunderstorm_hours(timestamps: list[str], codes: list[int]) -> list[str]:
     return [t for t, c in zip(timestamps, codes) if c in THUNDERSTORM_CODES]
 
 
+def cape_peak(timestamps: list[str], values: list[float | None]) -> dict[str, Any] | None:
+    """CAPE（対流有効位置エネルギー）が最大になる時刻と値を返す。
+
+    雷雨が来る時刻（thunderstorm_hours）に加え、どのくらい強まりそうかの
+    目安として使う。値が全て欠測なら None。
+    """
+    best_index = None
+    best_value = None
+    for i, v in enumerate(values):
+        if v is None:
+            continue
+        if best_value is None or v > best_value:
+            best_value = v
+            best_index = i
+    if best_index is None:
+        return None
+    return {"time": timestamps[best_index], "value": best_value}
+
+
 def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
     """時系列の生 JSON を、1 つのチャートに重ねられる形に整える。
 
@@ -581,11 +601,17 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
         [hourly["weather_code"][i] for i in today_index],
     )
 
+    cape_peak_today = cape_peak(
+        [timestamps[i] for i in today_index],
+        [hourly["cape"][i] for i in today_index],
+    )
+
     return {
         "timestamps": timestamps,
         "conditions": conditions,
         "daily_summary": daily_summary,
         "thunderstorm_hours": thunder_hours,
+        "cape_peak": cape_peak_today,
         "series": [
             _series("temperature_2m", "気温", "°C"),
             _series("apparent_temperature", "体感温度", "°C"),
