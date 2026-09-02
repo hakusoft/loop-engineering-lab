@@ -172,6 +172,7 @@ DAILY_FIELDS = [
     "wind_gusts_10m_max",
     "apparent_temperature_max",
     "apparent_temperature_min",
+    "apparent_temperature_mean",
     "relative_humidity_2m_max",
     "relative_humidity_2m_min",
 ]
@@ -289,6 +290,10 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
         "apparent_temperature_min": {
             "value": daily["apparent_temperature_min"][0],
             "unit": daily_units.get("apparent_temperature_min", "°C"),
+        },
+        "apparent_temperature_mean": {
+            "value": daily["apparent_temperature_mean"][0],
+            "unit": daily_units.get("apparent_temperature_mean", "°C"),
         },
         "soil_temperature": {
             "value": current["soil_temperature_0cm"],
