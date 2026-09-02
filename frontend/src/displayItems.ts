@@ -2,6 +2,7 @@ import type { ComponentType } from "react";
 import type { WeatherResponse } from "./api";
 import { ApparentTemperature } from "./ApparentTemperature";
 import { ApparentTemperatureRange } from "./ApparentTemperatureRange";
+import { ApparentTemperatureMean } from "./ApparentTemperatureMean";
 import { CloudCover } from "./CloudCover";
 import { CloudCoverLayers } from "./CloudCoverLayers";
 import { Condition } from "./Condition";
@@ -76,6 +77,7 @@ export const DISPLAY_ITEMS: DisplayItem[] = [
   { category: "気温", component: CurrentTemperature, tier: "primary" },
   { category: "気温", component: ApparentTemperature, tier: "more" },
   { category: "気温", component: ApparentTemperatureRange, tier: "more" },
+  { category: "気温", component: ApparentTemperatureMean, tier: "more" },
   { category: "気温", component: TemperatureRange, tier: "primary" },
   { category: "気温", component: TemperatureMean, tier: "more" },
   { category: "気温", component: DewPoint, tier: "more" },
