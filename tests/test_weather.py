@@ -16,6 +16,7 @@ from app.weather import (
     _compass_direction,
     _daylight_duration_hours,
     _round_coordinate,
+    _round_humidity,
     _round_pressure,
     _round_wind_speed,
     _seconds_to_hours,
@@ -600,6 +601,38 @@ def test_format_forecast_rounds_wind_speed():
     assert result["wind_gusts"] == {"value": 24.8, "unit": "km/h"}
     assert result["wind_speed_max"] == {"value": 18.4, "unit": "km/h"}
     assert result["wind_gusts_max"] == {"value": 42.6, "unit": "km/h"}
+
+
+def test_round_humidity_rounds_to_one_decimal_place():
+    assert _round_humidity(78.349999) == 78.3
+    assert _round_humidity(84.949999) == 84.9
+
+
+def test_round_humidity_passes_through_none():
+    """欠測（None）は丸めずにそのまま返す（_round_pressure / _round_wind_speed と同じ方針）。"""
+    assert _round_humidity(None) is None
+
+
+def test_format_forecast_rounds_humidity():
+    """湿度は Open-Meteo が桁の長い小数を返すことがあるため、小数第1位に丸める。"""
+    raw = {
+        **STUB_RESPONSE,
+        "current": {
+            **STUB_RESPONSE["current"],
+            "relative_humidity_2m": 71.349999,
+        },
+        "daily": {
+            **STUB_RESPONSE["daily"],
+            "relative_humidity_2m_max": [85.449999],
+            "relative_humidity_2m_min": [55.949999],
+        },
+    }
+
+    result = format_forecast(raw)
+
+    assert result["humidity"] == {"value": 71.3, "unit": "%"}
+    assert result["humidity_max"] == {"value": 85.4, "unit": "%"}
+    assert result["humidity_min"] == {"value": 55.9, "unit": "%"}
 
 
 def test_daylight_duration_hours_computes_difference_in_hours():

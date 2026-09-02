@@ -102,6 +102,17 @@ def _round_wind_speed(value: float | None) -> float | None:
     return value if value is None else round(value, WIND_SPEED_PRECISION)
 
 
+HUMIDITY_PRECISION = 1
+
+
+def _round_humidity(value: float | None) -> float | None:
+    """湿度を小数第1位に丸める。他の項目と同じく、桁数が値によってばらつくことがある。
+
+    欠測（None）はそのまま返す（_round_pressure / _round_wind_speed と同じ方針）。
+    """
+    return value if value is None else round(value, HUMIDITY_PRECISION)
+
+
 def _daylight_duration_hours(sunrise: str, sunset: str) -> float:
     """sunrise / sunset（ISO8601）から可照時間を時間単位で計算する。"""
     return (datetime.fromisoformat(sunset) - datetime.fromisoformat(sunrise)).total_seconds() / 3600
@@ -314,15 +325,15 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
             "unit": units.get("soil_moisture_1_to_3cm", "m³/m³"),
         },
         "humidity": {
-            "value": current["relative_humidity_2m"],
+            "value": _round_humidity(current["relative_humidity_2m"]),
             "unit": units.get("relative_humidity_2m", "%"),
         },
         "humidity_max": {
-            "value": daily["relative_humidity_2m_max"][0],
+            "value": _round_humidity(daily["relative_humidity_2m_max"][0]),
             "unit": daily_units.get("relative_humidity_2m_max", "%"),
         },
         "humidity_min": {
-            "value": daily["relative_humidity_2m_min"][0],
+            "value": _round_humidity(daily["relative_humidity_2m_min"][0]),
             "unit": daily_units.get("relative_humidity_2m_min", "%"),
         },
         "wind_speed": {
