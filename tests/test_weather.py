@@ -282,6 +282,7 @@ STUB_SERIES = {
         "surface_pressure": "hPa",
         "wind_speed_10m": "km/h",
         "wind_speed_850hPa": "km/h",
+        "wind_speed_80m": "km/h",
         "uv_index": "",
         "visibility": "m",
     },
@@ -299,6 +300,7 @@ STUB_SERIES = {
         "surface_pressure": [1008.2, 1008.0, 1007.6],
         "wind_speed_10m": [8.1, 9.4, 10.2],
         "wind_speed_850hPa": [24.5, 26.1, 28.3],
+        "wind_speed_80m": [18.2, 19.5, 20.1],
         "uv_index": [0.2, 1.5, 3.1],
         "visibility": [22000.0, 18500.0, 9200.0],
     },
@@ -325,6 +327,7 @@ def test_series_keeps_units_separate_for_split_axes():
     precipitation_probability = by_label["降水確率"]
     pressure = by_label["気圧"]
     cloud_cover = by_label["雲量"]
+    upper_wind_speed_80m = by_label["上空の風速(80m)"]
     uv_index = by_label["紫外線指数"]
     visibility = by_label["視程"]
 
@@ -344,6 +347,8 @@ def test_series_keeps_units_separate_for_split_axes():
     assert pressure["unit"] == "hPa"
     assert cloud_cover["label"] == "雲量"
     assert cloud_cover["unit"] == "%"
+    assert upper_wind_speed_80m["label"] == "上空の風速(80m)"
+    assert upper_wind_speed_80m["unit"] == "km/h"
     assert uv_index["label"] == "紫外線指数"
     assert uv_index["unit"] == ""
     assert visibility["label"] == "視程"
@@ -362,6 +367,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     precipitation_probability = by_label["降水確率"]
     pressure = by_label["気圧"]
     cloud_cover = by_label["雲量"]
+    upper_wind_speed_80m = by_label["上空の風速(80m)"]
     uv_index = by_label["紫外線指数"]
     visibility = by_label["視程"]
 
@@ -373,6 +379,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     assert (precipitation_probability["min"], precipitation_probability["max"]) == (10, 60)
     assert (pressure["min"], pressure["max"]) == (1007.6, 1008.2)
     assert (cloud_cover["min"], cloud_cover["max"]) == (20, 90)
+    assert (upper_wind_speed_80m["min"], upper_wind_speed_80m["max"]) == (18.2, 20.1)
     assert (uv_index["min"], uv_index["max"]) == (0.2, 3.1)
     assert (visibility["min"], visibility["max"]) == (9200.0, 22000.0)
 
@@ -847,6 +854,7 @@ def test_hourly_series_are_all_requested_fields():
         "雲量": "cloud_cover",
         "風速": "wind_speed_10m",
         "上空の風速": "wind_speed_850hPa",
+        "上空の風速(80m)": "wind_speed_80m",
         "紫外線指数": "uv_index",
         "視程": "visibility",
     }
