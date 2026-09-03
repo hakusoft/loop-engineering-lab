@@ -153,6 +153,7 @@ CURRENT_FIELDS = [
     "visibility",
     "freezing_level_height",
     "dew_point_2m",
+    "temperature_850hPa",
     "soil_temperature_0cm",
     "soil_temperature_6cm",
     "soil_moisture_0_to_1cm",
@@ -203,6 +204,7 @@ HOURLY_FIELDS = [
     "wind_speed_10m",
     "wind_direction_10m",
     "wind_speed_850hPa",
+    "wind_direction_850hPa",
     "uv_index",
     "visibility",
 ]
@@ -305,6 +307,17 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
         "apparent_temperature_mean": {
             "value": daily["apparent_temperature_mean"][0],
             "unit": daily_units.get("apparent_temperature_mean", "°C"),
+        },
+        "temperature_aloft": {
+            # temperature_850hPa は今回新規に要求した項目で、実 API での応答確認が
+            # できていない（フィクスチャ未更新）。他の新規項目と同様 .get() で読み、
+            # 無ければ None を返す（#164 / #67-#68 と同型の KeyError を避ける）。
+            "value": current.get("temperature_850hPa"),
+            "unit": units.get("temperature_850hPa", "°C"),
+        },
+        "temperature_diff_ground_aloft": {
+            "value": current["temperature_2m"] - current.get("temperature_850hPa"),
+            "unit": "°C",
         },
         "soil_temperature": {
             "value": current["soil_temperature_0cm"],
@@ -650,6 +663,7 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
             _series("wind_speed_10m", "風速", "km/h"),
             _series("wind_direction_10m", "風向き", "°"),
             _series("wind_speed_850hPa", "上空の風速", "km/h"),
+            _series("wind_direction_850hPa", "上空の風向き", "°"),
             _series("uv_index", "紫外線指数", ""),
             _series("visibility", "視程", "m"),
         ],

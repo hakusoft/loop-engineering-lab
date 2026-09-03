@@ -6,6 +6,8 @@
 import json
 from pathlib import Path
 
+import pytest
+
 from app.weather import (
     summarize_day,
     thunderstorm_hours,
@@ -50,6 +52,7 @@ STUB_RESPONSE = {
         "visibility": "m",
         "freezing_level_height": "m",
         "dew_point_2m": "°C",
+        "temperature_850hPa": "°C",
         "soil_temperature_0cm": "°C",
         "soil_temperature_6cm": "°C",
         "soil_moisture_0_to_1cm": "m³/m³",
@@ -81,6 +84,7 @@ STUB_RESPONSE = {
         "visibility": 24140.0,
         "freezing_level_height": 4800.0,
         "dew_point_2m": 22.6,
+        "temperature_850hPa": 15.9,
         "soil_temperature_0cm": 30.5,
         "soil_temperature_6cm": 27.8,
         "soil_moisture_0_to_1cm": 0.28,
@@ -151,6 +155,9 @@ def test_format_forecast_maps_values_and_units():
     assert result["temperature"] == {"value": 28.4, "unit": "°C"}
     assert result["apparent_temperature"] == {"value": 33.1, "unit": "°C"}
     assert result["dew_point"] == {"value": 22.6, "unit": "°C"}
+    assert result["temperature_aloft"] == {"value": 15.9, "unit": "°C"}
+    assert result["temperature_diff_ground_aloft"]["unit"] == "°C"
+    assert result["temperature_diff_ground_aloft"]["value"] == pytest.approx(12.5)
     assert result["soil_temperature"] == {"value": 30.5, "unit": "°C"}
     assert result["soil_temperature_deep"] == {"value": 27.8, "unit": "°C"}
     assert result["soil_moisture"] == {"value": 0.28, "unit": "m³/m³"}
@@ -288,6 +295,7 @@ STUB_SERIES = {
         "wind_speed_10m": "km/h",
         "wind_direction_10m": "°",
         "wind_speed_850hPa": "km/h",
+        "wind_direction_850hPa": "°",
         "uv_index": "",
         "visibility": "m",
     },
@@ -306,6 +314,7 @@ STUB_SERIES = {
         "wind_speed_10m": [8.1, 9.4, 10.2],
         "wind_direction_10m": [200.0, 210.0, 220.0],
         "wind_speed_850hPa": [24.5, 26.1, 28.3],
+        "wind_direction_850hPa": [230.0, 240.0, 250.0],
         "uv_index": [0.2, 1.5, 3.1],
         "visibility": [22000.0, 18500.0, 9200.0],
     },
@@ -333,6 +342,7 @@ def test_series_keeps_units_separate_for_split_axes():
     pressure = by_label["気圧"]
     cloud_cover = by_label["雲量"]
     wind_direction = by_label["風向き"]
+    upper_wind_direction = by_label["上空の風向き"]
     uv_index = by_label["紫外線指数"]
     visibility = by_label["視程"]
 
@@ -354,6 +364,8 @@ def test_series_keeps_units_separate_for_split_axes():
     assert cloud_cover["unit"] == "%"
     assert wind_direction["label"] == "風向き"
     assert wind_direction["unit"] == "°"
+    assert upper_wind_direction["label"] == "上空の風向き"
+    assert upper_wind_direction["unit"] == "°"
     assert uv_index["label"] == "紫外線指数"
     assert uv_index["unit"] == ""
     assert visibility["label"] == "視程"
@@ -373,6 +385,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     pressure = by_label["気圧"]
     cloud_cover = by_label["雲量"]
     wind_direction = by_label["風向き"]
+    upper_wind_direction = by_label["上空の風向き"]
     uv_index = by_label["紫外線指数"]
     visibility = by_label["視程"]
 
@@ -385,6 +398,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     assert (pressure["min"], pressure["max"]) == (1007.6, 1008.2)
     assert (cloud_cover["min"], cloud_cover["max"]) == (20, 90)
     assert (wind_direction["min"], wind_direction["max"]) == (200.0, 220.0)
+    assert (upper_wind_direction["min"], upper_wind_direction["max"]) == (230.0, 250.0)
     assert (uv_index["min"], uv_index["max"]) == (0.2, 3.1)
     assert (visibility["min"], visibility["max"]) == (9200.0, 22000.0)
 
@@ -892,6 +906,7 @@ def test_hourly_series_are_all_requested_fields():
         "風速": "wind_speed_10m",
         "風向き": "wind_direction_10m",
         "上空の風速": "wind_speed_850hPa",
+        "上空の風向き": "wind_direction_850hPa",
         "紫外線指数": "uv_index",
         "視程": "visibility",
     }
