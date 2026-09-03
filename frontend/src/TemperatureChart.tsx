@@ -200,6 +200,38 @@ const SECONDARY_SERIES = [
 
 type SecondarySeriesKey = (typeof SECONDARY_SERIES)[number]["key"];
 
+const SECONDARY_SERIES_KEYS = new Set<string>(SECONDARY_SERIES.map(({ key }) => key));
+
+// チェックボックスの選択状態を保存するキー。毎回同じ組み合わせを選び直すのが
+// 面倒という声を受け、次回表示時にも引き継ぐ（Issue #310）。
+const VISIBLE_SECONDARY_STORAGE_KEY = "loop-engineering-lab:temperature-chart-visible-secondary";
+
+// localStorage が使えない環境（プライベートブラウジング等）でも落ちないようにする。
+// 保存が無い、あるいは壊れている場合は降水確率のみ ON のデフォルトに戻す。
+function readStoredVisibleSecondary(): Set<SecondarySeriesKey> | undefined {
+  try {
+    const stored = localStorage.getItem(VISIBLE_SECONDARY_STORAGE_KEY);
+    if (stored === null) {
+      return undefined;
+    }
+    const parsed: unknown = JSON.parse(stored);
+    if (!Array.isArray(parsed)) {
+      return undefined;
+    }
+    return new Set(parsed.filter((key): key is SecondarySeriesKey => SECONDARY_SERIES_KEYS.has(key)));
+  } catch {
+    return undefined;
+  }
+}
+
+function writeStoredVisibleSecondary(keys: Set<SecondarySeriesKey>) {
+  try {
+    localStorage.setItem(VISIBLE_SECONDARY_STORAGE_KEY, JSON.stringify([...keys]));
+  } catch {
+    // 保存できなくても表示は続行する。
+  }
+}
+
 const NARROW_VIEWPORT_QUERY = "(max-width: 480px)";
 
 // スマホ幅では固定 12px の目盛りが相対的に読みにくいという声があったため、
@@ -247,9 +279,10 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
   const colors = chartColors(isDay);
 
   // 降水確率は「傘が要るかすぐ分かりたい」という要望から、他の副系列と違い
-  // デフォルトで表示する（Issue #272）。
+  // デフォルトで表示する（Issue #272）。保存された選択があればそちらを使う
+  // （Issue #310）。
   const [visibleSecondary, setVisibleSecondary] = useState<Set<SecondarySeriesKey>>(
-    () => new Set(["precipitationProbability"]),
+    () => readStoredVisibleSecondary() ?? new Set(["precipitationProbability"]),
   );
   const availableSecondary = useMemo(
     () =>
@@ -299,6 +332,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
       } else {
         next.add(key);
       }
+      writeStoredVisibleSecondary(next);
       return next;
     });
   }
