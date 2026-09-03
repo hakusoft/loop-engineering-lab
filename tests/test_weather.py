@@ -52,6 +52,7 @@ STUB_RESPONSE = {
         "dew_point_2m": "°C",
         "soil_temperature_0cm": "°C",
         "soil_temperature_6cm": "°C",
+        "soil_temperature_18cm": "°C",
         "soil_moisture_0_to_1cm": "m³/m³",
         "soil_moisture_1_to_3cm": "m³/m³",
         "shortwave_radiation": "W/m²",
@@ -83,6 +84,7 @@ STUB_RESPONSE = {
         "dew_point_2m": 22.6,
         "soil_temperature_0cm": 30.5,
         "soil_temperature_6cm": 27.8,
+        "soil_temperature_18cm": 25.1,
         "soil_moisture_0_to_1cm": 0.28,
         "soil_moisture_1_to_3cm": 0.31,
         "shortwave_radiation": 412.0,
@@ -153,6 +155,7 @@ def test_format_forecast_maps_values_and_units():
     assert result["dew_point"] == {"value": 22.6, "unit": "°C"}
     assert result["soil_temperature"] == {"value": 30.5, "unit": "°C"}
     assert result["soil_temperature_deep"] == {"value": 27.8, "unit": "°C"}
+    assert result["soil_temperature_deeper"] == {"value": 25.1, "unit": "°C"}
     assert result["soil_moisture"] == {"value": 0.28, "unit": "m³/m³"}
     assert result["soil_moisture_deep"] == {"value": 0.31, "unit": "m³/m³"}
     assert result["humidity"] == {"value": 71, "unit": "%"}
@@ -561,6 +564,23 @@ def test_format_forecast_tolerates_missing_soil_temperature_deep():
     result = format_forecast(raw)
 
     assert result["soil_temperature_deep"]["value"] is None
+
+
+def test_format_forecast_tolerates_missing_soil_temperature_deeper():
+    """soil_temperature_18cm が current に無くても KeyError にしない。
+
+    soil_temperature_deep と同じ方針（実 API での応答未確認、Issue #309）。
+    """
+    raw = {
+        **STUB_RESPONSE,
+        "current": {
+            k: v for k, v in STUB_RESPONSE["current"].items() if k != "soil_temperature_18cm"
+        },
+    }
+
+    result = format_forecast(raw)
+
+    assert result["soil_temperature_deeper"]["value"] is None
 
 
 def test_format_forecast_rounds_pressure():
