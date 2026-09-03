@@ -17,6 +17,7 @@ import { LaundryDryness } from "./LaundryDryness";
 import { Evapotranspiration } from "./Evapotranspiration";
 import { SoilTemperature } from "./SoilTemperature";
 import { SoilTemperatureDeep } from "./SoilTemperatureDeep";
+import { SoilTemperatureDeeper } from "./SoilTemperatureDeeper";
 import { SoilMoisture } from "./SoilMoisture";
 import { SoilMoistureDeep } from "./SoilMoistureDeep";
 import { ObservedAt } from "./ObservedAt";
@@ -97,6 +98,7 @@ export const DISPLAY_ITEMS: DisplayItem[] = [
   { category: "降水・湿度", component: LaundryDryness, tier: "more" },
   { category: "降水・湿度", component: SoilTemperature, tier: "more" },
   { category: "降水・湿度", component: SoilTemperatureDeep, tier: "more" },
+  { category: "降水・湿度", component: SoilTemperatureDeeper, tier: "more" },
   { category: "降水・湿度", component: SoilMoisture, tier: "more" },
   { category: "降水・湿度", component: SoilMoistureDeep, tier: "more" },
   { category: "降水・湿度", component: Evapotranspiration, tier: "more" },

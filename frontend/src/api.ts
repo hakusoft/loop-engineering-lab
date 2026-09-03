@@ -48,6 +48,9 @@ export type WeatherResponse = {
   // 実 API での応答未確認の項目（PR #279 のレビュー参照）。取れないときは
   // value が null になるので、表示側で必ず null を扱う。
   soil_temperature_deep: { value: number | null; unit: string };
+  // 実 API での応答未確認の項目（soil_temperature_deep と同じ方針）。取れないときは
+  // value が null になるので、表示側で必ず null を扱う。
+  soil_temperature_deeper: { value: number | null; unit: string };
   soil_moisture: { value: number; unit: string };
   // 実 API での応答未確認の項目（PR #267 のレビュー参照）。取れないときは
   // value が null になるので、表示側で必ず null を扱う。

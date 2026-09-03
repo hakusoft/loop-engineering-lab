@@ -155,6 +155,7 @@ CURRENT_FIELDS = [
     "dew_point_2m",
     "soil_temperature_0cm",
     "soil_temperature_6cm",
+    "soil_temperature_18cm",
     "soil_moisture_0_to_1cm",
     "soil_moisture_1_to_3cm",
     "shortwave_radiation",
@@ -318,6 +319,12 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
             # 無ければ None を返す（#164 / #67-#68 と同型の KeyError を避ける）。
             "value": current.get("soil_temperature_6cm"),
             "unit": units.get("soil_temperature_6cm", "°C"),
+        },
+        "soil_temperature_deeper": {
+            # soil_temperature_18cm も同様に実 API での応答確認ができていないため
+            # .get() で読む（soil_temperature_deep と同じ方針）。
+            "value": current.get("soil_temperature_18cm"),
+            "unit": units.get("soil_temperature_18cm", "°C"),
         },
         "soil_moisture": {
             "value": current["soil_moisture_0_to_1cm"],
