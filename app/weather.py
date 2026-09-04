@@ -156,9 +156,12 @@ CURRENT_FIELDS = [
     "temperature_850hPa",
     "soil_temperature_0cm",
     "soil_temperature_6cm",
+    "soil_temperature_18cm",
     "soil_moisture_0_to_1cm",
     "soil_moisture_1_to_3cm",
     "shortwave_radiation",
+    "direct_radiation",
+    "diffuse_radiation",
     "snow_depth",
     "uv_index",
 ]
@@ -205,6 +208,7 @@ HOURLY_FIELDS = [
     "wind_direction_10m",
     "wind_speed_850hPa",
     "wind_direction_850hPa",
+    "wind_speed_80m",
     "uv_index",
     "visibility",
 ]
@@ -341,6 +345,12 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
             "value": current.get("soil_temperature_6cm"),
             "unit": units.get("soil_temperature_6cm", "°C"),
         },
+        "soil_temperature_deeper": {
+            # soil_temperature_18cm も同様に実 API での応答確認ができていないため
+            # .get() で読む（soil_temperature_deep と同じ方針）。
+            "value": current.get("soil_temperature_18cm"),
+            "unit": units.get("soil_temperature_18cm", "°C"),
+        },
         "soil_moisture": {
             "value": current["soil_moisture_0_to_1cm"],
             "unit": units.get("soil_moisture_0_to_1cm", "m³/m³"),
@@ -466,6 +476,14 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
         "solar_radiation": {
             "value": current["shortwave_radiation"],
             "unit": units.get("shortwave_radiation", "W/m²"),
+        },
+        "solar_radiation_direct": {
+            "value": current["direct_radiation"],
+            "unit": units.get("direct_radiation", "W/m²"),
+        },
+        "solar_radiation_diffuse": {
+            "value": current["diffuse_radiation"],
+            "unit": units.get("diffuse_radiation", "W/m²"),
         },
         "solar_radiation_sum": {
             "value": daily["shortwave_radiation_sum"][0],
@@ -674,6 +692,7 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
             _series("wind_direction_10m", "風向き", "°"),
             _series("wind_speed_850hPa", "上空の風速", "km/h"),
             _series("wind_direction_850hPa", "上空の風向き", "°"),
+            _series("wind_speed_80m", "上空の風速(80m)", "km/h"),
             _series("uv_index", "紫外線指数", ""),
             _series("visibility", "視程", "m"),
         ],

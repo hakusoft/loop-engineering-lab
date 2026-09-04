@@ -1,11 +1,17 @@
-import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
+import { lazy, Suspense, useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import { fetchSeries, fetchWeather, type SeriesResponse, type WeatherResponse } from "./api";
 import { CATEGORY_ORDER, DISPLAY_ITEMS } from "./displayItems";
 import { LocationName } from "./LocationName";
 import { DailySummary } from "./DailySummary";
 import { HourlyConditions } from "./HourlyConditions";
 import { ThunderstormOutlook } from "./ThunderstormOutlook";
-import { TemperatureChart } from "./TemperatureChart";
+
+// グラフの描画に使う recharts はサイズが大きく、他の項目より先に初回バンドルへ
+// 含めると開いた瞬間の読み込みを遅くする要因になる（Issue #308）。グラフだけ
+// 別チャンクに分け、必要になってから読み込む。
+const TemperatureChart = lazy(() =>
+  import("./TemperatureChart").then((m) => ({ default: m.TemperatureChart })),
+);
 
 type State =
   | { status: "loading" }
@@ -271,7 +277,9 @@ export default function App() {
       )}
       {state.status === "ready" && (
         <>
-          <TemperatureChart data={state.data} isDay={effectiveIsDay} />
+          <Suspense fallback={<p>グラフを読み込み中…</p>}>
+            <TemperatureChart data={state.data} isDay={effectiveIsDay} />
+          </Suspense>
           <HourlyConditions data={state.data} />
         </>
       )}

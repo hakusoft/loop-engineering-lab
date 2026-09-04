@@ -17,6 +17,7 @@ import { LaundryDryness } from "./LaundryDryness";
 import { Evapotranspiration } from "./Evapotranspiration";
 import { SoilTemperature } from "./SoilTemperature";
 import { SoilTemperatureDeep } from "./SoilTemperatureDeep";
+import { SoilTemperatureDeeper } from "./SoilTemperatureDeeper";
 import { SoilMoisture } from "./SoilMoisture";
 import { SoilMoistureDeep } from "./SoilMoistureDeep";
 import { ObservedAt } from "./ObservedAt";
@@ -31,6 +32,8 @@ import { Pressure } from "./Pressure";
 import { SeaLevelPressure } from "./SeaLevelPressure";
 import { SnowDepth } from "./SnowDepth";
 import { SolarRadiation } from "./SolarRadiation";
+import { SolarRadiationDirect } from "./SolarRadiationDirect";
+import { SolarRadiationDiffuse } from "./SolarRadiationDiffuse";
 import { SolarRadiationSum } from "./SolarRadiationSum";
 import { SunTimes } from "./SunTimes";
 import { SunshineDuration } from "./SunshineDuration";
@@ -99,6 +102,7 @@ export const DISPLAY_ITEMS: DisplayItem[] = [
   { category: "降水・湿度", component: LaundryDryness, tier: "more" },
   { category: "降水・湿度", component: SoilTemperature, tier: "more" },
   { category: "降水・湿度", component: SoilTemperatureDeep, tier: "more" },
+  { category: "降水・湿度", component: SoilTemperatureDeeper, tier: "more" },
   { category: "降水・湿度", component: SoilMoisture, tier: "more" },
   { category: "降水・湿度", component: SoilMoistureDeep, tier: "more" },
   { category: "降水・湿度", component: Evapotranspiration, tier: "more" },
@@ -111,6 +115,8 @@ export const DISPLAY_ITEMS: DisplayItem[] = [
   { category: "環境", component: Visibility, tier: "primary" },
   { category: "環境", component: FreezingLevel, tier: "more" },
   { category: "環境", component: SolarRadiation, tier: "more" },
+  { category: "環境", component: SolarRadiationDirect, tier: "more" },
+  { category: "環境", component: SolarRadiationDiffuse, tier: "more" },
   { category: "環境", component: SolarRadiationSum, tier: "more" },
   { category: "環境", component: UvIndex, tier: "more" },
   { category: "環境", component: Elevation, tier: "more" },

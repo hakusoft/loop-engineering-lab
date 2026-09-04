@@ -28,6 +28,7 @@ function toChartData(data: SeriesResponse) {
   const windDirection = data.series.find((s) => s.label === "風向き");
   const upperWindSpeed = data.series.find((s) => s.label === "上空の風速");
   const upperWindDirection = data.series.find((s) => s.label === "上空の風向き");
+  const upperWindSpeed80m = data.series.find((s) => s.label === "上空の風速(80m)");
   const uvIndex = data.series.find((s) => s.label === "紫外線指数");
   const visibility = data.series.find((s) => s.label === "視程");
   if (!temperature) {
@@ -45,6 +46,7 @@ function toChartData(data: SeriesResponse) {
       windDirection: undefined,
       upperWindSpeed: undefined,
       upperWindDirection: undefined,
+      upperWindSpeed80m: undefined,
       uvIndex: undefined,
       visibility: undefined,
     };
@@ -65,6 +67,7 @@ function toChartData(data: SeriesResponse) {
     windDirection: windDirection?.values[i] ?? null,
     upperWindSpeed: upperWindSpeed?.values[i] ?? null,
     upperWindDirection: upperWindDirection?.values[i] ?? null,
+    upperWindSpeed80m: upperWindSpeed80m?.values[i] ?? null,
     uvIndex: uvIndex?.values[i] ?? null,
     visibility: visibility?.values[i] ?? null,
   }));
@@ -82,6 +85,7 @@ function toChartData(data: SeriesResponse) {
     windDirection,
     upperWindSpeed,
     upperWindDirection,
+    upperWindSpeed80m,
     uvIndex,
     visibility,
   };
@@ -199,11 +203,44 @@ const SECONDARY_SERIES = [
   { key: "windDirection", label: "風向き" },
   { key: "upperWindSpeed", label: "上空の風速" },
   { key: "upperWindDirection", label: "上空の風向き" },
+  { key: "upperWindSpeed80m", label: "上空の風速(80m)" },
   { key: "uvIndex", label: "紫外線指数" },
   { key: "visibility", label: "視程" },
 ] as const;
 
 type SecondarySeriesKey = (typeof SECONDARY_SERIES)[number]["key"];
+
+const SECONDARY_SERIES_KEYS = new Set<string>(SECONDARY_SERIES.map(({ key }) => key));
+
+// チェックボックスの選択状態を保存するキー。毎回同じ組み合わせを選び直すのが
+// 面倒という声を受け、次回表示時にも引き継ぐ（Issue #310）。
+const VISIBLE_SECONDARY_STORAGE_KEY = "loop-engineering-lab:temperature-chart-visible-secondary";
+
+// localStorage が使えない環境（プライベートブラウジング等）でも落ちないようにする。
+// 保存が無い、あるいは壊れている場合は降水確率のみ ON のデフォルトに戻す。
+function readStoredVisibleSecondary(): Set<SecondarySeriesKey> | undefined {
+  try {
+    const stored = localStorage.getItem(VISIBLE_SECONDARY_STORAGE_KEY);
+    if (stored === null) {
+      return undefined;
+    }
+    const parsed: unknown = JSON.parse(stored);
+    if (!Array.isArray(parsed)) {
+      return undefined;
+    }
+    return new Set(parsed.filter((key): key is SecondarySeriesKey => SECONDARY_SERIES_KEYS.has(key)));
+  } catch {
+    return undefined;
+  }
+}
+
+function writeStoredVisibleSecondary(keys: Set<SecondarySeriesKey>) {
+  try {
+    localStorage.setItem(VISIBLE_SECONDARY_STORAGE_KEY, JSON.stringify([...keys]));
+  } catch {
+    // 保存できなくても表示は続行する。
+  }
+}
 
 const NARROW_VIEWPORT_QUERY = "(max-width: 480px)";
 
@@ -239,6 +276,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     windDirection,
     upperWindSpeed,
     upperWindDirection,
+    upperWindSpeed80m,
     uvIndex,
     visibility,
   } = toChartData(data);
@@ -253,9 +291,10 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
   const colors = chartColors(isDay);
 
   // 降水確率は「傘が要るかすぐ分かりたい」という要望から、他の副系列と違い
-  // デフォルトで表示する（Issue #272）。
+  // デフォルトで表示する（Issue #272）。保存された選択があればそちらを使う
+  // （Issue #310）。
   const [visibleSecondary, setVisibleSecondary] = useState<Set<SecondarySeriesKey>>(
-    () => new Set(["precipitationProbability"]),
+    () => readStoredVisibleSecondary() ?? new Set(["precipitationProbability"]),
   );
   const availableSecondary = useMemo(
     () =>
@@ -279,6 +318,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             return Boolean(upperWindSpeed);
           case "upperWindDirection":
             return Boolean(upperWindDirection);
+          case "upperWindSpeed80m":
+            return Boolean(upperWindSpeed80m);
           case "uvIndex":
             return Boolean(uvIndex);
           case "visibility":
@@ -295,6 +336,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
       windDirection,
       upperWindSpeed,
       upperWindDirection,
+      upperWindSpeed80m,
       uvIndex,
       visibility,
     ],
@@ -308,6 +350,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
       } else {
         next.add(key);
       }
+      writeStoredVisibleSecondary(next);
       return next;
     });
   }
@@ -321,6 +364,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
   const showWindDirection = windDirection && visibleSecondary.has("windDirection");
   const showUpperWindSpeed = upperWindSpeed && visibleSecondary.has("upperWindSpeed");
   const showUpperWindDirection = upperWindDirection && visibleSecondary.has("upperWindDirection");
+  const showUpperWindSpeed80m = upperWindSpeed80m && visibleSecondary.has("upperWindSpeed80m");
   const showUvIndex = uvIndex && visibleSecondary.has("uvIndex");
   const showVisibility = visibility && visibleSecondary.has("visibility");
 
@@ -435,6 +479,14 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
           // 上空の風向きも度数（0〜360）固定なので、地上の風向きとは別軸にする。
           <YAxis yAxisId="upperWindDirection" hide domain={[0, 360]} />
         )}
+        {showUpperWindSpeed80m && (
+          // 80m 高度の風速も850hPaの風速とスケールが異なるため、軸を分ける。
+          <YAxis
+            yAxisId="upperWindSpeed80m"
+            hide
+            domain={[0, Math.max(upperWindSpeed80m!.max ?? 0, 1) + 1]}
+          />
+        )}
         {showPressure && (
           // 気圧も他系列と単位・スケールが違うので、独立した軸にする。
           <YAxis
@@ -482,9 +534,11 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
                                     ? upperWindSpeed?.unit
                                     : name === "上空の風向き"
                                       ? upperWindDirection?.unit
-                                      : name === "視程"
-                                        ? visibility?.unit
-                                        : uvIndex?.unit;
+                                      : name === "上空の風速(80m)"
+                                        ? upperWindSpeed80m?.unit
+                                        : name === "視程"
+                                          ? visibility?.unit
+                                          : uvIndex?.unit;
             return [`${v}${unit ?? ""}`, name];
           }}
         />
@@ -639,6 +693,20 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             dot={false}
             isAnimationActive={false}
             name="上空の風向き"
+            connectNulls
+          />
+        )}
+        {showUpperWindSpeed80m && (
+          <Line
+            yAxisId="upperWindSpeed80m"
+            type="monotone"
+            dataKey="upperWindSpeed80m"
+            stroke="#9c36b5"
+            strokeWidth={2}
+            strokeDasharray="4 2"
+            dot={false}
+            isAnimationActive={false}
+            name="上空の風速(80m)"
             connectNulls
           />
         )}

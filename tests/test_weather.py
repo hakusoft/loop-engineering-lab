@@ -55,9 +55,12 @@ STUB_RESPONSE = {
         "temperature_850hPa": "°C",
         "soil_temperature_0cm": "°C",
         "soil_temperature_6cm": "°C",
+        "soil_temperature_18cm": "°C",
         "soil_moisture_0_to_1cm": "m³/m³",
         "soil_moisture_1_to_3cm": "m³/m³",
         "shortwave_radiation": "W/m²",
+        "direct_radiation": "W/m²",
+        "diffuse_radiation": "W/m²",
         "snow_depth": "m",
         "uv_index": "",
     },
@@ -87,9 +90,12 @@ STUB_RESPONSE = {
         "temperature_850hPa": 15.9,
         "soil_temperature_0cm": 30.5,
         "soil_temperature_6cm": 27.8,
+        "soil_temperature_18cm": 25.1,
         "soil_moisture_0_to_1cm": 0.28,
         "soil_moisture_1_to_3cm": 0.31,
         "shortwave_radiation": 412.0,
+        "direct_radiation": 298.0,
+        "diffuse_radiation": 114.0,
         "snow_depth": 0.0,
         "uv_index": 5.2,
     },
@@ -160,6 +166,7 @@ def test_format_forecast_maps_values_and_units():
     assert result["temperature_diff_ground_aloft"]["value"] == pytest.approx(12.5)
     assert result["soil_temperature"] == {"value": 30.5, "unit": "°C"}
     assert result["soil_temperature_deep"] == {"value": 27.8, "unit": "°C"}
+    assert result["soil_temperature_deeper"] == {"value": 25.1, "unit": "°C"}
     assert result["soil_moisture"] == {"value": 0.28, "unit": "m³/m³"}
     assert result["soil_moisture_deep"] == {"value": 0.31, "unit": "m³/m³"}
     assert result["humidity"] == {"value": 71, "unit": "%"}
@@ -179,6 +186,8 @@ def test_format_forecast_maps_values_and_units():
     assert result["visibility"] == {"value": 24140.0, "unit": "m"}
     assert result["freezing_level_height"] == {"value": 4800.0, "unit": "m"}
     assert result["solar_radiation"] == {"value": 412.0, "unit": "W/m²"}
+    assert result["solar_radiation_direct"] == {"value": 298.0, "unit": "W/m²"}
+    assert result["solar_radiation_diffuse"] == {"value": 114.0, "unit": "W/m²"}
     assert result["solar_radiation_sum"] == {"value": 23.4, "unit": "MJ/m²"}
     assert result["snow_depth"] == {"value": 0.0, "unit": "m"}
     assert result["uv_index"] == {"value": 5.2, "unit": ""}
@@ -296,6 +305,7 @@ STUB_SERIES = {
         "wind_direction_10m": "°",
         "wind_speed_850hPa": "km/h",
         "wind_direction_850hPa": "°",
+        "wind_speed_80m": "km/h",
         "uv_index": "",
         "visibility": "m",
     },
@@ -315,6 +325,7 @@ STUB_SERIES = {
         "wind_direction_10m": [200.0, 210.0, 220.0],
         "wind_speed_850hPa": [24.5, 26.1, 28.3],
         "wind_direction_850hPa": [230.0, 240.0, 250.0],
+        "wind_speed_80m": [18.2, 19.5, 20.1],
         "uv_index": [0.2, 1.5, 3.1],
         "visibility": [22000.0, 18500.0, 9200.0],
     },
@@ -343,6 +354,7 @@ def test_series_keeps_units_separate_for_split_axes():
     cloud_cover = by_label["雲量"]
     wind_direction = by_label["風向き"]
     upper_wind_direction = by_label["上空の風向き"]
+    upper_wind_speed_80m = by_label["上空の風速(80m)"]
     uv_index = by_label["紫外線指数"]
     visibility = by_label["視程"]
 
@@ -366,6 +378,8 @@ def test_series_keeps_units_separate_for_split_axes():
     assert wind_direction["unit"] == "°"
     assert upper_wind_direction["label"] == "上空の風向き"
     assert upper_wind_direction["unit"] == "°"
+    assert upper_wind_speed_80m["label"] == "上空の風速(80m)"
+    assert upper_wind_speed_80m["unit"] == "km/h"
     assert uv_index["label"] == "紫外線指数"
     assert uv_index["unit"] == ""
     assert visibility["label"] == "視程"
@@ -386,6 +400,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     cloud_cover = by_label["雲量"]
     wind_direction = by_label["風向き"]
     upper_wind_direction = by_label["上空の風向き"]
+    upper_wind_speed_80m = by_label["上空の風速(80m)"]
     uv_index = by_label["紫外線指数"]
     visibility = by_label["視程"]
 
@@ -399,6 +414,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     assert (cloud_cover["min"], cloud_cover["max"]) == (20, 90)
     assert (wind_direction["min"], wind_direction["max"]) == (200.0, 220.0)
     assert (upper_wind_direction["min"], upper_wind_direction["max"]) == (230.0, 250.0)
+    assert (upper_wind_speed_80m["min"], upper_wind_speed_80m["max"]) == (18.2, 20.1)
     assert (uv_index["min"], uv_index["max"]) == (0.2, 3.1)
     assert (visibility["min"], visibility["max"]) == (9200.0, 22000.0)
 
@@ -596,6 +612,23 @@ def test_format_forecast_tolerates_missing_soil_temperature_deep():
     result = format_forecast(raw)
 
     assert result["soil_temperature_deep"]["value"] is None
+
+
+def test_format_forecast_tolerates_missing_soil_temperature_deeper():
+    """soil_temperature_18cm が current に無くても KeyError にしない。
+
+    soil_temperature_deep と同じ方針（実 API での応答未確認、Issue #309）。
+    """
+    raw = {
+        **STUB_RESPONSE,
+        "current": {
+            k: v for k, v in STUB_RESPONSE["current"].items() if k != "soil_temperature_18cm"
+        },
+    }
+
+    result = format_forecast(raw)
+
+    assert result["soil_temperature_deeper"]["value"] is None
 
 
 def test_format_forecast_rounds_pressure():
@@ -928,6 +961,7 @@ def test_hourly_series_are_all_requested_fields():
         "風向き": "wind_direction_10m",
         "上空の風速": "wind_speed_850hPa",
         "上空の風向き": "wind_direction_850hPa",
+        "上空の風速(80m)": "wind_speed_80m",
         "紫外線指数": "uv_index",
         "視程": "visibility",
     }
