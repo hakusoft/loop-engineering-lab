@@ -38,6 +38,7 @@ import { SunshineDuration } from "./SunshineDuration";
 import { TemperatureMean } from "./TemperatureMean";
 import { TemperatureRange } from "./TemperatureRange";
 import { UvIndex } from "./UvIndex";
+import { VaporPressureDeficit } from "./VaporPressureDeficit";
 import { FreezingLevel } from "./FreezingLevel";
 import { Visibility } from "./Visibility";
 import { Wind } from "./Wind";
@@ -102,6 +103,7 @@ export const DISPLAY_ITEMS: DisplayItem[] = [
   { category: "降水・湿度", component: SoilMoisture, tier: "more" },
   { category: "降水・湿度", component: SoilMoistureDeep, tier: "more" },
   { category: "降水・湿度", component: Evapotranspiration, tier: "more" },
+  { category: "降水・湿度", component: VaporPressureDeficit, tier: "more" },
   { category: "降水・湿度", component: GardenWatering, tier: "more" },
 
   { category: "環境", component: Pressure, tier: "primary" },
