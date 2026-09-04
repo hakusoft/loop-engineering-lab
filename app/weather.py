@@ -153,6 +153,7 @@ CURRENT_FIELDS = [
     "visibility",
     "freezing_level_height",
     "dew_point_2m",
+    "temperature_850hPa",
     "vapour_pressure_deficit",
     "soil_temperature_0cm",
     "soil_temperature_6cm",
@@ -207,6 +208,7 @@ HOURLY_FIELDS = [
     "wind_speed_10m",
     "wind_direction_10m",
     "wind_speed_850hPa",
+    "wind_direction_850hPa",
     "wind_speed_80m",
     "uv_index",
     "visibility",
@@ -268,6 +270,12 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
     daily = raw["daily"]
     daily_units = raw.get("daily_units", {})
 
+    # temperature_850hPa は実 API での応答確認ができていないため、地上気温との
+    # 差を計算する前に None かどうかを見ておく。None のまま引き算すると
+    # TypeError になる（temperature_aloft 自体は .get() の結果をそのまま
+    # 返しているだけなので影響しない）。
+    temperature_aloft_value = current.get("temperature_850hPa")
+
     return {
         "location_name": DEFAULT_LOCATION_NAME,
         "observed_at": current["time"],
@@ -310,6 +318,21 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
         "apparent_temperature_mean": {
             "value": daily["apparent_temperature_mean"][0],
             "unit": daily_units.get("apparent_temperature_mean", "°C"),
+        },
+        "temperature_aloft": {
+            # temperature_850hPa は今回新規に要求した項目で、実 API での応答確認が
+            # できていない（フィクスチャ未更新）。他の新規項目と同様 .get() で読み、
+            # 無ければ None を返す（#164 / #67-#68 と同型の KeyError を避ける）。
+            "value": temperature_aloft_value,
+            "unit": units.get("temperature_850hPa", "°C"),
+        },
+        "temperature_diff_ground_aloft": {
+            "value": (
+                current["temperature_2m"] - temperature_aloft_value
+                if temperature_aloft_value is not None
+                else None
+            ),
+            "unit": "°C",
         },
         "vapor_pressure_deficit": {
             "value": current["vapour_pressure_deficit"],
@@ -673,6 +696,7 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
             _series("wind_speed_10m", "風速", "km/h"),
             _series("wind_direction_10m", "風向き", "°"),
             _series("wind_speed_850hPa", "上空の風速", "km/h"),
+            _series("wind_direction_850hPa", "上空の風向き", "°"),
             _series("wind_speed_80m", "上空の風速(80m)", "km/h"),
             _series("uv_index", "紫外線指数", ""),
             _series("visibility", "視程", "m"),
