@@ -558,6 +558,27 @@ def test_format_forecast_tolerates_missing_soil_moisture_deep():
     assert result["soil_moisture_deep"]["value"] is None
 
 
+def test_format_forecast_tolerates_missing_temperature_850hpa():
+    """temperature_850hPa が current に無くても TypeError にしない。
+
+    この項目は実 API での応答を確認できないまま追加した（Issue #311 / PR #315
+    のレビュー参照）。temperature_diff_ground_aloft は地上気温との差分を計算する
+    ため、None のまま引き算すると TypeError: float - NoneType になっていた。
+    temperature_aloft・temperature_diff_ground_aloft のいずれも None を返す。
+    """
+    raw = {
+        **STUB_RESPONSE,
+        "current": {
+            k: v for k, v in STUB_RESPONSE["current"].items() if k != "temperature_850hPa"
+        },
+    }
+
+    result = format_forecast(raw)
+
+    assert result["temperature_aloft"]["value"] is None
+    assert result["temperature_diff_ground_aloft"]["value"] is None
+
+
 def test_format_forecast_tolerates_missing_soil_temperature_deep():
     """soil_temperature_6cm が current に無くても KeyError にしない。
 

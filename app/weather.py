@@ -265,6 +265,12 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
     daily = raw["daily"]
     daily_units = raw.get("daily_units", {})
 
+    # temperature_850hPa は実 API での応答確認ができていないため、地上気温との
+    # 差を計算する前に None かどうかを見ておく。None のまま引き算すると
+    # TypeError になる（temperature_aloft 自体は .get() の結果をそのまま
+    # 返しているだけなので影響しない）。
+    temperature_aloft_value = current.get("temperature_850hPa")
+
     return {
         "location_name": DEFAULT_LOCATION_NAME,
         "observed_at": current["time"],
@@ -312,11 +318,15 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
             # temperature_850hPa は今回新規に要求した項目で、実 API での応答確認が
             # できていない（フィクスチャ未更新）。他の新規項目と同様 .get() で読み、
             # 無ければ None を返す（#164 / #67-#68 と同型の KeyError を避ける）。
-            "value": current.get("temperature_850hPa"),
+            "value": temperature_aloft_value,
             "unit": units.get("temperature_850hPa", "°C"),
         },
         "temperature_diff_ground_aloft": {
-            "value": current["temperature_2m"] - current.get("temperature_850hPa"),
+            "value": (
+                current["temperature_2m"] - temperature_aloft_value
+                if temperature_aloft_value is not None
+                else None
+            ),
             "unit": "°C",
         },
         "soil_temperature": {
