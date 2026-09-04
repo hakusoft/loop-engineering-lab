@@ -50,6 +50,7 @@ STUB_RESPONSE = {
         "visibility": "m",
         "freezing_level_height": "m",
         "dew_point_2m": "°C",
+        "vapour_pressure_deficit": "kPa",
         "soil_temperature_0cm": "°C",
         "soil_temperature_6cm": "°C",
         "soil_temperature_18cm": "°C",
@@ -84,6 +85,7 @@ STUB_RESPONSE = {
         "visibility": 24140.0,
         "freezing_level_height": 4800.0,
         "dew_point_2m": 22.6,
+        "vapour_pressure_deficit": 1.42,
         "soil_temperature_0cm": 30.5,
         "soil_temperature_6cm": 27.8,
         "soil_temperature_18cm": 25.1,
@@ -157,6 +159,7 @@ def test_format_forecast_maps_values_and_units():
     assert result["temperature"] == {"value": 28.4, "unit": "°C"}
     assert result["apparent_temperature"] == {"value": 33.1, "unit": "°C"}
     assert result["dew_point"] == {"value": 22.6, "unit": "°C"}
+    assert result["vapor_pressure_deficit"] == {"value": 1.42, "unit": "kPa"}
     assert result["soil_temperature"] == {"value": 30.5, "unit": "°C"}
     assert result["soil_temperature_deep"] == {"value": 27.8, "unit": "°C"}
     assert result["soil_temperature_deeper"] == {"value": 25.1, "unit": "°C"}

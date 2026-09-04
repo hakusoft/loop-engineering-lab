@@ -153,6 +153,7 @@ CURRENT_FIELDS = [
     "visibility",
     "freezing_level_height",
     "dew_point_2m",
+    "vapour_pressure_deficit",
     "soil_temperature_0cm",
     "soil_temperature_6cm",
     "soil_temperature_18cm",
@@ -309,6 +310,10 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
         "apparent_temperature_mean": {
             "value": daily["apparent_temperature_mean"][0],
             "unit": daily_units.get("apparent_temperature_mean", "°C"),
+        },
+        "vapor_pressure_deficit": {
+            "value": current["vapour_pressure_deficit"],
+            "unit": units.get("vapour_pressure_deficit", "kPa"),
         },
         "soil_temperature": {
             "value": current["soil_temperature_0cm"],
