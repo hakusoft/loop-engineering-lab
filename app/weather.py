@@ -154,6 +154,7 @@ CURRENT_FIELDS = [
     "freezing_level_height",
     "dew_point_2m",
     "temperature_850hPa",
+    "vapour_pressure_deficit",
     "soil_temperature_0cm",
     "soil_temperature_6cm",
     "soil_temperature_18cm",
@@ -332,6 +333,10 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
                 else None
             ),
             "unit": "°C",
+        },
+        "vapor_pressure_deficit": {
+            "value": current["vapour_pressure_deficit"],
+            "unit": units.get("vapour_pressure_deficit", "kPa"),
         },
         "soil_temperature": {
             "value": current["soil_temperature_0cm"],

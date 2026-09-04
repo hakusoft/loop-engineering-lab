@@ -53,6 +53,7 @@ STUB_RESPONSE = {
         "freezing_level_height": "m",
         "dew_point_2m": "°C",
         "temperature_850hPa": "°C",
+        "vapour_pressure_deficit": "kPa",
         "soil_temperature_0cm": "°C",
         "soil_temperature_6cm": "°C",
         "soil_temperature_18cm": "°C",
@@ -88,6 +89,7 @@ STUB_RESPONSE = {
         "freezing_level_height": 4800.0,
         "dew_point_2m": 22.6,
         "temperature_850hPa": 15.9,
+        "vapour_pressure_deficit": 1.42,
         "soil_temperature_0cm": 30.5,
         "soil_temperature_6cm": 27.8,
         "soil_temperature_18cm": 25.1,
@@ -164,6 +166,7 @@ def test_format_forecast_maps_values_and_units():
     assert result["temperature_aloft"] == {"value": 15.9, "unit": "°C"}
     assert result["temperature_diff_ground_aloft"]["unit"] == "°C"
     assert result["temperature_diff_ground_aloft"]["value"] == pytest.approx(12.5)
+    assert result["vapor_pressure_deficit"] == {"value": 1.42, "unit": "kPa"}
     assert result["soil_temperature"] == {"value": 30.5, "unit": "°C"}
     assert result["soil_temperature_deep"] == {"value": 27.8, "unit": "°C"}
     assert result["soil_temperature_deeper"] == {"value": 25.1, "unit": "°C"}
