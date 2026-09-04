@@ -77,6 +77,8 @@ export type WeatherResponse = {
   showers: { value: number; unit: string };
   snowfall: { value: number; unit: string };
   solar_radiation: { value: number; unit: string };
+  solar_radiation_direct: { value: number; unit: string };
+  solar_radiation_diffuse: { value: number; unit: string };
   solar_radiation_sum: { value: number; unit: string };
   wind_speed: { value: number; unit: string };
   wind_direction: { value: number; unit: string; compass: string };
