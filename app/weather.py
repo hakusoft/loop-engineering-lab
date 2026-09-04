@@ -159,6 +159,8 @@ CURRENT_FIELDS = [
     "soil_moisture_0_to_1cm",
     "soil_moisture_1_to_3cm",
     "shortwave_radiation",
+    "direct_radiation",
+    "diffuse_radiation",
     "snow_depth",
     "uv_index",
 ]
@@ -451,6 +453,14 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
         "solar_radiation": {
             "value": current["shortwave_radiation"],
             "unit": units.get("shortwave_radiation", "W/m²"),
+        },
+        "solar_radiation_direct": {
+            "value": current["direct_radiation"],
+            "unit": units.get("direct_radiation", "W/m²"),
+        },
+        "solar_radiation_diffuse": {
+            "value": current["diffuse_radiation"],
+            "unit": units.get("diffuse_radiation", "W/m²"),
         },
         "solar_radiation_sum": {
             "value": daily["shortwave_radiation_sum"][0],
