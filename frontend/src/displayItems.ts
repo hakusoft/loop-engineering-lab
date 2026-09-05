@@ -11,6 +11,7 @@ import { DaylightDuration } from "./DaylightDuration";
 import { DewPoint } from "./DewPoint";
 import { Elevation } from "./Elevation";
 import { GardenWatering } from "./GardenWatering";
+import { HeatStrokeRisk } from "./HeatStrokeRisk";
 import { Humidity } from "./Humidity";
 import { HumidityRange } from "./HumidityRange";
 import { LaundryDryness } from "./LaundryDryness";
@@ -80,6 +81,7 @@ export const DISPLAY_ITEMS: DisplayItem[] = [
   { category: "気温", component: Condition, tier: "primary" },
   { category: "気温", component: CurrentTemperature, tier: "primary" },
   { category: "気温", component: ApparentTemperature, tier: "more" },
+  { category: "気温", component: HeatStrokeRisk, tier: "more" },
   { category: "気温", component: ApparentTemperatureRange, tier: "more" },
   { category: "気温", component: ApparentTemperatureMean, tier: "more" },
   { category: "気温", component: TemperatureRange, tier: "primary" },
