@@ -113,6 +113,16 @@ def _round_humidity(value: float | None) -> float | None:
     return value if value is None else round(value, HUMIDITY_PRECISION)
 
 
+def _clamp_uv_index(value: float | None) -> float | None:
+    """紫外線指数の下限を0にする。
+
+    Open-Meteo は日の出・日の入り前後の時間帯で、補間によりごく小さい負の値
+    （例: -0.05）を返すことがある。紫外線指数は定義上0未満にならないため、
+    ここで補正する。欠測（None）はそのまま返す（_round_pressure と同じ方針）。
+    """
+    return value if value is None else max(value, 0.0)
+
+
 def _daylight_duration_hours(sunrise: str, sunset: str) -> float:
     """sunrise / sunset（ISO8601）から可照時間を時間単位で計算する。"""
     return (datetime.fromisoformat(sunset) - datetime.fromisoformat(sunrise)).total_seconds() / 3600
@@ -499,11 +509,11 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
             "unit": units.get("snow_depth", "m"),
         },
         "uv_index": {
-            "value": current["uv_index"],
+            "value": _clamp_uv_index(current["uv_index"]),
             "unit": units.get("uv_index", ""),
         },
         "uv_index_max": {
-            "value": daily["uv_index_max"][0],
+            "value": _clamp_uv_index(daily["uv_index_max"][0]),
             "unit": daily_units.get("uv_index_max", ""),
         },
         "sunshine_duration": {
@@ -640,6 +650,9 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
     hourly = raw["hourly"]
     units = raw.get("hourly_units", {})
     timestamps = hourly["time"]
+
+    if "uv_index" in hourly:
+        hourly["uv_index"] = [_clamp_uv_index(v) for v in hourly["uv_index"]]
 
     def _series(key: str, label: str, default_unit: str) -> dict[str, Any]:
         values = hourly[key]

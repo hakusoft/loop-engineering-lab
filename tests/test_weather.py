@@ -15,6 +15,7 @@ from app.weather import (
     CURRENT_FIELDS,
     DAILY_FIELDS,
     HOURLY_FIELDS,
+    _clamp_uv_index,
     _compass_direction,
     _daylight_duration_hours,
     _round_coordinate,
@@ -649,6 +650,45 @@ def test_format_forecast_rounds_pressure():
 
     assert result["pressure"] == {"value": 1008.2, "unit": "hPa"}
     assert result["sea_level_pressure"] == {"value": 1012.6, "unit": "hPa"}
+
+
+def test_clamp_uv_index_floors_negative_values_to_zero():
+    """Open-Meteo は日の出・日の入り前後でごく小さい負の値を返すことがある。"""
+    assert _clamp_uv_index(-0.05) == 0.0
+
+
+def test_clamp_uv_index_passes_through_positive_values():
+    assert _clamp_uv_index(5.2) == 5.2
+
+
+def test_clamp_uv_index_passes_through_none():
+    assert _clamp_uv_index(None) is None
+
+
+def test_format_forecast_clamps_negative_uv_index():
+    """紫外線指数が負の値で返ってきても0以上に補正する。"""
+    raw = {
+        **STUB_RESPONSE,
+        "current": {**STUB_RESPONSE["current"], "uv_index": -0.05},
+        "daily": {**STUB_RESPONSE["daily"], "uv_index_max": [-0.01]},
+    }
+
+    result = format_forecast(raw)
+
+    assert result["uv_index"] == {"value": 0.0, "unit": ""}
+    assert result["uv_index_max"] == {"value": 0.0, "unit": ""}
+
+
+def test_format_hourly_series_clamps_negative_uv_index():
+    """紫外線指数の系列も負の値を0に補正し、min/maxの計算にも反映する。"""
+    hourly = {**STUB_SERIES["hourly"], "uv_index": [-0.05, 0.2, 1.5]}
+    raw = {**STUB_SERIES, "hourly": hourly}
+
+    result = format_hourly_series(raw)
+
+    uv_index = next(s for s in result["series"] if s["label"] == "紫外線指数")
+    assert uv_index["values"] == [0.0, 0.2, 1.5]
+    assert uv_index["min"] == 0.0
 
 
 def test_round_wind_speed_rounds_to_one_decimal_place():
