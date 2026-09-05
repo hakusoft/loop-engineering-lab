@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { SeriesResponse } from "./api";
 import { iconForWeatherCode } from "./weatherIcons";
 
@@ -29,34 +30,48 @@ export function toHourlyConditionCells(data: SeriesResponse): HourlyConditionCel
 
 export function HourlyConditions({ data }: { data: SeriesResponse }) {
   const cells = toHourlyConditionCells(data);
+  // title 属性はホバー前提でスマホのタップでは出ないため、タップでも見えるよう
+  // 選択中のセルの説明を別途表示する（トグルで開閉）。
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   if (cells.length === 0) return null;
 
+  const selected = selectedIndex !== null ? cells[selectedIndex] : undefined;
+
   return (
-    <div
-      style={{
-        display: "flex",
-        gap: 4,
-        overflowX: "auto",
-        margin: "8px 0 0",
-        paddingBottom: 4,
-      }}
-    >
-      {cells.map((cell, i) => (
-        <div
-          key={i}
-          title={cell.description}
-          style={{
-            flex: "0 0 auto",
-            minWidth: 44,
-            textAlign: "center",
-            fontSize: 12,
-            color: "var(--text-secondary)",
-          }}
-        >
-          <div style={{ fontSize: 18, lineHeight: 1.4 }}>{cell.icon ?? "—"}</div>
-          <div>{cell.time}</div>
+    <div>
+      <div
+        style={{
+          display: "flex",
+          gap: 4,
+          overflowX: "auto",
+          margin: "8px 0 0",
+          paddingBottom: 4,
+        }}
+      >
+        {cells.map((cell, i) => (
+          <div
+            key={i}
+            title={cell.description}
+            onClick={() => setSelectedIndex(i === selectedIndex ? null : i)}
+            style={{
+              flex: "0 0 auto",
+              minWidth: 44,
+              textAlign: "center",
+              fontSize: 12,
+              color: "var(--text-secondary)",
+              cursor: "pointer",
+            }}
+          >
+            <div style={{ fontSize: 18, lineHeight: 1.4 }}>{cell.icon ?? "—"}</div>
+            <div>{cell.time}</div>
+          </div>
+        ))}
+      </div>
+      {selected && (
+        <div style={{ fontSize: 12, color: "var(--text-secondary)", margin: "4px 0 0" }}>
+          {selected.time}: {selected.description}
         </div>
-      ))}
+      )}
     </div>
   );
 }
