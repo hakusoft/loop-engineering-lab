@@ -37,6 +37,10 @@ export type WeatherResponse = {
   apparent_temperature_max: { value: number; unit: string };
   apparent_temperature_min: { value: number; unit: string };
   apparent_temperature_mean: { value: number; unit: string };
+  // 実 API での応答未確認の項目。取れないときは value が null になるので、
+  // 表示側で必ず null を扱う。
+  temperature_aloft: { value: number | null; unit: string };
+  temperature_diff_ground_aloft: { value: number | null; unit: string };
   temperature_max: { value: number; unit: string };
   temperature_min: { value: number; unit: string };
   temperature_mean: { value: number; unit: string };
