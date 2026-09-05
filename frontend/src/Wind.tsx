@@ -5,10 +5,31 @@ import type { WeatherResponse } from "./api";
 // 以前は風速・風向・本日の最大風速・瞬間風速・最大瞬間風速を1行に詰め込んでおり、
 // パッと見て何の数字か分かりにくいという指摘があった（Issue #265）。
 // 項目ごとに関数を分け、画面側もラベルつきで行を分けて表示する。
+
+// 気象庁の「風の強さと吹き方」の目安（m/s基準）を参考にした言葉の目安。
+// wind_speed_10m は km/h で来るため m/s に換算してから判定する。
+export function windSpeedDescription(speedKmh: number): string {
+  const speedMs = speedKmh / 3.6;
+  if (speedMs >= 25) {
+    return "猛烈な風";
+  }
+  if (speedMs >= 20) {
+    return "非常に強い風";
+  }
+  if (speedMs >= 15) {
+    return "強い風";
+  }
+  if (speedMs >= 10) {
+    return "やや強い風";
+  }
+  return "穏やかな風";
+}
+
 export function formatWindSpeed(data: WeatherResponse): string {
   const { value, unit } = data.wind_speed;
   const { compass } = data.wind_direction;
-  return `風速 ${Math.round(value * 10) / 10}${unit}（${compass}）`;
+  const rounded = Math.round(value * 10) / 10;
+  return `風速 ${rounded}${unit}（${compass}・${windSpeedDescription(value)}）`;
 }
 
 export function formatWindSpeedMax(data: WeatherResponse): string {
