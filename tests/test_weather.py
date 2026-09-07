@@ -127,7 +127,7 @@ STUB_RESPONSE = {
         "wind_gusts_10m_max": "km/h",
         "relative_humidity_2m_max": "%",
         "relative_humidity_2m_min": "%",
-        "relative_humidity_2m_average": "%",
+        "relative_humidity_2m_mean": "%",
     },
     "daily": {
         "time": ["2026-07-21"],
@@ -154,7 +154,7 @@ STUB_RESPONSE = {
         "wind_gusts_10m_max": [42.6],
         "relative_humidity_2m_max": [85],
         "relative_humidity_2m_min": [55],
-        "relative_humidity_2m_average": [68],
+        "relative_humidity_2m_mean": [68],
     },
 }
 
@@ -750,7 +750,7 @@ def test_format_forecast_rounds_humidity():
             **STUB_RESPONSE["daily"],
             "relative_humidity_2m_max": [85.449999],
             "relative_humidity_2m_min": [55.949999],
-            "relative_humidity_2m_average": [68.349999],
+            "relative_humidity_2m_mean": [68.349999],
         },
     }
 
