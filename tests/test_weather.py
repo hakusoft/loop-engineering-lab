@@ -303,6 +303,7 @@ STUB_SERIES = {
         "relative_humidity_2m": "%",
         "rain": "mm",
         "snowfall": "cm",
+        "snow_depth": "m",
         "precipitation_probability": "%",
         "surface_pressure": "hPa",
         "wind_speed_10m": "km/h",
@@ -323,6 +324,7 @@ STUB_SERIES = {
         "relative_humidity_2m": [78, 81, 85],
         "rain": [0.0, 0.5, 1.2],
         "snowfall": [0.0, 0.0, 0.0],
+        "snow_depth": [0.02, 0.02, 0.03],
         "precipitation_probability": [10, 30, 60],
         "surface_pressure": [1008.2, 1008.0, 1007.6],
         "wind_speed_10m": [8.1, 9.4, 10.2],
@@ -353,6 +355,7 @@ def test_series_keeps_units_separate_for_split_axes():
     humidity = by_label["湿度"]
     rain = by_label["雨量"]
     snow = by_label["降雪量"]
+    snow_depth = by_label["積雪の深さ"]
     precipitation_probability = by_label["降水確率"]
     pressure = by_label["気圧"]
     cloud_cover = by_label["雲量"]
@@ -372,6 +375,8 @@ def test_series_keeps_units_separate_for_split_axes():
     assert rain["unit"] == "mm"
     assert snow["label"] == "降雪量"
     assert snow["unit"] == "cm"
+    assert snow_depth["label"] == "積雪の深さ"
+    assert snow_depth["unit"] == "m"
     assert precipitation_probability["label"] == "降水確率"
     assert precipitation_probability["unit"] == "%"
     assert pressure["label"] == "気圧"
@@ -399,6 +404,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     humidity = by_label["湿度"]
     rain = by_label["雨量"]
     snow = by_label["降雪量"]
+    snow_depth = by_label["積雪の深さ"]
     precipitation_probability = by_label["降水確率"]
     pressure = by_label["気圧"]
     cloud_cover = by_label["雲量"]
@@ -413,6 +419,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     assert (humidity["min"], humidity["max"]) == (78, 85)
     assert (rain["min"], rain["max"]) == (0.0, 1.2)
     assert (snow["min"], snow["max"]) == (0.0, 0.0)
+    assert (snow_depth["min"], snow_depth["max"]) == (0.02, 0.03)
     assert (precipitation_probability["min"], precipitation_probability["max"]) == (10, 60)
     assert (pressure["min"], pressure["max"]) == (1007.6, 1008.2)
     assert (cloud_cover["min"], cloud_cover["max"]) == (20, 90)
@@ -997,6 +1004,7 @@ def test_hourly_series_are_all_requested_fields():
         "湿度": "relative_humidity_2m",
         "雨量": "rain",
         "降雪量": "snowfall",
+        "積雪の深さ": "snow_depth",
         "降水確率": "precipitation_probability",
         "気圧": "surface_pressure",
         "雲量": "cloud_cover",
