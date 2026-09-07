@@ -6,22 +6,20 @@ import type { WeatherResponse } from "./api";
 //
 // value は null になり得る（api.ts のコメント参照）。実 API での応答が
 // 未確認の項目のため、取れないときは NaN 表示にせず null をそのまま扱う。
-export function formatSoilTemperatureDeeper(data: WeatherResponse): string | null {
+export function formatSoilTemperatureDeeper(data: WeatherResponse): string {
   const { value, unit } = data.soil_temperature_deeper;
   if (value === null) {
-    return null;
+    // 欠測時に項目を消してしまうと「壊れているのでは」という不安につながる
+    // という指摘があった（Issue #333）。行自体は残し、取得できていないことを伝える。
+    return "土の温度（深さ18cm） 現在取得できません";
   }
   return `土の温度（深さ18cm） ${Math.round(value * 10) / 10}${unit}`;
 }
 
 export function SoilTemperatureDeeper({ data }: { data: WeatherResponse }) {
-  const text = formatSoilTemperatureDeeper(data);
-  if (text === null) {
-    return null;
-  }
   return (
     <p style={{ color: "var(--text-secondary)", fontSize: 14, margin: "4px 0" }}>
-      {text}
+      {formatSoilTemperatureDeeper(data)}
     </p>
   );
 }
