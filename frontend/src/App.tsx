@@ -211,6 +211,9 @@ export default function App() {
           color: theme.color,
           "--text-secondary": theme.textSecondary,
           "--text-tertiary": theme.textTertiary,
+          // 固定表示（sticky）にした要素が、手動ダークモード（forceDark）を含む
+          // 実効テーマの背景色を参照できるようにする（Issue #337 のレビュー指摘）。
+          "--surface-background": theme.background,
         } as CSSProperties
       }
     >
