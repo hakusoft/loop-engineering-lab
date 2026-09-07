@@ -18,6 +18,7 @@ import type { SeriesResponse } from "./api";
 function toChartData(data: SeriesResponse) {
   const temperature = data.series.find((s) => s.label === "気温");
   const apparentTemperature = data.series.find((s) => s.label === "体感温度");
+  const dewPoint = data.series.find((s) => s.label === "露点温度");
   const humidity = data.series.find((s) => s.label === "湿度");
   const rain = data.series.find((s) => s.label === "雨量");
   const snow = data.series.find((s) => s.label === "降雪量");
@@ -36,6 +37,7 @@ function toChartData(data: SeriesResponse) {
       rows: [],
       temperatureUnit: "°C",
       apparentTemperature: undefined,
+      dewPoint: undefined,
       humidity: undefined,
       rain: undefined,
       snow: undefined,
@@ -57,6 +59,7 @@ function toChartData(data: SeriesResponse) {
     time: t.slice(8, 10) + "日 " + t.slice(11, 16),
     temperature: temperature.values[i],
     apparentTemperature: apparentTemperature?.values[i] ?? null,
+    dewPoint: dewPoint?.values[i] ?? null,
     humidity: humidity?.values[i] ?? null,
     rain: rain?.values[i] ?? null,
     snow: snow?.values[i] ?? null,
@@ -75,6 +78,7 @@ function toChartData(data: SeriesResponse) {
     rows,
     temperatureUnit: temperature.unit,
     apparentTemperature,
+    dewPoint,
     humidity,
     rain,
     snow,
@@ -195,6 +199,7 @@ export function formatUvIndexPeak(data: SeriesResponse, now: Date): string | nul
 // 表示し、それ以外はチェックボックスで必要な時だけ追加できるようにする。
 const SECONDARY_SERIES = [
   { key: "apparentTemperature", label: "体感温度" },
+  { key: "dewPoint", label: "露点温度" },
   { key: "humidity", label: "湿度" },
   { key: "precipitationProbability", label: "降水確率" },
   { key: "pressure", label: "気圧" },
@@ -266,6 +271,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     rows,
     temperatureUnit,
     apparentTemperature,
+    dewPoint,
     humidity,
     rain,
     snow,
@@ -302,6 +308,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
         switch (key) {
           case "apparentTemperature":
             return Boolean(apparentTemperature);
+          case "dewPoint":
+            return Boolean(dewPoint);
           case "humidity":
             return Boolean(humidity);
           case "precipitationProbability":
@@ -328,6 +336,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
       }),
     [
       apparentTemperature,
+      dewPoint,
       humidity,
       precipitationProbability,
       pressure,
@@ -356,6 +365,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
   }
 
   const showApparentTemperature = apparentTemperature && visibleSecondary.has("apparentTemperature");
+  const showDewPoint = dewPoint && visibleSecondary.has("dewPoint");
   const showHumidity = humidity && visibleSecondary.has("humidity");
   const showPrecipitationProbability = precipitationProbability && visibleSecondary.has("precipitationProbability");
   const showPressure = pressure && visibleSecondary.has("pressure");
@@ -514,7 +524,9 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
                 ? temperatureUnit
                 : name === "体感温度"
                   ? apparentTemperature?.unit
-                  : name === "湿度"
+                  : name === "露点温度"
+                    ? dewPoint?.unit
+                    : name === "湿度"
                     ? humidity?.unit
                     : name === "雨量"
                       ? rain?.unit
@@ -564,6 +576,20 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             dot={false}
             isAnimationActive={false}
             name="体感温度"
+          />
+        )}
+        {showDewPoint && (
+          <Line
+            yAxisId="temperature"
+            type="monotone"
+            dataKey="dewPoint"
+            stroke="#20c997"
+            strokeDasharray="2 3"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="露点温度"
+            connectNulls
           />
         )}
         {showHumidity && (
