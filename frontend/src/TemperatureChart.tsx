@@ -642,12 +642,13 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             connectNulls
           />
         )}
+        {/* 風速はかつて雨量と同じ色（#12b886）で重なると見分けがつかなかったため別の色にした（Issue #334）。 */}
         {showWindSpeed && (
           <Line
             yAxisId="windSpeed"
             type="monotone"
             dataKey="windSpeed"
-            stroke="#12b886"
+            stroke="#e64980"
             strokeWidth={2}
             dot={false}
             isAnimationActive={false}
@@ -687,7 +688,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             yAxisId="upperWindDirection"
             type="monotone"
             dataKey="upperWindDirection"
-            stroke="#099268"
+            stroke="#1864ab"
             strokeWidth={2}
             strokeDasharray="4 2"
             dot={false}
@@ -715,7 +716,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             yAxisId="uvIndex"
             type="monotone"
             dataKey="uvIndex"
-            stroke="#f59f00"
+            stroke="#ffd43b"
             strokeWidth={2}
             dot={false}
             isAnimationActive={false}
