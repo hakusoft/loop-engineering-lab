@@ -208,6 +208,7 @@ HOURLY_FIELDS = [
     "cape",
     "cloud_cover",
     "temperature_2m",
+    "dew_point_2m",
     "relative_humidity_2m",
     "precipitation",
     "rain",
@@ -700,6 +701,7 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
         "series": [
             _series("temperature_2m", "気温", "°C"),
             _series("apparent_temperature", "体感温度", "°C"),
+            _series("dew_point_2m", "露点温度", "°C"),
             _series("relative_humidity_2m", "湿度", "%"),
             _series("rain", "雨量", "mm"),
             _series("snowfall", "降雪量", "cm"),

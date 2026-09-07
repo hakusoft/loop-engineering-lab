@@ -300,6 +300,7 @@ STUB_SERIES = {
         "cloud_cover": "%",
         "temperature_2m": "°C",
         "apparent_temperature": "°C",
+        "dew_point_2m": "°C",
         "relative_humidity_2m": "%",
         "rain": "mm",
         "snowfall": "cm",
@@ -320,6 +321,7 @@ STUB_SERIES = {
         "cloud_cover": [20, 55, 90],
         "temperature_2m": [26.1, 25.4, 24.9],
         "apparent_temperature": [27.3, 26.5, 25.8],
+        "dew_point_2m": [21.8, 21.5, 21.2],
         "relative_humidity_2m": [78, 81, 85],
         "rain": [0.0, 0.5, 1.2],
         "snowfall": [0.0, 0.0, 0.0],
@@ -350,6 +352,7 @@ def test_series_keeps_units_separate_for_split_axes():
     by_label = {s["label"]: s for s in result["series"]}
     temperature = by_label["気温"]
     apparent_temperature = by_label["体感温度"]
+    dew_point = by_label["露点温度"]
     humidity = by_label["湿度"]
     rain = by_label["雨量"]
     snow = by_label["降雪量"]
@@ -366,6 +369,8 @@ def test_series_keeps_units_separate_for_split_axes():
     assert temperature["unit"] == "°C"
     assert apparent_temperature["label"] == "体感温度"
     assert apparent_temperature["unit"] == "°C"
+    assert dew_point["label"] == "露点温度"
+    assert dew_point["unit"] == "°C"
     assert humidity["label"] == "湿度"
     assert humidity["unit"] == "%"
     assert rain["label"] == "雨量"
@@ -396,6 +401,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     by_label = {s["label"]: s for s in result["series"]}
     temperature = by_label["気温"]
     apparent_temperature = by_label["体感温度"]
+    dew_point = by_label["露点温度"]
     humidity = by_label["湿度"]
     rain = by_label["雨量"]
     snow = by_label["降雪量"]
@@ -410,6 +416,7 @@ def test_series_exposes_min_max_for_axis_scaling():
 
     assert (temperature["min"], temperature["max"]) == (24.9, 26.1)
     assert (apparent_temperature["min"], apparent_temperature["max"]) == (25.8, 27.3)
+    assert (dew_point["min"], dew_point["max"]) == (21.2, 21.8)
     assert (humidity["min"], humidity["max"]) == (78, 85)
     assert (rain["min"], rain["max"]) == (0.0, 1.2)
     assert (snow["min"], snow["max"]) == (0.0, 0.0)
@@ -994,6 +1001,7 @@ def test_hourly_series_are_all_requested_fields():
     labels_to_keys = {
         "気温": "temperature_2m",
         "体感温度": "apparent_temperature",
+        "露点温度": "dew_point_2m",
         "湿度": "relative_humidity_2m",
         "雨量": "rain",
         "降雪量": "snowfall",
