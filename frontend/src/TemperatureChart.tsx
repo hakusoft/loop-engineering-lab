@@ -22,6 +22,7 @@ function toChartData(data: SeriesResponse) {
   const humidity = data.series.find((s) => s.label === "湿度");
   const rain = data.series.find((s) => s.label === "雨量");
   const snow = data.series.find((s) => s.label === "降雪量");
+  const snowDepth = data.series.find((s) => s.label === "積雪の深さ");
   const precipitationProbability = data.series.find((s) => s.label === "降水確率");
   const pressure = data.series.find((s) => s.label === "気圧");
   const cloudCover = data.series.find((s) => s.label === "雲量");
@@ -41,6 +42,7 @@ function toChartData(data: SeriesResponse) {
       humidity: undefined,
       rain: undefined,
       snow: undefined,
+      snowDepth: undefined,
       precipitationProbability: undefined,
       pressure: undefined,
       cloudCover: undefined,
@@ -63,6 +65,7 @@ function toChartData(data: SeriesResponse) {
     humidity: humidity?.values[i] ?? null,
     rain: rain?.values[i] ?? null,
     snow: snow?.values[i] ?? null,
+    snowDepth: snowDepth?.values[i] ?? null,
     precipitationProbability: precipitationProbability?.values[i] ?? null,
     pressure: pressure?.values[i] ?? null,
     cloudCover: cloudCover?.values[i] ?? null,
@@ -82,6 +85,7 @@ function toChartData(data: SeriesResponse) {
     humidity,
     rain,
     snow,
+    snowDepth,
     precipitationProbability,
     pressure,
     cloudCover,
@@ -201,6 +205,7 @@ const SECONDARY_SERIES = [
   { key: "apparentTemperature", label: "体感温度" },
   { key: "dewPoint", label: "露点温度" },
   { key: "humidity", label: "湿度" },
+  { key: "snowDepth", label: "積雪の深さ" },
   { key: "precipitationProbability", label: "降水確率" },
   { key: "pressure", label: "気圧" },
   { key: "cloudCover", label: "雲量" },
@@ -275,6 +280,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     humidity,
     rain,
     snow,
+    snowDepth,
     precipitationProbability,
     pressure,
     cloudCover,
@@ -312,6 +318,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             return Boolean(dewPoint);
           case "humidity":
             return Boolean(humidity);
+          case "snowDepth":
+            return Boolean(snowDepth);
           case "precipitationProbability":
             return Boolean(precipitationProbability);
           case "pressure":
@@ -338,6 +346,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
       apparentTemperature,
       dewPoint,
       humidity,
+      snowDepth,
       precipitationProbability,
       pressure,
       cloudCover,
@@ -367,6 +376,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
   const showApparentTemperature = apparentTemperature && visibleSecondary.has("apparentTemperature");
   const showDewPoint = dewPoint && visibleSecondary.has("dewPoint");
   const showHumidity = humidity && visibleSecondary.has("humidity");
+  const showSnowDepth = snowDepth && visibleSecondary.has("snowDepth");
   const showPrecipitationProbability = precipitationProbability && visibleSecondary.has("precipitationProbability");
   const showPressure = pressure && visibleSecondary.has("pressure");
   const showCloudCover = cloudCover && visibleSecondary.has("cloudCover");
@@ -517,6 +527,14 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             domain={[0, Math.max(visibility!.max ?? 0, 1) + 1]}
           />
         )}
+        {showSnowDepth && (
+          // 積雪の深さは m 単位で降雪量（cm）とスケールが違うので、独立した軸にする。
+          <YAxis
+            yAxisId="snowDepth"
+            hide
+            domain={[0, Math.max(snowDepth!.max ?? 0, 1) + 1]}
+          />
+        )}
         <Tooltip
           formatter={(v: number, name: string) => {
             const unit =
@@ -550,7 +568,9 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
                                         ? upperWindSpeed80m?.unit
                                         : name === "視程"
                                           ? visibility?.unit
-                                          : uvIndex?.unit;
+                                          : name === "積雪の深さ"
+                                            ? snowDepth?.unit
+                                            : uvIndex?.unit;
             return [`${v}${unit ?? ""}`, name];
           }}
         />
@@ -627,6 +647,19 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             dot={false}
             isAnimationActive={false}
             name="降雪量"
+          />
+        )}
+        {showSnowDepth && (
+          <Line
+            yAxisId="snowDepth"
+            type="monotone"
+            dataKey="snowDepth"
+            stroke="#364fc7"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="積雪の深さ"
+            connectNulls
           />
         )}
         {showPrecipitationProbability && (
