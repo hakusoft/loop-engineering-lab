@@ -113,6 +113,18 @@ def _round_humidity(value: float | None) -> float | None:
     return value if value is None else round(value, HUMIDITY_PRECISION)
 
 
+SOIL_MOISTURE_PRECISION = 3
+
+
+def _round_soil_moisture(value: float | None) -> float | None:
+    """土壌水分を小数第3位に丸める。他の項目と同じく、桁数が値によってばらつくことがある。
+
+    欠測（None）はそのまま返す（_round_pressure / _round_wind_speed / _round_humidity
+    と同じ方針）。
+    """
+    return value if value is None else round(value, SOIL_MOISTURE_PRECISION)
+
+
 def _clamp_uv_index(value: float | None) -> float | None:
     """紫外線指数の下限を0にする。
 
@@ -369,7 +381,7 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
             "unit": units.get("soil_temperature_18cm", "°C"),
         },
         "soil_moisture": {
-            "value": current["soil_moisture_0_to_1cm"],
+            "value": _round_soil_moisture(current["soil_moisture_0_to_1cm"]),
             "unit": units.get("soil_moisture_0_to_1cm", "m³/m³"),
         },
         "soil_moisture_deep": {
@@ -377,7 +389,7 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
             # 応答確認ができていない（フィクスチャ未更新）。実際にはこのキーで
             # 返らない可能性を排除できないため、他の項目と違い .get() で読み、
             # 無ければ None を返す（#164 / #67-#68 と同型の KeyError を避ける）。
-            "value": current.get("soil_moisture_1_to_3cm"),
+            "value": _round_soil_moisture(current.get("soil_moisture_1_to_3cm")),
             "unit": units.get("soil_moisture_1_to_3cm", "m³/m³"),
         },
         "humidity": {
