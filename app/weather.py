@@ -162,6 +162,7 @@ CURRENT_FIELDS = [
     "is_day",
     "visibility",
     "freezing_level_height",
+    "snowfall_height",
     "dew_point_2m",
     "temperature_850hPa",
     "vapour_pressure_deficit",
@@ -179,6 +180,7 @@ CURRENT_FIELDS = [
 
 DAILY_FIELDS = [
     "uv_index_max",
+    "uv_index_clear_sky_max",
     "shortwave_radiation_sum",
     "sunrise",
     "sunset",
@@ -490,6 +492,10 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
             "value": current["freezing_level_height"],
             "unit": units.get("freezing_level_height", "m"),
         },
+        "snowfall_height": {
+            "value": current["snowfall_height"],
+            "unit": units.get("snowfall_height", "m"),
+        },
         "solar_radiation": {
             "value": current["shortwave_radiation"],
             "unit": units.get("shortwave_radiation", "W/m²"),
@@ -517,6 +523,10 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
         "uv_index_max": {
             "value": _clamp_uv_index(daily["uv_index_max"][0]),
             "unit": daily_units.get("uv_index_max", ""),
+        },
+        "uv_index_clear_sky_max": {
+            "value": daily["uv_index_clear_sky_max"][0],
+            "unit": daily_units.get("uv_index_clear_sky_max", ""),
         },
         "sunshine_duration": {
             "value": _seconds_to_hours(daily["sunshine_duration"][0]),

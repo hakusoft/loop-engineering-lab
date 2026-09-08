@@ -52,6 +52,7 @@ STUB_RESPONSE = {
         "cloud_cover_high": "%",
         "visibility": "m",
         "freezing_level_height": "m",
+        "snowfall_height": "m",
         "dew_point_2m": "°C",
         "temperature_850hPa": "°C",
         "vapour_pressure_deficit": "kPa",
@@ -88,6 +89,7 @@ STUB_RESPONSE = {
         "is_day": 1,
         "visibility": 24140.0,
         "freezing_level_height": 4800.0,
+        "snowfall_height": 1400.0,
         "dew_point_2m": 22.6,
         "temperature_850hPa": 15.9,
         "vapour_pressure_deficit": 1.42,
@@ -105,6 +107,7 @@ STUB_RESPONSE = {
     "daily_units": {
         "time": "iso8601",
         "uv_index_max": "",
+        "uv_index_clear_sky_max": "",
         "shortwave_radiation_sum": "MJ/m²",
         "sunrise": "iso8601",
         "sunset": "iso8601",
@@ -131,6 +134,7 @@ STUB_RESPONSE = {
     "daily": {
         "time": ["2026-07-21"],
         "uv_index_max": [7.8],
+        "uv_index_clear_sky_max": [8.1],
         "shortwave_radiation_sum": [23.4],
         "sunrise": ["2026-07-21T04:44"],
         "sunset": ["2026-07-21T18:47"],
@@ -189,6 +193,7 @@ def test_format_forecast_maps_values_and_units():
     assert result["cloud_cover_high"] == {"value": 30, "unit": "%"}
     assert result["visibility"] == {"value": 24140.0, "unit": "m"}
     assert result["freezing_level_height"] == {"value": 4800.0, "unit": "m"}
+    assert result["snowfall_height"] == {"value": 1400.0, "unit": "m"}
     assert result["solar_radiation"] == {"value": 412.0, "unit": "W/m²"}
     assert result["solar_radiation_direct"] == {"value": 298.0, "unit": "W/m²"}
     assert result["solar_radiation_diffuse"] == {"value": 114.0, "unit": "W/m²"}
@@ -196,6 +201,7 @@ def test_format_forecast_maps_values_and_units():
     assert result["snow_depth"] == {"value": 0.0, "unit": "m"}
     assert result["uv_index"] == {"value": 5.2, "unit": ""}
     assert result["uv_index_max"] == {"value": 7.8, "unit": ""}
+    assert result["uv_index_clear_sky_max"] == {"value": 8.1, "unit": ""}
     assert result["temperature_max"] == {"value": 33.2, "unit": "°C"}
     assert result["temperature_min"] == {"value": 24.7, "unit": "°C"}
     assert result["temperature_mean"] == {"value": 28.9, "unit": "°C"}
