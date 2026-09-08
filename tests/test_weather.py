@@ -196,15 +196,19 @@ def test_format_forecast_maps_values_and_units():
     assert result["snow_depth"] == {"value": 0.0, "unit": "m"}
     assert result["uv_index"] == {"value": 5.2, "unit": ""}
     assert result["uv_index_max"] == {"value": 7.8, "unit": ""}
-    assert result["temperature_max"] == {"value": 33.2, "unit": "°C"}
-    assert result["temperature_min"] == {"value": 24.7, "unit": "°C"}
+    assert result["temperature_max"] == {"value": 33.2, "unit": "°C", "date": "2026-07-21"}
+    assert result["temperature_min"] == {"value": 24.7, "unit": "°C", "date": "2026-07-21"}
     assert result["temperature_mean"] == {"value": 28.9, "unit": "°C"}
     assert result["apparent_temperature_max"] == {"value": 36.9, "unit": "°C"}
     assert result["apparent_temperature_min"] == {"value": 26.1, "unit": "°C"}
     assert result["apparent_temperature_mean"] == {"value": 31.2, "unit": "°C"}
     assert result["humidity_max"] == {"value": 85, "unit": "%"}
     assert result["humidity_min"] == {"value": 55, "unit": "%"}
-    assert result["precipitation_probability"] == {"value": 20, "unit": "%"}
+    assert result["precipitation_probability"] == {
+        "value": 20,
+        "unit": "%",
+        "date": "2026-07-21",
+    }
     assert result["sunshine_duration"] == {"value": 36420.0 / 3600, "unit": "h"}
     assert result["evapotranspiration"] == {"value": 4.33, "unit": "mm"}
     assert result["precipitation_hours"] == {"value": 3.0, "unit": "h"}
@@ -486,8 +490,12 @@ def test_format_forecast_falls_back_when_units_missing():
     assert result["wind_gusts"] == {"value": 24.8, "unit": "km/h"}
     assert result["cloud_cover"] == {"value": 40, "unit": "%"}
     assert result["uv_index_max"] == {"value": 7.8, "unit": ""}
-    assert result["temperature_max"] == {"value": 33.2, "unit": "°C"}
-    assert result["precipitation_probability"] == {"value": 20, "unit": "%"}
+    assert result["temperature_max"] == {"value": 33.2, "unit": "°C", "date": "2026-07-21"}
+    assert result["precipitation_probability"] == {
+        "value": 20,
+        "unit": "%",
+        "date": "2026-07-21",
+    }
     assert result["sunshine_duration"] == {"value": 36420.0 / 3600, "unit": "h"}
     assert result["precipitation_hours"] == {"value": 3.0, "unit": "h"}
     assert result["precipitation_sum"] == {"value": 12.5, "unit": "mm"}
