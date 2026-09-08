@@ -180,6 +180,7 @@ CURRENT_FIELDS = [
     "soil_temperature_0cm",
     "soil_temperature_6cm",
     "soil_temperature_18cm",
+    "soil_temperature_54cm",
     "soil_moisture_0_to_1cm",
     "soil_moisture_1_to_3cm",
     "shortwave_radiation",
@@ -379,6 +380,12 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
             # .get() で読む（soil_temperature_deep と同じ方針）。
             "value": current.get("soil_temperature_18cm"),
             "unit": units.get("soil_temperature_18cm", "°C"),
+        },
+        "soil_temperature_deepest": {
+            # soil_temperature_54cm も同様に実 API での応答確認ができていないため
+            # .get() で読む（soil_temperature_deep / soil_temperature_deeper と同じ方針）。
+            "value": current.get("soil_temperature_54cm"),
+            "unit": units.get("soil_temperature_54cm", "°C"),
         },
         "soil_moisture": {
             "value": _round_soil_moisture(current["soil_moisture_0_to_1cm"]),
