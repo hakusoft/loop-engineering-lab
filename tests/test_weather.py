@@ -21,6 +21,7 @@ from app.weather import (
     _round_coordinate,
     _round_humidity,
     _round_pressure,
+    _round_soil_moisture,
     _round_wind_speed,
     _seconds_to_hours,
     _weather_description,
@@ -769,6 +770,33 @@ def test_format_forecast_rounds_humidity():
     assert result["humidity"] == {"value": 71.3, "unit": "%"}
     assert result["humidity_max"] == {"value": 85.4, "unit": "%"}
     assert result["humidity_min"] == {"value": 55.9, "unit": "%"}
+
+
+def test_round_soil_moisture_rounds_to_three_decimal_places():
+    assert _round_soil_moisture(0.283000001) == 0.283
+    assert _round_soil_moisture(0.309999999) == 0.31
+
+
+def test_round_soil_moisture_passes_through_none():
+    """欠測（None）は丸めずにそのまま返す（_round_pressure と同じ方針）。"""
+    assert _round_soil_moisture(None) is None
+
+
+def test_format_forecast_rounds_soil_moisture():
+    """土壌水分は Open-Meteo が桁の長い小数を返すことがあるため、小数第3位に丸める。"""
+    raw = {
+        **STUB_RESPONSE,
+        "current": {
+            **STUB_RESPONSE["current"],
+            "soil_moisture_0_to_1cm": 0.283000001,
+            "soil_moisture_1_to_3cm": 0.309999999,
+        },
+    }
+
+    result = format_forecast(raw)
+
+    assert result["soil_moisture"] == {"value": 0.283, "unit": "m³/m³"}
+    assert result["soil_moisture_deep"] == {"value": 0.31, "unit": "m³/m³"}
 
 
 def test_daylight_duration_hours_computes_difference_in_hours():
