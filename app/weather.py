@@ -323,10 +323,12 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
         "temperature_max": {
             "value": daily["temperature_2m_max"][0],
             "unit": daily_units.get("temperature_2m_max", "°C"),
+            "date": daily["time"][0],
         },
         "temperature_min": {
             "value": daily["temperature_2m_min"][0],
             "unit": daily_units.get("temperature_2m_min", "°C"),
+            "date": daily["time"][0],
         },
         "temperature_mean": {
             "value": daily["temperature_2m_mean"][0],
@@ -444,6 +446,7 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
         "precipitation_probability": {
             "value": daily["precipitation_probability_max"][0],
             "unit": daily_units.get("precipitation_probability_max", "%"),
+            "date": daily["time"][0],
         },
         "precipitation_hours": {
             "value": daily["precipitation_hours"][0],
