@@ -22,6 +22,7 @@ import { SoilTemperatureDeeper } from "./SoilTemperatureDeeper";
 import { SoilTemperatureDeepest } from "./SoilTemperatureDeepest";
 import { SoilMoisture } from "./SoilMoisture";
 import { SoilMoistureDeep } from "./SoilMoistureDeep";
+import { SoilMoistureDeeper } from "./SoilMoistureDeeper";
 import { ObservedAt } from "./ObservedAt";
 import { Precipitation } from "./Precipitation";
 import { PrecipitationHours } from "./PrecipitationHours";
@@ -110,6 +111,7 @@ export const DISPLAY_ITEMS: DisplayItem[] = [
   { category: "降水・湿度", component: SoilTemperatureDeepest, tier: "more" },
   { category: "降水・湿度", component: SoilMoisture, tier: "more" },
   { category: "降水・湿度", component: SoilMoistureDeep, tier: "more" },
+  { category: "降水・湿度", component: SoilMoistureDeeper, tier: "more" },
   { category: "降水・湿度", component: Evapotranspiration, tier: "more" },
   { category: "降水・湿度", component: VaporPressureDeficit, tier: "more" },
   { category: "降水・湿度", component: GardenWatering, tier: "more" },
