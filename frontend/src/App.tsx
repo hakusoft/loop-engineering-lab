@@ -219,7 +219,7 @@ export default function App() {
     >
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
         <div style={{ display: "flex", alignItems: "baseline" }}>
-          <h1 style={{ fontSize: 20, marginBottom: 4 }}>東京の気温（48時間）</h1>
+          <h1 style={{ fontSize: 20, marginBottom: 4 }}>東京の天気（48時間）</h1>
           {weatherState.status === "ready" && state.status === "ready" && (
             <LocationName data={weatherState.data} />
           )}
