@@ -5,7 +5,7 @@ import type { WeatherResponse } from "./api";
 // value は null になり得る（api.ts のコメント参照）。実 API での応答が
 // 未確認の項目のため、取れないときは NaN 表示にせず null をそのまま扱う。
 export function formatSoilMoistureDeeper(data: WeatherResponse): string | null {
-  const { value, unit } = data.soil_moisture_deep;
+  const { value, unit } = data.soil_moisture_deeper;
   if (value === null) {
     return null;
   }
