@@ -177,6 +177,7 @@ CURRENT_FIELDS = [
     "dew_point_2m",
     "temperature_850hPa",
     "vapour_pressure_deficit",
+    "wet_bulb_temperature_2m",
     "soil_temperature_0cm",
     "soil_temperature_6cm",
     "soil_temperature_18cm",
@@ -364,6 +365,10 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
         "vapor_pressure_deficit": {
             "value": current["vapour_pressure_deficit"],
             "unit": units.get("vapour_pressure_deficit", "kPa"),
+        },
+        "wet_bulb_temperature": {
+            "value": current["wet_bulb_temperature_2m"],
+            "unit": units.get("wet_bulb_temperature_2m", "°C"),
         },
         "soil_temperature": {
             "value": current["soil_temperature_0cm"],
