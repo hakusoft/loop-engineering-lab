@@ -148,11 +148,29 @@ export function dateBoundaryLabels(
 // 夜間表示（App.tsx の NIGHT_THEME）では背景が濃紺になるため、目盛り・グリッド線・
 // 現在時刻線のデフォルト色（グレー系）はコントラストが低く読みにくい。
 // 昼夜で色を切り替える。
+//
+// 気温・体感温度（グラフ本体の常に出ている基本線）も、昼間向けの色（暖色2色が
+// 近く、暗い背景ではさらに見分けにくい）のままだと読みにくいという声があった
+// （Issue #359）。夜間はコントラストが高く、かつ2色の見分けがつきやすい色にする。
 function chartColors(isDay: boolean | undefined) {
   if (isDay === false) {
-    return { grid: "#3a3a5a", tick: "#cfcfe6", referenceLine: "#8888bb", referenceLabel: "#aaaadd" };
+    return {
+      grid: "#3a3a5a",
+      tick: "#cfcfe6",
+      referenceLine: "#8888bb",
+      referenceLabel: "#aaaadd",
+      temperature: "#ff6b52",
+      apparentTemperature: "#ffe066",
+    };
   }
-  return { grid: "#eee", tick: "#666", referenceLine: "#888", referenceLabel: "#888" };
+  return {
+    grid: "#eee",
+    tick: "#666",
+    referenceLine: "#888",
+    referenceLabel: "#888",
+    temperature: "#e2492c",
+    apparentTemperature: "#f4a300",
+  };
 }
 
 // now と同じローカル日付（年月日）の部分だけを "YYYY-MM-DD" で返す。
@@ -579,7 +597,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
           yAxisId="temperature"
           type="monotone"
           dataKey="temperature"
-          stroke="#e2492c"
+          stroke={colors.temperature}
           strokeWidth={2}
           dot={false}
           isAnimationActive={false}
@@ -590,7 +608,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             yAxisId="temperature"
             type="monotone"
             dataKey="apparentTemperature"
-            stroke="#f4a300"
+            stroke={colors.apparentTemperature}
             strokeDasharray="4 3"
             strokeWidth={2}
             dot={false}
