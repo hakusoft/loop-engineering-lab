@@ -211,12 +211,15 @@ export default function App() {
           color: theme.color,
           "--text-secondary": theme.textSecondary,
           "--text-tertiary": theme.textTertiary,
+          // 固定表示（sticky）にした要素が、手動ダークモード（forceDark）を含む
+          // 実効テーマの背景色を参照できるようにする（Issue #337 のレビュー指摘）。
+          "--surface-background": theme.background,
         } as CSSProperties
       }
     >
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
         <div style={{ display: "flex", alignItems: "baseline" }}>
-          <h1 style={{ fontSize: 20, marginBottom: 4 }}>東京の気温（48時間）</h1>
+          <h1 style={{ fontSize: 20, marginBottom: 4 }}>東京の天気（48時間）</h1>
           {weatherState.status === "ready" && state.status === "ready" && (
             <LocationName data={weatherState.data} />
           )}

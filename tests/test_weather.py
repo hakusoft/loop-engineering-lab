@@ -21,6 +21,7 @@ from app.weather import (
     _round_coordinate,
     _round_humidity,
     _round_pressure,
+    _round_soil_moisture,
     _round_wind_speed,
     _seconds_to_hours,
     _weather_description,
@@ -55,9 +56,11 @@ STUB_RESPONSE = {
         "dew_point_2m": "°C",
         "temperature_850hPa": "°C",
         "vapour_pressure_deficit": "kPa",
+        "wet_bulb_temperature_2m": "°C",
         "soil_temperature_0cm": "°C",
         "soil_temperature_6cm": "°C",
         "soil_temperature_18cm": "°C",
+        "soil_temperature_54cm": "°C",
         "soil_moisture_0_to_1cm": "m³/m³",
         "soil_moisture_1_to_3cm": "m³/m³",
         "shortwave_radiation": "W/m²",
@@ -91,9 +94,11 @@ STUB_RESPONSE = {
         "dew_point_2m": 22.6,
         "temperature_850hPa": 15.9,
         "vapour_pressure_deficit": 1.42,
+        "wet_bulb_temperature_2m": 24.3,
         "soil_temperature_0cm": 30.5,
         "soil_temperature_6cm": 27.8,
         "soil_temperature_18cm": 25.1,
+        "soil_temperature_54cm": 21.6,
         "soil_moisture_0_to_1cm": 0.28,
         "soil_moisture_1_to_3cm": 0.31,
         "shortwave_radiation": 412.0,
@@ -170,9 +175,11 @@ def test_format_forecast_maps_values_and_units():
     assert result["temperature_diff_ground_aloft"]["unit"] == "°C"
     assert result["temperature_diff_ground_aloft"]["value"] == pytest.approx(12.5)
     assert result["vapor_pressure_deficit"] == {"value": 1.42, "unit": "kPa"}
+    assert result["wet_bulb_temperature"] == {"value": 24.3, "unit": "°C"}
     assert result["soil_temperature"] == {"value": 30.5, "unit": "°C"}
     assert result["soil_temperature_deep"] == {"value": 27.8, "unit": "°C"}
     assert result["soil_temperature_deeper"] == {"value": 25.1, "unit": "°C"}
+    assert result["soil_temperature_deepest"] == {"value": 21.6, "unit": "°C"}
     assert result["soil_moisture"] == {"value": 0.28, "unit": "m³/m³"}
     assert result["soil_moisture_deep"] == {"value": 0.31, "unit": "m³/m³"}
     assert result["humidity"] == {"value": 71, "unit": "%"}
@@ -198,8 +205,8 @@ def test_format_forecast_maps_values_and_units():
     assert result["snow_depth"] == {"value": 0.0, "unit": "m"}
     assert result["uv_index"] == {"value": 5.2, "unit": ""}
     assert result["uv_index_max"] == {"value": 7.8, "unit": ""}
-    assert result["temperature_max"] == {"value": 33.2, "unit": "°C"}
-    assert result["temperature_min"] == {"value": 24.7, "unit": "°C"}
+    assert result["temperature_max"] == {"value": 33.2, "unit": "°C", "date": "2026-07-21"}
+    assert result["temperature_min"] == {"value": 24.7, "unit": "°C", "date": "2026-07-21"}
     assert result["temperature_mean"] == {"value": 28.9, "unit": "°C"}
     assert result["apparent_temperature_max"] == {"value": 36.9, "unit": "°C"}
     assert result["apparent_temperature_min"] == {"value": 26.1, "unit": "°C"}
@@ -207,7 +214,11 @@ def test_format_forecast_maps_values_and_units():
     assert result["humidity_max"] == {"value": 85, "unit": "%"}
     assert result["humidity_min"] == {"value": 55, "unit": "%"}
     assert result["humidity_mean"] == {"value": 68, "unit": "%"}
-    assert result["precipitation_probability"] == {"value": 20, "unit": "%"}
+    assert result["precipitation_probability"] == {
+        "value": 20,
+        "unit": "%",
+        "date": "2026-07-21",
+    }
     assert result["sunshine_duration"] == {"value": 36420.0 / 3600, "unit": "h"}
     assert result["evapotranspiration"] == {"value": 4.33, "unit": "mm"}
     assert result["precipitation_hours"] == {"value": 3.0, "unit": "h"}
@@ -303,9 +314,11 @@ STUB_SERIES = {
         "cloud_cover": "%",
         "temperature_2m": "°C",
         "apparent_temperature": "°C",
+        "dew_point_2m": "°C",
         "relative_humidity_2m": "%",
         "rain": "mm",
         "snowfall": "cm",
+        "snow_depth": "m",
         "precipitation_probability": "%",
         "surface_pressure": "hPa",
         "wind_speed_10m": "km/h",
@@ -323,9 +336,11 @@ STUB_SERIES = {
         "cloud_cover": [20, 55, 90],
         "temperature_2m": [26.1, 25.4, 24.9],
         "apparent_temperature": [27.3, 26.5, 25.8],
+        "dew_point_2m": [21.8, 21.5, 21.2],
         "relative_humidity_2m": [78, 81, 85],
         "rain": [0.0, 0.5, 1.2],
         "snowfall": [0.0, 0.0, 0.0],
+        "snow_depth": [0.02, 0.02, 0.03],
         "precipitation_probability": [10, 30, 60],
         "surface_pressure": [1008.2, 1008.0, 1007.6],
         "wind_speed_10m": [8.1, 9.4, 10.2],
@@ -353,9 +368,11 @@ def test_series_keeps_units_separate_for_split_axes():
     by_label = {s["label"]: s for s in result["series"]}
     temperature = by_label["気温"]
     apparent_temperature = by_label["体感温度"]
+    dew_point = by_label["露点温度"]
     humidity = by_label["湿度"]
     rain = by_label["雨量"]
     snow = by_label["降雪量"]
+    snow_depth = by_label["積雪の深さ"]
     precipitation_probability = by_label["降水確率"]
     pressure = by_label["気圧"]
     cloud_cover = by_label["雲量"]
@@ -369,12 +386,16 @@ def test_series_keeps_units_separate_for_split_axes():
     assert temperature["unit"] == "°C"
     assert apparent_temperature["label"] == "体感温度"
     assert apparent_temperature["unit"] == "°C"
+    assert dew_point["label"] == "露点温度"
+    assert dew_point["unit"] == "°C"
     assert humidity["label"] == "湿度"
     assert humidity["unit"] == "%"
     assert rain["label"] == "雨量"
     assert rain["unit"] == "mm"
     assert snow["label"] == "降雪量"
     assert snow["unit"] == "cm"
+    assert snow_depth["label"] == "積雪の深さ"
+    assert snow_depth["unit"] == "m"
     assert precipitation_probability["label"] == "降水確率"
     assert precipitation_probability["unit"] == "%"
     assert pressure["label"] == "気圧"
@@ -399,9 +420,11 @@ def test_series_exposes_min_max_for_axis_scaling():
     by_label = {s["label"]: s for s in result["series"]}
     temperature = by_label["気温"]
     apparent_temperature = by_label["体感温度"]
+    dew_point = by_label["露点温度"]
     humidity = by_label["湿度"]
     rain = by_label["雨量"]
     snow = by_label["降雪量"]
+    snow_depth = by_label["積雪の深さ"]
     precipitation_probability = by_label["降水確率"]
     pressure = by_label["気圧"]
     cloud_cover = by_label["雲量"]
@@ -413,9 +436,11 @@ def test_series_exposes_min_max_for_axis_scaling():
 
     assert (temperature["min"], temperature["max"]) == (24.9, 26.1)
     assert (apparent_temperature["min"], apparent_temperature["max"]) == (25.8, 27.3)
+    assert (dew_point["min"], dew_point["max"]) == (21.2, 21.8)
     assert (humidity["min"], humidity["max"]) == (78, 85)
     assert (rain["min"], rain["max"]) == (0.0, 1.2)
     assert (snow["min"], snow["max"]) == (0.0, 0.0)
+    assert (snow_depth["min"], snow_depth["max"]) == (0.02, 0.03)
     assert (precipitation_probability["min"], precipitation_probability["max"]) == (10, 60)
     assert (pressure["min"], pressure["max"]) == (1007.6, 1008.2)
     assert (cloud_cover["min"], cloud_cover["max"]) == (20, 90)
@@ -475,8 +500,12 @@ def test_format_forecast_falls_back_when_units_missing():
     assert result["wind_gusts"] == {"value": 24.8, "unit": "km/h"}
     assert result["cloud_cover"] == {"value": 40, "unit": "%"}
     assert result["uv_index_max"] == {"value": 7.8, "unit": ""}
-    assert result["temperature_max"] == {"value": 33.2, "unit": "°C"}
-    assert result["precipitation_probability"] == {"value": 20, "unit": "%"}
+    assert result["temperature_max"] == {"value": 33.2, "unit": "°C", "date": "2026-07-21"}
+    assert result["precipitation_probability"] == {
+        "value": 20,
+        "unit": "%",
+        "date": "2026-07-21",
+    }
     assert result["sunshine_duration"] == {"value": 36420.0 / 3600, "unit": "h"}
     assert result["precipitation_hours"] == {"value": 3.0, "unit": "h"}
     assert result["precipitation_sum"] == {"value": 12.5, "unit": "mm"}
@@ -638,6 +667,24 @@ def test_format_forecast_tolerates_missing_soil_temperature_deeper():
     assert result["soil_temperature_deeper"]["value"] is None
 
 
+def test_format_forecast_tolerates_missing_soil_temperature_deepest():
+    """soil_temperature_54cm が current に無くても KeyError にしない。
+
+    soil_temperature_deep / soil_temperature_deeper と同じ方針（実 API での
+    応答未確認、Issue #346）。
+    """
+    raw = {
+        **STUB_RESPONSE,
+        "current": {
+            k: v for k, v in STUB_RESPONSE["current"].items() if k != "soil_temperature_54cm"
+        },
+    }
+
+    result = format_forecast(raw)
+
+    assert result["soil_temperature_deepest"]["value"] is None
+
+
 def test_format_forecast_rounds_pressure():
     """気圧は Open-Meteo が桁の長い小数を返すことがあるため、小数第1位に丸める。"""
     raw = {
@@ -760,6 +807,33 @@ def test_format_forecast_rounds_humidity():
     assert result["humidity_max"] == {"value": 85.4, "unit": "%"}
     assert result["humidity_min"] == {"value": 55.9, "unit": "%"}
     assert result["humidity_mean"] == {"value": 68.3, "unit": "%"}
+
+
+def test_round_soil_moisture_rounds_to_three_decimal_places():
+    assert _round_soil_moisture(0.283000001) == 0.283
+    assert _round_soil_moisture(0.309999999) == 0.31
+
+
+def test_round_soil_moisture_passes_through_none():
+    """欠測（None）は丸めずにそのまま返す（_round_pressure と同じ方針）。"""
+    assert _round_soil_moisture(None) is None
+
+
+def test_format_forecast_rounds_soil_moisture():
+    """土壌水分は Open-Meteo が桁の長い小数を返すことがあるため、小数第3位に丸める。"""
+    raw = {
+        **STUB_RESPONSE,
+        "current": {
+            **STUB_RESPONSE["current"],
+            "soil_moisture_0_to_1cm": 0.283000001,
+            "soil_moisture_1_to_3cm": 0.309999999,
+        },
+    }
+
+    result = format_forecast(raw)
+
+    assert result["soil_moisture"] == {"value": 0.283, "unit": "m³/m³"}
+    assert result["soil_moisture_deep"] == {"value": 0.31, "unit": "m³/m³"}
 
 
 def test_daylight_duration_hours_computes_difference_in_hours():
@@ -999,9 +1073,11 @@ def test_hourly_series_are_all_requested_fields():
     labels_to_keys = {
         "気温": "temperature_2m",
         "体感温度": "apparent_temperature",
+        "露点温度": "dew_point_2m",
         "湿度": "relative_humidity_2m",
         "雨量": "rain",
         "降雪量": "snowfall",
+        "積雪の深さ": "snow_depth",
         "降水確率": "precipitation_probability",
         "気圧": "surface_pressure",
         "雲量": "cloud_cover",

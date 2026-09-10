@@ -25,11 +25,15 @@ export function windSpeedDescription(speedKmh: number): string {
   return "穏やかな風";
 }
 
+// km/h の方がピンとこない、m/s も見たいという声を受けて併記する（Issue #336）。
+const KMH_TO_MS = 1 / 3.6;
+
 export function formatWindSpeed(data: WeatherResponse): string {
   const { value, unit } = data.wind_speed;
   const { compass } = data.wind_direction;
   const rounded = Math.round(value * 10) / 10;
-  return `風速 ${rounded}${unit}（${compass}・${windSpeedDescription(value)}）`;
+  const roundedMs = Math.round(value * KMH_TO_MS * 10) / 10;
+  return `風速 ${rounded}${unit}（${roundedMs}m/s）（${compass}・${windSpeedDescription(value)}）`;
 }
 
 export function formatWindSpeedMax(data: WeatherResponse): string {
@@ -39,7 +43,8 @@ export function formatWindSpeedMax(data: WeatherResponse): string {
 
 export function formatWindGusts(data: WeatherResponse): string {
   const { value, unit } = data.wind_gusts;
-  return `瞬間風速 ${Math.round(value * 10) / 10}${unit}`;
+  const roundedMs = Math.round(value * KMH_TO_MS * 10) / 10;
+  return `瞬間風速 ${Math.round(value * 10) / 10}${unit}（${roundedMs}m/s）`;
 }
 
 export function formatWindGustsMax(data: WeatherResponse): string {
