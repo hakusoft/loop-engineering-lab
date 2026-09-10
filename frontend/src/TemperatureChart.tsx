@@ -17,6 +17,7 @@ import type { SeriesResponse } from "./api";
 // 時刻は共通の timestamps を、値は該当系列の values を突き合わせる。
 function toChartData(data: SeriesResponse) {
   const temperature = data.series.find((s) => s.label === "気温");
+  const temperature80m = data.series.find((s) => s.label === "上空の気温(80m)");
   const apparentTemperature = data.series.find((s) => s.label === "体感温度");
   const dewPoint = data.series.find((s) => s.label === "露点温度");
   const humidity = data.series.find((s) => s.label === "湿度");
@@ -37,6 +38,7 @@ function toChartData(data: SeriesResponse) {
     return {
       rows: [],
       temperatureUnit: "°C",
+      temperature80m: undefined,
       apparentTemperature: undefined,
       dewPoint: undefined,
       humidity: undefined,
@@ -60,6 +62,7 @@ function toChartData(data: SeriesResponse) {
     // "2026-07-21T00:00" -> "21日 00:00" 程度の短い表示に。
     time: t.slice(8, 10) + "日 " + t.slice(11, 16),
     temperature: temperature.values[i],
+    temperature80m: temperature80m?.values[i] ?? null,
     apparentTemperature: apparentTemperature?.values[i] ?? null,
     dewPoint: dewPoint?.values[i] ?? null,
     humidity: humidity?.values[i] ?? null,
@@ -80,6 +83,7 @@ function toChartData(data: SeriesResponse) {
   return {
     rows,
     temperatureUnit: temperature.unit,
+    temperature80m,
     apparentTemperature,
     dewPoint,
     humidity,
@@ -202,6 +206,7 @@ export function formatUvIndexPeak(data: SeriesResponse, now: Date): string | nul
 // 声があった（Issue #262）。気温・降水（雨量・降雪量）は主要な系列として常に
 // 表示し、それ以外はチェックボックスで必要な時だけ追加できるようにする。
 const SECONDARY_SERIES = [
+  { key: "temperature80m", label: "上空の気温(80m)" },
   { key: "apparentTemperature", label: "体感温度" },
   { key: "dewPoint", label: "露点温度" },
   { key: "humidity", label: "湿度" },
@@ -275,6 +280,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
   const {
     rows,
     temperatureUnit,
+    temperature80m,
     apparentTemperature,
     dewPoint,
     humidity,
@@ -312,6 +318,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     () =>
       SECONDARY_SERIES.filter(({ key }) => {
         switch (key) {
+          case "temperature80m":
+            return Boolean(temperature80m);
           case "apparentTemperature":
             return Boolean(apparentTemperature);
           case "dewPoint":
@@ -343,6 +351,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
         }
       }),
     [
+      temperature80m,
       apparentTemperature,
       dewPoint,
       humidity,
@@ -373,6 +382,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     });
   }
 
+  const showTemperature80m = temperature80m && visibleSecondary.has("temperature80m");
   const showApparentTemperature = apparentTemperature && visibleSecondary.has("apparentTemperature");
   const showDewPoint = dewPoint && visibleSecondary.has("dewPoint");
   const showHumidity = humidity && visibleSecondary.has("humidity");
@@ -540,8 +550,10 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             const unit =
               name === "気温"
                 ? temperatureUnit
-                : name === "体感温度"
-                  ? apparentTemperature?.unit
+                : name === "上空の気温(80m)"
+                  ? temperature80m?.unit
+                  : name === "体感温度"
+                    ? apparentTemperature?.unit
                   : name === "露点温度"
                     ? dewPoint?.unit
                     : name === "湿度"
@@ -585,6 +597,20 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
           isAnimationActive={false}
           name="気温"
         />
+        {showTemperature80m && (
+          <Line
+            yAxisId="temperature"
+            type="monotone"
+            dataKey="temperature80m"
+            stroke="#4263eb"
+            strokeDasharray="5 3"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="上空の気温(80m)"
+            connectNulls
+          />
+        )}
         {showApparentTemperature && (
           <Line
             yAxisId="temperature"
