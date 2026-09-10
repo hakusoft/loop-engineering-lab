@@ -183,9 +183,9 @@ export default function App() {
         .catch(
           (e) =>
             alive &&
-            setState(
-              state.status === "ready"
-                ? state
+            setState((prev) =>
+              prev.status === "ready"
+                ? prev
                 : { status: "error", message: String(e.message ?? e) },
             ),
         );
@@ -206,7 +206,7 @@ export default function App() {
         .catch(
           () =>
             alive &&
-            setWeatherState(weatherState.status === "ready" ? weatherState : { status: "error" }),
+            setWeatherState((prev) => (prev.status === "ready" ? prev : { status: "error" })),
         );
     };
     load();
