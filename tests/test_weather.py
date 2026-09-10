@@ -22,6 +22,7 @@ from app.weather import (
     _round_humidity,
     _round_pressure,
     _round_soil_moisture,
+    _round_visibility,
     _round_wind_speed,
     _seconds_to_hours,
     _weather_description,
@@ -756,6 +757,29 @@ def test_format_hourly_series_clamps_negative_uv_index():
     uv_index = next(s for s in result["series"] if s["label"] == "紫外線指数")
     assert uv_index["values"] == [0.0, 0.2, 1.5]
     assert uv_index["min"] == 0.0
+
+
+def test_format_hourly_series_rounds_visibility():
+    """視程の系列は整数mに丸める。他の系列と違って小数点以下の桁数が長くなることがある
+    という報告（Slack）への対応。min/maxの計算にも丸め後の値が反映される。"""
+    hourly = {**STUB_SERIES["hourly"], "visibility": [24140.399999999998, 18500.0, 9199.600000000001]}
+    raw = {**STUB_SERIES, "hourly": hourly}
+
+    result = format_hourly_series(raw)
+
+    visibility = next(s for s in result["series"] if s["label"] == "視程")
+    assert visibility["values"] == [24140.0, 18500.0, 9200.0]
+    assert (visibility["min"], visibility["max"]) == (9200.0, 24140.0)
+
+
+def test_round_visibility_rounds_to_integer():
+    assert _round_visibility(24140.399999999998) == 24140.0
+    assert _round_visibility(9199.600000000001) == 9200.0
+
+
+def test_round_visibility_passes_through_none():
+    """欠測（None）は丸めずにそのまま返す（_round_wind_speed 等と同じ方針）。"""
+    assert _round_visibility(None) is None
 
 
 def test_round_wind_speed_rounds_to_one_decimal_place():
