@@ -125,6 +125,20 @@ def _round_soil_moisture(value: float | None) -> float | None:
     return value if value is None else round(value, SOIL_MOISTURE_PRECISION)
 
 
+VISIBILITY_PRECISION = 0
+
+
+def _round_visibility(value: float | None) -> float | None:
+    """視程を整数mに丸める。現在値表示（Visibility.tsx の formatVisibility）と同じ方針。
+
+    Open-Meteo の hourly の視程は小数点以下の桁数が長くなることがあり、
+    グラフのツールチップにそのまま出ると他の項目と桁数が揃わない。
+    欠測（None）はそのまま返す（_round_pressure / _round_wind_speed / _round_humidity
+    / _round_soil_moisture と同じ方針）。
+    """
+    return value if value is None else round(value, VISIBILITY_PRECISION)
+
+
 def _clamp_uv_index(value: float | None) -> float | None:
     """紫外線指数の下限を0にする。
 
@@ -677,6 +691,9 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
 
     if "uv_index" in hourly:
         hourly["uv_index"] = [_clamp_uv_index(v) for v in hourly["uv_index"]]
+
+    if "visibility" in hourly:
+        hourly["visibility"] = [_round_visibility(v) for v in hourly["visibility"]]
 
     def _series(key: str, label: str, default_unit: str) -> dict[str, Any]:
         values = hourly[key]
