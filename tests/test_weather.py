@@ -314,6 +314,7 @@ STUB_SERIES = {
         "cape": "J/kg",
         "cloud_cover": "%",
         "temperature_2m": "°C",
+        "temperature_80m": "°C",
         "apparent_temperature": "°C",
         "dew_point_2m": "°C",
         "relative_humidity_2m": "%",
@@ -336,6 +337,7 @@ STUB_SERIES = {
         "cape": [120.0, 480.0, 90.0],
         "cloud_cover": [20, 55, 90],
         "temperature_2m": [26.1, 25.4, 24.9],
+        "temperature_80m": [24.8, 24.1, 23.6],
         "apparent_temperature": [27.3, 26.5, 25.8],
         "dew_point_2m": [21.8, 21.5, 21.2],
         "relative_humidity_2m": [78, 81, 85],
@@ -368,6 +370,7 @@ def test_series_keeps_units_separate_for_split_axes():
     result = format_hourly_series(STUB_SERIES)
     by_label = {s["label"]: s for s in result["series"]}
     temperature = by_label["気温"]
+    temperature_80m = by_label["上空の気温(80m)"]
     apparent_temperature = by_label["体感温度"]
     dew_point = by_label["露点温度"]
     humidity = by_label["湿度"]
@@ -385,6 +388,8 @@ def test_series_keeps_units_separate_for_split_axes():
 
     assert temperature["label"] == "気温"
     assert temperature["unit"] == "°C"
+    assert temperature_80m["label"] == "上空の気温(80m)"
+    assert temperature_80m["unit"] == "°C"
     assert apparent_temperature["label"] == "体感温度"
     assert apparent_temperature["unit"] == "°C"
     assert dew_point["label"] == "露点温度"
@@ -420,6 +425,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     result = format_hourly_series(STUB_SERIES)
     by_label = {s["label"]: s for s in result["series"]}
     temperature = by_label["気温"]
+    temperature_80m = by_label["上空の気温(80m)"]
     apparent_temperature = by_label["体感温度"]
     dew_point = by_label["露点温度"]
     humidity = by_label["湿度"]
@@ -436,6 +442,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     visibility = by_label["視程"]
 
     assert (temperature["min"], temperature["max"]) == (24.9, 26.1)
+    assert (temperature_80m["min"], temperature_80m["max"]) == (23.6, 24.8)
     assert (apparent_temperature["min"], apparent_temperature["max"]) == (25.8, 27.3)
     assert (dew_point["min"], dew_point["max"]) == (21.2, 21.8)
     assert (humidity["min"], humidity["max"]) == (78, 85)
@@ -1111,6 +1118,7 @@ def test_hourly_series_are_all_requested_fields():
     result = format_hourly_series(_fixture_with_stub_defaults("hourly_series.json"))
     labels_to_keys = {
         "気温": "temperature_2m",
+        "上空の気温(80m)": "temperature_80m",
         "体感温度": "apparent_temperature",
         "露点温度": "dew_point_2m",
         "湿度": "relative_humidity_2m",
