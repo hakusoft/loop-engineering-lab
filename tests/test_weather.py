@@ -21,6 +21,7 @@ from app.weather import (
     _round_coordinate,
     _round_humidity,
     _round_pressure,
+    _round_soil_moisture,
     _round_wind_speed,
     _seconds_to_hours,
     _weather_description,
@@ -56,9 +57,11 @@ STUB_RESPONSE = {
         "dew_point_2m": "°C",
         "temperature_850hPa": "°C",
         "vapour_pressure_deficit": "kPa",
+        "wet_bulb_temperature_2m": "°C",
         "soil_temperature_0cm": "°C",
         "soil_temperature_6cm": "°C",
         "soil_temperature_18cm": "°C",
+        "soil_temperature_54cm": "°C",
         "soil_moisture_0_to_1cm": "m³/m³",
         "soil_moisture_1_to_3cm": "m³/m³",
         "shortwave_radiation": "W/m²",
@@ -93,9 +96,11 @@ STUB_RESPONSE = {
         "dew_point_2m": 22.6,
         "temperature_850hPa": 15.9,
         "vapour_pressure_deficit": 1.42,
+        "wet_bulb_temperature_2m": 24.3,
         "soil_temperature_0cm": 30.5,
         "soil_temperature_6cm": 27.8,
         "soil_temperature_18cm": 25.1,
+        "soil_temperature_54cm": 21.6,
         "soil_moisture_0_to_1cm": 0.28,
         "soil_moisture_1_to_3cm": 0.31,
         "shortwave_radiation": 412.0,
@@ -172,9 +177,11 @@ def test_format_forecast_maps_values_and_units():
     assert result["temperature_diff_ground_aloft"]["unit"] == "°C"
     assert result["temperature_diff_ground_aloft"]["value"] == pytest.approx(12.5)
     assert result["vapor_pressure_deficit"] == {"value": 1.42, "unit": "kPa"}
+    assert result["wet_bulb_temperature"] == {"value": 24.3, "unit": "°C"}
     assert result["soil_temperature"] == {"value": 30.5, "unit": "°C"}
     assert result["soil_temperature_deep"] == {"value": 27.8, "unit": "°C"}
     assert result["soil_temperature_deeper"] == {"value": 25.1, "unit": "°C"}
+    assert result["soil_temperature_deepest"] == {"value": 21.6, "unit": "°C"}
     assert result["soil_moisture"] == {"value": 0.28, "unit": "m³/m³"}
     assert result["soil_moisture_deep"] == {"value": 0.31, "unit": "m³/m³"}
     assert result["humidity"] == {"value": 71, "unit": "%"}
@@ -202,15 +209,19 @@ def test_format_forecast_maps_values_and_units():
     assert result["uv_index"] == {"value": 5.2, "unit": ""}
     assert result["uv_index_max"] == {"value": 7.8, "unit": ""}
     assert result["uv_index_clear_sky_max"] == {"value": 8.1, "unit": ""}
-    assert result["temperature_max"] == {"value": 33.2, "unit": "°C"}
-    assert result["temperature_min"] == {"value": 24.7, "unit": "°C"}
+    assert result["temperature_max"] == {"value": 33.2, "unit": "°C", "date": "2026-07-21"}
+    assert result["temperature_min"] == {"value": 24.7, "unit": "°C", "date": "2026-07-21"}
     assert result["temperature_mean"] == {"value": 28.9, "unit": "°C"}
     assert result["apparent_temperature_max"] == {"value": 36.9, "unit": "°C"}
     assert result["apparent_temperature_min"] == {"value": 26.1, "unit": "°C"}
     assert result["apparent_temperature_mean"] == {"value": 31.2, "unit": "°C"}
     assert result["humidity_max"] == {"value": 85, "unit": "%"}
     assert result["humidity_min"] == {"value": 55, "unit": "%"}
-    assert result["precipitation_probability"] == {"value": 20, "unit": "%"}
+    assert result["precipitation_probability"] == {
+        "value": 20,
+        "unit": "%",
+        "date": "2026-07-21",
+    }
     assert result["sunshine_duration"] == {"value": 36420.0 / 3600, "unit": "h"}
     assert result["evapotranspiration"] == {"value": 4.33, "unit": "mm"}
     assert result["precipitation_hours"] == {"value": 3.0, "unit": "h"}
@@ -492,8 +503,12 @@ def test_format_forecast_falls_back_when_units_missing():
     assert result["wind_gusts"] == {"value": 24.8, "unit": "km/h"}
     assert result["cloud_cover"] == {"value": 40, "unit": "%"}
     assert result["uv_index_max"] == {"value": 7.8, "unit": ""}
-    assert result["temperature_max"] == {"value": 33.2, "unit": "°C"}
-    assert result["precipitation_probability"] == {"value": 20, "unit": "%"}
+    assert result["temperature_max"] == {"value": 33.2, "unit": "°C", "date": "2026-07-21"}
+    assert result["precipitation_probability"] == {
+        "value": 20,
+        "unit": "%",
+        "date": "2026-07-21",
+    }
     assert result["sunshine_duration"] == {"value": 36420.0 / 3600, "unit": "h"}
     assert result["precipitation_hours"] == {"value": 3.0, "unit": "h"}
     assert result["precipitation_sum"] == {"value": 12.5, "unit": "mm"}
@@ -655,6 +670,24 @@ def test_format_forecast_tolerates_missing_soil_temperature_deeper():
     assert result["soil_temperature_deeper"]["value"] is None
 
 
+def test_format_forecast_tolerates_missing_soil_temperature_deepest():
+    """soil_temperature_54cm が current に無くても KeyError にしない。
+
+    soil_temperature_deep / soil_temperature_deeper と同じ方針（実 API での
+    応答未確認、Issue #346）。
+    """
+    raw = {
+        **STUB_RESPONSE,
+        "current": {
+            k: v for k, v in STUB_RESPONSE["current"].items() if k != "soil_temperature_54cm"
+        },
+    }
+
+    result = format_forecast(raw)
+
+    assert result["soil_temperature_deepest"]["value"] is None
+
+
 def test_format_forecast_rounds_pressure():
     """気圧は Open-Meteo が桁の長い小数を返すことがあるため、小数第1位に丸める。"""
     raw = {
@@ -775,6 +808,33 @@ def test_format_forecast_rounds_humidity():
     assert result["humidity"] == {"value": 71.3, "unit": "%"}
     assert result["humidity_max"] == {"value": 85.4, "unit": "%"}
     assert result["humidity_min"] == {"value": 55.9, "unit": "%"}
+
+
+def test_round_soil_moisture_rounds_to_three_decimal_places():
+    assert _round_soil_moisture(0.283000001) == 0.283
+    assert _round_soil_moisture(0.309999999) == 0.31
+
+
+def test_round_soil_moisture_passes_through_none():
+    """欠測（None）は丸めずにそのまま返す（_round_pressure と同じ方針）。"""
+    assert _round_soil_moisture(None) is None
+
+
+def test_format_forecast_rounds_soil_moisture():
+    """土壌水分は Open-Meteo が桁の長い小数を返すことがあるため、小数第3位に丸める。"""
+    raw = {
+        **STUB_RESPONSE,
+        "current": {
+            **STUB_RESPONSE["current"],
+            "soil_moisture_0_to_1cm": 0.283000001,
+            "soil_moisture_1_to_3cm": 0.309999999,
+        },
+    }
+
+    result = format_forecast(raw)
+
+    assert result["soil_moisture"] == {"value": 0.283, "unit": "m³/m³"}
+    assert result["soil_moisture_deep"] == {"value": 0.31, "unit": "m³/m³"}
 
 
 def test_daylight_duration_hours_computes_difference_in_hours():

@@ -41,14 +41,15 @@ export type WeatherResponse = {
   // 表示側で必ず null を扱う。
   temperature_aloft: { value: number | null; unit: string };
   temperature_diff_ground_aloft: { value: number | null; unit: string };
-  temperature_max: { value: number; unit: string };
-  temperature_min: { value: number; unit: string };
+  temperature_max: { value: number; unit: string; date: string };
+  temperature_min: { value: number; unit: string; date: string };
   temperature_mean: { value: number; unit: string };
   humidity: { value: number; unit: string };
   humidity_max: { value: number; unit: string };
   humidity_min: { value: number; unit: string };
   dew_point: { value: number; unit: string };
   vapor_pressure_deficit: { value: number; unit: string };
+  wet_bulb_temperature: { value: number; unit: string };
   soil_temperature: { value: number; unit: string };
   // 実 API での応答未確認の項目（PR #279 のレビュー参照）。取れないときは
   // value が null になるので、表示側で必ず null を扱う。
@@ -56,6 +57,9 @@ export type WeatherResponse = {
   // 実 API での応答未確認の項目（soil_temperature_deep と同じ方針）。取れないときは
   // value が null になるので、表示側で必ず null を扱う。
   soil_temperature_deeper: { value: number | null; unit: string };
+  // 実 API での応答未確認の項目（soil_temperature_deep / soil_temperature_deeper と同じ方針）。
+  // 取れないときは value が null になるので、表示側で必ず null を扱う。
+  soil_temperature_deepest: { value: number | null; unit: string };
   soil_moisture: { value: number; unit: string };
   // 実 API での応答未確認の項目（PR #267 のレビュー参照）。取れないときは
   // value が null になるので、表示側で必ず null を扱う。
@@ -74,7 +78,7 @@ export type WeatherResponse = {
   uv_index_max: { value: number; unit: string };
   uv_index_clear_sky_max: { value: number; unit: string };
   precipitation: { value: number; unit: string };
-  precipitation_probability: { value: number; unit: string };
+  precipitation_probability: { value: number; unit: string; date: string };
   precipitation_hours: { value: number; unit: string };
   precipitation_sum: { value: number; unit: string };
   rain_sum: { value: number; unit: string };

@@ -19,6 +19,7 @@ import { Evapotranspiration } from "./Evapotranspiration";
 import { SoilTemperature } from "./SoilTemperature";
 import { SoilTemperatureDeep } from "./SoilTemperatureDeep";
 import { SoilTemperatureDeeper } from "./SoilTemperatureDeeper";
+import { SoilTemperatureDeepest } from "./SoilTemperatureDeepest";
 import { SoilMoisture } from "./SoilMoisture";
 import { SoilMoistureDeep } from "./SoilMoistureDeep";
 import { ObservedAt } from "./ObservedAt";
@@ -46,6 +47,7 @@ import { UvIndex } from "./UvIndex";
 import { VaporPressureDeficit } from "./VaporPressureDeficit";
 import { FreezingLevel } from "./FreezingLevel";
 import { Visibility } from "./Visibility";
+import { WetBulbTemperature } from "./WetBulbTemperature";
 import { Wind } from "./Wind";
 
 // 表示項目の一覧。App.tsx はこれを読んで描くだけで、項目そのものは持たない。
@@ -89,6 +91,7 @@ export const DISPLAY_ITEMS: DisplayItem[] = [
   { category: "気温", component: TemperatureRange, tier: "primary" },
   { category: "気温", component: TemperatureMean, tier: "more" },
   { category: "気温", component: DewPoint, tier: "more" },
+  { category: "気温", component: WetBulbTemperature, tier: "more" },
   { category: "気温", component: TemperatureDiffGroundAloft, tier: "more" },
 
   { category: "風", component: Wind, tier: "primary" },
@@ -107,6 +110,7 @@ export const DISPLAY_ITEMS: DisplayItem[] = [
   { category: "降水・湿度", component: SoilTemperature, tier: "more" },
   { category: "降水・湿度", component: SoilTemperatureDeep, tier: "more" },
   { category: "降水・湿度", component: SoilTemperatureDeeper, tier: "more" },
+  { category: "降水・湿度", component: SoilTemperatureDeepest, tier: "more" },
   { category: "降水・湿度", component: SoilMoisture, tier: "more" },
   { category: "降水・湿度", component: SoilMoistureDeep, tier: "more" },
   { category: "降水・湿度", component: Evapotranspiration, tier: "more" },

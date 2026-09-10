@@ -113,6 +113,18 @@ def _round_humidity(value: float | None) -> float | None:
     return value if value is None else round(value, HUMIDITY_PRECISION)
 
 
+SOIL_MOISTURE_PRECISION = 3
+
+
+def _round_soil_moisture(value: float | None) -> float | None:
+    """土壌水分を小数第3位に丸める。他の項目と同じく、桁数が値によってばらつくことがある。
+
+    欠測（None）はそのまま返す（_round_pressure / _round_wind_speed / _round_humidity
+    と同じ方針）。
+    """
+    return value if value is None else round(value, SOIL_MOISTURE_PRECISION)
+
+
 def _clamp_uv_index(value: float | None) -> float | None:
     """紫外線指数の下限を0にする。
 
@@ -166,9 +178,11 @@ CURRENT_FIELDS = [
     "dew_point_2m",
     "temperature_850hPa",
     "vapour_pressure_deficit",
+    "wet_bulb_temperature_2m",
     "soil_temperature_0cm",
     "soil_temperature_6cm",
     "soil_temperature_18cm",
+    "soil_temperature_54cm",
     "soil_moisture_0_to_1cm",
     "soil_moisture_1_to_3cm",
     "shortwave_radiation",
@@ -312,10 +326,12 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
         "temperature_max": {
             "value": daily["temperature_2m_max"][0],
             "unit": daily_units.get("temperature_2m_max", "°C"),
+            "date": daily["time"][0],
         },
         "temperature_min": {
             "value": daily["temperature_2m_min"][0],
             "unit": daily_units.get("temperature_2m_min", "°C"),
+            "date": daily["time"][0],
         },
         "temperature_mean": {
             "value": daily["temperature_2m_mean"][0],
@@ -352,6 +368,10 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
             "value": current["vapour_pressure_deficit"],
             "unit": units.get("vapour_pressure_deficit", "kPa"),
         },
+        "wet_bulb_temperature": {
+            "value": current["wet_bulb_temperature_2m"],
+            "unit": units.get("wet_bulb_temperature_2m", "°C"),
+        },
         "soil_temperature": {
             "value": current["soil_temperature_0cm"],
             "unit": units.get("soil_temperature_0cm", "°C"),
@@ -370,8 +390,14 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
             "value": current.get("soil_temperature_18cm"),
             "unit": units.get("soil_temperature_18cm", "°C"),
         },
+        "soil_temperature_deepest": {
+            # soil_temperature_54cm も同様に実 API での応答確認ができていないため
+            # .get() で読む（soil_temperature_deep / soil_temperature_deeper と同じ方針）。
+            "value": current.get("soil_temperature_54cm"),
+            "unit": units.get("soil_temperature_54cm", "°C"),
+        },
         "soil_moisture": {
-            "value": current["soil_moisture_0_to_1cm"],
+            "value": _round_soil_moisture(current["soil_moisture_0_to_1cm"]),
             "unit": units.get("soil_moisture_0_to_1cm", "m³/m³"),
         },
         "soil_moisture_deep": {
@@ -379,7 +405,7 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
             # 応答確認ができていない（フィクスチャ未更新）。実際にはこのキーで
             # 返らない可能性を排除できないため、他の項目と違い .get() で読み、
             # 無ければ None を返す（#164 / #67-#68 と同型の KeyError を避ける）。
-            "value": current.get("soil_moisture_1_to_3cm"),
+            "value": _round_soil_moisture(current.get("soil_moisture_1_to_3cm")),
             "unit": units.get("soil_moisture_1_to_3cm", "m³/m³"),
         },
         "humidity": {
@@ -427,6 +453,7 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
         "precipitation_probability": {
             "value": daily["precipitation_probability_max"][0],
             "unit": daily_units.get("precipitation_probability_max", "%"),
+            "date": daily["time"][0],
         },
         "precipitation_hours": {
             "value": daily["precipitation_hours"][0],
