@@ -63,6 +63,7 @@ STUB_RESPONSE = {
         "soil_temperature_54cm": "°C",
         "soil_moisture_0_to_1cm": "m³/m³",
         "soil_moisture_1_to_3cm": "m³/m³",
+        "soil_moisture_3_to_9cm": "m³/m³",
         "shortwave_radiation": "W/m²",
         "direct_radiation": "W/m²",
         "diffuse_radiation": "W/m²",
@@ -101,6 +102,7 @@ STUB_RESPONSE = {
         "soil_temperature_54cm": 21.6,
         "soil_moisture_0_to_1cm": 0.28,
         "soil_moisture_1_to_3cm": 0.31,
+        "soil_moisture_3_to_9cm": 0.33,
         "shortwave_radiation": 412.0,
         "direct_radiation": 298.0,
         "diffuse_radiation": 114.0,
@@ -180,6 +182,7 @@ def test_format_forecast_maps_values_and_units():
     assert result["soil_temperature_deepest"] == {"value": 21.6, "unit": "°C"}
     assert result["soil_moisture"] == {"value": 0.28, "unit": "m³/m³"}
     assert result["soil_moisture_deep"] == {"value": 0.31, "unit": "m³/m³"}
+    assert result["soil_moisture_deeper"] == {"value": 0.33, "unit": "m³/m³"}
     assert result["humidity"] == {"value": 71, "unit": "%"}
     assert result["wind_speed"] == {"value": 12.3, "unit": "km/h"}
     assert result["wind_direction"] == {"value": 250, "unit": "°", "compass": "西南西"}
@@ -605,6 +608,23 @@ def test_format_forecast_tolerates_missing_soil_moisture_deep():
     result = format_forecast(raw)
 
     assert result["soil_moisture_deep"]["value"] is None
+
+
+def test_format_forecast_tolerates_missing_soil_moisture_deeper():
+    """soil_moisture_3_to_9cm が current に無くても KeyError にしない。
+
+    soil_moisture_1_to_3cm と同様、実 API での応答を確認できないまま追加した項目。
+    """
+    raw = {
+        **STUB_RESPONSE,
+        "current": {
+            k: v for k, v in STUB_RESPONSE["current"].items() if k != "soil_moisture_3_to_9cm"
+        },
+    }
+
+    result = format_forecast(raw)
+
+    assert result["soil_moisture_deeper"]["value"] is None
 
 
 def test_format_forecast_tolerates_missing_temperature_850hpa():

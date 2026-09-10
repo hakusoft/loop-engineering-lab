@@ -184,6 +184,7 @@ CURRENT_FIELDS = [
     "soil_temperature_54cm",
     "soil_moisture_0_to_1cm",
     "soil_moisture_1_to_3cm",
+    "soil_moisture_3_to_9cm",
     "shortwave_radiation",
     "direct_radiation",
     "diffuse_radiation",
@@ -405,6 +406,12 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
             # 無ければ None を返す（#164 / #67-#68 と同型の KeyError を避ける）。
             "value": _round_soil_moisture(current.get("soil_moisture_1_to_3cm")),
             "unit": units.get("soil_moisture_1_to_3cm", "m³/m³"),
+        },
+        "soil_moisture_deeper": {
+            # soil_moisture_3_to_9cm も同様に実 API での応答確認ができていない
+            # （soil_moisture_deep と同じ方針）。
+            "value": _round_soil_moisture(current.get("soil_moisture_3_to_9cm")),
+            "unit": units.get("soil_moisture_3_to_9cm", "m³/m³"),
         },
         "humidity": {
             "value": _round_humidity(current["relative_humidity_2m"]),
