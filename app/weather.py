@@ -125,6 +125,20 @@ def _round_soil_moisture(value: float | None) -> float | None:
     return value if value is None else round(value, SOIL_MOISTURE_PRECISION)
 
 
+VISIBILITY_PRECISION = 0
+
+
+def _round_visibility(value: float | None) -> float | None:
+    """視程を整数mに丸める。現在値表示（Visibility.tsx の formatVisibility）と同じ方針。
+
+    Open-Meteo の hourly の視程は小数点以下の桁数が長くなることがあり、
+    グラフのツールチップにそのまま出ると他の項目と桁数が揃わない。
+    欠測（None）はそのまま返す（_round_pressure / _round_wind_speed / _round_humidity
+    / _round_soil_moisture と同じ方針）。
+    """
+    return value if value is None else round(value, VISIBILITY_PRECISION)
+
+
 def _clamp_uv_index(value: float | None) -> float | None:
     """紫外線指数の下限を0にする。
 
@@ -185,6 +199,7 @@ CURRENT_FIELDS = [
     "soil_temperature_54cm",
     "soil_moisture_0_to_1cm",
     "soil_moisture_1_to_3cm",
+    "soil_moisture_3_to_9cm",
     "shortwave_radiation",
     "direct_radiation",
     "diffuse_radiation",
@@ -224,6 +239,7 @@ HOURLY_FIELDS = [
     "cape",
     "cloud_cover",
     "temperature_2m",
+    "temperature_80m",
     "dew_point_2m",
     "relative_humidity_2m",
     "precipitation",
@@ -407,6 +423,12 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
             # 無ければ None を返す（#164 / #67-#68 と同型の KeyError を避ける）。
             "value": _round_soil_moisture(current.get("soil_moisture_1_to_3cm")),
             "unit": units.get("soil_moisture_1_to_3cm", "m³/m³"),
+        },
+        "soil_moisture_deeper": {
+            # soil_moisture_3_to_9cm も同様に実 API での応答確認ができていない
+            # （soil_moisture_deep と同じ方針）。
+            "value": _round_soil_moisture(current.get("soil_moisture_3_to_9cm")),
+            "unit": units.get("soil_moisture_3_to_9cm", "m³/m³"),
         },
         "humidity": {
             "value": _round_humidity(current["relative_humidity_2m"]),
@@ -693,6 +715,9 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
     if "uv_index" in hourly:
         hourly["uv_index"] = [_clamp_uv_index(v) for v in hourly["uv_index"]]
 
+    if "visibility" in hourly:
+        hourly["visibility"] = [_round_visibility(v) for v in hourly["visibility"]]
+
     def _series(key: str, label: str, default_unit: str) -> dict[str, Any]:
         values = hourly[key]
         present = [v for v in values if v is not None]
@@ -738,6 +763,7 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
         "cape_peak": cape_peak_today,
         "series": [
             _series("temperature_2m", "気温", "°C"),
+            _series("temperature_80m", "上空の気温(80m)", "°C"),
             _series("apparent_temperature", "体感温度", "°C"),
             _series("dew_point_2m", "露点温度", "°C"),
             _series("relative_humidity_2m", "湿度", "%"),

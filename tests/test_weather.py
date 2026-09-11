@@ -22,6 +22,7 @@ from app.weather import (
     _round_humidity,
     _round_pressure,
     _round_soil_moisture,
+    _round_visibility,
     _round_wind_speed,
     _seconds_to_hours,
     _weather_description,
@@ -64,6 +65,7 @@ STUB_RESPONSE = {
         "soil_temperature_54cm": "°C",
         "soil_moisture_0_to_1cm": "m³/m³",
         "soil_moisture_1_to_3cm": "m³/m³",
+        "soil_moisture_3_to_9cm": "m³/m³",
         "shortwave_radiation": "W/m²",
         "direct_radiation": "W/m²",
         "diffuse_radiation": "W/m²",
@@ -103,6 +105,7 @@ STUB_RESPONSE = {
         "soil_temperature_54cm": 21.6,
         "soil_moisture_0_to_1cm": 0.28,
         "soil_moisture_1_to_3cm": 0.31,
+        "soil_moisture_3_to_9cm": 0.33,
         "shortwave_radiation": 412.0,
         "direct_radiation": 298.0,
         "diffuse_radiation": 114.0,
@@ -184,6 +187,7 @@ def test_format_forecast_maps_values_and_units():
     assert result["soil_temperature_deepest"] == {"value": 21.6, "unit": "°C"}
     assert result["soil_moisture"] == {"value": 0.28, "unit": "m³/m³"}
     assert result["soil_moisture_deep"] == {"value": 0.31, "unit": "m³/m³"}
+    assert result["soil_moisture_deeper"] == {"value": 0.33, "unit": "m³/m³"}
     assert result["humidity"] == {"value": 71, "unit": "%"}
     assert result["wind_speed"] == {"value": 12.3, "unit": "km/h"}
     assert result["wind_direction"] == {"value": 250, "unit": "°", "compass": "西南西"}
@@ -316,6 +320,7 @@ STUB_SERIES = {
         "cape": "J/kg",
         "cloud_cover": "%",
         "temperature_2m": "°C",
+        "temperature_80m": "°C",
         "apparent_temperature": "°C",
         "dew_point_2m": "°C",
         "relative_humidity_2m": "%",
@@ -338,6 +343,7 @@ STUB_SERIES = {
         "cape": [120.0, 480.0, 90.0],
         "cloud_cover": [20, 55, 90],
         "temperature_2m": [26.1, 25.4, 24.9],
+        "temperature_80m": [24.8, 24.1, 23.6],
         "apparent_temperature": [27.3, 26.5, 25.8],
         "dew_point_2m": [21.8, 21.5, 21.2],
         "relative_humidity_2m": [78, 81, 85],
@@ -370,6 +376,7 @@ def test_series_keeps_units_separate_for_split_axes():
     result = format_hourly_series(STUB_SERIES)
     by_label = {s["label"]: s for s in result["series"]}
     temperature = by_label["気温"]
+    temperature_80m = by_label["上空の気温(80m)"]
     apparent_temperature = by_label["体感温度"]
     dew_point = by_label["露点温度"]
     humidity = by_label["湿度"]
@@ -387,6 +394,8 @@ def test_series_keeps_units_separate_for_split_axes():
 
     assert temperature["label"] == "気温"
     assert temperature["unit"] == "°C"
+    assert temperature_80m["label"] == "上空の気温(80m)"
+    assert temperature_80m["unit"] == "°C"
     assert apparent_temperature["label"] == "体感温度"
     assert apparent_temperature["unit"] == "°C"
     assert dew_point["label"] == "露点温度"
@@ -422,6 +431,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     result = format_hourly_series(STUB_SERIES)
     by_label = {s["label"]: s for s in result["series"]}
     temperature = by_label["気温"]
+    temperature_80m = by_label["上空の気温(80m)"]
     apparent_temperature = by_label["体感温度"]
     dew_point = by_label["露点温度"]
     humidity = by_label["湿度"]
@@ -438,6 +448,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     visibility = by_label["視程"]
 
     assert (temperature["min"], temperature["max"]) == (24.9, 26.1)
+    assert (temperature_80m["min"], temperature_80m["max"]) == (23.6, 24.8)
     assert (apparent_temperature["min"], apparent_temperature["max"]) == (25.8, 27.3)
     assert (dew_point["min"], dew_point["max"]) == (21.2, 21.8)
     assert (humidity["min"], humidity["max"]) == (78, 85)
@@ -613,6 +624,23 @@ def test_format_forecast_tolerates_missing_soil_moisture_deep():
     assert result["soil_moisture_deep"]["value"] is None
 
 
+def test_format_forecast_tolerates_missing_soil_moisture_deeper():
+    """soil_moisture_3_to_9cm が current に無くても KeyError にしない。
+
+    soil_moisture_1_to_3cm と同様、実 API での応答を確認できないまま追加した項目。
+    """
+    raw = {
+        **STUB_RESPONSE,
+        "current": {
+            k: v for k, v in STUB_RESPONSE["current"].items() if k != "soil_moisture_3_to_9cm"
+        },
+    }
+
+    result = format_forecast(raw)
+
+    assert result["soil_moisture_deeper"]["value"] is None
+
+
 def test_format_forecast_tolerates_missing_temperature_850hpa():
     """temperature_850hPa が current に無くても TypeError にしない。
 
@@ -742,6 +770,29 @@ def test_format_hourly_series_clamps_negative_uv_index():
     uv_index = next(s for s in result["series"] if s["label"] == "紫外線指数")
     assert uv_index["values"] == [0.0, 0.2, 1.5]
     assert uv_index["min"] == 0.0
+
+
+def test_format_hourly_series_rounds_visibility():
+    """視程の系列は整数mに丸める。他の系列と違って小数点以下の桁数が長くなることがある
+    という報告（Slack）への対応。min/maxの計算にも丸め後の値が反映される。"""
+    hourly = {**STUB_SERIES["hourly"], "visibility": [24140.399999999998, 18500.0, 9199.600000000001]}
+    raw = {**STUB_SERIES, "hourly": hourly}
+
+    result = format_hourly_series(raw)
+
+    visibility = next(s for s in result["series"] if s["label"] == "視程")
+    assert visibility["values"] == [24140.0, 18500.0, 9200.0]
+    assert (visibility["min"], visibility["max"]) == (9200.0, 24140.0)
+
+
+def test_round_visibility_rounds_to_integer():
+    assert _round_visibility(24140.399999999998) == 24140.0
+    assert _round_visibility(9199.600000000001) == 9200.0
+
+
+def test_round_visibility_passes_through_none():
+    """欠測（None）は丸めずにそのまま返す（_round_wind_speed 等と同じ方針）。"""
+    assert _round_visibility(None) is None
 
 
 def test_round_wind_speed_rounds_to_one_decimal_place():
@@ -1073,6 +1124,7 @@ def test_hourly_series_are_all_requested_fields():
     result = format_hourly_series(_fixture_with_stub_defaults("hourly_series.json"))
     labels_to_keys = {
         "気温": "temperature_2m",
+        "上空の気温(80m)": "temperature_80m",
         "体感温度": "apparent_temperature",
         "露点温度": "dew_point_2m",
         "湿度": "relative_humidity_2m",
