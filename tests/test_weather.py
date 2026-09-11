@@ -325,6 +325,7 @@ STUB_SERIES = {
         "surface_pressure": "hPa",
         "wind_speed_10m": "km/h",
         "wind_direction_10m": "°",
+        "wind_gusts_10m": "km/h",
         "wind_speed_850hPa": "km/h",
         "wind_direction_850hPa": "°",
         "wind_speed_80m": "km/h",
@@ -348,6 +349,7 @@ STUB_SERIES = {
         "surface_pressure": [1008.2, 1008.0, 1007.6],
         "wind_speed_10m": [8.1, 9.4, 10.2],
         "wind_direction_10m": [200.0, 210.0, 220.0],
+        "wind_gusts_10m": [15.2, 17.8, 19.6],
         "wind_speed_850hPa": [24.5, 26.1, 28.3],
         "wind_direction_850hPa": [230.0, 240.0, 250.0],
         "wind_speed_80m": [18.2, 19.5, 20.1],
@@ -381,6 +383,7 @@ def test_series_keeps_units_separate_for_split_axes():
     pressure = by_label["気圧"]
     cloud_cover = by_label["雲量"]
     wind_direction = by_label["風向き"]
+    wind_gusts = by_label["瞬間風速"]
     upper_wind_direction = by_label["上空の風向き"]
     upper_wind_speed_80m = by_label["上空の風速(80m)"]
     uv_index = by_label["紫外線指数"]
@@ -410,6 +413,8 @@ def test_series_keeps_units_separate_for_split_axes():
     assert cloud_cover["unit"] == "%"
     assert wind_direction["label"] == "風向き"
     assert wind_direction["unit"] == "°"
+    assert wind_gusts["label"] == "瞬間風速"
+    assert wind_gusts["unit"] == "km/h"
     assert upper_wind_direction["label"] == "上空の風向き"
     assert upper_wind_direction["unit"] == "°"
     assert upper_wind_speed_80m["label"] == "上空の風速(80m)"
@@ -436,6 +441,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     pressure = by_label["気圧"]
     cloud_cover = by_label["雲量"]
     wind_direction = by_label["風向き"]
+    wind_gusts = by_label["瞬間風速"]
     upper_wind_direction = by_label["上空の風向き"]
     upper_wind_speed_80m = by_label["上空の風速(80m)"]
     uv_index = by_label["紫外線指数"]
@@ -453,6 +459,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     assert (pressure["min"], pressure["max"]) == (1007.6, 1008.2)
     assert (cloud_cover["min"], cloud_cover["max"]) == (20, 90)
     assert (wind_direction["min"], wind_direction["max"]) == (200.0, 220.0)
+    assert (wind_gusts["min"], wind_gusts["max"]) == (15.2, 19.6)
     assert (upper_wind_direction["min"], upper_wind_direction["max"]) == (230.0, 250.0)
     assert (upper_wind_speed_80m["min"], upper_wind_speed_80m["max"]) == (18.2, 20.1)
     assert (uv_index["min"], uv_index["max"]) == (0.2, 3.1)
@@ -1130,6 +1137,7 @@ def test_hourly_series_are_all_requested_fields():
         "雲量": "cloud_cover",
         "風速": "wind_speed_10m",
         "風向き": "wind_direction_10m",
+        "瞬間風速": "wind_gusts_10m",
         "上空の風速": "wind_speed_850hPa",
         "上空の風向き": "wind_direction_850hPa",
         "上空の風速(80m)": "wind_speed_80m",
