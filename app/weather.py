@@ -574,7 +574,7 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
             "unit": daily_units.get("uv_index_max", ""),
         },
         "uv_index_clear_sky_max": {
-            "value": daily["uv_index_clear_sky_max"][0],
+            "value": _clamp_uv_index(daily["uv_index_clear_sky_max"][0]),
             "unit": daily_units.get("uv_index_clear_sky_max", ""),
         },
         "sunshine_duration": {

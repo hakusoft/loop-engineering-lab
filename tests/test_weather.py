@@ -751,13 +751,18 @@ def test_format_forecast_clamps_negative_uv_index():
     raw = {
         **STUB_RESPONSE,
         "current": {**STUB_RESPONSE["current"], "uv_index": -0.05},
-        "daily": {**STUB_RESPONSE["daily"], "uv_index_max": [-0.01]},
+        "daily": {
+            **STUB_RESPONSE["daily"],
+            "uv_index_max": [-0.01],
+            "uv_index_clear_sky_max": [-0.02],
+        },
     }
 
     result = format_forecast(raw)
 
     assert result["uv_index"] == {"value": 0.0, "unit": ""}
     assert result["uv_index_max"] == {"value": 0.0, "unit": ""}
+    assert result["uv_index_clear_sky_max"] == {"value": 0.0, "unit": ""}
 
 
 def test_format_hourly_series_clamps_negative_uv_index():
