@@ -426,7 +426,9 @@ def test_series_keeps_units_separate_for_split_axes():
     assert upper_wind_speed_80m["label"] == "上空の風速(80m)"
     assert upper_wind_speed_80m["unit"] == "km/h"
     assert wind_speed_925hPa["label"] == "925hPaの風速"
+    assert wind_speed_925hPa["unit"] == "km/h"
     assert wind_direction_925hPa["label"] == "925hPaの風向き"
+    assert wind_direction_925hPa["unit"] == "°"
     assert uv_index["label"] == "紫外線指数"
     assert uv_index["unit"] == ""
     assert visibility["label"] == "視程"
@@ -472,8 +474,8 @@ def test_series_exposes_min_max_for_axis_scaling():
     assert (wind_direction["min"], wind_direction["max"]) == (200.0, 220.0)
     assert (upper_wind_direction["min"], upper_wind_direction["max"]) == (230.0, 250.0)
     assert (upper_wind_speed_80m["min"], upper_wind_speed_80m["max"]) == (18.2, 20.1)
-    assert wind_speed_925hPa["min"] is not None
-    assert wind_direction_925hPa["min"] is not None
+    assert (wind_speed_925hPa["min"], wind_speed_925hPa["max"]) == (20.1, 22.8)
+    assert (wind_direction_925hPa["min"], wind_direction_925hPa["max"]) == (235.0, 255.0)
     assert (uv_index["min"], uv_index["max"]) == (0.2, 3.1)
     assert (visibility["min"], visibility["max"]) == (9200.0, 22000.0)
 
