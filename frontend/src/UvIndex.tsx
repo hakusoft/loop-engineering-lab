@@ -4,7 +4,8 @@ import type { WeatherResponse } from "./api";
 export function formatUvIndex(data: WeatherResponse): string {
   const current = Math.round(data.uv_index.value * 10) / 10;
   const max = Math.round(data.uv_index_max.value * 10) / 10;
-  return `紫外線指数 ${current}（本日の最大 ${max}）`;
+  const clearSkyMax = Math.round(data.uv_index_clear_sky_max.value * 10) / 10;
+  return `紫外線指数 ${current}（本日の最大 ${max}・快晴時 ${clearSkyMax}）`;
 }
 
 export function UvIndex({ data }: { data: WeatherResponse }) {

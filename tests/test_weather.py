@@ -114,6 +114,7 @@ STUB_RESPONSE = {
     "daily_units": {
         "time": "iso8601",
         "uv_index_max": "",
+        "uv_index_clear_sky_max": "",
         "shortwave_radiation_sum": "MJ/m²",
         "sunrise": "iso8601",
         "sunset": "iso8601",
@@ -141,6 +142,7 @@ STUB_RESPONSE = {
     "daily": {
         "time": ["2026-07-21"],
         "uv_index_max": [7.8],
+        "uv_index_clear_sky_max": [8.1],
         "shortwave_radiation_sum": [23.4],
         "sunrise": ["2026-07-21T04:44"],
         "sunset": ["2026-07-21T18:47"],
@@ -210,6 +212,7 @@ def test_format_forecast_maps_values_and_units():
     assert result["snow_depth"] == {"value": 0.0, "unit": "m"}
     assert result["uv_index"] == {"value": 5.2, "unit": ""}
     assert result["uv_index_max"] == {"value": 7.8, "unit": ""}
+    assert result["uv_index_clear_sky_max"] == {"value": 8.1, "unit": ""}
     assert result["temperature_max"] == {"value": 33.2, "unit": "°C", "date": "2026-07-21"}
     assert result["temperature_min"] == {"value": 24.7, "unit": "°C", "date": "2026-07-21"}
     assert result["temperature_mean"] == {"value": 28.9, "unit": "°C"}
@@ -779,13 +782,18 @@ def test_format_forecast_clamps_negative_uv_index():
     raw = {
         **STUB_RESPONSE,
         "current": {**STUB_RESPONSE["current"], "uv_index": -0.05},
-        "daily": {**STUB_RESPONSE["daily"], "uv_index_max": [-0.01]},
+        "daily": {
+            **STUB_RESPONSE["daily"],
+            "uv_index_max": [-0.01],
+            "uv_index_clear_sky_max": [-0.02],
+        },
     }
 
     result = format_forecast(raw)
 
     assert result["uv_index"] == {"value": 0.0, "unit": ""}
     assert result["uv_index_max"] == {"value": 0.0, "unit": ""}
+    assert result["uv_index_clear_sky_max"] == {"value": 0.0, "unit": ""}
 
 
 def test_format_hourly_series_clamps_negative_uv_index():
