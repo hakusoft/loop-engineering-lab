@@ -26,6 +26,7 @@ from app.weather import (
     _round_wind_speed,
     _seconds_to_hours,
     _weather_description,
+    _zero_uv_index_at_night,
     format_forecast,
     format_hourly_series,
 )
@@ -329,6 +330,7 @@ STUB_SERIES = {
         "wind_speed_850hPa": "km/h",
         "wind_direction_850hPa": "°",
         "wind_speed_80m": "km/h",
+        "is_day": "",
         "uv_index": "",
         "visibility": "m",
     },
@@ -353,6 +355,7 @@ STUB_SERIES = {
         "wind_speed_850hPa": [24.5, 26.1, 28.3],
         "wind_direction_850hPa": [230.0, 240.0, 250.0],
         "wind_speed_80m": [18.2, 19.5, 20.1],
+        "is_day": [1, 1, 1],
         "uv_index": [0.2, 1.5, 3.1],
         "visibility": [22000.0, 18500.0, 9200.0],
     },
@@ -770,6 +773,30 @@ def test_format_hourly_series_clamps_negative_uv_index():
 
     uv_index = next(s for s in result["series"] if s["label"] == "紫外線指数")
     assert uv_index["values"] == [0.0, 0.2, 1.5]
+    assert uv_index["min"] == 0.0
+
+
+def test_zero_uv_index_at_night_floors_night_values_to_zero():
+    assert _zero_uv_index_at_night([0.2, 1.5, 3.1], [0, 1, 1]) == [0.0, 1.5, 3.1]
+
+
+def test_zero_uv_index_at_night_passes_through_missing_values():
+    assert _zero_uv_index_at_night([None, 1.5], [0, 1]) == [None, 1.5]
+
+
+def test_format_hourly_series_zeroes_uv_index_at_night():
+    """夜間(is_day=0)は紫外線指数が補間でごく小さい正の値を残すことがあるため0にする。"""
+    hourly = {
+        **STUB_SERIES["hourly"],
+        "is_day": [0, 1, 1],
+        "uv_index": [0.2, 1.5, 3.1],
+    }
+    raw = {**STUB_SERIES, "hourly": hourly}
+
+    result = format_hourly_series(raw)
+
+    uv_index = next(s for s in result["series"] if s["label"] == "紫外線指数")
+    assert uv_index["values"] == [0.0, 1.5, 3.1]
     assert uv_index["min"] == 0.0
 
 
