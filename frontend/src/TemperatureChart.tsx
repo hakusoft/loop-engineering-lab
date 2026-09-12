@@ -20,6 +20,7 @@ function toChartData(data: SeriesResponse) {
   const temperature80m = data.series.find((s) => s.label === "上空の気温(80m)");
   const temperature120m = data.series.find((s) => s.label === "上空の気温(120m)");
   const temperature180m = data.series.find((s) => s.label === "上空の気温(180m)");
+  const temperature925hPa = data.series.find((s) => s.label === "925hPaの気温");
   const apparentTemperature = data.series.find((s) => s.label === "体感温度");
   const dewPoint = data.series.find((s) => s.label === "露点温度");
   const humidity = data.series.find((s) => s.label === "湿度");
@@ -35,6 +36,8 @@ function toChartData(data: SeriesResponse) {
   const upperWindSpeed = data.series.find((s) => s.label === "上空の風速");
   const upperWindDirection = data.series.find((s) => s.label === "上空の風向き");
   const upperWindSpeed80m = data.series.find((s) => s.label === "上空の風速(80m)");
+  const windSpeed925hPa = data.series.find((s) => s.label === "925hPaの風速");
+  const windDirection925hPa = data.series.find((s) => s.label === "925hPaの風向き");
   const uvIndex = data.series.find((s) => s.label === "紫外線指数");
   const visibility = data.series.find((s) => s.label === "視程");
   if (!temperature) {
@@ -44,6 +47,7 @@ function toChartData(data: SeriesResponse) {
       temperature80m: undefined,
       temperature120m: undefined,
       temperature180m: undefined,
+      temperature925hPa: undefined,
       apparentTemperature: undefined,
       dewPoint: undefined,
       humidity: undefined,
@@ -59,6 +63,8 @@ function toChartData(data: SeriesResponse) {
       upperWindSpeed: undefined,
       upperWindDirection: undefined,
       upperWindSpeed80m: undefined,
+      windSpeed925hPa: undefined,
+      windDirection925hPa: undefined,
       uvIndex: undefined,
       visibility: undefined,
     };
@@ -71,6 +77,7 @@ function toChartData(data: SeriesResponse) {
     temperature80m: temperature80m?.values[i] ?? null,
     temperature120m: temperature120m?.values[i] ?? null,
     temperature180m: temperature180m?.values[i] ?? null,
+    temperature925hPa: temperature925hPa?.values[i] ?? null,
     apparentTemperature: apparentTemperature?.values[i] ?? null,
     dewPoint: dewPoint?.values[i] ?? null,
     humidity: humidity?.values[i] ?? null,
@@ -86,6 +93,8 @@ function toChartData(data: SeriesResponse) {
     upperWindSpeed: upperWindSpeed?.values[i] ?? null,
     upperWindDirection: upperWindDirection?.values[i] ?? null,
     upperWindSpeed80m: upperWindSpeed80m?.values[i] ?? null,
+    windSpeed925hPa: windSpeed925hPa?.values[i] ?? null,
+    windDirection925hPa: windDirection925hPa?.values[i] ?? null,
     uvIndex: uvIndex?.values[i] ?? null,
     visibility: visibility?.values[i] ?? null,
   }));
@@ -95,6 +104,7 @@ function toChartData(data: SeriesResponse) {
     temperature80m,
     temperature120m,
     temperature180m,
+    temperature925hPa,
     apparentTemperature,
     dewPoint,
     humidity,
@@ -110,6 +120,8 @@ function toChartData(data: SeriesResponse) {
     upperWindSpeed,
     upperWindDirection,
     upperWindSpeed80m,
+    windSpeed925hPa,
+    windDirection925hPa,
     uvIndex,
     visibility,
   };
@@ -239,6 +251,7 @@ const SECONDARY_SERIES = [
   { key: "temperature80m", label: "上空の気温(80m)" },
   { key: "temperature120m", label: "上空の気温(120m)" },
   { key: "temperature180m", label: "上空の気温(180m)" },
+  { key: "temperature925hPa", label: "925hPaの気温" },
   { key: "apparentTemperature", label: "体感温度" },
   { key: "dewPoint", label: "露点温度" },
   { key: "humidity", label: "湿度" },
@@ -252,6 +265,8 @@ const SECONDARY_SERIES = [
   { key: "upperWindSpeed", label: "上空の風速" },
   { key: "upperWindDirection", label: "上空の風向き" },
   { key: "upperWindSpeed80m", label: "上空の風速(80m)" },
+  { key: "windSpeed925hPa", label: "925hPaの風速" },
+  { key: "windDirection925hPa", label: "925hPaの風向き" },
   { key: "uvIndex", label: "紫外線指数" },
   { key: "visibility", label: "視程" },
 ] as const;
@@ -316,6 +331,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     temperature80m,
     temperature120m,
     temperature180m,
+    temperature925hPa,
     apparentTemperature,
     dewPoint,
     humidity,
@@ -331,6 +347,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     upperWindSpeed,
     upperWindDirection,
     upperWindSpeed80m,
+    windSpeed925hPa,
+    windDirection925hPa,
     uvIndex,
     visibility,
   } = toChartData(data);
@@ -360,6 +378,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             return Boolean(temperature120m);
           case "temperature180m":
             return Boolean(temperature180m);
+          case "temperature925hPa":
+            return Boolean(temperature925hPa);
           case "apparentTemperature":
             return Boolean(apparentTemperature);
           case "dewPoint":
@@ -386,6 +406,10 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             return Boolean(upperWindDirection);
           case "upperWindSpeed80m":
             return Boolean(upperWindSpeed80m);
+          case "windSpeed925hPa":
+            return Boolean(windSpeed925hPa);
+          case "windDirection925hPa":
+            return Boolean(windDirection925hPa);
           case "uvIndex":
             return Boolean(uvIndex);
           case "visibility":
@@ -396,6 +420,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
       temperature80m,
       temperature120m,
       temperature180m,
+      temperature925hPa,
       apparentTemperature,
       dewPoint,
       humidity,
@@ -409,6 +434,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
       upperWindSpeed,
       upperWindDirection,
       upperWindSpeed80m,
+      windSpeed925hPa,
+      windDirection925hPa,
       uvIndex,
       visibility,
     ],
@@ -430,6 +457,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
   const showTemperature80m = temperature80m && visibleSecondary.has("temperature80m");
   const showTemperature120m = temperature120m && visibleSecondary.has("temperature120m");
   const showTemperature180m = temperature180m && visibleSecondary.has("temperature180m");
+  const showTemperature925hPa = temperature925hPa && visibleSecondary.has("temperature925hPa");
   const showApparentTemperature = apparentTemperature && visibleSecondary.has("apparentTemperature");
   const showDewPoint = dewPoint && visibleSecondary.has("dewPoint");
   const showHumidity = humidity && visibleSecondary.has("humidity");
@@ -443,6 +471,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
   const showUpperWindSpeed = upperWindSpeed && visibleSecondary.has("upperWindSpeed");
   const showUpperWindDirection = upperWindDirection && visibleSecondary.has("upperWindDirection");
   const showUpperWindSpeed80m = upperWindSpeed80m && visibleSecondary.has("upperWindSpeed80m");
+  const showWindSpeed925hPa = windSpeed925hPa && visibleSecondary.has("windSpeed925hPa");
+  const showWindDirection925hPa = windDirection925hPa && visibleSecondary.has("windDirection925hPa");
   const showUvIndex = uvIndex && visibleSecondary.has("uvIndex");
   const showVisibility = visibility && visibleSecondary.has("visibility");
 
@@ -569,6 +599,18 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             domain={[0, Math.max(upperWindSpeed80m!.max ?? 0, 1) + 1]}
           />
         )}
+        {showWindSpeed925hPa && (
+          // 925hPa の風速も他の風速系列とスケールが異なるため、軸を分ける。
+          <YAxis
+            yAxisId="windSpeed925hPa"
+            hide
+            domain={[0, Math.max(windSpeed925hPa!.max ?? 0, 1) + 1]}
+          />
+        )}
+        {showWindDirection925hPa && (
+          // 925hPa の風向きも度数（0〜360）固定なので、他の風向き系列とは別軸にする。
+          <YAxis yAxisId="windDirection925hPa" hide domain={[0, 360]} />
+        )}
         {showPressure && (
           // 気圧も他系列と単位・スケールが違うので、独立した軸にする。
           <YAxis
@@ -608,6 +650,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
                     ? temperature120m?.unit
                     : name === "上空の気温(180m)"
                       ? temperature180m?.unit
+                  : name === "925hPaの気温"
+                    ? temperature925hPa?.unit
                   : name === "体感温度"
                     ? apparentTemperature?.unit
                   : name === "露点温度"
@@ -636,6 +680,10 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
                                       ? upperWindDirection?.unit
                                       : name === "上空の風速(80m)"
                                         ? upperWindSpeed80m?.unit
+                                        : name === "925hPaの風速"
+                                          ? windSpeed925hPa?.unit
+                                          : name === "925hPaの風向き"
+                                            ? windDirection925hPa?.unit
                                         : name === "視程"
                                           ? visibility?.unit
                                           : name === "積雪の深さ"
@@ -694,6 +742,20 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             dot={false}
             isAnimationActive={false}
             name="上空の気温(180m)"
+            connectNulls
+          />
+        )}
+        {showTemperature925hPa && (
+          <Line
+            yAxisId="temperature"
+            type="monotone"
+            dataKey="temperature925hPa"
+            stroke="#1c7ed6"
+            strokeDasharray="3 3"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="925hPaの気温"
             connectNulls
           />
         )}
@@ -892,6 +954,34 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             dot={false}
             isAnimationActive={false}
             name="上空の風速(80m)"
+            connectNulls
+          />
+        )}
+        {showWindSpeed925hPa && (
+          <Line
+            yAxisId="windSpeed925hPa"
+            type="monotone"
+            dataKey="windSpeed925hPa"
+            stroke="#f06595"
+            strokeWidth={2}
+            strokeDasharray="4 2"
+            dot={false}
+            isAnimationActive={false}
+            name="925hPaの風速"
+            connectNulls
+          />
+        )}
+        {showWindDirection925hPa && (
+          <Line
+            yAxisId="windDirection925hPa"
+            type="monotone"
+            dataKey="windDirection925hPa"
+            stroke="#0b7285"
+            strokeWidth={2}
+            strokeDasharray="4 2"
+            dot={false}
+            isAnimationActive={false}
+            name="925hPaの風向き"
             connectNulls
           />
         )}

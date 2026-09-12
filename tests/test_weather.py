@@ -26,6 +26,7 @@ from app.weather import (
     _round_wind_speed,
     _seconds_to_hours,
     _weather_description,
+    _zero_uv_index_at_night,
     format_forecast,
     format_hourly_series,
 )
@@ -135,6 +136,7 @@ STUB_RESPONSE = {
         "wind_gusts_10m_max": "km/h",
         "relative_humidity_2m_max": "%",
         "relative_humidity_2m_min": "%",
+        "relative_humidity_2m_mean": "%",
     },
     "daily": {
         "time": ["2026-07-21"],
@@ -161,6 +163,7 @@ STUB_RESPONSE = {
         "wind_gusts_10m_max": [42.6],
         "relative_humidity_2m_max": [85],
         "relative_humidity_2m_min": [55],
+        "relative_humidity_2m_mean": [68],
     },
 }
 
@@ -215,6 +218,7 @@ def test_format_forecast_maps_values_and_units():
     assert result["apparent_temperature_mean"] == {"value": 31.2, "unit": "°C"}
     assert result["humidity_max"] == {"value": 85, "unit": "%"}
     assert result["humidity_min"] == {"value": 55, "unit": "%"}
+    assert result["humidity_mean"] == {"value": 68, "unit": "%"}
     assert result["precipitation_probability"] == {
         "value": 20,
         "unit": "%",
@@ -281,7 +285,7 @@ def test_format_forecast_groups_temperature_and_humidity_fields():
     positions = sorted(keys.index(k) for k in temperature_keys)
     assert positions[-1] - positions[0] == len(temperature_keys) - 1
 
-    humidity_keys = ["humidity", "humidity_max", "humidity_min"]
+    humidity_keys = ["humidity", "humidity_max", "humidity_min", "humidity_mean"]
     positions = sorted(keys.index(k) for k in humidity_keys)
     assert positions[-1] - positions[0] == len(humidity_keys) - 1
 
@@ -317,6 +321,7 @@ STUB_SERIES = {
         "temperature_80m": "°C",
         "temperature_120m": "°C",
         "temperature_180m": "°C",
+        "temperature_925hPa": "°C",
         "apparent_temperature": "°C",
         "dew_point_2m": "°C",
         "relative_humidity_2m": "%",
@@ -330,7 +335,10 @@ STUB_SERIES = {
         "wind_gusts_10m": "km/h",
         "wind_speed_850hPa": "km/h",
         "wind_direction_850hPa": "°",
+        "wind_speed_925hPa": "km/h",
+        "wind_direction_925hPa": "°",
         "wind_speed_80m": "km/h",
+        "is_day": "",
         "uv_index": "",
         "visibility": "m",
     },
@@ -343,6 +351,7 @@ STUB_SERIES = {
         "temperature_80m": [24.8, 24.1, 23.6],
         "temperature_120m": [24.2, 23.5, 23.0],
         "temperature_180m": [23.4, 22.7, 22.2],
+        "temperature_925hPa": [23.6, 23.0, 22.5],
         "apparent_temperature": [27.3, 26.5, 25.8],
         "dew_point_2m": [21.8, 21.5, 21.2],
         "relative_humidity_2m": [78, 81, 85],
@@ -356,7 +365,10 @@ STUB_SERIES = {
         "wind_gusts_10m": [15.2, 17.8, 19.6],
         "wind_speed_850hPa": [24.5, 26.1, 28.3],
         "wind_direction_850hPa": [230.0, 240.0, 250.0],
+        "wind_speed_925hPa": [20.1, 21.4, 22.8],
+        "wind_direction_925hPa": [235.0, 245.0, 255.0],
         "wind_speed_80m": [18.2, 19.5, 20.1],
+        "is_day": [1, 1, 1],
         "uv_index": [0.2, 1.5, 3.1],
         "visibility": [22000.0, 18500.0, 9200.0],
     },
@@ -379,6 +391,7 @@ def test_series_keeps_units_separate_for_split_axes():
     temperature_80m = by_label["上空の気温(80m)"]
     temperature_120m = by_label["上空の気温(120m)"]
     temperature_180m = by_label["上空の気温(180m)"]
+    temperature_925hPa = by_label["925hPaの気温"]
     apparent_temperature = by_label["体感温度"]
     dew_point = by_label["露点温度"]
     humidity = by_label["湿度"]
@@ -392,6 +405,8 @@ def test_series_keeps_units_separate_for_split_axes():
     wind_gusts = by_label["瞬間風速"]
     upper_wind_direction = by_label["上空の風向き"]
     upper_wind_speed_80m = by_label["上空の風速(80m)"]
+    wind_speed_925hPa = by_label["925hPaの風速"]
+    wind_direction_925hPa = by_label["925hPaの風向き"]
     uv_index = by_label["紫外線指数"]
     visibility = by_label["視程"]
 
@@ -403,6 +418,8 @@ def test_series_keeps_units_separate_for_split_axes():
     assert temperature_120m["unit"] == "°C"
     assert temperature_180m["label"] == "上空の気温(180m)"
     assert temperature_180m["unit"] == "°C"
+    assert temperature_925hPa["label"] == "925hPaの気温"
+    assert temperature_925hPa["unit"] == "°C"
     assert apparent_temperature["label"] == "体感温度"
     assert apparent_temperature["unit"] == "°C"
     assert dew_point["label"] == "露点温度"
@@ -429,6 +446,10 @@ def test_series_keeps_units_separate_for_split_axes():
     assert upper_wind_direction["unit"] == "°"
     assert upper_wind_speed_80m["label"] == "上空の風速(80m)"
     assert upper_wind_speed_80m["unit"] == "km/h"
+    assert wind_speed_925hPa["label"] == "925hPaの風速"
+    assert wind_speed_925hPa["unit"] == "km/h"
+    assert wind_direction_925hPa["label"] == "925hPaの風向き"
+    assert wind_direction_925hPa["unit"] == "°"
     assert uv_index["label"] == "紫外線指数"
     assert uv_index["unit"] == ""
     assert visibility["label"] == "視程"
@@ -443,6 +464,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     temperature_80m = by_label["上空の気温(80m)"]
     temperature_120m = by_label["上空の気温(120m)"]
     temperature_180m = by_label["上空の気温(180m)"]
+    temperature_925hPa = by_label["925hPaの気温"]
     apparent_temperature = by_label["体感温度"]
     dew_point = by_label["露点温度"]
     humidity = by_label["湿度"]
@@ -456,6 +478,8 @@ def test_series_exposes_min_max_for_axis_scaling():
     wind_gusts = by_label["瞬間風速"]
     upper_wind_direction = by_label["上空の風向き"]
     upper_wind_speed_80m = by_label["上空の風速(80m)"]
+    wind_speed_925hPa = by_label["925hPaの風速"]
+    wind_direction_925hPa = by_label["925hPaの風向き"]
     uv_index = by_label["紫外線指数"]
     visibility = by_label["視程"]
 
@@ -463,6 +487,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     assert (temperature_80m["min"], temperature_80m["max"]) == (23.6, 24.8)
     assert (temperature_120m["min"], temperature_120m["max"]) == (23.0, 24.2)
     assert (temperature_180m["min"], temperature_180m["max"]) == (22.2, 23.4)
+    assert (temperature_925hPa["min"], temperature_925hPa["max"]) == (22.5, 23.6)
     assert (apparent_temperature["min"], apparent_temperature["max"]) == (25.8, 27.3)
     assert (dew_point["min"], dew_point["max"]) == (21.2, 21.8)
     assert (humidity["min"], humidity["max"]) == (78, 85)
@@ -476,6 +501,8 @@ def test_series_exposes_min_max_for_axis_scaling():
     assert (wind_gusts["min"], wind_gusts["max"]) == (15.2, 19.6)
     assert (upper_wind_direction["min"], upper_wind_direction["max"]) == (230.0, 250.0)
     assert (upper_wind_speed_80m["min"], upper_wind_speed_80m["max"]) == (18.2, 20.1)
+    assert (wind_speed_925hPa["min"], wind_speed_925hPa["max"]) == (20.1, 22.8)
+    assert (wind_direction_925hPa["min"], wind_direction_925hPa["max"]) == (235.0, 255.0)
     assert (uv_index["min"], uv_index["max"]) == (0.2, 3.1)
     assert (visibility["min"], visibility["max"]) == (9200.0, 22000.0)
 
@@ -787,6 +814,30 @@ def test_format_hourly_series_clamps_negative_uv_index():
     assert uv_index["min"] == 0.0
 
 
+def test_zero_uv_index_at_night_floors_night_values_to_zero():
+    assert _zero_uv_index_at_night([0.2, 1.5, 3.1], [0, 1, 1]) == [0.0, 1.5, 3.1]
+
+
+def test_zero_uv_index_at_night_passes_through_missing_values():
+    assert _zero_uv_index_at_night([None, 1.5], [0, 1]) == [None, 1.5]
+
+
+def test_format_hourly_series_zeroes_uv_index_at_night():
+    """夜間(is_day=0)は紫外線指数が補間でごく小さい正の値を残すことがあるため0にする。"""
+    hourly = {
+        **STUB_SERIES["hourly"],
+        "is_day": [0, 1, 1],
+        "uv_index": [0.2, 1.5, 3.1],
+    }
+    raw = {**STUB_SERIES, "hourly": hourly}
+
+    result = format_hourly_series(raw)
+
+    uv_index = next(s for s in result["series"] if s["label"] == "紫外線指数")
+    assert uv_index["values"] == [0.0, 1.5, 3.1]
+    assert uv_index["min"] == 0.0
+
+
 def test_format_hourly_series_rounds_visibility():
     """視程の系列は整数mに丸める。他の系列と違って小数点以下の桁数が長くなることがある
     という報告（Slack）への対応。min/maxの計算にも丸め後の値が反映される。"""
@@ -866,6 +917,7 @@ def test_format_forecast_rounds_humidity():
             **STUB_RESPONSE["daily"],
             "relative_humidity_2m_max": [85.449999],
             "relative_humidity_2m_min": [55.949999],
+            "relative_humidity_2m_mean": [68.349999],
         },
     }
 
@@ -874,6 +926,7 @@ def test_format_forecast_rounds_humidity():
     assert result["humidity"] == {"value": 71.3, "unit": "%"}
     assert result["humidity_max"] == {"value": 85.4, "unit": "%"}
     assert result["humidity_min"] == {"value": 55.9, "unit": "%"}
+    assert result["humidity_mean"] == {"value": 68.3, "unit": "%"}
 
 
 def test_round_soil_moisture_rounds_to_three_decimal_places():
@@ -1142,6 +1195,7 @@ def test_hourly_series_are_all_requested_fields():
         "上空の気温(80m)": "temperature_80m",
         "上空の気温(120m)": "temperature_120m",
         "上空の気温(180m)": "temperature_180m",
+        "925hPaの気温": "temperature_925hPa",
         "体感温度": "apparent_temperature",
         "露点温度": "dew_point_2m",
         "湿度": "relative_humidity_2m",
@@ -1156,6 +1210,8 @@ def test_hourly_series_are_all_requested_fields():
         "瞬間風速": "wind_gusts_10m",
         "上空の風速": "wind_speed_850hPa",
         "上空の風向き": "wind_direction_850hPa",
+        "925hPaの風速": "wind_speed_925hPa",
+        "925hPaの風向き": "wind_direction_925hPa",
         "上空の風速(80m)": "wind_speed_80m",
         "紫外線指数": "uv_index",
         "視程": "visibility",
