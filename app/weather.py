@@ -238,6 +238,8 @@ HOURLY_FIELDS = [
     "cloud_cover",
     "temperature_2m",
     "temperature_80m",
+    "temperature_120m",
+    "temperature_180m",
     "dew_point_2m",
     "relative_humidity_2m",
     "precipitation",
@@ -755,6 +757,8 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
         "series": [
             _series("temperature_2m", "気温", "°C"),
             _series("temperature_80m", "上空の気温(80m)", "°C"),
+            _series("temperature_120m", "上空の気温(120m)", "°C"),
+            _series("temperature_180m", "上空の気温(180m)", "°C"),
             _series("apparent_temperature", "体感温度", "°C"),
             _series("dew_point_2m", "露点温度", "°C"),
             _series("relative_humidity_2m", "湿度", "%"),

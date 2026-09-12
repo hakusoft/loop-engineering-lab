@@ -18,6 +18,8 @@ import type { SeriesResponse } from "./api";
 function toChartData(data: SeriesResponse) {
   const temperature = data.series.find((s) => s.label === "気温");
   const temperature80m = data.series.find((s) => s.label === "上空の気温(80m)");
+  const temperature120m = data.series.find((s) => s.label === "上空の気温(120m)");
+  const temperature180m = data.series.find((s) => s.label === "上空の気温(180m)");
   const apparentTemperature = data.series.find((s) => s.label === "体感温度");
   const dewPoint = data.series.find((s) => s.label === "露点温度");
   const humidity = data.series.find((s) => s.label === "湿度");
@@ -40,6 +42,8 @@ function toChartData(data: SeriesResponse) {
       rows: [],
       temperatureUnit: "°C",
       temperature80m: undefined,
+      temperature120m: undefined,
+      temperature180m: undefined,
       apparentTemperature: undefined,
       dewPoint: undefined,
       humidity: undefined,
@@ -65,6 +69,8 @@ function toChartData(data: SeriesResponse) {
     time: t.slice(8, 10) + "日 " + t.slice(11, 16),
     temperature: temperature.values[i],
     temperature80m: temperature80m?.values[i] ?? null,
+    temperature120m: temperature120m?.values[i] ?? null,
+    temperature180m: temperature180m?.values[i] ?? null,
     apparentTemperature: apparentTemperature?.values[i] ?? null,
     dewPoint: dewPoint?.values[i] ?? null,
     humidity: humidity?.values[i] ?? null,
@@ -87,6 +93,8 @@ function toChartData(data: SeriesResponse) {
     rows,
     temperatureUnit: temperature.unit,
     temperature80m,
+    temperature120m,
+    temperature180m,
     apparentTemperature,
     dewPoint,
     humidity,
@@ -229,6 +237,8 @@ export function formatUvIndexPeak(data: SeriesResponse, now: Date): string | nul
 // 表示し、それ以外はチェックボックスで必要な時だけ追加できるようにする。
 const SECONDARY_SERIES = [
   { key: "temperature80m", label: "上空の気温(80m)" },
+  { key: "temperature120m", label: "上空の気温(120m)" },
+  { key: "temperature180m", label: "上空の気温(180m)" },
   { key: "apparentTemperature", label: "体感温度" },
   { key: "dewPoint", label: "露点温度" },
   { key: "humidity", label: "湿度" },
@@ -304,6 +314,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     rows,
     temperatureUnit,
     temperature80m,
+    temperature120m,
+    temperature180m,
     apparentTemperature,
     dewPoint,
     humidity,
@@ -344,6 +356,10 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
         switch (key) {
           case "temperature80m":
             return Boolean(temperature80m);
+          case "temperature120m":
+            return Boolean(temperature120m);
+          case "temperature180m":
+            return Boolean(temperature180m);
           case "apparentTemperature":
             return Boolean(apparentTemperature);
           case "dewPoint":
@@ -378,6 +394,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
       }),
     [
       temperature80m,
+      temperature120m,
+      temperature180m,
       apparentTemperature,
       dewPoint,
       humidity,
@@ -410,6 +428,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
   }
 
   const showTemperature80m = temperature80m && visibleSecondary.has("temperature80m");
+  const showTemperature120m = temperature120m && visibleSecondary.has("temperature120m");
+  const showTemperature180m = temperature180m && visibleSecondary.has("temperature180m");
   const showApparentTemperature = apparentTemperature && visibleSecondary.has("apparentTemperature");
   const showDewPoint = dewPoint && visibleSecondary.has("dewPoint");
   const showHumidity = humidity && visibleSecondary.has("humidity");
@@ -584,6 +604,10 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
                 ? temperatureUnit
                 : name === "上空の気温(80m)"
                   ? temperature80m?.unit
+                  : name === "上空の気温(120m)"
+                    ? temperature120m?.unit
+                    : name === "上空の気温(180m)"
+                      ? temperature180m?.unit
                   : name === "体感温度"
                     ? apparentTemperature?.unit
                   : name === "露点温度"
@@ -642,6 +666,34 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             dot={false}
             isAnimationActive={false}
             name="上空の気温(80m)"
+            connectNulls
+          />
+        )}
+        {showTemperature120m && (
+          <Line
+            yAxisId="temperature"
+            type="monotone"
+            dataKey="temperature120m"
+            stroke="#5c940d"
+            strokeDasharray="5 3"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="上空の気温(120m)"
+            connectNulls
+          />
+        )}
+        {showTemperature180m && (
+          <Line
+            yAxisId="temperature"
+            type="monotone"
+            dataKey="temperature180m"
+            stroke="#ae3ec9"
+            strokeDasharray="5 3"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="上空の気温(180m)"
             connectNulls
           />
         )}
