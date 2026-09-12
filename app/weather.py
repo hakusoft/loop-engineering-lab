@@ -232,6 +232,7 @@ DAILY_FIELDS = [
     "apparent_temperature_mean",
     "relative_humidity_2m_max",
     "relative_humidity_2m_min",
+    "relative_humidity_2m_mean",
 ]
 
 HOURLY_FIELDS = [
@@ -251,6 +252,7 @@ HOURLY_FIELDS = [
     "surface_pressure",
     "wind_speed_10m",
     "wind_direction_10m",
+    "wind_gusts_10m",
     "wind_speed_850hPa",
     "wind_direction_850hPa",
     "wind_speed_80m",
@@ -441,6 +443,10 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
         "humidity_min": {
             "value": _round_humidity(daily["relative_humidity_2m_min"][0]),
             "unit": daily_units.get("relative_humidity_2m_min", "%"),
+        },
+        "humidity_mean": {
+            "value": _round_humidity(daily["relative_humidity_2m_mean"][0]),
+            "unit": daily_units.get("relative_humidity_2m_mean", "%"),
         },
         "wind_speed": {
             "value": _round_wind_speed(current["wind_speed_10m"]),
@@ -775,6 +781,7 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
             _series("cloud_cover", "雲量", "%"),
             _series("wind_speed_10m", "風速", "km/h"),
             _series("wind_direction_10m", "風向き", "°"),
+            _series("wind_gusts_10m", "瞬間風速", "km/h"),
             _series("wind_speed_850hPa", "上空の風速", "km/h"),
             _series("wind_direction_850hPa", "上空の風向き", "°"),
             _series("wind_speed_80m", "上空の風速(80m)", "km/h"),

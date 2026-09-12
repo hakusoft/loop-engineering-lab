@@ -13,6 +13,7 @@ import { Elevation } from "./Elevation";
 import { GardenWatering } from "./GardenWatering";
 import { HeatStrokeRisk } from "./HeatStrokeRisk";
 import { Humidity } from "./Humidity";
+import { HumidityMean } from "./HumidityMean";
 import { HumidityRange } from "./HumidityRange";
 import { LaundryDryness } from "./LaundryDryness";
 import { Evapotranspiration } from "./Evapotranspiration";
@@ -89,7 +90,7 @@ export const DISPLAY_ITEMS: DisplayItem[] = [
   { category: "気温", component: HeatStrokeRisk, tier: "more" },
   { category: "気温", component: ApparentTemperatureRange, tier: "more" },
   { category: "気温", component: ApparentTemperatureMean, tier: "more" },
-  { category: "気温", component: TemperatureRange, tier: "primary" },
+  { category: "気温", component: TemperatureRange, tier: "more" },
   { category: "気温", component: TemperatureMean, tier: "more" },
   { category: "気温", component: DewPoint, tier: "more" },
   { category: "気温", component: WetBulbTemperature, tier: "more" },
@@ -99,6 +100,7 @@ export const DISPLAY_ITEMS: DisplayItem[] = [
 
   { category: "降水・湿度", component: Humidity, tier: "primary" },
   { category: "降水・湿度", component: HumidityRange, tier: "more" },
+  { category: "降水・湿度", component: HumidityMean, tier: "more" },
   { category: "降水・湿度", component: Precipitation, tier: "primary" },
   { category: "降水・湿度", component: PrecipitationType, tier: "more" },
   { category: "降水・湿度", component: Showers, tier: "more" },

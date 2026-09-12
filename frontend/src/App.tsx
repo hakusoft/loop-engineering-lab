@@ -23,6 +23,10 @@ type WeatherState =
   | { status: "error" }
   | { status: "ready"; data: WeatherResponse };
 
+// 画面を開きっぱなしにしていると更新されないという声を受け、この間隔で
+// データを再取得する（Issue #361）。
+const REFRESH_INTERVAL_MS = 10 * 60 * 1000;
+
 // カテゴリの開閉状態を保存するキーの接頭辞。カテゴリ名ごとに分けて保存する。
 const CATEGORY_OPEN_STORAGE_PREFIX = "loop-engineering-lab:category-open:";
 
@@ -167,25 +171,49 @@ export default function App() {
   const [state, setState] = useState<State>({ status: "loading" });
   const [weatherState, setWeatherState] = useState<WeatherState>({ status: "loading" });
 
+  // 画面を開きっぱなしにしていると数字が更新されないという声を受け、初回だけで
+  // なく一定間隔で再取得する（Issue #361）。再取得が一時的に失敗しても、
+  // 既に表示できているデータがあればそのまま表示を維持し、エラー画面には
+  // 切り替えない（初回読み込みが失敗したときだけ、従来通りエラー表示にする）。
   useEffect(() => {
     let alive = true;
-    fetchSeries()
-      .then((data) => alive && setState({ status: "ready", data }))
-      .catch((e) =>
-        alive && setState({ status: "error", message: String(e.message ?? e) }),
-      );
+    const load = () => {
+      fetchSeries()
+        .then((data) => alive && setState({ status: "ready", data }))
+        .catch(
+          (e) =>
+            alive &&
+            setState((prev) =>
+              prev.status === "ready"
+                ? prev
+                : { status: "error", message: String(e.message ?? e) },
+            ),
+        );
+    };
+    load();
+    const id = setInterval(load, REFRESH_INTERVAL_MS);
     return () => {
       alive = false;
+      clearInterval(id);
     };
   }, []);
 
   useEffect(() => {
     let alive = true;
-    fetchWeather()
-      .then((data) => alive && setWeatherState({ status: "ready", data }))
-      .catch(() => alive && setWeatherState({ status: "error" }));
+    const load = () => {
+      fetchWeather()
+        .then((data) => alive && setWeatherState({ status: "ready", data }))
+        .catch(
+          () =>
+            alive &&
+            setWeatherState((prev) => (prev.status === "ready" ? prev : { status: "error" })),
+        );
+    };
+    load();
+    const id = setInterval(load, REFRESH_INTERVAL_MS);
     return () => {
       alive = false;
+      clearInterval(id);
     };
   }, []);
 
