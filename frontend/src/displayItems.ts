@@ -35,7 +35,6 @@ import { Showers } from "./Showers";
 import { Pressure } from "./Pressure";
 import { SeaLevelPressure } from "./SeaLevelPressure";
 import { SnowDepth } from "./SnowDepth";
-import { SnowfallHeight } from "./SnowfallHeight";
 import { SolarRadiation } from "./SolarRadiation";
 import { SolarRadiationDirect } from "./SolarRadiationDirect";
 import { SolarRadiationDiffuse } from "./SolarRadiationDiffuse";
@@ -127,7 +126,6 @@ export const DISPLAY_ITEMS: DisplayItem[] = [
   { category: "環境", component: CloudCoverLayers, tier: "more" },
   { category: "環境", component: Visibility, tier: "primary" },
   { category: "環境", component: FreezingLevel, tier: "more" },
-  { category: "環境", component: SnowfallHeight, tier: "more" },
   { category: "環境", component: SolarRadiation, tier: "more" },
   { category: "環境", component: SolarRadiationDirect, tier: "more" },
   { category: "環境", component: SolarRadiationDiffuse, tier: "more" },

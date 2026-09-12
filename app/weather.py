@@ -188,7 +188,6 @@ CURRENT_FIELDS = [
     "is_day",
     "visibility",
     "freezing_level_height",
-    "snowfall_height",
     "dew_point_2m",
     "temperature_850hPa",
     "vapour_pressure_deficit",
@@ -546,10 +545,6 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
         "freezing_level_height": {
             "value": current["freezing_level_height"],
             "unit": units.get("freezing_level_height", "m"),
-        },
-        "snowfall_height": {
-            "value": current["snowfall_height"],
-            "unit": units.get("snowfall_height", "m"),
         },
         "solar_radiation": {
             "value": current["shortwave_radiation"],

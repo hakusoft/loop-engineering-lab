@@ -54,7 +54,6 @@ STUB_RESPONSE = {
         "cloud_cover_high": "%",
         "visibility": "m",
         "freezing_level_height": "m",
-        "snowfall_height": "m",
         "dew_point_2m": "°C",
         "temperature_850hPa": "°C",
         "vapour_pressure_deficit": "kPa",
@@ -94,7 +93,6 @@ STUB_RESPONSE = {
         "is_day": 1,
         "visibility": 24140.0,
         "freezing_level_height": 4800.0,
-        "snowfall_height": 1400.0,
         "dew_point_2m": 22.6,
         "temperature_850hPa": 15.9,
         "vapour_pressure_deficit": 1.42,
@@ -206,7 +204,6 @@ def test_format_forecast_maps_values_and_units():
     assert result["cloud_cover_high"] == {"value": 30, "unit": "%"}
     assert result["visibility"] == {"value": 24140.0, "unit": "m"}
     assert result["freezing_level_height"] == {"value": 4800.0, "unit": "m"}
-    assert result["snowfall_height"] == {"value": 1400.0, "unit": "m"}
     assert result["solar_radiation"] == {"value": 412.0, "unit": "W/m²"}
     assert result["solar_radiation_direct"] == {"value": 298.0, "unit": "W/m²"}
     assert result["solar_radiation_diffuse"] == {"value": 114.0, "unit": "W/m²"}
