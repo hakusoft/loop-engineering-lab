@@ -319,6 +319,8 @@ STUB_SERIES = {
         "cloud_cover": "%",
         "temperature_2m": "°C",
         "temperature_80m": "°C",
+        "temperature_120m": "°C",
+        "temperature_180m": "°C",
         "temperature_925hPa": "°C",
         "apparent_temperature": "°C",
         "dew_point_2m": "°C",
@@ -347,6 +349,8 @@ STUB_SERIES = {
         "cloud_cover": [20, 55, 90],
         "temperature_2m": [26.1, 25.4, 24.9],
         "temperature_80m": [24.8, 24.1, 23.6],
+        "temperature_120m": [24.2, 23.5, 23.0],
+        "temperature_180m": [23.4, 22.7, 22.2],
         "temperature_925hPa": [23.6, 23.0, 22.5],
         "apparent_temperature": [27.3, 26.5, 25.8],
         "dew_point_2m": [21.8, 21.5, 21.2],
@@ -385,6 +389,8 @@ def test_series_keeps_units_separate_for_split_axes():
     by_label = {s["label"]: s for s in result["series"]}
     temperature = by_label["気温"]
     temperature_80m = by_label["上空の気温(80m)"]
+    temperature_120m = by_label["上空の気温(120m)"]
+    temperature_180m = by_label["上空の気温(180m)"]
     temperature_925hPa = by_label["925hPaの気温"]
     apparent_temperature = by_label["体感温度"]
     dew_point = by_label["露点温度"]
@@ -408,6 +414,10 @@ def test_series_keeps_units_separate_for_split_axes():
     assert temperature["unit"] == "°C"
     assert temperature_80m["label"] == "上空の気温(80m)"
     assert temperature_80m["unit"] == "°C"
+    assert temperature_120m["label"] == "上空の気温(120m)"
+    assert temperature_120m["unit"] == "°C"
+    assert temperature_180m["label"] == "上空の気温(180m)"
+    assert temperature_180m["unit"] == "°C"
     assert temperature_925hPa["label"] == "925hPaの気温"
     assert temperature_925hPa["unit"] == "°C"
     assert apparent_temperature["label"] == "体感温度"
@@ -452,6 +462,8 @@ def test_series_exposes_min_max_for_axis_scaling():
     by_label = {s["label"]: s for s in result["series"]}
     temperature = by_label["気温"]
     temperature_80m = by_label["上空の気温(80m)"]
+    temperature_120m = by_label["上空の気温(120m)"]
+    temperature_180m = by_label["上空の気温(180m)"]
     temperature_925hPa = by_label["925hPaの気温"]
     apparent_temperature = by_label["体感温度"]
     dew_point = by_label["露点温度"]
@@ -473,6 +485,8 @@ def test_series_exposes_min_max_for_axis_scaling():
 
     assert (temperature["min"], temperature["max"]) == (24.9, 26.1)
     assert (temperature_80m["min"], temperature_80m["max"]) == (23.6, 24.8)
+    assert (temperature_120m["min"], temperature_120m["max"]) == (23.0, 24.2)
+    assert (temperature_180m["min"], temperature_180m["max"]) == (22.2, 23.4)
     assert (temperature_925hPa["min"], temperature_925hPa["max"]) == (22.5, 23.6)
     assert (apparent_temperature["min"], apparent_temperature["max"]) == (25.8, 27.3)
     assert (dew_point["min"], dew_point["max"]) == (21.2, 21.8)
@@ -1179,6 +1193,8 @@ def test_hourly_series_are_all_requested_fields():
     labels_to_keys = {
         "気温": "temperature_2m",
         "上空の気温(80m)": "temperature_80m",
+        "上空の気温(120m)": "temperature_120m",
+        "上空の気温(180m)": "temperature_180m",
         "925hPaの気温": "temperature_925hPa",
         "体感温度": "apparent_temperature",
         "露点温度": "dew_point_2m",
