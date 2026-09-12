@@ -230,6 +230,7 @@ DAILY_FIELDS = [
     "apparent_temperature_mean",
     "relative_humidity_2m_max",
     "relative_humidity_2m_min",
+    "relative_humidity_2m_mean",
 ]
 
 HOURLY_FIELDS = [
@@ -440,6 +441,10 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
         "humidity_min": {
             "value": _round_humidity(daily["relative_humidity_2m_min"][0]),
             "unit": daily_units.get("relative_humidity_2m_min", "%"),
+        },
+        "humidity_mean": {
+            "value": _round_humidity(daily["relative_humidity_2m_mean"][0]),
+            "unit": daily_units.get("relative_humidity_2m_mean", "%"),
         },
         "wind_speed": {
             "value": _round_wind_speed(current["wind_speed_10m"]),

@@ -135,6 +135,7 @@ STUB_RESPONSE = {
         "wind_gusts_10m_max": "km/h",
         "relative_humidity_2m_max": "%",
         "relative_humidity_2m_min": "%",
+        "relative_humidity_2m_mean": "%",
     },
     "daily": {
         "time": ["2026-07-21"],
@@ -161,6 +162,7 @@ STUB_RESPONSE = {
         "wind_gusts_10m_max": [42.6],
         "relative_humidity_2m_max": [85],
         "relative_humidity_2m_min": [55],
+        "relative_humidity_2m_mean": [68],
     },
 }
 
@@ -215,6 +217,7 @@ def test_format_forecast_maps_values_and_units():
     assert result["apparent_temperature_mean"] == {"value": 31.2, "unit": "°C"}
     assert result["humidity_max"] == {"value": 85, "unit": "%"}
     assert result["humidity_min"] == {"value": 55, "unit": "%"}
+    assert result["humidity_mean"] == {"value": 68, "unit": "%"}
     assert result["precipitation_probability"] == {
         "value": 20,
         "unit": "%",
@@ -281,7 +284,7 @@ def test_format_forecast_groups_temperature_and_humidity_fields():
     positions = sorted(keys.index(k) for k in temperature_keys)
     assert positions[-1] - positions[0] == len(temperature_keys) - 1
 
-    humidity_keys = ["humidity", "humidity_max", "humidity_min"]
+    humidity_keys = ["humidity", "humidity_max", "humidity_min", "humidity_mean"]
     positions = sorted(keys.index(k) for k in humidity_keys)
     assert positions[-1] - positions[0] == len(humidity_keys) - 1
 
@@ -852,6 +855,7 @@ def test_format_forecast_rounds_humidity():
             **STUB_RESPONSE["daily"],
             "relative_humidity_2m_max": [85.449999],
             "relative_humidity_2m_min": [55.949999],
+            "relative_humidity_2m_mean": [68.349999],
         },
     }
 
@@ -860,6 +864,7 @@ def test_format_forecast_rounds_humidity():
     assert result["humidity"] == {"value": 71.3, "unit": "%"}
     assert result["humidity_max"] == {"value": 85.4, "unit": "%"}
     assert result["humidity_min"] == {"value": 55.9, "unit": "%"}
+    assert result["humidity_mean"] == {"value": 68.3, "unit": "%"}
 
 
 def test_round_soil_moisture_rounds_to_three_decimal_places():
