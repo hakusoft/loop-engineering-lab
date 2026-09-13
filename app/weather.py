@@ -501,11 +501,17 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
             "date": daily["time"][0],
         },
         "precipitation_probability_mean": {
-            "value": daily["precipitation_probability_mean"][0],
+            # precipitation_probability_mean は今回新規に要求した項目で、実 API
+            # での応答確認ができていない（フィクスチャ未更新）。他の新規項目と
+            # 同様 .get() で読み、無ければ None を返す（#164 / #67-#68 と同型の
+            # KeyError を避ける）。
+            "value": daily.get("precipitation_probability_mean", [None])[0],
             "unit": daily_units.get("precipitation_probability_mean", "%"),
         },
         "precipitation_probability_min": {
-            "value": daily["precipitation_probability_min"][0],
+            # precipitation_probability_min も同様に実 API での応答確認ができて
+            # いない（precipitation_probability_mean と同じ方針）。
+            "value": daily.get("precipitation_probability_min", [None])[0],
             "unit": daily_units.get("precipitation_probability_min", "%"),
         },
         "precipitation_hours": {

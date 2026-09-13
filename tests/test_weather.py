@@ -677,6 +677,47 @@ def test_format_forecast_tolerates_missing_soil_moisture_deeper():
     assert result["soil_moisture_deeper"]["value"] is None
 
 
+def test_format_forecast_tolerates_missing_precipitation_probability_mean():
+    """precipitation_probability_mean が daily に無くても KeyError にしない。
+
+    この項目は実 API での応答を確認できないまま追加した（PR #386 のレビュー
+    参照）。Open-Meteo が実際にはこのキーを返さない可能性を排除できないため、
+    #164 / #67-#68 と同型の KeyError を避けて None を返す。
+    """
+    raw = {
+        **STUB_RESPONSE,
+        "daily": {
+            k: v
+            for k, v in STUB_RESPONSE["daily"].items()
+            if k != "precipitation_probability_mean"
+        },
+    }
+
+    result = format_forecast(raw)
+
+    assert result["precipitation_probability_mean"]["value"] is None
+
+
+def test_format_forecast_tolerates_missing_precipitation_probability_min():
+    """precipitation_probability_min が daily に無くても KeyError にしない。
+
+    precipitation_probability_mean と同様、実 API での応答を確認できないまま
+    追加した項目。
+    """
+    raw = {
+        **STUB_RESPONSE,
+        "daily": {
+            k: v
+            for k, v in STUB_RESPONSE["daily"].items()
+            if k != "precipitation_probability_min"
+        },
+    }
+
+    result = format_forecast(raw)
+
+    assert result["precipitation_probability_min"]["value"] is None
+
+
 def test_format_forecast_tolerates_missing_temperature_850hpa():
     """temperature_850hPa が current に無くても TypeError にしない。
 

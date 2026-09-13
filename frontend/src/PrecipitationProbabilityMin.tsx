@@ -5,15 +5,24 @@ import type { WeatherResponse } from "./api";
 //
 // 最大値は PrecipitationProbability.tsx が既に「降水確率」として表示しているため、
 // ここでは最低だけを表示する。
-export function formatPrecipitationProbabilityMin(data: WeatherResponse): string {
+//
+// value は null になり得る（api.ts のコメント参照）。実 API での応答が
+// 未確認の項目のため、取れないときは NaN 表示にせず null をそのまま扱う
+// （SoilMoistureDeep.tsx と同じ方針）。
+export function formatPrecipitationProbabilityMin(data: WeatherResponse): string | null {
   const { value, unit } = data.precipitation_probability_min;
+  if (value === null) {
+    return null;
+  }
   return `最低 ${Math.round(value)}${unit}`;
 }
 
 export function PrecipitationProbabilityMin({ data }: { data: WeatherResponse }) {
+  const text = formatPrecipitationProbabilityMin(data);
+  if (text === null) {
+    return null;
+  }
   return (
-    <p style={{ color: "var(--text-secondary)", fontSize: 16, margin: "4px 0" }}>
-      {formatPrecipitationProbabilityMin(data)}
-    </p>
+    <p style={{ color: "var(--text-secondary)", fontSize: 16, margin: "4px 0" }}>{text}</p>
   );
 }
