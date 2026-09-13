@@ -149,6 +149,19 @@ def _clamp_uv_index(value: float | None) -> float | None:
     return value if value is None else max(value, 0.0)
 
 
+def _zero_uv_index_at_night(
+    values: list[float | None], is_day: list[int]
+) -> list[float | None]:
+    """夜間（is_day=0）の紫外線指数を0にする。
+
+    Open-Meteo は日没直後の時間帯で、補間によりごく小さい正の値
+    （例: 0.1〜0.2）を残すことがある。紫外線指数は夜間0のはずなので、
+    _clamp_uv_index が負の値を0にするのと同じ考え方で、is_day を使って
+    夜間の値を0に補正する。欠測（None）はそのまま返す。
+    """
+    return [0.0 if (v is not None and day == 0) else v for v, day in zip(values, is_day)]
+
+
 def _daylight_duration_hours(sunrise: str, sunset: str) -> float:
     """sunrise / sunset（ISO8601）から可照時間を時間単位で計算する。"""
     return (datetime.fromisoformat(sunset) - datetime.fromisoformat(sunrise)).total_seconds() / 3600
@@ -240,6 +253,7 @@ HOURLY_FIELDS = [
     "cloud_cover",
     "temperature_2m",
     "temperature_80m",
+    "temperature_925hPa",
     "dew_point_2m",
     "relative_humidity_2m",
     "precipitation",
@@ -254,7 +268,10 @@ HOURLY_FIELDS = [
     "wind_gusts_10m",
     "wind_speed_850hPa",
     "wind_direction_850hPa",
+    "wind_speed_925hPa",
+    "wind_direction_925hPa",
     "wind_speed_80m",
+    "is_day",
     "uv_index",
     "visibility",
 ]
@@ -714,7 +731,10 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
     timestamps = hourly["time"]
 
     if "uv_index" in hourly:
-        hourly["uv_index"] = [_clamp_uv_index(v) for v in hourly["uv_index"]]
+        uv_index = [_clamp_uv_index(v) for v in hourly["uv_index"]]
+        if "is_day" in hourly:
+            uv_index = _zero_uv_index_at_night(uv_index, hourly["is_day"])
+        hourly["uv_index"] = uv_index
 
     if "visibility" in hourly:
         hourly["visibility"] = [_round_visibility(v) for v in hourly["visibility"]]
@@ -765,6 +785,7 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
         "series": [
             _series("temperature_2m", "気温", "°C"),
             _series("temperature_80m", "上空の気温(80m)", "°C"),
+            _series("temperature_925hPa", "925hPaの気温", "°C"),
             _series("apparent_temperature", "体感温度", "°C"),
             _series("dew_point_2m", "露点温度", "°C"),
             _series("relative_humidity_2m", "湿度", "%"),
@@ -779,6 +800,8 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
             _series("wind_gusts_10m", "瞬間風速", "km/h"),
             _series("wind_speed_850hPa", "上空の風速", "km/h"),
             _series("wind_direction_850hPa", "上空の風向き", "°"),
+            _series("wind_speed_925hPa", "925hPaの風速", "km/h"),
+            _series("wind_direction_925hPa", "925hPaの風向き", "°"),
             _series("wind_speed_80m", "上空の風速(80m)", "km/h"),
             _series("uv_index", "紫外線指数", ""),
             _series("visibility", "視程", "m"),

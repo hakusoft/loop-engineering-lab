@@ -5,6 +5,7 @@ import { LocationName } from "./LocationName";
 import { DailySummary } from "./DailySummary";
 import { HourlyConditions } from "./HourlyConditions";
 import { ThunderstormOutlook } from "./ThunderstormOutlook";
+import { faviconHrefForWeather } from "./favicon";
 
 // グラフの描画に使う recharts はサイズが大きく、他の項目より先に初回バンドルへ
 // 含めると開いた瞬間の読み込みを遅くする要因になる（Issue #308）。グラフだけ
@@ -216,6 +217,25 @@ export default function App() {
       clearInterval(id);
     };
   }, []);
+
+  // ブラウザタブのアイコン(favicon)を、現在の天気アイコンに変える。
+  // 取得前・失敗時は既定のfaviconのまま変更しない。
+  useEffect(() => {
+    if (weatherState.status !== "ready") {
+      return;
+    }
+    const href = faviconHrefForWeather(weatherState.data);
+    if (!href) {
+      return;
+    }
+    let link = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
+    if (!link) {
+      link = document.createElement("link");
+      link.rel = "icon";
+      document.head.appendChild(link);
+    }
+    link.href = href;
+  }, [weatherState]);
 
   const [forceDark, setForceDark] = useState(() => readStoredDarkModeOverride());
 
