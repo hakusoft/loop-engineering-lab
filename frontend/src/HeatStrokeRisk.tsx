@@ -26,10 +26,30 @@ export function formatHeatStrokeRisk(data: WeatherResponse): string {
   return `熱中症の目安 ${heatStrokeRiskLevel(wetBulbTemperature)}`;
 }
 
+// 段階ごとに色を割り当てる。文字だけだと「注意」と「厳重警戒」がパッと
+// 見分けにくいという声（Slack）を受けた対応。安全側から危険側へ緑→赤の
+// グラデーションにする。
+export function heatStrokeRiskColor(level: string): string {
+  switch (level) {
+    case "危険":
+      return "#c92a2a";
+    case "厳重警戒":
+      return "#d9480f";
+    case "警戒":
+      return "#e8590c";
+    case "注意":
+      return "#f08c00";
+    default:
+      return "#2f9e44";
+  }
+}
+
 export function HeatStrokeRisk({ data }: { data: WeatherResponse }) {
+  const level = heatStrokeRiskLevel(data.wet_bulb_temperature.value);
   return (
     <p style={{ color: "var(--text-secondary)", fontSize: 16, margin: "4px 0" }}>
-      {formatHeatStrokeRisk(data)}
+      熱中症の目安{" "}
+      <span style={{ color: heatStrokeRiskColor(level), fontWeight: 600 }}>{level}</span>
     </p>
   );
 }
