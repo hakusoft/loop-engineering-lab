@@ -747,6 +747,23 @@ def test_format_forecast_tolerates_missing_soil_temperature_deepest():
     assert result["soil_temperature_deepest"]["value"] is None
 
 
+def test_format_forecast_tolerates_missing_uv_index_clear_sky_max():
+    """uv_index_clear_sky_max が daily に無くても KeyError にしない。
+
+    soil_temperature_deepest 等と同じ方針（実 API での応答未確認、Issue #345）。
+    """
+    raw = {
+        **STUB_RESPONSE,
+        "daily": {
+            k: v for k, v in STUB_RESPONSE["daily"].items() if k != "uv_index_clear_sky_max"
+        },
+    }
+
+    result = format_forecast(raw)
+
+    assert result["uv_index_clear_sky_max"]["value"] is None
+
+
 def test_format_forecast_rounds_pressure():
     """気圧は Open-Meteo が桁の長い小数を返すことがあるため、小数第1位に丸める。"""
     raw = {
