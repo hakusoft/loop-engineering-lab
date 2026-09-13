@@ -228,6 +228,8 @@ DAILY_FIELDS = [
     "temperature_2m_min",
     "temperature_2m_mean",
     "precipitation_probability_max",
+    "precipitation_probability_mean",
+    "precipitation_probability_min",
     "sunshine_duration",
     "et0_fao_evapotranspiration",
     "precipitation_hours",
@@ -497,6 +499,14 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
             "value": daily["precipitation_probability_max"][0],
             "unit": daily_units.get("precipitation_probability_max", "%"),
             "date": daily["time"][0],
+        },
+        "precipitation_probability_mean": {
+            "value": daily["precipitation_probability_mean"][0],
+            "unit": daily_units.get("precipitation_probability_mean", "%"),
+        },
+        "precipitation_probability_min": {
+            "value": daily["precipitation_probability_min"][0],
+            "unit": daily_units.get("precipitation_probability_min", "%"),
         },
         "precipitation_hours": {
             "value": daily["precipitation_hours"][0],

@@ -28,6 +28,8 @@ import { ObservedAt } from "./ObservedAt";
 import { Precipitation } from "./Precipitation";
 import { PrecipitationHours } from "./PrecipitationHours";
 import { PrecipitationProbability } from "./PrecipitationProbability";
+import { PrecipitationProbabilityMean } from "./PrecipitationProbabilityMean";
+import { PrecipitationProbabilityMin } from "./PrecipitationProbabilityMin";
 import { PrecipitationSum } from "./PrecipitationSum";
 import { PrecipitationSumByType } from "./PrecipitationSumByType";
 import { PrecipitationType } from "./PrecipitationType";
@@ -104,6 +106,8 @@ export const DISPLAY_ITEMS: DisplayItem[] = [
   { category: "降水・湿度", component: PrecipitationType, tier: "more" },
   { category: "降水・湿度", component: Showers, tier: "more" },
   { category: "降水・湿度", component: PrecipitationProbability, tier: "primary" },
+  { category: "降水・湿度", component: PrecipitationProbabilityMean, tier: "more" },
+  { category: "降水・湿度", component: PrecipitationProbabilityMin, tier: "more" },
   { category: "降水・湿度", component: PrecipitationHours, tier: "more" },
   { category: "降水・湿度", component: PrecipitationSum, tier: "more" },
   { category: "降水・湿度", component: PrecipitationSumByType, tier: "more" },
