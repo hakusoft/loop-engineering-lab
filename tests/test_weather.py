@@ -545,6 +545,20 @@ def test_series_tolerates_missing_values():
     assert uv_index["min"] is None
 
 
+def test_format_hourly_series_omits_series_for_keys_not_in_response():
+    """実 API での応答確認ができていないキー（例: temperature_120m）が実際には
+    返ってこなかった場合、系列を添字アクセスで落とさず静かに省く（レビュー指摘: PR #376）。
+    """
+    hourly = {k: v for k, v in STUB_SERIES["hourly"].items() if k != "temperature_120m"}
+    raw = {**STUB_SERIES, "hourly": hourly}
+
+    result = format_hourly_series(raw)
+    labels = {s["label"] for s in result["series"]}
+
+    assert "上空の気温(120m)" not in labels
+    assert "上空の気温(80m)" in labels  # 他の系列には影響しない
+
+
 def test_format_forecast_falls_back_when_units_missing():
     """current_units / daily_units が欠けても既定の単位で返す。"""
     raw = {k: v for k, v in STUB_RESPONSE.items() if k not in ("current_units", "daily_units")}
