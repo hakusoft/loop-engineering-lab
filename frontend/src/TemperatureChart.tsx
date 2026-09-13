@@ -4,6 +4,7 @@ import {
   Legend,
   Line,
   LineChart,
+  ReferenceArea,
   ReferenceLine,
   ResponsiveContainer,
   Tooltip,
@@ -165,6 +166,37 @@ export function dateBoundaryLabels(
   return boundaries;
 }
 
+// thunderstorm_hours（雷を伴う天気になる時刻の一覧、timestamps の部分集合）を、
+// グラフに ReferenceArea で塗れる連続した範囲（x1〜x2）にまとめる。ThunderstormOutlook
+// は文章だけで、グラフを見ながら雷の時間帯を把握したいという声があった（Issue #379）。
+// バラバラの時刻ごとに描くと帯というより点線に見えてしまうため、連続区間ごとにまとめる。
+export function thunderstormRanges(
+  timestamps: string[],
+  thunderstormHours: string[],
+  rows: { time: string }[],
+): { x1: string; x2: string }[] {
+  if (timestamps.length === 0 || timestamps.length !== rows.length || thunderstormHours.length === 0) {
+    return [];
+  }
+  const hourSet = new Set(thunderstormHours);
+  const ranges: { x1: string; x2: string }[] = [];
+  let start: number | null = null;
+  for (let i = 0; i < timestamps.length; i++) {
+    if (hourSet.has(timestamps[i])) {
+      if (start === null) {
+        start = i;
+      }
+    } else if (start !== null) {
+      ranges.push({ x1: rows[start].time, x2: rows[i - 1].time });
+      start = null;
+    }
+  }
+  if (start !== null) {
+    ranges.push({ x1: rows[start].time, x2: rows[timestamps.length - 1].time });
+  }
+  return ranges;
+}
+
 // 夜間表示（App.tsx の NIGHT_THEME）では背景が濃紺になるため、目盛り・グリッド線・
 // 現在時刻線のデフォルト色（グレー系）はコントラストが低く読みにくい。
 // 昼夜で色を切り替える。
@@ -181,6 +213,7 @@ function chartColors(isDay: boolean | undefined) {
       referenceLabel: "#aaaadd",
       temperature: "#ff6b52",
       apparentTemperature: "#ffe066",
+      thunderstorm: "#ff8a65",
     };
   }
   return {
@@ -190,6 +223,7 @@ function chartColors(isDay: boolean | undefined) {
     referenceLabel: "#888",
     temperature: "#e2492c",
     apparentTemperature: "#f4a300",
+    thunderstorm: "#e2492c",
   };
 }
 
@@ -349,6 +383,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
   const dateBoundaries = dateBoundaryLabels(data.timestamps, rows);
   const uvPeakText = formatUvIndexPeak(data, new Date());
   const colors = chartColors(isDay);
+  const stormRanges = thunderstormRanges(data.timestamps, data.thunderstorm_hours, rows);
 
   // 降水確率は「傘が要るかすぐ分かりたい」という要望から、他の副系列と違い
   // デフォルトで表示する（Issue #272）。保存された選択があればそちらを使う
@@ -496,6 +531,19 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
       <LineChart data={rows} margin={{ top: 16, right: chartRightMargin, bottom: 8, left: 0 }}>
         <CartesianGrid strokeDasharray="3 3" stroke={colors.grid} />
         <XAxis dataKey="time" minTickGap={40} tick={{ fontSize: tickFontSize, fill: colors.tick }} />
+        {stormRanges.map((range) => (
+          <ReferenceArea
+            key={`storm-${range.x1}`}
+            yAxisId="temperature"
+            x1={range.x1}
+            x2={range.x2}
+            fill={colors.thunderstorm}
+            fillOpacity={0.15}
+            stroke={colors.thunderstorm}
+            strokeOpacity={0.4}
+            ifOverflow="extendDomain"
+          />
+        ))}
         {nowLabel && (
           <ReferenceLine
             yAxisId="temperature"
