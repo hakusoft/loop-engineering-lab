@@ -316,6 +316,8 @@ STUB_SERIES = {
         "time": "iso8601",
         "weather_code": "wmo code",
         "cape": "J/kg",
+        "convective_inhibition": "J/kg",
+        "boundary_layer_height_m": "m",
         "cloud_cover": "%",
         "temperature_2m": "°C",
         "temperature_80m": "°C",
@@ -344,6 +346,8 @@ STUB_SERIES = {
         "time": ["2026-07-21T00:00", "2026-07-21T01:00", "2026-07-21T02:00"],
         "weather_code": [0, 3, 61],
         "cape": [120.0, 480.0, 90.0],
+        "convective_inhibition": [-15.0, -60.0, -5.0],
+        "boundary_layer_height_m": [850.0, 620.0, 300.0],
         "cloud_cover": [20, 55, 90],
         "temperature_2m": [26.1, 25.4, 24.9],
         "temperature_80m": [24.8, 24.1, 23.6],
@@ -395,6 +399,8 @@ def test_series_keeps_units_separate_for_split_axes():
     precipitation_probability = by_label["降水確率"]
     pressure = by_label["気圧"]
     cloud_cover = by_label["雲量"]
+    convective_inhibition = by_label["対流抑制(CIN)"]
+    boundary_layer_height = by_label["境界層の高さ"]
     wind_direction = by_label["風向き"]
     wind_gusts = by_label["瞬間風速"]
     upper_wind_direction = by_label["上空の風向き"]
@@ -428,6 +434,10 @@ def test_series_keeps_units_separate_for_split_axes():
     assert pressure["unit"] == "hPa"
     assert cloud_cover["label"] == "雲量"
     assert cloud_cover["unit"] == "%"
+    assert convective_inhibition["label"] == "対流抑制(CIN)"
+    assert convective_inhibition["unit"] == "J/kg"
+    assert boundary_layer_height["label"] == "境界層の高さ"
+    assert boundary_layer_height["unit"] == "m"
     assert wind_direction["label"] == "風向き"
     assert wind_direction["unit"] == "°"
     assert wind_gusts["label"] == "瞬間風速"
@@ -462,6 +472,8 @@ def test_series_exposes_min_max_for_axis_scaling():
     precipitation_probability = by_label["降水確率"]
     pressure = by_label["気圧"]
     cloud_cover = by_label["雲量"]
+    convective_inhibition = by_label["対流抑制(CIN)"]
+    boundary_layer_height = by_label["境界層の高さ"]
     wind_direction = by_label["風向き"]
     wind_gusts = by_label["瞬間風速"]
     upper_wind_direction = by_label["上空の風向き"]
@@ -483,6 +495,8 @@ def test_series_exposes_min_max_for_axis_scaling():
     assert (precipitation_probability["min"], precipitation_probability["max"]) == (10, 60)
     assert (pressure["min"], pressure["max"]) == (1007.6, 1008.2)
     assert (cloud_cover["min"], cloud_cover["max"]) == (20, 90)
+    assert (convective_inhibition["min"], convective_inhibition["max"]) == (-60.0, -5.0)
+    assert (boundary_layer_height["min"], boundary_layer_height["max"]) == (300.0, 850.0)
     assert (wind_direction["min"], wind_direction["max"]) == (200.0, 220.0)
     assert (wind_gusts["min"], wind_gusts["max"]) == (15.2, 19.6)
     assert (upper_wind_direction["min"], upper_wind_direction["max"]) == (230.0, 250.0)

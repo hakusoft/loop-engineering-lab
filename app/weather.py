@@ -249,6 +249,8 @@ DAILY_FIELDS = [
 HOURLY_FIELDS = [
     "weather_code",
     "cape",
+    "convective_inhibition",
+    "boundary_layer_height",
     "cloud_cover",
     "temperature_2m",
     "temperature_80m",
@@ -789,6 +791,8 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
             _series("snow_depth", "積雪の深さ", "m"),
             _series("precipitation_probability", "降水確率", "%"),
             _series("surface_pressure", "気圧", "hPa"),
+            _series("convective_inhibition", "対流抑制(CIN)", "J/kg"),
+            _series("boundary_layer_height_m", "境界層の高さ", "m"),
             _series("cloud_cover", "雲量", "%"),
             _series("wind_speed_10m", "風速", "km/h"),
             _series("wind_direction_10m", "風向き", "°"),

@@ -28,6 +28,8 @@ function toChartData(data: SeriesResponse) {
   const precipitationProbability = data.series.find((s) => s.label === "降水確率");
   const pressure = data.series.find((s) => s.label === "気圧");
   const cloudCover = data.series.find((s) => s.label === "雲量");
+  const convectiveInhibition = data.series.find((s) => s.label === "対流抑制(CIN)");
+  const boundaryLayerHeight = data.series.find((s) => s.label === "境界層の高さ");
   const windSpeed = data.series.find((s) => s.label === "風速");
   const windDirection = data.series.find((s) => s.label === "風向き");
   const windGusts = data.series.find((s) => s.label === "瞬間風速");
@@ -53,6 +55,8 @@ function toChartData(data: SeriesResponse) {
       precipitationProbability: undefined,
       pressure: undefined,
       cloudCover: undefined,
+      convectiveInhibition: undefined,
+      boundaryLayerHeight: undefined,
       windSpeed: undefined,
       windDirection: undefined,
       windGusts: undefined,
@@ -81,6 +85,8 @@ function toChartData(data: SeriesResponse) {
     precipitationProbability: precipitationProbability?.values[i] ?? null,
     pressure: pressure?.values[i] ?? null,
     cloudCover: cloudCover?.values[i] ?? null,
+    convectiveInhibition: convectiveInhibition?.values[i] ?? null,
+    boundaryLayerHeight: boundaryLayerHeight?.values[i] ?? null,
     windSpeed: windSpeed?.values[i] ?? null,
     windDirection: windDirection?.values[i] ?? null,
     windGusts: windGusts?.values[i] ?? null,
@@ -106,6 +112,8 @@ function toChartData(data: SeriesResponse) {
     precipitationProbability,
     pressure,
     cloudCover,
+    convectiveInhibition,
+    boundaryLayerHeight,
     windSpeed,
     windDirection,
     windGusts,
@@ -249,6 +257,8 @@ const SECONDARY_SERIES = [
   { key: "precipitationProbability", label: "降水確率" },
   { key: "pressure", label: "気圧" },
   { key: "cloudCover", label: "雲量" },
+  { key: "convectiveInhibition", label: "対流抑制(CIN)" },
+  { key: "boundaryLayerHeight", label: "境界層の高さ" },
   { key: "windSpeed", label: "風速" },
   { key: "windDirection", label: "風向き" },
   { key: "windGusts", label: "瞬間風速" },
@@ -329,6 +339,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     precipitationProbability,
     pressure,
     cloudCover,
+    convectiveInhibition,
+    boundaryLayerHeight,
     windSpeed,
     windDirection,
     windGusts,
@@ -378,6 +390,10 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             return Boolean(pressure);
           case "cloudCover":
             return Boolean(cloudCover);
+          case "convectiveInhibition":
+            return Boolean(convectiveInhibition);
+          case "boundaryLayerHeight":
+            return Boolean(boundaryLayerHeight);
           case "windSpeed":
             return Boolean(windSpeed);
           case "windDirection":
@@ -410,6 +426,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
       precipitationProbability,
       pressure,
       cloudCover,
+      convectiveInhibition,
+      boundaryLayerHeight,
       windSpeed,
       windDirection,
       windGusts,
@@ -445,6 +463,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
   const showPrecipitationProbability = precipitationProbability && visibleSecondary.has("precipitationProbability");
   const showPressure = pressure && visibleSecondary.has("pressure");
   const showCloudCover = cloudCover && visibleSecondary.has("cloudCover");
+  const showConvectiveInhibition = convectiveInhibition && visibleSecondary.has("convectiveInhibition");
+  const showBoundaryLayerHeight = boundaryLayerHeight && visibleSecondary.has("boundaryLayerHeight");
   const showWindSpeed = windSpeed && visibleSecondary.has("windSpeed");
   const showWindDirection = windDirection && visibleSecondary.has("windDirection");
   const showWindGusts = windGusts && visibleSecondary.has("windGusts");
@@ -603,6 +623,22 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
           // 雲量は % 固定なので、降水確率と同じく 0〜100 のスケールで別軸にする。
           <YAxis yAxisId="cloudCover" hide domain={[0, 100]} />
         )}
+        {showConvectiveInhibition && (
+          // 対流抑制(CIN)は0以下の値を取るので、他系列とは別軸にする。
+          <YAxis
+            yAxisId="convectiveInhibition"
+            hide
+            domain={[(convectiveInhibition!.min ?? 0) - 1, Math.max(convectiveInhibition!.max ?? 0, 0)]}
+          />
+        )}
+        {showBoundaryLayerHeight && (
+          // 境界層の高さは m 単位で他系列よりスケールが大きく違うので、独立した軸にする。
+          <YAxis
+            yAxisId="boundaryLayerHeight"
+            hide
+            domain={[0, Math.max(boundaryLayerHeight!.max ?? 0, 1) + 50]}
+          />
+        )}
         {showVisibility && (
           // 視程は m 単位で他系列よりスケールが大きく違うので、独立した軸にする。
           <YAxis
@@ -644,7 +680,11 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
                             ? pressure?.unit
                             : name === "雲量"
                               ? cloudCover?.unit
-                              : name === "風速"
+                              : name === "対流抑制(CIN)"
+                                ? convectiveInhibition?.unit
+                                : name === "境界層の高さ"
+                                  ? boundaryLayerHeight?.unit
+                                  : name === "風速"
                                 ? windSpeed?.unit
                                 : name === "風向き"
                                   ? windDirection?.unit
@@ -820,6 +860,32 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             dot={false}
             isAnimationActive={false}
             name="雲量"
+            connectNulls
+          />
+        )}
+        {showConvectiveInhibition && (
+          <Line
+            yAxisId="convectiveInhibition"
+            type="monotone"
+            dataKey="convectiveInhibition"
+            stroke="#5f3dc4"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="対流抑制(CIN)"
+            connectNulls
+          />
+        )}
+        {showBoundaryLayerHeight && (
+          <Line
+            yAxisId="boundaryLayerHeight"
+            type="monotone"
+            dataKey="boundaryLayerHeight"
+            stroke="#099268"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="境界層の高さ"
             connectNulls
           />
         )}
