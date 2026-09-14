@@ -4,6 +4,7 @@ import {
   Legend,
   Line,
   LineChart,
+  ReferenceArea,
   ReferenceLine,
   ResponsiveContainer,
   Tooltip,
@@ -18,6 +19,8 @@ import type { SeriesResponse } from "./api";
 function toChartData(data: SeriesResponse) {
   const temperature = data.series.find((s) => s.label === "気温");
   const temperature80m = data.series.find((s) => s.label === "上空の気温(80m)");
+  const temperature120m = data.series.find((s) => s.label === "上空の気温(120m)");
+  const temperature180m = data.series.find((s) => s.label === "上空の気温(180m)");
   const temperature925hPa = data.series.find((s) => s.label === "925hPaの気温");
   const apparentTemperature = data.series.find((s) => s.label === "体感温度");
   const dewPoint = data.series.find((s) => s.label === "露点温度");
@@ -45,6 +48,8 @@ function toChartData(data: SeriesResponse) {
       rows: [],
       temperatureUnit: "°C",
       temperature80m: undefined,
+      temperature120m: undefined,
+      temperature180m: undefined,
       temperature925hPa: undefined,
       apparentTemperature: undefined,
       dewPoint: undefined,
@@ -75,6 +80,8 @@ function toChartData(data: SeriesResponse) {
     time: t.slice(8, 10) + "日 " + t.slice(11, 16),
     temperature: temperature.values[i],
     temperature80m: temperature80m?.values[i] ?? null,
+    temperature120m: temperature120m?.values[i] ?? null,
+    temperature180m: temperature180m?.values[i] ?? null,
     temperature925hPa: temperature925hPa?.values[i] ?? null,
     apparentTemperature: apparentTemperature?.values[i] ?? null,
     dewPoint: dewPoint?.values[i] ?? null,
@@ -102,6 +109,8 @@ function toChartData(data: SeriesResponse) {
     rows,
     temperatureUnit: temperature.unit,
     temperature80m,
+    temperature120m,
+    temperature180m,
     temperature925hPa,
     apparentTemperature,
     dewPoint,
@@ -173,6 +182,37 @@ export function dateBoundaryLabels(
   return boundaries;
 }
 
+// thunderstorm_hours（雷を伴う天気になる時刻の一覧、timestamps の部分集合）を、
+// グラフに ReferenceArea で塗れる連続した範囲（x1〜x2）にまとめる。ThunderstormOutlook
+// は文章だけで、グラフを見ながら雷の時間帯を把握したいという声があった（Issue #379）。
+// バラバラの時刻ごとに描くと帯というより点線に見えてしまうため、連続区間ごとにまとめる。
+export function thunderstormRanges(
+  timestamps: string[],
+  thunderstormHours: string[],
+  rows: { time: string }[],
+): { x1: string; x2: string }[] {
+  if (timestamps.length === 0 || timestamps.length !== rows.length || thunderstormHours.length === 0) {
+    return [];
+  }
+  const hourSet = new Set(thunderstormHours);
+  const ranges: { x1: string; x2: string }[] = [];
+  let start: number | null = null;
+  for (let i = 0; i < timestamps.length; i++) {
+    if (hourSet.has(timestamps[i])) {
+      if (start === null) {
+        start = i;
+      }
+    } else if (start !== null) {
+      ranges.push({ x1: rows[start].time, x2: rows[i - 1].time });
+      start = null;
+    }
+  }
+  if (start !== null) {
+    ranges.push({ x1: rows[start].time, x2: rows[timestamps.length - 1].time });
+  }
+  return ranges;
+}
+
 // 夜間表示（App.tsx の NIGHT_THEME）では背景が濃紺になるため、目盛り・グリッド線・
 // 現在時刻線のデフォルト色（グレー系）はコントラストが低く読みにくい。
 // 昼夜で色を切り替える。
@@ -189,6 +229,7 @@ function chartColors(isDay: boolean | undefined) {
       referenceLabel: "#aaaadd",
       temperature: "#ff6b52",
       apparentTemperature: "#ffe066",
+      thunderstorm: "#ff8a65",
     };
   }
   return {
@@ -198,6 +239,7 @@ function chartColors(isDay: boolean | undefined) {
     referenceLabel: "#888",
     temperature: "#e2492c",
     apparentTemperature: "#f4a300",
+    thunderstorm: "#e2492c",
   };
 }
 
@@ -249,6 +291,8 @@ export function formatUvIndexPeak(data: SeriesResponse, now: Date): string | nul
 // 表示し、それ以外はチェックボックスで必要な時だけ追加できるようにする。
 const SECONDARY_SERIES = [
   { key: "temperature80m", label: "上空の気温(80m)" },
+  { key: "temperature120m", label: "上空の気温(120m)" },
+  { key: "temperature180m", label: "上空の気温(180m)" },
   { key: "temperature925hPa", label: "925hPaの気温" },
   { key: "apparentTemperature", label: "体感温度" },
   { key: "dewPoint", label: "露点温度" },
@@ -329,6 +373,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     rows,
     temperatureUnit,
     temperature80m,
+    temperature120m,
+    temperature180m,
     temperature925hPa,
     apparentTemperature,
     dewPoint,
@@ -361,6 +407,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
   const dateBoundaries = dateBoundaryLabels(data.timestamps, rows);
   const uvPeakText = formatUvIndexPeak(data, new Date());
   const colors = chartColors(isDay);
+  const stormRanges = thunderstormRanges(data.timestamps, data.thunderstorm_hours, rows);
 
   // 降水確率は「傘が要るかすぐ分かりたい」という要望から、他の副系列と違い
   // デフォルトで表示する（Issue #272）。保存された選択があればそちらを使う
@@ -374,6 +421,10 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
         switch (key) {
           case "temperature80m":
             return Boolean(temperature80m);
+          case "temperature120m":
+            return Boolean(temperature120m);
+          case "temperature180m":
+            return Boolean(temperature180m);
           case "temperature925hPa":
             return Boolean(temperature925hPa);
           case "apparentTemperature":
@@ -418,6 +469,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
       }),
     [
       temperature80m,
+      temperature120m,
+      temperature180m,
       temperature925hPa,
       apparentTemperature,
       dewPoint,
@@ -455,6 +508,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
   }
 
   const showTemperature80m = temperature80m && visibleSecondary.has("temperature80m");
+  const showTemperature120m = temperature120m && visibleSecondary.has("temperature120m");
+  const showTemperature180m = temperature180m && visibleSecondary.has("temperature180m");
   const showTemperature925hPa = temperature925hPa && visibleSecondary.has("temperature925hPa");
   const showApparentTemperature = apparentTemperature && visibleSecondary.has("apparentTemperature");
   const showDewPoint = dewPoint && visibleSecondary.has("dewPoint");
@@ -516,6 +571,19 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
       <LineChart data={rows} margin={{ top: 16, right: chartRightMargin, bottom: 8, left: 0 }}>
         <CartesianGrid strokeDasharray="3 3" stroke={colors.grid} />
         <XAxis dataKey="time" minTickGap={40} tick={{ fontSize: tickFontSize, fill: colors.tick }} />
+        {stormRanges.map((range) => (
+          <ReferenceArea
+            key={`storm-${range.x1}`}
+            yAxisId="temperature"
+            x1={range.x1}
+            x2={range.x2}
+            fill={colors.thunderstorm}
+            fillOpacity={0.15}
+            stroke={colors.thunderstorm}
+            strokeOpacity={0.4}
+            ifOverflow="extendDomain"
+          />
+        ))}
         {nowLabel && (
           <ReferenceLine
             yAxisId="temperature"
@@ -662,6 +730,10 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
                 ? temperatureUnit
                 : name === "上空の気温(80m)"
                   ? temperature80m?.unit
+                  : name === "上空の気温(120m)"
+                    ? temperature120m?.unit
+                    : name === "上空の気温(180m)"
+                      ? temperature180m?.unit
                   : name === "925hPaの気温"
                     ? temperature925hPa?.unit
                   : name === "体感温度"
@@ -730,6 +802,34 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             dot={false}
             isAnimationActive={false}
             name="上空の気温(80m)"
+            connectNulls
+          />
+        )}
+        {showTemperature120m && (
+          <Line
+            yAxisId="temperature"
+            type="monotone"
+            dataKey="temperature120m"
+            stroke="#5c940d"
+            strokeDasharray="5 3"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="上空の気温(120m)"
+            connectNulls
+          />
+        )}
+        {showTemperature180m && (
+          <Line
+            yAxisId="temperature"
+            type="monotone"
+            dataKey="temperature180m"
+            stroke="#ae3ec9"
+            strokeDasharray="5 3"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="上空の気温(180m)"
             connectNulls
           />
         )}
