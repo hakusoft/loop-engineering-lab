@@ -317,6 +317,9 @@ STUB_SERIES = {
         "weather_code": "wmo code",
         "cape": "J/kg",
         "cloud_cover": "%",
+        "cloud_cover_low": "%",
+        "cloud_cover_mid": "%",
+        "cloud_cover_high": "%",
         "temperature_2m": "°C",
         "temperature_80m": "°C",
         "temperature_925hPa": "°C",
@@ -328,6 +331,7 @@ STUB_SERIES = {
         "snow_depth": "m",
         "precipitation_probability": "%",
         "surface_pressure": "hPa",
+        "pressure_msl": "hPa",
         "wind_speed_10m": "km/h",
         "wind_direction_10m": "°",
         "wind_gusts_10m": "km/h",
@@ -345,6 +349,9 @@ STUB_SERIES = {
         "weather_code": [0, 3, 61],
         "cape": [120.0, 480.0, 90.0],
         "cloud_cover": [20, 55, 90],
+        "cloud_cover_low": [10, 40, 80],
+        "cloud_cover_mid": [15, 30, 50],
+        "cloud_cover_high": [5, 20, 35],
         "temperature_2m": [26.1, 25.4, 24.9],
         "temperature_80m": [24.8, 24.1, 23.6],
         "temperature_925hPa": [23.6, 23.0, 22.5],
@@ -356,6 +363,7 @@ STUB_SERIES = {
         "snow_depth": [0.02, 0.02, 0.03],
         "precipitation_probability": [10, 30, 60],
         "surface_pressure": [1008.2, 1008.0, 1007.6],
+        "pressure_msl": [1010.5, 1010.3, 1009.9],
         "wind_speed_10m": [8.1, 9.4, 10.2],
         "wind_direction_10m": [200.0, 210.0, 220.0],
         "wind_gusts_10m": [15.2, 17.8, 19.6],
@@ -394,7 +402,11 @@ def test_series_keeps_units_separate_for_split_axes():
     snow_depth = by_label["積雪の深さ"]
     precipitation_probability = by_label["降水確率"]
     pressure = by_label["気圧"]
+    sea_level_pressure = by_label["海面気圧"]
     cloud_cover = by_label["雲量"]
+    cloud_cover_low = by_label["雲量(低層)"]
+    cloud_cover_mid = by_label["雲量(中層)"]
+    cloud_cover_high = by_label["雲量(高層)"]
     wind_direction = by_label["風向き"]
     wind_gusts = by_label["瞬間風速"]
     upper_wind_direction = by_label["上空の風向き"]
@@ -426,8 +438,16 @@ def test_series_keeps_units_separate_for_split_axes():
     assert precipitation_probability["unit"] == "%"
     assert pressure["label"] == "気圧"
     assert pressure["unit"] == "hPa"
+    assert sea_level_pressure["label"] == "海面気圧"
+    assert sea_level_pressure["unit"] == "hPa"
     assert cloud_cover["label"] == "雲量"
     assert cloud_cover["unit"] == "%"
+    assert cloud_cover_low["label"] == "雲量(低層)"
+    assert cloud_cover_low["unit"] == "%"
+    assert cloud_cover_mid["label"] == "雲量(中層)"
+    assert cloud_cover_mid["unit"] == "%"
+    assert cloud_cover_high["label"] == "雲量(高層)"
+    assert cloud_cover_high["unit"] == "%"
     assert wind_direction["label"] == "風向き"
     assert wind_direction["unit"] == "°"
     assert wind_gusts["label"] == "瞬間風速"
@@ -461,7 +481,11 @@ def test_series_exposes_min_max_for_axis_scaling():
     snow_depth = by_label["積雪の深さ"]
     precipitation_probability = by_label["降水確率"]
     pressure = by_label["気圧"]
+    sea_level_pressure = by_label["海面気圧"]
     cloud_cover = by_label["雲量"]
+    cloud_cover_low = by_label["雲量(低層)"]
+    cloud_cover_mid = by_label["雲量(中層)"]
+    cloud_cover_high = by_label["雲量(高層)"]
     wind_direction = by_label["風向き"]
     wind_gusts = by_label["瞬間風速"]
     upper_wind_direction = by_label["上空の風向き"]
@@ -482,7 +506,11 @@ def test_series_exposes_min_max_for_axis_scaling():
     assert (snow_depth["min"], snow_depth["max"]) == (0.02, 0.03)
     assert (precipitation_probability["min"], precipitation_probability["max"]) == (10, 60)
     assert (pressure["min"], pressure["max"]) == (1007.6, 1008.2)
+    assert (sea_level_pressure["min"], sea_level_pressure["max"]) == (1009.9, 1010.5)
     assert (cloud_cover["min"], cloud_cover["max"]) == (20, 90)
+    assert (cloud_cover_low["min"], cloud_cover_low["max"]) == (10, 80)
+    assert (cloud_cover_mid["min"], cloud_cover_mid["max"]) == (15, 50)
+    assert (cloud_cover_high["min"], cloud_cover_high["max"]) == (5, 35)
     assert (wind_direction["min"], wind_direction["max"]) == (200.0, 220.0)
     assert (wind_gusts["min"], wind_gusts["max"]) == (15.2, 19.6)
     assert (upper_wind_direction["min"], upper_wind_direction["max"]) == (230.0, 250.0)
@@ -1188,7 +1216,11 @@ def test_hourly_series_are_all_requested_fields():
         "積雪の深さ": "snow_depth",
         "降水確率": "precipitation_probability",
         "気圧": "surface_pressure",
+        "海面気圧": "pressure_msl",
         "雲量": "cloud_cover",
+        "雲量(低層)": "cloud_cover_low",
+        "雲量(中層)": "cloud_cover_mid",
+        "雲量(高層)": "cloud_cover_high",
         "風速": "wind_speed_10m",
         "風向き": "wind_direction_10m",
         "瞬間風速": "wind_gusts_10m",

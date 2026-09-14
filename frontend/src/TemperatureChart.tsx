@@ -28,7 +28,11 @@ function toChartData(data: SeriesResponse) {
   const snowDepth = data.series.find((s) => s.label === "積雪の深さ");
   const precipitationProbability = data.series.find((s) => s.label === "降水確率");
   const pressure = data.series.find((s) => s.label === "気圧");
+  const seaLevelPressure = data.series.find((s) => s.label === "海面気圧");
   const cloudCover = data.series.find((s) => s.label === "雲量");
+  const cloudCoverLow = data.series.find((s) => s.label === "雲量(低層)");
+  const cloudCoverMid = data.series.find((s) => s.label === "雲量(中層)");
+  const cloudCoverHigh = data.series.find((s) => s.label === "雲量(高層)");
   const windSpeed = data.series.find((s) => s.label === "風速");
   const windDirection = data.series.find((s) => s.label === "風向き");
   const windGusts = data.series.find((s) => s.label === "瞬間風速");
@@ -53,7 +57,11 @@ function toChartData(data: SeriesResponse) {
       snowDepth: undefined,
       precipitationProbability: undefined,
       pressure: undefined,
+      seaLevelPressure: undefined,
       cloudCover: undefined,
+      cloudCoverLow: undefined,
+      cloudCoverMid: undefined,
+      cloudCoverHigh: undefined,
       windSpeed: undefined,
       windDirection: undefined,
       windGusts: undefined,
@@ -81,7 +89,11 @@ function toChartData(data: SeriesResponse) {
     snowDepth: snowDepth?.values[i] ?? null,
     precipitationProbability: precipitationProbability?.values[i] ?? null,
     pressure: pressure?.values[i] ?? null,
+    seaLevelPressure: seaLevelPressure?.values[i] ?? null,
     cloudCover: cloudCover?.values[i] ?? null,
+    cloudCoverLow: cloudCoverLow?.values[i] ?? null,
+    cloudCoverMid: cloudCoverMid?.values[i] ?? null,
+    cloudCoverHigh: cloudCoverHigh?.values[i] ?? null,
     windSpeed: windSpeed?.values[i] ?? null,
     windDirection: windDirection?.values[i] ?? null,
     windGusts: windGusts?.values[i] ?? null,
@@ -106,7 +118,11 @@ function toChartData(data: SeriesResponse) {
     snowDepth,
     precipitationProbability,
     pressure,
+    seaLevelPressure,
     cloudCover,
+    cloudCoverLow,
+    cloudCoverMid,
+    cloudCoverHigh,
     windSpeed,
     windDirection,
     windGusts,
@@ -282,7 +298,11 @@ const SECONDARY_SERIES = [
   { key: "snowDepth", label: "積雪の深さ" },
   { key: "precipitationProbability", label: "降水確率" },
   { key: "pressure", label: "気圧" },
+  { key: "seaLevelPressure", label: "海面気圧" },
   { key: "cloudCover", label: "雲量" },
+  { key: "cloudCoverLow", label: "雲量(低層)" },
+  { key: "cloudCoverMid", label: "雲量(中層)" },
+  { key: "cloudCoverHigh", label: "雲量(高層)" },
   { key: "windSpeed", label: "風速" },
   { key: "windDirection", label: "風向き" },
   { key: "windGusts", label: "瞬間風速" },
@@ -362,7 +382,11 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     snowDepth,
     precipitationProbability,
     pressure,
+    seaLevelPressure,
     cloudCover,
+    cloudCoverLow,
+    cloudCoverMid,
+    cloudCoverHigh,
     windSpeed,
     windDirection,
     windGusts,
@@ -411,8 +435,16 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             return Boolean(precipitationProbability);
           case "pressure":
             return Boolean(pressure);
+          case "seaLevelPressure":
+            return Boolean(seaLevelPressure);
           case "cloudCover":
             return Boolean(cloudCover);
+          case "cloudCoverLow":
+            return Boolean(cloudCoverLow);
+          case "cloudCoverMid":
+            return Boolean(cloudCoverMid);
+          case "cloudCoverHigh":
+            return Boolean(cloudCoverHigh);
           case "windSpeed":
             return Boolean(windSpeed);
           case "windDirection":
@@ -444,7 +476,11 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
       snowDepth,
       precipitationProbability,
       pressure,
+      seaLevelPressure,
       cloudCover,
+      cloudCoverLow,
+      cloudCoverMid,
+      cloudCoverHigh,
       windSpeed,
       windDirection,
       windGusts,
@@ -479,7 +515,11 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
   const showSnowDepth = snowDepth && visibleSecondary.has("snowDepth");
   const showPrecipitationProbability = precipitationProbability && visibleSecondary.has("precipitationProbability");
   const showPressure = pressure && visibleSecondary.has("pressure");
+  const showSeaLevelPressure = seaLevelPressure && visibleSecondary.has("seaLevelPressure");
   const showCloudCover = cloudCover && visibleSecondary.has("cloudCover");
+  const showCloudCoverLow = cloudCoverLow && visibleSecondary.has("cloudCoverLow");
+  const showCloudCoverMid = cloudCoverMid && visibleSecondary.has("cloudCoverMid");
+  const showCloudCoverHigh = cloudCoverHigh && visibleSecondary.has("cloudCoverHigh");
   const showWindSpeed = windSpeed && visibleSecondary.has("windSpeed");
   const showWindDirection = windDirection && visibleSecondary.has("windDirection");
   const showWindGusts = windGusts && visibleSecondary.has("windGusts");
@@ -639,16 +679,30 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
           // 925hPa の風向きも度数（0〜360）固定なので、他の風向き系列とは別軸にする。
           <YAxis yAxisId="windDirection925hPa" hide domain={[0, 360]} />
         )}
-        {showPressure && (
-          // 気圧も他系列と単位・スケールが違うので、独立した軸にする。
+        {(showPressure || showSeaLevelPressure) && (
+          // 気圧・海面気圧は他系列と単位・スケールが違うので、独立した軸にする。
+          // 海面気圧は地上気圧（surface_pressure）と単位・スケールが近いため、
+          // 軸は共有し、表示中の系列の min/max から範囲を決める。
           <YAxis
             yAxisId="pressure"
             hide
-            domain={[(pressure!.min ?? 0) - 1, (pressure!.max ?? 0) + 1]}
+            domain={[
+              Math.min(
+                ...[showPressure ? pressure!.min : null, showSeaLevelPressure ? seaLevelPressure!.min : null].filter(
+                  (v): v is number => v !== null && v !== undefined,
+                ),
+              ) - 1,
+              Math.max(
+                ...[showPressure ? pressure!.max : null, showSeaLevelPressure ? seaLevelPressure!.max : null].filter(
+                  (v): v is number => v !== null && v !== undefined,
+                ),
+              ) + 1,
+            ]}
           />
         )}
-        {showCloudCover && (
-          // 雲量は % 固定なので、降水確率と同じく 0〜100 のスケールで別軸にする。
+        {(showCloudCover || showCloudCoverLow || showCloudCoverMid || showCloudCoverHigh) && (
+          // 雲量（全体・低層・中層・高層）は % 固定なので、降水確率と同じく
+          // 0〜100 のスケールで軸を共有する。
           <YAxis yAxisId="cloudCover" hide domain={[0, 100]} />
         )}
         {showVisibility && (
@@ -690,8 +744,16 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
                           ? precipitationProbability?.unit
                           : name === "気圧"
                             ? pressure?.unit
+                            : name === "海面気圧"
+                              ? seaLevelPressure?.unit
                             : name === "雲量"
                               ? cloudCover?.unit
+                              : name === "雲量(低層)"
+                                ? cloudCoverLow?.unit
+                                : name === "雲量(中層)"
+                                  ? cloudCoverMid?.unit
+                                  : name === "雲量(高層)"
+                                    ? cloudCoverHigh?.unit
                               : name === "風速"
                                 ? windSpeed?.unit
                                 : name === "風向き"
@@ -858,6 +920,19 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             connectNulls
           />
         )}
+        {showSeaLevelPressure && (
+          <Line
+            yAxisId="pressure"
+            type="monotone"
+            dataKey="seaLevelPressure"
+            stroke="#5f3dc4"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="海面気圧"
+            connectNulls
+          />
+        )}
         {showCloudCover && (
           <Line
             yAxisId="cloudCover"
@@ -868,6 +943,45 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             dot={false}
             isAnimationActive={false}
             name="雲量"
+            connectNulls
+          />
+        )}
+        {showCloudCoverLow && (
+          <Line
+            yAxisId="cloudCover"
+            type="monotone"
+            dataKey="cloudCoverLow"
+            stroke="#5c7cfa"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="雲量(低層)"
+            connectNulls
+          />
+        )}
+        {showCloudCoverMid && (
+          <Line
+            yAxisId="cloudCover"
+            type="monotone"
+            dataKey="cloudCoverMid"
+            stroke="#adb5bd"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="雲量(中層)"
+            connectNulls
+          />
+        )}
+        {showCloudCoverHigh && (
+          <Line
+            yAxisId="cloudCover"
+            type="monotone"
+            dataKey="cloudCoverHigh"
+            stroke="#343a40"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="雲量(高層)"
             connectNulls
           />
         )}
