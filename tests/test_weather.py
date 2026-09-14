@@ -576,6 +576,26 @@ def test_format_hourly_series_omits_series_for_keys_not_in_response():
     assert "上空の気温(80m)" in labels  # 他の系列には影響しない
 
 
+def test_format_hourly_series_omits_convective_inhibition_and_boundary_layer_height_when_missing():
+    """convective_inhibition / boundary_layer_height も実 API での応答確認が
+    できていないキーのため、無ければ添字アクセスで落とさず静かに省く
+    （レビュー指摘: PR #382、temperature_120m と同型）。
+    """
+    hourly = {
+        k: v
+        for k, v in STUB_SERIES["hourly"].items()
+        if k not in ("convective_inhibition", "boundary_layer_height")
+    }
+    raw = {**STUB_SERIES, "hourly": hourly}
+
+    result = format_hourly_series(raw)
+    labels = {s["label"] for s in result["series"]}
+
+    assert "対流抑制(CIN)" not in labels
+    assert "境界層の高さ" not in labels
+    assert "気温" in labels  # 他の系列には影響しない
+
+
 def test_format_forecast_falls_back_when_units_missing():
     """current_units / daily_units が欠けても既定の単位で返す。"""
     raw = {k: v for k, v in STUB_RESPONSE.items() if k not in ("current_units", "daily_units")}
