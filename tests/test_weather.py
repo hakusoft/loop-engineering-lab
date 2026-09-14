@@ -114,6 +114,7 @@ STUB_RESPONSE = {
     "daily_units": {
         "time": "iso8601",
         "uv_index_max": "",
+        "uv_index_clear_sky_max": "",
         "shortwave_radiation_sum": "MJ/m²",
         "sunrise": "iso8601",
         "sunset": "iso8601",
@@ -121,6 +122,8 @@ STUB_RESPONSE = {
         "temperature_2m_min": "°C",
         "temperature_2m_mean": "°C",
         "precipitation_probability_max": "%",
+        "precipitation_probability_mean": "%",
+        "precipitation_probability_min": "%",
         "sunshine_duration": "s",
         "et0_fao_evapotranspiration": "mm",
         "precipitation_hours": "h",
@@ -141,6 +144,7 @@ STUB_RESPONSE = {
     "daily": {
         "time": ["2026-07-21"],
         "uv_index_max": [7.8],
+        "uv_index_clear_sky_max": [8.1],
         "shortwave_radiation_sum": [23.4],
         "sunrise": ["2026-07-21T04:44"],
         "sunset": ["2026-07-21T18:47"],
@@ -148,6 +152,8 @@ STUB_RESPONSE = {
         "temperature_2m_min": [24.7],
         "temperature_2m_mean": [28.9],
         "precipitation_probability_max": [20],
+        "precipitation_probability_mean": [11],
+        "precipitation_probability_min": [2],
         "sunshine_duration": [36420.0],
         "et0_fao_evapotranspiration": [4.33],
         "precipitation_hours": [3.0],
@@ -210,6 +216,7 @@ def test_format_forecast_maps_values_and_units():
     assert result["snow_depth"] == {"value": 0.0, "unit": "m"}
     assert result["uv_index"] == {"value": 5.2, "unit": ""}
     assert result["uv_index_max"] == {"value": 7.8, "unit": ""}
+    assert result["uv_index_clear_sky_max"] == {"value": 8.1, "unit": ""}
     assert result["temperature_max"] == {"value": 33.2, "unit": "°C", "date": "2026-07-21"}
     assert result["temperature_min"] == {"value": 24.7, "unit": "°C", "date": "2026-07-21"}
     assert result["temperature_mean"] == {"value": 28.9, "unit": "°C"}
@@ -224,6 +231,8 @@ def test_format_forecast_maps_values_and_units():
         "unit": "%",
         "date": "2026-07-21",
     }
+    assert result["precipitation_probability_mean"] == {"value": 11, "unit": "%"}
+    assert result["precipitation_probability_min"] == {"value": 2, "unit": "%"}
     assert result["sunshine_duration"] == {"value": 36420.0 / 3600, "unit": "h"}
     assert result["evapotranspiration"] == {"value": 4.33, "unit": "mm"}
     assert result["precipitation_hours"] == {"value": 3.0, "unit": "h"}
@@ -259,6 +268,8 @@ def test_format_forecast_groups_location_and_precipitation_fields():
     precipitation_keys = [
         "precipitation",
         "precipitation_probability",
+        "precipitation_probability_mean",
+        "precipitation_probability_min",
         "precipitation_hours",
         "precipitation_sum",
     ]
@@ -322,6 +333,8 @@ STUB_SERIES = {
         "cloud_cover_high": "%",
         "temperature_2m": "°C",
         "temperature_80m": "°C",
+        "temperature_120m": "°C",
+        "temperature_180m": "°C",
         "temperature_925hPa": "°C",
         "apparent_temperature": "°C",
         "dew_point_2m": "°C",
@@ -354,6 +367,8 @@ STUB_SERIES = {
         "cloud_cover_high": [5, 20, 35],
         "temperature_2m": [26.1, 25.4, 24.9],
         "temperature_80m": [24.8, 24.1, 23.6],
+        "temperature_120m": [24.2, 23.5, 23.0],
+        "temperature_180m": [23.4, 22.7, 22.2],
         "temperature_925hPa": [23.6, 23.0, 22.5],
         "apparent_temperature": [27.3, 26.5, 25.8],
         "dew_point_2m": [21.8, 21.5, 21.2],
@@ -393,6 +408,8 @@ def test_series_keeps_units_separate_for_split_axes():
     by_label = {s["label"]: s for s in result["series"]}
     temperature = by_label["気温"]
     temperature_80m = by_label["上空の気温(80m)"]
+    temperature_120m = by_label["上空の気温(120m)"]
+    temperature_180m = by_label["上空の気温(180m)"]
     temperature_925hPa = by_label["925hPaの気温"]
     apparent_temperature = by_label["体感温度"]
     dew_point = by_label["露点温度"]
@@ -420,6 +437,10 @@ def test_series_keeps_units_separate_for_split_axes():
     assert temperature["unit"] == "°C"
     assert temperature_80m["label"] == "上空の気温(80m)"
     assert temperature_80m["unit"] == "°C"
+    assert temperature_120m["label"] == "上空の気温(120m)"
+    assert temperature_120m["unit"] == "°C"
+    assert temperature_180m["label"] == "上空の気温(180m)"
+    assert temperature_180m["unit"] == "°C"
     assert temperature_925hPa["label"] == "925hPaの気温"
     assert temperature_925hPa["unit"] == "°C"
     assert apparent_temperature["label"] == "体感温度"
@@ -472,6 +493,8 @@ def test_series_exposes_min_max_for_axis_scaling():
     by_label = {s["label"]: s for s in result["series"]}
     temperature = by_label["気温"]
     temperature_80m = by_label["上空の気温(80m)"]
+    temperature_120m = by_label["上空の気温(120m)"]
+    temperature_180m = by_label["上空の気温(180m)"]
     temperature_925hPa = by_label["925hPaの気温"]
     apparent_temperature = by_label["体感温度"]
     dew_point = by_label["露点温度"]
@@ -497,6 +520,8 @@ def test_series_exposes_min_max_for_axis_scaling():
 
     assert (temperature["min"], temperature["max"]) == (24.9, 26.1)
     assert (temperature_80m["min"], temperature_80m["max"]) == (23.6, 24.8)
+    assert (temperature_120m["min"], temperature_120m["max"]) == (23.0, 24.2)
+    assert (temperature_180m["min"], temperature_180m["max"]) == (22.2, 23.4)
     assert (temperature_925hPa["min"], temperature_925hPa["max"]) == (22.5, 23.6)
     assert (apparent_temperature["min"], apparent_temperature["max"]) == (25.8, 27.3)
     assert (dew_point["min"], dew_point["max"]) == (21.2, 21.8)
@@ -557,6 +582,20 @@ def test_series_tolerates_missing_values():
     assert precipitation_probability["min"] is None
     assert pressure["min"] is None
     assert uv_index["min"] is None
+
+
+def test_format_hourly_series_omits_series_for_keys_not_in_response():
+    """実 API での応答確認ができていないキー（例: temperature_120m）が実際には
+    返ってこなかった場合、系列を添字アクセスで落とさず静かに省く（レビュー指摘: PR #376）。
+    """
+    hourly = {k: v for k, v in STUB_SERIES["hourly"].items() if k != "temperature_120m"}
+    raw = {**STUB_SERIES, "hourly": hourly}
+
+    result = format_hourly_series(raw)
+    labels = {s["label"] for s in result["series"]}
+
+    assert "上空の気温(120m)" not in labels
+    assert "上空の気温(80m)" in labels  # 他の系列には影響しない
 
 
 def test_format_forecast_falls_back_when_units_missing():
@@ -697,6 +736,47 @@ def test_format_forecast_tolerates_missing_soil_moisture_deeper():
     assert result["soil_moisture_deeper"]["value"] is None
 
 
+def test_format_forecast_tolerates_missing_precipitation_probability_mean():
+    """precipitation_probability_mean が daily に無くても KeyError にしない。
+
+    この項目は実 API での応答を確認できないまま追加した（PR #386 のレビュー
+    参照）。Open-Meteo が実際にはこのキーを返さない可能性を排除できないため、
+    #164 / #67-#68 と同型の KeyError を避けて None を返す。
+    """
+    raw = {
+        **STUB_RESPONSE,
+        "daily": {
+            k: v
+            for k, v in STUB_RESPONSE["daily"].items()
+            if k != "precipitation_probability_mean"
+        },
+    }
+
+    result = format_forecast(raw)
+
+    assert result["precipitation_probability_mean"]["value"] is None
+
+
+def test_format_forecast_tolerates_missing_precipitation_probability_min():
+    """precipitation_probability_min が daily に無くても KeyError にしない。
+
+    precipitation_probability_mean と同様、実 API での応答を確認できないまま
+    追加した項目。
+    """
+    raw = {
+        **STUB_RESPONSE,
+        "daily": {
+            k: v
+            for k, v in STUB_RESPONSE["daily"].items()
+            if k != "precipitation_probability_min"
+        },
+    }
+
+    result = format_forecast(raw)
+
+    assert result["precipitation_probability_min"]["value"] is None
+
+
 def test_format_forecast_tolerates_missing_temperature_850hpa():
     """temperature_850hPa が current に無くても TypeError にしない。
 
@@ -772,6 +852,23 @@ def test_format_forecast_tolerates_missing_soil_temperature_deepest():
     assert result["soil_temperature_deepest"]["value"] is None
 
 
+def test_format_forecast_tolerates_missing_uv_index_clear_sky_max():
+    """uv_index_clear_sky_max が daily に無くても KeyError にしない。
+
+    soil_temperature_deepest 等と同じ方針（実 API での応答未確認、Issue #345）。
+    """
+    raw = {
+        **STUB_RESPONSE,
+        "daily": {
+            k: v for k, v in STUB_RESPONSE["daily"].items() if k != "uv_index_clear_sky_max"
+        },
+    }
+
+    result = format_forecast(raw)
+
+    assert result["uv_index_clear_sky_max"]["value"] is None
+
+
 def test_format_forecast_rounds_pressure():
     """気圧は Open-Meteo が桁の長い小数を返すことがあるため、小数第1位に丸める。"""
     raw = {
@@ -807,13 +904,18 @@ def test_format_forecast_clamps_negative_uv_index():
     raw = {
         **STUB_RESPONSE,
         "current": {**STUB_RESPONSE["current"], "uv_index": -0.05},
-        "daily": {**STUB_RESPONSE["daily"], "uv_index_max": [-0.01]},
+        "daily": {
+            **STUB_RESPONSE["daily"],
+            "uv_index_max": [-0.01],
+            "uv_index_clear_sky_max": [-0.02],
+        },
     }
 
     result = format_forecast(raw)
 
     assert result["uv_index"] == {"value": 0.0, "unit": ""}
     assert result["uv_index_max"] == {"value": 0.0, "unit": ""}
+    assert result["uv_index_clear_sky_max"] == {"value": 0.0, "unit": ""}
 
 
 def test_format_hourly_series_clamps_negative_uv_index():
@@ -1207,6 +1309,8 @@ def test_hourly_series_are_all_requested_fields():
     labels_to_keys = {
         "気温": "temperature_2m",
         "上空の気温(80m)": "temperature_80m",
+        "上空の気温(120m)": "temperature_120m",
+        "上空の気温(180m)": "temperature_180m",
         "925hPaの気温": "temperature_925hPa",
         "体感温度": "apparent_temperature",
         "露点温度": "dew_point_2m",

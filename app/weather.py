@@ -221,6 +221,7 @@ CURRENT_FIELDS = [
 
 DAILY_FIELDS = [
     "uv_index_max",
+    "uv_index_clear_sky_max",
     "shortwave_radiation_sum",
     "sunrise",
     "sunset",
@@ -228,6 +229,8 @@ DAILY_FIELDS = [
     "temperature_2m_min",
     "temperature_2m_mean",
     "precipitation_probability_max",
+    "precipitation_probability_mean",
+    "precipitation_probability_min",
     "sunshine_duration",
     "et0_fao_evapotranspiration",
     "precipitation_hours",
@@ -255,6 +258,8 @@ HOURLY_FIELDS = [
     "cloud_cover_high",
     "temperature_2m",
     "temperature_80m",
+    "temperature_120m",
+    "temperature_180m",
     "temperature_925hPa",
     "dew_point_2m",
     "relative_humidity_2m",
@@ -502,6 +507,20 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
             "unit": daily_units.get("precipitation_probability_max", "%"),
             "date": daily["time"][0],
         },
+        "precipitation_probability_mean": {
+            # precipitation_probability_mean は今回新規に要求した項目で、実 API
+            # での応答確認ができていない（フィクスチャ未更新）。他の新規項目と
+            # 同様 .get() で読み、無ければ None を返す（#164 / #67-#68 と同型の
+            # KeyError を避ける）。
+            "value": daily.get("precipitation_probability_mean", [None])[0],
+            "unit": daily_units.get("precipitation_probability_mean", "%"),
+        },
+        "precipitation_probability_min": {
+            # precipitation_probability_min も同様に実 API での応答確認ができて
+            # いない（precipitation_probability_mean と同じ方針）。
+            "value": daily.get("precipitation_probability_min", [None])[0],
+            "unit": daily_units.get("precipitation_probability_min", "%"),
+        },
         "precipitation_hours": {
             "value": daily["precipitation_hours"][0],
             "unit": daily_units.get("precipitation_hours", "h"),
@@ -593,6 +612,14 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
         "uv_index_max": {
             "value": _clamp_uv_index(daily["uv_index_max"][0]),
             "unit": daily_units.get("uv_index_max", ""),
+        },
+        "uv_index_clear_sky_max": {
+            # uv_index_clear_sky_max は今回新規に要求した項目で、実 API での応答確認が
+            # できていない（フィクスチャ未更新）。実際にはこのキーで返らない可能性を
+            # 排除できないため、他の新規項目と同様 .get() で読み、無ければ None を返す
+            # （#164 / #67-#68 と同型の KeyError を避ける）。
+            "value": _clamp_uv_index(daily.get("uv_index_clear_sky_max", [None])[0]),
+            "unit": daily_units.get("uv_index_clear_sky_max", ""),
         },
         "sunshine_duration": {
             "value": _seconds_to_hours(daily["sunshine_duration"][0]),
@@ -738,7 +765,18 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
     if "visibility" in hourly:
         hourly["visibility"] = [_round_visibility(v) for v in hourly["visibility"]]
 
-    def _series(key: str, label: str, default_unit: str) -> dict[str, Any]:
+    def _series(key: str, label: str, default_unit: str) -> dict[str, Any] | None:
+        """key が hourly に無ければ None を返し、系列自体を出さない。
+
+        新規に要求した項目（例: temperature_120m / temperature_180m）は実 API
+        での応答確認ができておらず、Open-Meteo が実際にはそのキーを返さない
+        可能性を排除できない（レビュー指摘: PR #376）。存在しないキーを添字で
+        読むと `/weather/series` 全体が KeyError で壊れるため、無ければ静かに
+        系列を省く。フロント側は `data.series.find(...)` が undefined になり、
+        まだ無い項目と同じ扱い（チェックボックス非表示）になる。
+        """
+        if key not in hourly:
+            return None
         values = hourly[key]
         present = [v for v in values if v is not None]
         return {
@@ -782,32 +820,38 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
         "thunderstorm_hours": thunder_hours,
         "cape_peak": cape_peak_today,
         "series": [
-            _series("temperature_2m", "気温", "°C"),
-            _series("temperature_80m", "上空の気温(80m)", "°C"),
-            _series("temperature_925hPa", "925hPaの気温", "°C"),
-            _series("apparent_temperature", "体感温度", "°C"),
-            _series("dew_point_2m", "露点温度", "°C"),
-            _series("relative_humidity_2m", "湿度", "%"),
-            _series("rain", "雨量", "mm"),
-            _series("snowfall", "降雪量", "cm"),
-            _series("snow_depth", "積雪の深さ", "m"),
-            _series("precipitation_probability", "降水確率", "%"),
-            _series("surface_pressure", "気圧", "hPa"),
-            _series("pressure_msl", "海面気圧", "hPa"),
-            _series("cloud_cover", "雲量", "%"),
-            _series("cloud_cover_low", "雲量(低層)", "%"),
-            _series("cloud_cover_mid", "雲量(中層)", "%"),
-            _series("cloud_cover_high", "雲量(高層)", "%"),
-            _series("wind_speed_10m", "風速", "km/h"),
-            _series("wind_direction_10m", "風向き", "°"),
-            _series("wind_gusts_10m", "瞬間風速", "km/h"),
-            _series("wind_speed_850hPa", "上空の風速", "km/h"),
-            _series("wind_direction_850hPa", "上空の風向き", "°"),
-            _series("wind_speed_925hPa", "925hPaの風速", "km/h"),
-            _series("wind_direction_925hPa", "925hPaの風向き", "°"),
-            _series("wind_speed_80m", "上空の風速(80m)", "km/h"),
-            _series("uv_index", "紫外線指数", ""),
-            _series("visibility", "視程", "m"),
+            s
+            for s in [
+                _series("temperature_2m", "気温", "°C"),
+                _series("temperature_80m", "上空の気温(80m)", "°C"),
+                _series("temperature_120m", "上空の気温(120m)", "°C"),
+                _series("temperature_180m", "上空の気温(180m)", "°C"),
+                _series("temperature_925hPa", "925hPaの気温", "°C"),
+                _series("apparent_temperature", "体感温度", "°C"),
+                _series("dew_point_2m", "露点温度", "°C"),
+                _series("relative_humidity_2m", "湿度", "%"),
+                _series("rain", "雨量", "mm"),
+                _series("snowfall", "降雪量", "cm"),
+                _series("snow_depth", "積雪の深さ", "m"),
+                _series("precipitation_probability", "降水確率", "%"),
+                _series("surface_pressure", "気圧", "hPa"),
+                _series("pressure_msl", "海面気圧", "hPa"),
+                _series("cloud_cover", "雲量", "%"),
+                _series("cloud_cover_low", "雲量(低層)", "%"),
+                _series("cloud_cover_mid", "雲量(中層)", "%"),
+                _series("cloud_cover_high", "雲量(高層)", "%"),
+                _series("wind_speed_10m", "風速", "km/h"),
+                _series("wind_direction_10m", "風向き", "°"),
+                _series("wind_gusts_10m", "瞬間風速", "km/h"),
+                _series("wind_speed_850hPa", "上空の風速", "km/h"),
+                _series("wind_direction_850hPa", "上空の風向き", "°"),
+                _series("wind_speed_925hPa", "925hPaの風速", "km/h"),
+                _series("wind_direction_925hPa", "925hPaの風向き", "°"),
+                _series("wind_speed_80m", "上空の風速(80m)", "km/h"),
+                _series("uv_index", "紫外線指数", ""),
+                _series("visibility", "視程", "m"),
+            ]
+            if s is not None
         ],
         "coordinates": {
             "latitude": _round_coordinate(raw["latitude"]),

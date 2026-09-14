@@ -79,8 +79,15 @@ export type WeatherResponse = {
   snow_depth: { value: number; unit: string };
   uv_index: { value: number; unit: string };
   uv_index_max: { value: number; unit: string };
+  // 実 API での応答未確認の項目（app/weather.py のコメント参照）。取れないときは
+  // value が null になるので、表示側で必ず null を扱う。
+  uv_index_clear_sky_max: { value: number | null; unit: string };
   precipitation: { value: number; unit: string };
   precipitation_probability: { value: number; unit: string; date: string };
+  // 実 API での応答未確認の項目（PR #386 のレビュー参照）。取れないときは
+  // value が null になるので、表示側で必ず null を扱う。
+  precipitation_probability_mean: { value: number | null; unit: string };
+  precipitation_probability_min: { value: number | null; unit: string };
   precipitation_hours: { value: number; unit: string };
   precipitation_sum: { value: number; unit: string };
   rain_sum: { value: number; unit: string };
