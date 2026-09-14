@@ -253,6 +253,8 @@ HOURLY_FIELDS = [
     "cloud_cover",
     "temperature_2m",
     "temperature_80m",
+    "temperature_120m",
+    "temperature_180m",
     "temperature_925hPa",
     "dew_point_2m",
     "relative_humidity_2m",
@@ -743,7 +745,18 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
     if "visibility" in hourly:
         hourly["visibility"] = [_round_visibility(v) for v in hourly["visibility"]]
 
-    def _series(key: str, label: str, default_unit: str) -> dict[str, Any]:
+    def _series(key: str, label: str, default_unit: str) -> dict[str, Any] | None:
+        """key が hourly に無ければ None を返し、系列自体を出さない。
+
+        新規に要求した項目（例: temperature_120m / temperature_180m）は実 API
+        での応答確認ができておらず、Open-Meteo が実際にはそのキーを返さない
+        可能性を排除できない（レビュー指摘: PR #376）。存在しないキーを添字で
+        読むと `/weather/series` 全体が KeyError で壊れるため、無ければ静かに
+        系列を省く。フロント側は `data.series.find(...)` が undefined になり、
+        まだ無い項目と同じ扱い（チェックボックス非表示）になる。
+        """
+        if key not in hourly:
+            return None
         values = hourly[key]
         present = [v for v in values if v is not None]
         return {
@@ -787,28 +800,34 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
         "thunderstorm_hours": thunder_hours,
         "cape_peak": cape_peak_today,
         "series": [
-            _series("temperature_2m", "気温", "°C"),
-            _series("temperature_80m", "上空の気温(80m)", "°C"),
-            _series("temperature_925hPa", "925hPaの気温", "°C"),
-            _series("apparent_temperature", "体感温度", "°C"),
-            _series("dew_point_2m", "露点温度", "°C"),
-            _series("relative_humidity_2m", "湿度", "%"),
-            _series("rain", "雨量", "mm"),
-            _series("snowfall", "降雪量", "cm"),
-            _series("snow_depth", "積雪の深さ", "m"),
-            _series("precipitation_probability", "降水確率", "%"),
-            _series("surface_pressure", "気圧", "hPa"),
-            _series("cloud_cover", "雲量", "%"),
-            _series("wind_speed_10m", "風速", "km/h"),
-            _series("wind_direction_10m", "風向き", "°"),
-            _series("wind_gusts_10m", "瞬間風速", "km/h"),
-            _series("wind_speed_850hPa", "上空の風速", "km/h"),
-            _series("wind_direction_850hPa", "上空の風向き", "°"),
-            _series("wind_speed_925hPa", "925hPaの風速", "km/h"),
-            _series("wind_direction_925hPa", "925hPaの風向き", "°"),
-            _series("wind_speed_80m", "上空の風速(80m)", "km/h"),
-            _series("uv_index", "紫外線指数", ""),
-            _series("visibility", "視程", "m"),
+            s
+            for s in [
+                _series("temperature_2m", "気温", "°C"),
+                _series("temperature_80m", "上空の気温(80m)", "°C"),
+                _series("temperature_120m", "上空の気温(120m)", "°C"),
+                _series("temperature_180m", "上空の気温(180m)", "°C"),
+                _series("temperature_925hPa", "925hPaの気温", "°C"),
+                _series("apparent_temperature", "体感温度", "°C"),
+                _series("dew_point_2m", "露点温度", "°C"),
+                _series("relative_humidity_2m", "湿度", "%"),
+                _series("rain", "雨量", "mm"),
+                _series("snowfall", "降雪量", "cm"),
+                _series("snow_depth", "積雪の深さ", "m"),
+                _series("precipitation_probability", "降水確率", "%"),
+                _series("surface_pressure", "気圧", "hPa"),
+                _series("cloud_cover", "雲量", "%"),
+                _series("wind_speed_10m", "風速", "km/h"),
+                _series("wind_direction_10m", "風向き", "°"),
+                _series("wind_gusts_10m", "瞬間風速", "km/h"),
+                _series("wind_speed_850hPa", "上空の風速", "km/h"),
+                _series("wind_direction_850hPa", "上空の風向き", "°"),
+                _series("wind_speed_925hPa", "925hPaの風速", "km/h"),
+                _series("wind_direction_925hPa", "925hPaの風向き", "°"),
+                _series("wind_speed_80m", "上空の風速(80m)", "km/h"),
+                _series("uv_index", "紫外線指数", ""),
+                _series("visibility", "視程", "m"),
+            ]
+            if s is not None
         ],
         "coordinates": {
             "latitude": _round_coordinate(raw["latitude"]),
