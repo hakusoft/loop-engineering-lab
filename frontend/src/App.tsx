@@ -53,6 +53,12 @@ function writeStoredCategoryOpen(title: string, open: boolean) {
 // 項目が増えて画面が縦に長くなり全体を把握しづらいという要望を受け、カテゴリごとに
 // 折りたたみ表示にする（Issue #222）。開閉状態は localStorage に保存し、保存が無い
 // カテゴリは先頭カテゴリ（気温）だけ初期状態で開く（Issue #255）。
+// カテゴリへのジャンプボタン（下記）が、対象の <details> を見つけて開閉・スクロール
+// できるようにするための id。カテゴリ名をそのまま使う（id には Unicode 文字も使える）。
+function categoryAnchorId(title: string): string {
+  return `category-${title}`;
+}
+
 function CategoryGroup({
   title,
   defaultOpen,
@@ -66,6 +72,7 @@ function CategoryGroup({
 
   return (
     <details
+      id={categoryAnchorId(title)}
       open={open}
       onToggle={(e) => {
         const isOpen = (e.target as HTMLDetailsElement).open;
@@ -145,6 +152,44 @@ const NIGHT_THEME = {
 
 function themeFor(isDay: boolean | undefined, forceDark: boolean) {
   return forceDark || isDay === false ? NIGHT_THEME : DAY_THEME;
+}
+
+// カテゴリが増えて見たいところまで毎回スクロールするのが大変という声を受け、
+// カテゴリへ直接ジャンプできるボタンを追加する（Issue #387）。折りたたまれている
+// カテゴリは、ネイティブの <details><summary> をクリックしたのと同じ経路（＝
+// CategoryGroup の onToggle）で開いてから、開いた状態でスクロールする。
+function jumpToCategory(title: string) {
+  const details = document.getElementById(categoryAnchorId(title)) as HTMLDetailsElement | null;
+  if (!details) return;
+  if (!details.open) {
+    details.querySelector("summary")?.click();
+  }
+  details.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function CategoryNav({ categories }: { categories: string[] }) {
+  return (
+    <nav style={{ display: "flex", flexWrap: "wrap", gap: 8, margin: "12px 0" }}>
+      {categories.map((title) => (
+        <button
+          key={title}
+          type="button"
+          onClick={() => jumpToCategory(title)}
+          style={{
+            background: "none",
+            border: "1px solid var(--text-tertiary)",
+            borderRadius: 999,
+            color: "var(--text-secondary)",
+            fontSize: 12,
+            padding: "4px 10px",
+            cursor: "pointer",
+          }}
+        >
+          {title}
+        </button>
+      ))}
+    </nav>
+  );
 }
 
 // 昼夜自動判定とは別に、目が疲れている時など任意のタイミングで暗めの配色に
@@ -298,6 +343,8 @@ export default function App() {
       <p style={{ color: "var(--text-secondary)", marginTop: 0, fontSize: 14 }}>
         loop-engineering-lab / <code>/weather/series</code>
       </p>
+
+      {weatherState.status === "ready" && <CategoryNav categories={CATEGORY_ORDER} />}
 
       {state.status === "ready" && <DailySummary data={state.data} />}
       {state.status === "ready" && <ThunderstormOutlook data={state.data} />}
