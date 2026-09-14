@@ -122,6 +122,8 @@ STUB_RESPONSE = {
         "temperature_2m_min": "°C",
         "temperature_2m_mean": "°C",
         "precipitation_probability_max": "%",
+        "precipitation_probability_mean": "%",
+        "precipitation_probability_min": "%",
         "sunshine_duration": "s",
         "et0_fao_evapotranspiration": "mm",
         "precipitation_hours": "h",
@@ -150,6 +152,8 @@ STUB_RESPONSE = {
         "temperature_2m_min": [24.7],
         "temperature_2m_mean": [28.9],
         "precipitation_probability_max": [20],
+        "precipitation_probability_mean": [11],
+        "precipitation_probability_min": [2],
         "sunshine_duration": [36420.0],
         "et0_fao_evapotranspiration": [4.33],
         "precipitation_hours": [3.0],
@@ -227,6 +231,8 @@ def test_format_forecast_maps_values_and_units():
         "unit": "%",
         "date": "2026-07-21",
     }
+    assert result["precipitation_probability_mean"] == {"value": 11, "unit": "%"}
+    assert result["precipitation_probability_min"] == {"value": 2, "unit": "%"}
     assert result["sunshine_duration"] == {"value": 36420.0 / 3600, "unit": "h"}
     assert result["evapotranspiration"] == {"value": 4.33, "unit": "mm"}
     assert result["precipitation_hours"] == {"value": 3.0, "unit": "h"}
@@ -262,6 +268,8 @@ def test_format_forecast_groups_location_and_precipitation_fields():
     precipitation_keys = [
         "precipitation",
         "precipitation_probability",
+        "precipitation_probability_mean",
+        "precipitation_probability_min",
         "precipitation_hours",
         "precipitation_sum",
     ]
@@ -698,6 +706,47 @@ def test_format_forecast_tolerates_missing_soil_moisture_deeper():
     result = format_forecast(raw)
 
     assert result["soil_moisture_deeper"]["value"] is None
+
+
+def test_format_forecast_tolerates_missing_precipitation_probability_mean():
+    """precipitation_probability_mean が daily に無くても KeyError にしない。
+
+    この項目は実 API での応答を確認できないまま追加した（PR #386 のレビュー
+    参照）。Open-Meteo が実際にはこのキーを返さない可能性を排除できないため、
+    #164 / #67-#68 と同型の KeyError を避けて None を返す。
+    """
+    raw = {
+        **STUB_RESPONSE,
+        "daily": {
+            k: v
+            for k, v in STUB_RESPONSE["daily"].items()
+            if k != "precipitation_probability_mean"
+        },
+    }
+
+    result = format_forecast(raw)
+
+    assert result["precipitation_probability_mean"]["value"] is None
+
+
+def test_format_forecast_tolerates_missing_precipitation_probability_min():
+    """precipitation_probability_min が daily に無くても KeyError にしない。
+
+    precipitation_probability_mean と同様、実 API での応答を確認できないまま
+    追加した項目。
+    """
+    raw = {
+        **STUB_RESPONSE,
+        "daily": {
+            k: v
+            for k, v in STUB_RESPONSE["daily"].items()
+            if k != "precipitation_probability_min"
+        },
+    }
+
+    result = format_forecast(raw)
+
+    assert result["precipitation_probability_min"]["value"] is None
 
 
 def test_format_forecast_tolerates_missing_temperature_850hpa():
