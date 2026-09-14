@@ -221,6 +221,7 @@ CURRENT_FIELDS = [
 
 DAILY_FIELDS = [
     "uv_index_max",
+    "uv_index_clear_sky_max",
     "shortwave_radiation_sum",
     "sunrise",
     "sunset",
@@ -589,6 +590,14 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
         "uv_index_max": {
             "value": _clamp_uv_index(daily["uv_index_max"][0]),
             "unit": daily_units.get("uv_index_max", ""),
+        },
+        "uv_index_clear_sky_max": {
+            # uv_index_clear_sky_max は今回新規に要求した項目で、実 API での応答確認が
+            # できていない（フィクスチャ未更新）。実際にはこのキーで返らない可能性を
+            # 排除できないため、他の新規項目と同様 .get() で読み、無ければ None を返す
+            # （#164 / #67-#68 と同型の KeyError を避ける）。
+            "value": _clamp_uv_index(daily.get("uv_index_clear_sky_max", [None])[0]),
+            "unit": daily_units.get("uv_index_clear_sky_max", ""),
         },
         "sunshine_duration": {
             "value": _seconds_to_hours(daily["sunshine_duration"][0]),
