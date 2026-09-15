@@ -22,6 +22,10 @@ function toChartData(data: SeriesResponse) {
   const temperature120m = data.series.find((s) => s.label === "上空の気温(120m)");
   const temperature180m = data.series.find((s) => s.label === "上空の気温(180m)");
   const temperature925hPa = data.series.find((s) => s.label === "925hPaの気温");
+  const soilTemperature0cm = data.series.find((s) => s.label === "土の温度(地表)");
+  const soilTemperature6cm = data.series.find((s) => s.label === "土の温度(6cm)");
+  const soilTemperature18cm = data.series.find((s) => s.label === "土の温度(18cm)");
+  const soilTemperature54cm = data.series.find((s) => s.label === "土の温度(54cm)");
   const apparentTemperature = data.series.find((s) => s.label === "体感温度");
   const dewPoint = data.series.find((s) => s.label === "露点温度");
   const humidity = data.series.find((s) => s.label === "湿度");
@@ -49,6 +53,10 @@ function toChartData(data: SeriesResponse) {
       temperature120m: undefined,
       temperature180m: undefined,
       temperature925hPa: undefined,
+      soilTemperature0cm: undefined,
+      soilTemperature6cm: undefined,
+      soilTemperature18cm: undefined,
+      soilTemperature54cm: undefined,
       apparentTemperature: undefined,
       dewPoint: undefined,
       humidity: undefined,
@@ -79,6 +87,10 @@ function toChartData(data: SeriesResponse) {
     temperature120m: temperature120m?.values[i] ?? null,
     temperature180m: temperature180m?.values[i] ?? null,
     temperature925hPa: temperature925hPa?.values[i] ?? null,
+    soilTemperature0cm: soilTemperature0cm?.values[i] ?? null,
+    soilTemperature6cm: soilTemperature6cm?.values[i] ?? null,
+    soilTemperature18cm: soilTemperature18cm?.values[i] ?? null,
+    soilTemperature54cm: soilTemperature54cm?.values[i] ?? null,
     apparentTemperature: apparentTemperature?.values[i] ?? null,
     dewPoint: dewPoint?.values[i] ?? null,
     humidity: humidity?.values[i] ?? null,
@@ -106,6 +118,10 @@ function toChartData(data: SeriesResponse) {
     temperature120m,
     temperature180m,
     temperature925hPa,
+    soilTemperature0cm,
+    soilTemperature6cm,
+    soilTemperature18cm,
+    soilTemperature54cm,
     apparentTemperature,
     dewPoint,
     humidity,
@@ -286,6 +302,10 @@ const SECONDARY_SERIES = [
   { key: "temperature120m", label: "上空の気温(120m)" },
   { key: "temperature180m", label: "上空の気温(180m)" },
   { key: "temperature925hPa", label: "925hPaの気温" },
+  { key: "soilTemperature0cm", label: "土の温度(地表)" },
+  { key: "soilTemperature6cm", label: "土の温度(6cm)" },
+  { key: "soilTemperature18cm", label: "土の温度(18cm)" },
+  { key: "soilTemperature54cm", label: "土の温度(54cm)" },
   { key: "apparentTemperature", label: "体感温度" },
   { key: "dewPoint", label: "露点温度" },
   { key: "humidity", label: "湿度" },
@@ -366,6 +386,10 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     temperature120m,
     temperature180m,
     temperature925hPa,
+    soilTemperature0cm,
+    soilTemperature6cm,
+    soilTemperature18cm,
+    soilTemperature54cm,
     apparentTemperature,
     dewPoint,
     humidity,
@@ -415,6 +439,14 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             return Boolean(temperature180m);
           case "temperature925hPa":
             return Boolean(temperature925hPa);
+          case "soilTemperature0cm":
+            return Boolean(soilTemperature0cm);
+          case "soilTemperature6cm":
+            return Boolean(soilTemperature6cm);
+          case "soilTemperature18cm":
+            return Boolean(soilTemperature18cm);
+          case "soilTemperature54cm":
+            return Boolean(soilTemperature54cm);
           case "apparentTemperature":
             return Boolean(apparentTemperature);
           case "dewPoint":
@@ -456,6 +488,10 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
       temperature120m,
       temperature180m,
       temperature925hPa,
+      soilTemperature0cm,
+      soilTemperature6cm,
+      soilTemperature18cm,
+      soilTemperature54cm,
       apparentTemperature,
       dewPoint,
       humidity,
@@ -493,6 +529,10 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
   const showTemperature120m = temperature120m && visibleSecondary.has("temperature120m");
   const showTemperature180m = temperature180m && visibleSecondary.has("temperature180m");
   const showTemperature925hPa = temperature925hPa && visibleSecondary.has("temperature925hPa");
+  const showSoilTemperature0cm = soilTemperature0cm && visibleSecondary.has("soilTemperature0cm");
+  const showSoilTemperature6cm = soilTemperature6cm && visibleSecondary.has("soilTemperature6cm");
+  const showSoilTemperature18cm = soilTemperature18cm && visibleSecondary.has("soilTemperature18cm");
+  const showSoilTemperature54cm = soilTemperature54cm && visibleSecondary.has("soilTemperature54cm");
   const showApparentTemperature = apparentTemperature && visibleSecondary.has("apparentTemperature");
   const showDewPoint = dewPoint && visibleSecondary.has("dewPoint");
   const showHumidity = humidity && visibleSecondary.has("humidity");
@@ -700,6 +740,14 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
                       ? temperature180m?.unit
                   : name === "925hPaの気温"
                     ? temperature925hPa?.unit
+                  : name === "土の温度(地表)"
+                    ? soilTemperature0cm?.unit
+                  : name === "土の温度(6cm)"
+                    ? soilTemperature6cm?.unit
+                  : name === "土の温度(18cm)"
+                    ? soilTemperature18cm?.unit
+                  : name === "土の温度(54cm)"
+                    ? soilTemperature54cm?.unit
                   : name === "体感温度"
                     ? apparentTemperature?.unit
                   : name === "露点温度"
@@ -804,6 +852,62 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             dot={false}
             isAnimationActive={false}
             name="925hPaの気温"
+            connectNulls
+          />
+        )}
+        {showSoilTemperature0cm && (
+          <Line
+            yAxisId="temperature"
+            type="monotone"
+            dataKey="soilTemperature0cm"
+            stroke="#8d6e63"
+            strokeDasharray="1 3"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="土の温度(地表)"
+            connectNulls
+          />
+        )}
+        {showSoilTemperature6cm && (
+          <Line
+            yAxisId="temperature"
+            type="monotone"
+            dataKey="soilTemperature18cm"
+            stroke="#a1662f"
+            strokeDasharray="1 3"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="土の温度(6cm)"
+            connectNulls
+          />
+        )}
+        {showSoilTemperature18cm && (
+          <Line
+            yAxisId="temperature"
+            type="monotone"
+            dataKey="soilTemperature6cm"
+            stroke="#c1440e"
+            strokeDasharray="1 3"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="土の温度(18cm)"
+            connectNulls
+          />
+        )}
+        {showSoilTemperature54cm && (
+          <Line
+            yAxisId="temperature"
+            type="monotone"
+            dataKey="soilTemperature54cm"
+            stroke="#6f4518"
+            strokeDasharray="1 3"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="土の温度(54cm)"
             connectNulls
           />
         )}
