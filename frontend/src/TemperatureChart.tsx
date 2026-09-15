@@ -873,7 +873,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
           <Line
             yAxisId="temperature"
             type="monotone"
-            dataKey="soilTemperature18cm"
+            dataKey="soilTemperature6cm"
             stroke="#a1662f"
             strokeDasharray="1 3"
             strokeWidth={2}
@@ -887,7 +887,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
           <Line
             yAxisId="temperature"
             type="monotone"
-            dataKey="soilTemperature6cm"
+            dataKey="soilTemperature18cm"
             stroke="#c1440e"
             strokeDasharray="1 3"
             strokeWidth={2}
