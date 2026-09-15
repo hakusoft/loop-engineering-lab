@@ -105,6 +105,7 @@ STUB_RESPONSE = {
         "soil_moisture_0_to_1cm": 0.28,
         "soil_moisture_1_to_3cm": 0.31,
         "soil_moisture_3_to_9cm": 0.33,
+        "soil_moisture_9_to_27cm": 0.35,
         "shortwave_radiation": 412.0,
         "direct_radiation": 298.0,
         "diffuse_radiation": 114.0,
@@ -193,6 +194,7 @@ def test_format_forecast_maps_values_and_units():
     assert result["soil_moisture"] == {"value": 0.28, "unit": "m³/m³"}
     assert result["soil_moisture_deep"] == {"value": 0.31, "unit": "m³/m³"}
     assert result["soil_moisture_deeper"] == {"value": 0.33, "unit": "m³/m³"}
+    assert result["soil_moisture_deepest"] == {"value": 0.35, "unit": "m³/m³"}
     assert result["humidity"] == {"value": 71, "unit": "%"}
     assert result["wind_speed"] == {"value": 12.3, "unit": "km/h"}
     assert result["wind_direction"] == {"value": 250, "unit": "°", "compass": "西南西"}
@@ -740,6 +742,24 @@ def test_format_forecast_tolerates_missing_soil_moisture_deeper():
     result = format_forecast(raw)
 
     assert result["soil_moisture_deeper"]["value"] is None
+
+
+def test_format_forecast_tolerates_missing_soil_moisture_deepest():
+    """soil_moisture_9_to_27cm が current に無くても KeyError にしない。
+
+    soil_moisture_1_to_3cm / soil_moisture_3_to_9cm と同様、実 API での応答を
+    確認できないまま追加した項目（Issue #391）。
+    """
+    raw = {
+        **STUB_RESPONSE,
+        "current": {
+            k: v for k, v in STUB_RESPONSE["current"].items() if k != "soil_moisture_9_to_27cm"
+        },
+    }
+
+    result = format_forecast(raw)
+
+    assert result["soil_moisture_deepest"]["value"] is None
 
 
 def test_format_forecast_tolerates_missing_precipitation_probability_mean():
