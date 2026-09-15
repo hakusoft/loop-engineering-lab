@@ -327,6 +327,8 @@ STUB_SERIES = {
         "time": "iso8601",
         "weather_code": "wmo code",
         "cape": "J/kg",
+        "convective_inhibition": "J/kg",
+        "boundary_layer_height": "m",
         "cloud_cover": "%",
         "cloud_cover_low": "%",
         "cloud_cover_mid": "%",
@@ -361,6 +363,8 @@ STUB_SERIES = {
         "time": ["2026-07-21T00:00", "2026-07-21T01:00", "2026-07-21T02:00"],
         "weather_code": [0, 3, 61],
         "cape": [120.0, 480.0, 90.0],
+        "convective_inhibition": [-15.0, -60.0, -5.0],
+        "boundary_layer_height": [850.0, 620.0, 300.0],
         "cloud_cover": [20, 55, 90],
         "cloud_cover_low": [10, 40, 80],
         "cloud_cover_mid": [15, 30, 50],
@@ -424,6 +428,8 @@ def test_series_keeps_units_separate_for_split_axes():
     cloud_cover_low = by_label["雲量(低層)"]
     cloud_cover_mid = by_label["雲量(中層)"]
     cloud_cover_high = by_label["雲量(高層)"]
+    convective_inhibition = by_label["対流抑制(CIN)"]
+    boundary_layer_height = by_label["境界層の高さ"]
     wind_direction = by_label["風向き"]
     wind_gusts = by_label["瞬間風速"]
     upper_wind_direction = by_label["上空の風向き"]
@@ -469,6 +475,10 @@ def test_series_keeps_units_separate_for_split_axes():
     assert cloud_cover_mid["unit"] == "%"
     assert cloud_cover_high["label"] == "雲量(高層)"
     assert cloud_cover_high["unit"] == "%"
+    assert convective_inhibition["label"] == "対流抑制(CIN)"
+    assert convective_inhibition["unit"] == "J/kg"
+    assert boundary_layer_height["label"] == "境界層の高さ"
+    assert boundary_layer_height["unit"] == "m"
     assert wind_direction["label"] == "風向き"
     assert wind_direction["unit"] == "°"
     assert wind_gusts["label"] == "瞬間風速"
@@ -509,6 +519,8 @@ def test_series_exposes_min_max_for_axis_scaling():
     cloud_cover_low = by_label["雲量(低層)"]
     cloud_cover_mid = by_label["雲量(中層)"]
     cloud_cover_high = by_label["雲量(高層)"]
+    convective_inhibition = by_label["対流抑制(CIN)"]
+    boundary_layer_height = by_label["境界層の高さ"]
     wind_direction = by_label["風向き"]
     wind_gusts = by_label["瞬間風速"]
     upper_wind_direction = by_label["上空の風向き"]
@@ -536,6 +548,8 @@ def test_series_exposes_min_max_for_axis_scaling():
     assert (cloud_cover_low["min"], cloud_cover_low["max"]) == (10, 80)
     assert (cloud_cover_mid["min"], cloud_cover_mid["max"]) == (15, 50)
     assert (cloud_cover_high["min"], cloud_cover_high["max"]) == (5, 35)
+    assert (convective_inhibition["min"], convective_inhibition["max"]) == (-60.0, -5.0)
+    assert (boundary_layer_height["min"], boundary_layer_height["max"]) == (300.0, 850.0)
     assert (wind_direction["min"], wind_direction["max"]) == (200.0, 220.0)
     assert (wind_gusts["min"], wind_gusts["max"]) == (15.2, 19.6)
     assert (upper_wind_direction["min"], upper_wind_direction["max"]) == (230.0, 250.0)
@@ -596,6 +610,26 @@ def test_format_hourly_series_omits_series_for_keys_not_in_response():
 
     assert "上空の気温(120m)" not in labels
     assert "上空の気温(80m)" in labels  # 他の系列には影響しない
+
+
+def test_format_hourly_series_omits_convective_inhibition_and_boundary_layer_height_when_missing():
+    """convective_inhibition / boundary_layer_height も実 API での応答確認が
+    できていないキーのため、無ければ添字アクセスで落とさず静かに省く
+    （レビュー指摘: PR #382、temperature_120m と同型）。
+    """
+    hourly = {
+        k: v
+        for k, v in STUB_SERIES["hourly"].items()
+        if k not in ("convective_inhibition", "boundary_layer_height")
+    }
+    raw = {**STUB_SERIES, "hourly": hourly}
+
+    result = format_hourly_series(raw)
+    labels = {s["label"] for s in result["series"]}
+
+    assert "対流抑制(CIN)" not in labels
+    assert "境界層の高さ" not in labels
+    assert "気温" in labels  # 他の系列には影響しない
 
 
 def test_format_forecast_falls_back_when_units_missing():
