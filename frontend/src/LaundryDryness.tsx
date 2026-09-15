@@ -21,10 +21,28 @@ export function formatLaundryDryness(data: WeatherResponse): string {
   return `洗濯物の乾きやすさ ${laundryDryingLevel(humidity, windSpeed)}`;
 }
 
+// 段階ごとに色を割り当てる。文字だけだと3段階が見分けにくいという声（Slack）を
+// 受けた対応。HeatStrokeRisk.tsx の heatStrokeRiskColor と同様、乾きやすい方を
+// 嬉しい方向（緑）、乾きにくい方を注意方向（オレンジ）にする。
+export function laundryDryingLevelColor(level: string): string {
+  switch (level) {
+    case "乾きやすい":
+      return "#2f9e44";
+    case "乾きにくい":
+      return "#e8590c";
+    default:
+      return "var(--text-secondary)";
+  }
+}
+
 export function LaundryDryness({ data }: { data: WeatherResponse }) {
+  const { value: humidity } = data.humidity;
+  const { value: windSpeed } = data.wind_speed;
+  const level = laundryDryingLevel(humidity, windSpeed);
   return (
     <p style={{ color: "var(--text-secondary)", fontSize: 16, margin: "4px 0" }}>
-      {formatLaundryDryness(data)}
+      洗濯物の乾きやすさ{" "}
+      <span style={{ color: laundryDryingLevelColor(level), fontWeight: 600 }}>{level}</span>
     </p>
   );
 }
