@@ -29,6 +29,7 @@ function toChartData(data: SeriesResponse) {
   const snow = data.series.find((s) => s.label === "降雪量");
   const snowDepth = data.series.find((s) => s.label === "積雪の深さ");
   const precipitationProbability = data.series.find((s) => s.label === "降水確率");
+  const evapotranspiration = data.series.find((s) => s.label === "蒸発散量");
   const pressure = data.series.find((s) => s.label === "気圧");
   const cloudCover = data.series.find((s) => s.label === "雲量");
   const windSpeed = data.series.find((s) => s.label === "風速");
@@ -56,6 +57,7 @@ function toChartData(data: SeriesResponse) {
       snow: undefined,
       snowDepth: undefined,
       precipitationProbability: undefined,
+      evapotranspiration: undefined,
       pressure: undefined,
       cloudCover: undefined,
       windSpeed: undefined,
@@ -86,6 +88,7 @@ function toChartData(data: SeriesResponse) {
     snow: snow?.values[i] ?? null,
     snowDepth: snowDepth?.values[i] ?? null,
     precipitationProbability: precipitationProbability?.values[i] ?? null,
+    evapotranspiration: evapotranspiration?.values[i] ?? null,
     pressure: pressure?.values[i] ?? null,
     cloudCover: cloudCover?.values[i] ?? null,
     windSpeed: windSpeed?.values[i] ?? null,
@@ -113,6 +116,7 @@ function toChartData(data: SeriesResponse) {
     snow,
     snowDepth,
     precipitationProbability,
+    evapotranspiration,
     pressure,
     cloudCover,
     windSpeed,
@@ -291,6 +295,7 @@ const SECONDARY_SERIES = [
   { key: "humidity", label: "湿度" },
   { key: "snowDepth", label: "積雪の深さ" },
   { key: "precipitationProbability", label: "降水確率" },
+  { key: "evapotranspiration", label: "蒸発散量" },
   { key: "pressure", label: "気圧" },
   { key: "cloudCover", label: "雲量" },
   { key: "windSpeed", label: "風速" },
@@ -373,6 +378,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     snow,
     snowDepth,
     precipitationProbability,
+    evapotranspiration,
     pressure,
     cloudCover,
     windSpeed,
@@ -425,6 +431,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             return Boolean(snowDepth);
           case "precipitationProbability":
             return Boolean(precipitationProbability);
+          case "evapotranspiration":
+            return Boolean(evapotranspiration);
           case "pressure":
             return Boolean(pressure);
           case "cloudCover":
@@ -461,6 +469,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
       humidity,
       snowDepth,
       precipitationProbability,
+      evapotranspiration,
       pressure,
       cloudCover,
       windSpeed,
@@ -498,6 +507,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
   const showHumidity = humidity && visibleSecondary.has("humidity");
   const showSnowDepth = snowDepth && visibleSecondary.has("snowDepth");
   const showPrecipitationProbability = precipitationProbability && visibleSecondary.has("precipitationProbability");
+  const showEvapotranspiration = evapotranspiration && visibleSecondary.has("evapotranspiration");
   const showPressure = pressure && visibleSecondary.has("pressure");
   const showCloudCover = cloudCover && visibleSecondary.has("cloudCover");
   const showWindSpeed = windSpeed && visibleSecondary.has("windSpeed");
@@ -615,6 +625,14 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
           // 紫外線指数は他系列と単位もスケールも違うので、独立した軸にする。
           <YAxis yAxisId="uvIndex" hide domain={[0, Math.max(uvIndex!.max ?? 0, 1) + 1]} />
         )}
+        {showEvapotranspiration && (
+          // 蒸発散量も他系列と単位・スケールが違うので、独立した軸にする。
+          <YAxis
+            yAxisId="evapotranspiration"
+            hide
+            domain={[0, Math.max(evapotranspiration!.max ?? 0, 1) + 1]}
+          />
+        )}
         {showWindSpeed && (
           // 風速も他系列と単位・スケールが違うので、独立した軸にする。
           <YAxis yAxisId="windSpeed" hide domain={[0, Math.max(windSpeed!.max ?? 0, 1) + 1]} />
@@ -712,6 +730,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
                         ? snow?.unit
                         : name === "降水確率"
                           ? precipitationProbability?.unit
+                          : name === "蒸発散量"
+                            ? evapotranspiration?.unit
                           : name === "気圧"
                             ? pressure?.unit
                             : name === "雲量"
@@ -894,6 +914,19 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             dot={false}
             isAnimationActive={false}
             name="降水確率"
+            connectNulls
+          />
+        )}
+        {showEvapotranspiration && (
+          <Line
+            yAxisId="evapotranspiration"
+            type="monotone"
+            dataKey="evapotranspiration"
+            stroke="#099268"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="蒸発散量"
             connectNulls
           />
         )}
