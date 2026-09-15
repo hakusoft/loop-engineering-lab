@@ -344,6 +344,7 @@ STUB_SERIES = {
         "snowfall": "cm",
         "snow_depth": "m",
         "precipitation_probability": "%",
+        "et0_fao_evapotranspiration": "mm",
         "surface_pressure": "hPa",
         "wind_speed_10m": "km/h",
         "wind_direction_10m": "°",
@@ -376,6 +377,7 @@ STUB_SERIES = {
         "snowfall": [0.0, 0.0, 0.0],
         "snow_depth": [0.02, 0.02, 0.03],
         "precipitation_probability": [10, 30, 60],
+        "et0_fao_evapotranspiration": [0.12, 0.18, 0.25],
         "surface_pressure": [1008.2, 1008.0, 1007.6],
         "wind_speed_10m": [8.1, 9.4, 10.2],
         "wind_direction_10m": [200.0, 210.0, 220.0],
@@ -416,6 +418,7 @@ def test_series_keeps_units_separate_for_split_axes():
     snow = by_label["降雪量"]
     snow_depth = by_label["積雪の深さ"]
     precipitation_probability = by_label["降水確率"]
+    evapotranspiration = by_label["蒸発散量"]
     pressure = by_label["気圧"]
     cloud_cover = by_label["雲量"]
     convective_inhibition = by_label["対流抑制(CIN)"]
@@ -453,6 +456,8 @@ def test_series_keeps_units_separate_for_split_axes():
     assert snow_depth["unit"] == "m"
     assert precipitation_probability["label"] == "降水確率"
     assert precipitation_probability["unit"] == "%"
+    assert evapotranspiration["label"] == "蒸発散量"
+    assert evapotranspiration["unit"] == "mm"
     assert pressure["label"] == "気圧"
     assert pressure["unit"] == "hPa"
     assert cloud_cover["label"] == "雲量"
@@ -495,6 +500,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     snow = by_label["降雪量"]
     snow_depth = by_label["積雪の深さ"]
     precipitation_probability = by_label["降水確率"]
+    evapotranspiration = by_label["蒸発散量"]
     pressure = by_label["気圧"]
     cloud_cover = by_label["雲量"]
     convective_inhibition = by_label["対流抑制(CIN)"]
@@ -520,6 +526,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     assert (snow["min"], snow["max"]) == (0.0, 0.0)
     assert (snow_depth["min"], snow_depth["max"]) == (0.02, 0.03)
     assert (precipitation_probability["min"], precipitation_probability["max"]) == (10, 60)
+    assert (evapotranspiration["min"], evapotranspiration["max"]) == (0.12, 0.25)
     assert (pressure["min"], pressure["max"]) == (1007.6, 1008.2)
     assert (cloud_cover["min"], cloud_cover["max"]) == (20, 90)
     assert (convective_inhibition["min"], convective_inhibition["max"]) == (-60.0, -5.0)
