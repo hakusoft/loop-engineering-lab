@@ -332,11 +332,18 @@ STUB_SERIES = {
         "convective_inhibition": "J/kg",
         "boundary_layer_height": "m",
         "cloud_cover": "%",
+        "cloud_cover_low": "%",
+        "cloud_cover_mid": "%",
+        "cloud_cover_high": "%",
         "temperature_2m": "°C",
         "temperature_80m": "°C",
         "temperature_120m": "°C",
         "temperature_180m": "°C",
         "temperature_925hPa": "°C",
+        "soil_temperature_0cm": "°C",
+        "soil_temperature_6cm": "°C",
+        "soil_temperature_18cm": "°C",
+        "soil_temperature_54cm": "°C",
         "apparent_temperature": "°C",
         "dew_point_2m": "°C",
         "relative_humidity_2m": "%",
@@ -346,6 +353,7 @@ STUB_SERIES = {
         "precipitation_probability": "%",
         "et0_fao_evapotranspiration": "mm",
         "surface_pressure": "hPa",
+        "pressure_msl": "hPa",
         "wind_speed_10m": "km/h",
         "wind_direction_10m": "°",
         "wind_gusts_10m": "km/h",
@@ -365,11 +373,18 @@ STUB_SERIES = {
         "convective_inhibition": [-15.0, -60.0, -5.0],
         "boundary_layer_height": [850.0, 620.0, 300.0],
         "cloud_cover": [20, 55, 90],
+        "cloud_cover_low": [10, 40, 80],
+        "cloud_cover_mid": [15, 30, 50],
+        "cloud_cover_high": [5, 20, 35],
         "temperature_2m": [26.1, 25.4, 24.9],
         "temperature_80m": [24.8, 24.1, 23.6],
         "temperature_120m": [24.2, 23.5, 23.0],
         "temperature_180m": [23.4, 22.7, 22.2],
         "temperature_925hPa": [23.6, 23.0, 22.5],
+        "soil_temperature_0cm": [29.8, 28.6, 27.1],
+        "soil_temperature_6cm": [27.5, 27.0, 26.4],
+        "soil_temperature_18cm": [25.2, 25.0, 24.8],
+        "soil_temperature_54cm": [21.9, 21.8, 21.7],
         "apparent_temperature": [27.3, 26.5, 25.8],
         "dew_point_2m": [21.8, 21.5, 21.2],
         "relative_humidity_2m": [78, 81, 85],
@@ -379,6 +394,7 @@ STUB_SERIES = {
         "precipitation_probability": [10, 30, 60],
         "et0_fao_evapotranspiration": [0.12, 0.18, 0.25],
         "surface_pressure": [1008.2, 1008.0, 1007.6],
+        "pressure_msl": [1010.5, 1010.3, 1009.9],
         "wind_speed_10m": [8.1, 9.4, 10.2],
         "wind_direction_10m": [200.0, 210.0, 220.0],
         "wind_gusts_10m": [15.2, 17.8, 19.6],
@@ -411,6 +427,10 @@ def test_series_keeps_units_separate_for_split_axes():
     temperature_120m = by_label["上空の気温(120m)"]
     temperature_180m = by_label["上空の気温(180m)"]
     temperature_925hPa = by_label["925hPaの気温"]
+    soil_temperature_0cm = by_label["土の温度(地表)"]
+    soil_temperature_6cm = by_label["土の温度(6cm)"]
+    soil_temperature_18cm = by_label["土の温度(18cm)"]
+    soil_temperature_54cm = by_label["土の温度(54cm)"]
     apparent_temperature = by_label["体感温度"]
     dew_point = by_label["露点温度"]
     humidity = by_label["湿度"]
@@ -420,7 +440,11 @@ def test_series_keeps_units_separate_for_split_axes():
     precipitation_probability = by_label["降水確率"]
     evapotranspiration = by_label["蒸発散量"]
     pressure = by_label["気圧"]
+    sea_level_pressure = by_label["海面気圧"]
     cloud_cover = by_label["雲量"]
+    cloud_cover_low = by_label["雲量(低層)"]
+    cloud_cover_mid = by_label["雲量(中層)"]
+    cloud_cover_high = by_label["雲量(高層)"]
     convective_inhibition = by_label["対流抑制(CIN)"]
     boundary_layer_height = by_label["境界層の高さ"]
     wind_direction = by_label["風向き"]
@@ -442,6 +466,14 @@ def test_series_keeps_units_separate_for_split_axes():
     assert temperature_180m["unit"] == "°C"
     assert temperature_925hPa["label"] == "925hPaの気温"
     assert temperature_925hPa["unit"] == "°C"
+    assert soil_temperature_0cm["label"] == "土の温度(地表)"
+    assert soil_temperature_0cm["unit"] == "°C"
+    assert soil_temperature_6cm["label"] == "土の温度(6cm)"
+    assert soil_temperature_6cm["unit"] == "°C"
+    assert soil_temperature_18cm["label"] == "土の温度(18cm)"
+    assert soil_temperature_18cm["unit"] == "°C"
+    assert soil_temperature_54cm["label"] == "土の温度(54cm)"
+    assert soil_temperature_54cm["unit"] == "°C"
     assert apparent_temperature["label"] == "体感温度"
     assert apparent_temperature["unit"] == "°C"
     assert dew_point["label"] == "露点温度"
@@ -460,8 +492,16 @@ def test_series_keeps_units_separate_for_split_axes():
     assert evapotranspiration["unit"] == "mm"
     assert pressure["label"] == "気圧"
     assert pressure["unit"] == "hPa"
+    assert sea_level_pressure["label"] == "海面気圧"
+    assert sea_level_pressure["unit"] == "hPa"
     assert cloud_cover["label"] == "雲量"
     assert cloud_cover["unit"] == "%"
+    assert cloud_cover_low["label"] == "雲量(低層)"
+    assert cloud_cover_low["unit"] == "%"
+    assert cloud_cover_mid["label"] == "雲量(中層)"
+    assert cloud_cover_mid["unit"] == "%"
+    assert cloud_cover_high["label"] == "雲量(高層)"
+    assert cloud_cover_high["unit"] == "%"
     assert convective_inhibition["label"] == "対流抑制(CIN)"
     assert convective_inhibition["unit"] == "J/kg"
     assert boundary_layer_height["label"] == "境界層の高さ"
@@ -493,6 +533,10 @@ def test_series_exposes_min_max_for_axis_scaling():
     temperature_120m = by_label["上空の気温(120m)"]
     temperature_180m = by_label["上空の気温(180m)"]
     temperature_925hPa = by_label["925hPaの気温"]
+    soil_temperature_0cm = by_label["土の温度(地表)"]
+    soil_temperature_6cm = by_label["土の温度(6cm)"]
+    soil_temperature_18cm = by_label["土の温度(18cm)"]
+    soil_temperature_54cm = by_label["土の温度(54cm)"]
     apparent_temperature = by_label["体感温度"]
     dew_point = by_label["露点温度"]
     humidity = by_label["湿度"]
@@ -502,7 +546,11 @@ def test_series_exposes_min_max_for_axis_scaling():
     precipitation_probability = by_label["降水確率"]
     evapotranspiration = by_label["蒸発散量"]
     pressure = by_label["気圧"]
+    sea_level_pressure = by_label["海面気圧"]
     cloud_cover = by_label["雲量"]
+    cloud_cover_low = by_label["雲量(低層)"]
+    cloud_cover_mid = by_label["雲量(中層)"]
+    cloud_cover_high = by_label["雲量(高層)"]
     convective_inhibition = by_label["対流抑制(CIN)"]
     boundary_layer_height = by_label["境界層の高さ"]
     wind_direction = by_label["風向き"]
@@ -519,6 +567,10 @@ def test_series_exposes_min_max_for_axis_scaling():
     assert (temperature_120m["min"], temperature_120m["max"]) == (23.0, 24.2)
     assert (temperature_180m["min"], temperature_180m["max"]) == (22.2, 23.4)
     assert (temperature_925hPa["min"], temperature_925hPa["max"]) == (22.5, 23.6)
+    assert (soil_temperature_0cm["min"], soil_temperature_0cm["max"]) == (27.1, 29.8)
+    assert (soil_temperature_6cm["min"], soil_temperature_6cm["max"]) == (26.4, 27.5)
+    assert (soil_temperature_18cm["min"], soil_temperature_18cm["max"]) == (24.8, 25.2)
+    assert (soil_temperature_54cm["min"], soil_temperature_54cm["max"]) == (21.7, 21.9)
     assert (apparent_temperature["min"], apparent_temperature["max"]) == (25.8, 27.3)
     assert (dew_point["min"], dew_point["max"]) == (21.2, 21.8)
     assert (humidity["min"], humidity["max"]) == (78, 85)
@@ -528,7 +580,11 @@ def test_series_exposes_min_max_for_axis_scaling():
     assert (precipitation_probability["min"], precipitation_probability["max"]) == (10, 60)
     assert (evapotranspiration["min"], evapotranspiration["max"]) == (0.12, 0.25)
     assert (pressure["min"], pressure["max"]) == (1007.6, 1008.2)
+    assert (sea_level_pressure["min"], sea_level_pressure["max"]) == (1009.9, 1010.5)
     assert (cloud_cover["min"], cloud_cover["max"]) == (20, 90)
+    assert (cloud_cover_low["min"], cloud_cover_low["max"]) == (10, 80)
+    assert (cloud_cover_mid["min"], cloud_cover_mid["max"]) == (15, 50)
+    assert (cloud_cover_high["min"], cloud_cover_high["max"]) == (5, 35)
     assert (convective_inhibition["min"], convective_inhibition["max"]) == (-60.0, -5.0)
     assert (boundary_layer_height["min"], boundary_layer_height["max"]) == (300.0, 850.0)
     assert (wind_direction["min"], wind_direction["max"]) == (200.0, 220.0)
@@ -1353,7 +1409,11 @@ def test_hourly_series_are_all_requested_fields():
         "積雪の深さ": "snow_depth",
         "降水確率": "precipitation_probability",
         "気圧": "surface_pressure",
+        "海面気圧": "pressure_msl",
         "雲量": "cloud_cover",
+        "雲量(低層)": "cloud_cover_low",
+        "雲量(中層)": "cloud_cover_mid",
+        "雲量(高層)": "cloud_cover_high",
         "風速": "wind_speed_10m",
         "風向き": "wind_direction_10m",
         "瞬間風速": "wind_gusts_10m",
