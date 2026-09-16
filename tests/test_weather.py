@@ -340,6 +340,10 @@ STUB_SERIES = {
         "temperature_120m": "°C",
         "temperature_180m": "°C",
         "temperature_925hPa": "°C",
+        "soil_temperature_0cm": "°C",
+        "soil_temperature_6cm": "°C",
+        "soil_temperature_18cm": "°C",
+        "soil_temperature_54cm": "°C",
         "apparent_temperature": "°C",
         "dew_point_2m": "°C",
         "relative_humidity_2m": "%",
@@ -377,6 +381,10 @@ STUB_SERIES = {
         "temperature_120m": [24.2, 23.5, 23.0],
         "temperature_180m": [23.4, 22.7, 22.2],
         "temperature_925hPa": [23.6, 23.0, 22.5],
+        "soil_temperature_0cm": [29.8, 28.6, 27.1],
+        "soil_temperature_6cm": [27.5, 27.0, 26.4],
+        "soil_temperature_18cm": [25.2, 25.0, 24.8],
+        "soil_temperature_54cm": [21.9, 21.8, 21.7],
         "apparent_temperature": [27.3, 26.5, 25.8],
         "dew_point_2m": [21.8, 21.5, 21.2],
         "relative_humidity_2m": [78, 81, 85],
@@ -419,6 +427,10 @@ def test_series_keeps_units_separate_for_split_axes():
     temperature_120m = by_label["上空の気温(120m)"]
     temperature_180m = by_label["上空の気温(180m)"]
     temperature_925hPa = by_label["925hPaの気温"]
+    soil_temperature_0cm = by_label["土の温度(地表)"]
+    soil_temperature_6cm = by_label["土の温度(6cm)"]
+    soil_temperature_18cm = by_label["土の温度(18cm)"]
+    soil_temperature_54cm = by_label["土の温度(54cm)"]
     apparent_temperature = by_label["体感温度"]
     dew_point = by_label["露点温度"]
     humidity = by_label["湿度"]
@@ -454,6 +466,14 @@ def test_series_keeps_units_separate_for_split_axes():
     assert temperature_180m["unit"] == "°C"
     assert temperature_925hPa["label"] == "925hPaの気温"
     assert temperature_925hPa["unit"] == "°C"
+    assert soil_temperature_0cm["label"] == "土の温度(地表)"
+    assert soil_temperature_0cm["unit"] == "°C"
+    assert soil_temperature_6cm["label"] == "土の温度(6cm)"
+    assert soil_temperature_6cm["unit"] == "°C"
+    assert soil_temperature_18cm["label"] == "土の温度(18cm)"
+    assert soil_temperature_18cm["unit"] == "°C"
+    assert soil_temperature_54cm["label"] == "土の温度(54cm)"
+    assert soil_temperature_54cm["unit"] == "°C"
     assert apparent_temperature["label"] == "体感温度"
     assert apparent_temperature["unit"] == "°C"
     assert dew_point["label"] == "露点温度"
@@ -513,6 +533,10 @@ def test_series_exposes_min_max_for_axis_scaling():
     temperature_120m = by_label["上空の気温(120m)"]
     temperature_180m = by_label["上空の気温(180m)"]
     temperature_925hPa = by_label["925hPaの気温"]
+    soil_temperature_0cm = by_label["土の温度(地表)"]
+    soil_temperature_6cm = by_label["土の温度(6cm)"]
+    soil_temperature_18cm = by_label["土の温度(18cm)"]
+    soil_temperature_54cm = by_label["土の温度(54cm)"]
     apparent_temperature = by_label["体感温度"]
     dew_point = by_label["露点温度"]
     humidity = by_label["湿度"]
@@ -543,6 +567,10 @@ def test_series_exposes_min_max_for_axis_scaling():
     assert (temperature_120m["min"], temperature_120m["max"]) == (23.0, 24.2)
     assert (temperature_180m["min"], temperature_180m["max"]) == (22.2, 23.4)
     assert (temperature_925hPa["min"], temperature_925hPa["max"]) == (22.5, 23.6)
+    assert (soil_temperature_0cm["min"], soil_temperature_0cm["max"]) == (27.1, 29.8)
+    assert (soil_temperature_6cm["min"], soil_temperature_6cm["max"]) == (26.4, 27.5)
+    assert (soil_temperature_18cm["min"], soil_temperature_18cm["max"]) == (24.8, 25.2)
+    assert (soil_temperature_54cm["min"], soil_temperature_54cm["max"]) == (21.7, 21.9)
     assert (apparent_temperature["min"], apparent_temperature["max"]) == (25.8, 27.3)
     assert (dew_point["min"], dew_point["max"]) == (21.2, 21.8)
     assert (humidity["min"], humidity["max"]) == (78, 85)
