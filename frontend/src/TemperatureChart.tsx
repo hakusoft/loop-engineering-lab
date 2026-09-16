@@ -108,7 +108,7 @@ function toChartData(data: SeriesResponse) {
     upperWindDirection: upperWindDirection?.values[i] ?? null,
     upperWindSpeed80m: upperWindSpeed80m?.values[i] ?? null,
     upperWindSpeed120m: upperWindSpeed120m?.values[i] ?? null,
-    upperWindSpeed180m: upperWindSpeed120m?.values[i] ?? null,
+    upperWindSpeed180m: upperWindSpeed180m?.values[i] ?? null,
     windSpeed925hPa: windSpeed925hPa?.values[i] ?? null,
     windDirection925hPa: windDirection925hPa?.values[i] ?? null,
     uvIndex: uvIndex?.values[i] ?? null,
