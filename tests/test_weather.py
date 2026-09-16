@@ -354,6 +354,8 @@ STUB_SERIES = {
         "wind_speed_925hPa": "km/h",
         "wind_direction_925hPa": "°",
         "wind_speed_80m": "km/h",
+        "wind_speed_120m": "km/h",
+        "wind_speed_180m": "km/h",
         "is_day": "",
         "uv_index": "",
         "visibility": "m",
@@ -387,6 +389,8 @@ STUB_SERIES = {
         "wind_speed_925hPa": [20.1, 21.4, 22.8],
         "wind_direction_925hPa": [235.0, 245.0, 255.0],
         "wind_speed_80m": [18.2, 19.5, 20.1],
+        "wind_speed_120m": [21.4, 22.8, 23.9],
+        "wind_speed_180m": [25.0, 26.6, 27.9],
         "is_day": [1, 1, 1],
         "uv_index": [0.2, 1.5, 3.1],
         "visibility": [22000.0, 18500.0, 9200.0],
@@ -427,6 +431,8 @@ def test_series_keeps_units_separate_for_split_axes():
     wind_gusts = by_label["瞬間風速"]
     upper_wind_direction = by_label["上空の風向き"]
     upper_wind_speed_80m = by_label["上空の風速(80m)"]
+    upper_wind_speed_120m = by_label["上空の風速(120m)"]
+    upper_wind_speed_180m = by_label["上空の風速(180m)"]
     wind_speed_925hPa = by_label["925hPaの風速"]
     wind_direction_925hPa = by_label["925hPaの風向き"]
     uv_index = by_label["紫外線指数"]
@@ -474,6 +480,10 @@ def test_series_keeps_units_separate_for_split_axes():
     assert upper_wind_direction["unit"] == "°"
     assert upper_wind_speed_80m["label"] == "上空の風速(80m)"
     assert upper_wind_speed_80m["unit"] == "km/h"
+    assert upper_wind_speed_120m["label"] == "上空の風速(120m)"
+    assert upper_wind_speed_120m["unit"] == "km/h"
+    assert upper_wind_speed_180m["label"] == "上空の風速(180m)"
+    assert upper_wind_speed_180m["unit"] == "km/h"
     assert wind_speed_925hPa["label"] == "925hPaの風速"
     assert wind_speed_925hPa["unit"] == "km/h"
     assert wind_direction_925hPa["label"] == "925hPaの風向き"
@@ -509,6 +519,8 @@ def test_series_exposes_min_max_for_axis_scaling():
     wind_gusts = by_label["瞬間風速"]
     upper_wind_direction = by_label["上空の風向き"]
     upper_wind_speed_80m = by_label["上空の風速(80m)"]
+    upper_wind_speed_120m = by_label["上空の風速(120m)"]
+    upper_wind_speed_180m = by_label["上空の風速(180m)"]
     wind_speed_925hPa = by_label["925hPaの風速"]
     wind_direction_925hPa = by_label["925hPaの風向き"]
     uv_index = by_label["紫外線指数"]
@@ -535,6 +547,8 @@ def test_series_exposes_min_max_for_axis_scaling():
     assert (wind_gusts["min"], wind_gusts["max"]) == (15.2, 19.6)
     assert (upper_wind_direction["min"], upper_wind_direction["max"]) == (230.0, 250.0)
     assert (upper_wind_speed_80m["min"], upper_wind_speed_80m["max"]) == (18.2, 20.1)
+    assert (upper_wind_speed_120m["min"], upper_wind_speed_120m["max"]) == (21.4, 23.9)
+    assert (upper_wind_speed_180m["min"], upper_wind_speed_180m["max"]) == (25.0, 27.9)
     assert (wind_speed_925hPa["min"], wind_speed_925hPa["max"]) == (20.1, 22.8)
     assert (wind_direction_925hPa["min"], wind_direction_925hPa["max"]) == (235.0, 255.0)
     assert (uv_index["min"], uv_index["max"]) == (0.2, 3.1)
@@ -1362,6 +1376,8 @@ def test_hourly_series_are_all_requested_fields():
         "925hPaの風速": "wind_speed_925hPa",
         "925hPaの風向き": "wind_direction_925hPa",
         "上空の風速(80m)": "wind_speed_80m",
+        "上空の風速(120m)": "wind_speed_120m",
+        "上空の風速(180m)": "wind_speed_180m",
         "紫外線指数": "uv_index",
         "視程": "visibility",
     }
