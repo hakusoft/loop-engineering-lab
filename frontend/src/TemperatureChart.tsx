@@ -293,36 +293,57 @@ export function formatUvIndexPeak(data: SeriesResponse, now: Date): string | nul
 // 気温グラフの系列が増え、常に全部重ねて表示すると何の線か分かりにくいという
 // 声があった（Issue #262）。気温・降水（雨量・降雪量）は主要な系列として常に
 // 表示し、それ以外はチェックボックスで必要な時だけ追加できるようにする。
+//
+// さらに項目が増え、目当てのチェックボックスを探すのが大変になったという
+// 声を受け、カテゴリでグループ分けする（Issue #401）。カテゴリ名は
+// displayItems.ts の DISPLAY_ITEMS で使っているものに揃える。
 const SECONDARY_SERIES = [
-  { key: "temperature80m", label: "上空の気温(80m)" },
-  { key: "temperature120m", label: "上空の気温(120m)" },
-  { key: "temperature180m", label: "上空の気温(180m)" },
-  { key: "temperature925hPa", label: "925hPaの気温" },
-  { key: "apparentTemperature", label: "体感温度" },
-  { key: "dewPoint", label: "露点温度" },
-  { key: "humidity", label: "湿度" },
-  { key: "snowDepth", label: "積雪の深さ" },
-  { key: "precipitationProbability", label: "降水確率" },
-  { key: "evapotranspiration", label: "蒸発散量" },
-  { key: "pressure", label: "気圧" },
-  { key: "cloudCover", label: "雲量" },
-  { key: "convectiveInhibition", label: "対流抑制(CIN)" },
-  { key: "boundaryLayerHeight", label: "境界層の高さ" },
-  { key: "windSpeed", label: "風速" },
-  { key: "windDirection", label: "風向き" },
-  { key: "windGusts", label: "瞬間風速" },
-  { key: "upperWindSpeed", label: "上空の風速" },
-  { key: "upperWindDirection", label: "上空の風向き" },
-  { key: "upperWindSpeed80m", label: "上空の風速(80m)" },
-  { key: "windSpeed925hPa", label: "925hPaの風速" },
-  { key: "windDirection925hPa", label: "925hPaの風向き" },
-  { key: "uvIndex", label: "紫外線指数" },
-  { key: "visibility", label: "視程" },
+  { key: "temperature80m", label: "上空の気温(80m)", category: "気温" },
+  { key: "temperature120m", label: "上空の気温(120m)", category: "気温" },
+  { key: "temperature180m", label: "上空の気温(180m)", category: "気温" },
+  { key: "temperature925hPa", label: "925hPaの気温", category: "気温" },
+  { key: "apparentTemperature", label: "体感温度", category: "気温" },
+  { key: "dewPoint", label: "露点温度", category: "気温" },
+  { key: "humidity", label: "湿度", category: "降水・湿度" },
+  { key: "snowDepth", label: "積雪の深さ", category: "降水・湿度" },
+  { key: "precipitationProbability", label: "降水確率", category: "降水・湿度" },
+  { key: "evapotranspiration", label: "蒸発散量", category: "降水・湿度" },
+  { key: "pressure", label: "気圧", category: "環境" },
+  { key: "cloudCover", label: "雲量", category: "環境" },
+  { key: "convectiveInhibition", label: "対流抑制(CIN)", category: "環境" },
+  { key: "boundaryLayerHeight", label: "境界層の高さ", category: "環境" },
+  { key: "uvIndex", label: "紫外線指数", category: "環境" },
+  { key: "visibility", label: "視程", category: "環境" },
+  { key: "windSpeed", label: "風速", category: "風" },
+  { key: "windDirection", label: "風向き", category: "風" },
+  { key: "windGusts", label: "瞬間風速", category: "風" },
+  { key: "upperWindSpeed", label: "上空の風速", category: "風" },
+  { key: "upperWindDirection", label: "上空の風向き", category: "風" },
+  { key: "upperWindSpeed80m", label: "上空の風速(80m)", category: "風" },
+  { key: "windSpeed925hPa", label: "925hPaの風速", category: "風" },
+  { key: "windDirection925hPa", label: "925hPaの風向き", category: "風" },
 ] as const;
+
+// チェックボックスをグループ表示する順番。displayItems.ts の CATEGORY_ORDER と
+// 完全には揃えていない（気温グラフには「日照・時刻」の系列が無いため）。
+const SECONDARY_SERIES_CATEGORY_ORDER = ["気温", "風", "降水・湿度", "環境"] as const;
 
 type SecondarySeriesKey = (typeof SECONDARY_SERIES)[number]["key"];
 
 const SECONDARY_SERIES_KEYS = new Set<string>(SECONDARY_SERIES.map(({ key }) => key));
+
+// availableSecondary（表示可能な項目）をカテゴリごとにまとめる。カテゴリ内の
+// 順序は SECONDARY_SERIES の並びのまま、カテゴリの並びは
+// SECONDARY_SERIES_CATEGORY_ORDER に従う。表示可能な項目が1つも無いカテゴリは
+// 見出しごと出さない。
+function groupSecondaryByCategory<T extends { category: string }>(
+  items: readonly T[],
+): { category: string; items: T[] }[] {
+  return SECONDARY_SERIES_CATEGORY_ORDER.map((category) => ({
+    category,
+    items: items.filter((item) => item.category === category),
+  })).filter((group) => group.items.length > 0);
+}
 
 // チェックボックスの選択状態を保存するキー。毎回同じ組み合わせを選び直すのが
 // 面倒という声を受け、次回表示時にも引き継ぐ（Issue #310）。
@@ -547,33 +568,40 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
       <p style={{ color: colors.tick, fontSize: 14, margin: "0 0 8px" }}>{uvPeakText}</p>
     )}
     {availableSecondary.length > 0 && (
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "4px 12px", margin: "0 0 8px" }}>
-        {availableSecondary.map(({ key, label }) => (
-          <label
-            key={key}
-            style={{
-              fontSize: isNarrow ? 15 : 13,
-              color: colors.tick,
-              cursor: "pointer",
-              display: "inline-flex",
-              alignItems: "center",
-              // スマホだと指では小さくて押しにくいという声があったため、
-              // 狭い画面ではラベル全体の余白も広げてタップ領域を確保する。
-              padding: isNarrow ? "6px 4px" : 0,
-            }}
-          >
-            <input
-              type="checkbox"
-              checked={visibleSecondary.has(key)}
-              onChange={() => toggleSecondary(key)}
-              style={{
-                marginRight: 6,
-                width: isNarrow ? 20 : 13,
-                height: isNarrow ? 20 : 13,
-              }}
-            />
-            {label}
-          </label>
+      <div style={{ display: "flex", flexDirection: "column", gap: 4, margin: "0 0 8px" }}>
+        {groupSecondaryByCategory(availableSecondary).map(({ category, items }) => (
+          <div key={category} style={{ display: "flex", flexWrap: "wrap", gap: "4px 12px", alignItems: "center" }}>
+            <span style={{ fontSize: isNarrow ? 13 : 12, color: colors.tick, opacity: 0.7, minWidth: isNarrow ? "100%" : undefined }}>
+              {category}
+            </span>
+            {items.map(({ key, label }) => (
+              <label
+                key={key}
+                style={{
+                  fontSize: isNarrow ? 15 : 13,
+                  color: colors.tick,
+                  cursor: "pointer",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  // スマホだと指では小さくて押しにくいという声があったため、
+                  // 狭い画面ではラベル全体の余白も広げてタップ領域を確保する。
+                  padding: isNarrow ? "6px 4px" : 0,
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={visibleSecondary.has(key)}
+                  onChange={() => toggleSecondary(key)}
+                  style={{
+                    marginRight: 6,
+                    width: isNarrow ? 20 : 13,
+                    height: isNarrow ? 20 : 13,
+                  }}
+                />
+                {label}
+              </label>
+            ))}
+          </div>
         ))}
       </div>
     )}
