@@ -53,6 +53,7 @@ function toChartData(data: SeriesResponse) {
   const windSpeed925hPa = data.series.find((s) => s.label === "925hPaの風速");
   const windDirection925hPa = data.series.find((s) => s.label === "925hPaの風向き");
   const uvIndex = data.series.find((s) => s.label === "紫外線指数");
+  const sunshineDuration = data.series.find((s) => s.label === "日照時間");
   const visibility = data.series.find((s) => s.label === "視程");
   if (!temperature) {
     return {
@@ -93,6 +94,7 @@ function toChartData(data: SeriesResponse) {
       windSpeed925hPa: undefined,
       windDirection925hPa: undefined,
       uvIndex: undefined,
+      sunshineDuration: undefined,
       visibility: undefined,
     };
   }
@@ -136,6 +138,7 @@ function toChartData(data: SeriesResponse) {
     windSpeed925hPa: windSpeed925hPa?.values[i] ?? null,
     windDirection925hPa: windDirection925hPa?.values[i] ?? null,
     uvIndex: uvIndex?.values[i] ?? null,
+    sunshineDuration: sunshineDuration?.values[i] ?? null,
     visibility: visibility?.values[i] ?? null,
   }));
   return {
@@ -176,6 +179,7 @@ function toChartData(data: SeriesResponse) {
     windSpeed925hPa,
     windDirection925hPa,
     uvIndex,
+    sunshineDuration,
     visibility,
   };
 }
@@ -367,6 +371,7 @@ const SECONDARY_SERIES = [
   { key: "windSpeed925hPa", label: "925hPaの風速" },
   { key: "windDirection925hPa", label: "925hPaの風向き" },
   { key: "uvIndex", label: "紫外線指数" },
+  { key: "sunshineDuration", label: "日照時間" },
   { key: "visibility", label: "視程" },
 ] as const;
 
@@ -462,6 +467,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     windSpeed925hPa,
     windDirection925hPa,
     uvIndex,
+    sunshineDuration,
     visibility,
   } = toChartData(data);
   const isNarrow = useIsNarrowViewport();
@@ -551,6 +557,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             return Boolean(windDirection925hPa);
           case "uvIndex":
             return Boolean(uvIndex);
+          case "sunshineDuration":
+            return Boolean(sunshineDuration);
           case "visibility":
             return Boolean(visibility);
         }
@@ -589,6 +597,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
       windSpeed925hPa,
       windDirection925hPa,
       uvIndex,
+      sunshineDuration,
       visibility,
     ],
   );
@@ -639,6 +648,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
   const showWindSpeed925hPa = windSpeed925hPa && visibleSecondary.has("windSpeed925hPa");
   const showWindDirection925hPa = windDirection925hPa && visibleSecondary.has("windDirection925hPa");
   const showUvIndex = uvIndex && visibleSecondary.has("uvIndex");
+  const showSunshineDuration = sunshineDuration && visibleSecondary.has("sunshineDuration");
   const showVisibility = visibility && visibleSecondary.has("visibility");
 
   return (
@@ -744,6 +754,14 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
         {showUvIndex && (
           // 紫外線指数は他系列と単位もスケールも違うので、独立した軸にする。
           <YAxis yAxisId="uvIndex" hide domain={[0, Math.max(uvIndex!.max ?? 0, 1) + 1]} />
+        )}
+        {showSunshineDuration && (
+          // 日照時間（秒）も他系列と単位・スケールが違うので、独立した軸にする。
+          <YAxis
+            yAxisId="sunshineDuration"
+            hide
+            domain={[0, Math.max(sunshineDuration!.max ?? 0, 60) + 60]}
+          />
         )}
         {showEvapotranspiration && (
           // 蒸発散量も他系列と単位・スケールが違うので、独立した軸にする。
@@ -942,7 +960,9 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
                                           ? visibility?.unit
                                           : name === "積雪の深さ"
                                             ? snowDepth?.unit
-                                            : uvIndex?.unit;
+                                            : name === "日照時間"
+                                              ? sunshineDuration?.unit
+                                              : uvIndex?.unit;
             return [`${v}${unit ?? ""}`, name];
           }}
         />
@@ -1424,6 +1444,19 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             dot={false}
             isAnimationActive={false}
             name="紫外線指数"
+            connectNulls
+          />
+        )}
+        {showSunshineDuration && (
+          <Line
+            yAxisId="sunshineDuration"
+            type="monotone"
+            dataKey="sunshineDuration"
+            stroke="#f59f00"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="日照時間"
             connectNulls
           />
         )}
