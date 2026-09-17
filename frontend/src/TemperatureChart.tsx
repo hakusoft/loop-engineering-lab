@@ -22,6 +22,10 @@ function toChartData(data: SeriesResponse) {
   const temperature120m = data.series.find((s) => s.label === "上空の気温(120m)");
   const temperature180m = data.series.find((s) => s.label === "上空の気温(180m)");
   const temperature925hPa = data.series.find((s) => s.label === "925hPaの気温");
+  const soilTemperature0cm = data.series.find((s) => s.label === "土の温度(地表)");
+  const soilTemperature6cm = data.series.find((s) => s.label === "土の温度(6cm)");
+  const soilTemperature18cm = data.series.find((s) => s.label === "土の温度(18cm)");
+  const soilTemperature54cm = data.series.find((s) => s.label === "土の温度(54cm)");
   const apparentTemperature = data.series.find((s) => s.label === "体感温度");
   const dewPoint = data.series.find((s) => s.label === "露点温度");
   const humidity = data.series.find((s) => s.label === "湿度");
@@ -31,12 +35,18 @@ function toChartData(data: SeriesResponse) {
   const precipitationProbability = data.series.find((s) => s.label === "降水確率");
   const evapotranspiration = data.series.find((s) => s.label === "蒸発散量");
   const pressure = data.series.find((s) => s.label === "気圧");
+  const seaLevelPressure = data.series.find((s) => s.label === "海面気圧");
   const cloudCover = data.series.find((s) => s.label === "雲量");
+  const cloudCoverLow = data.series.find((s) => s.label === "雲量(低層)");
+  const cloudCoverMid = data.series.find((s) => s.label === "雲量(中層)");
+  const cloudCoverHigh = data.series.find((s) => s.label === "雲量(高層)");
   const convectiveInhibition = data.series.find((s) => s.label === "対流抑制(CIN)");
   const boundaryLayerHeight = data.series.find((s) => s.label === "境界層の高さ");
   const windSpeed = data.series.find((s) => s.label === "風速");
   const windDirection = data.series.find((s) => s.label === "風向き");
   const windGusts = data.series.find((s) => s.label === "瞬間風速");
+  const windSpeed700hPa = data.series.find((s) => s.label === "700hPaの風速");
+  const windDirection700hPa = data.series.find((s) => s.label === "700hPaの風向き");
   const upperWindSpeed = data.series.find((s) => s.label === "上空の風速");
   const upperWindDirection = data.series.find((s) => s.label === "上空の風向き");
   const upperWindSpeed80m = data.series.find((s) => s.label === "上空の風速(80m)");
@@ -54,6 +64,10 @@ function toChartData(data: SeriesResponse) {
       temperature120m: undefined,
       temperature180m: undefined,
       temperature925hPa: undefined,
+      soilTemperature0cm: undefined,
+      soilTemperature6cm: undefined,
+      soilTemperature18cm: undefined,
+      soilTemperature54cm: undefined,
       apparentTemperature: undefined,
       dewPoint: undefined,
       humidity: undefined,
@@ -63,12 +77,18 @@ function toChartData(data: SeriesResponse) {
       precipitationProbability: undefined,
       evapotranspiration: undefined,
       pressure: undefined,
+      seaLevelPressure: undefined,
       cloudCover: undefined,
+      cloudCoverLow: undefined,
+      cloudCoverMid: undefined,
+      cloudCoverHigh: undefined,
       convectiveInhibition: undefined,
       boundaryLayerHeight: undefined,
       windSpeed: undefined,
       windDirection: undefined,
       windGusts: undefined,
+      windSpeed700hPa: undefined,
+      windDirection700hPa: undefined,
       upperWindSpeed: undefined,
       upperWindDirection: undefined,
       upperWindSpeed80m: undefined,
@@ -89,6 +109,10 @@ function toChartData(data: SeriesResponse) {
     temperature120m: temperature120m?.values[i] ?? null,
     temperature180m: temperature180m?.values[i] ?? null,
     temperature925hPa: temperature925hPa?.values[i] ?? null,
+    soilTemperature0cm: soilTemperature0cm?.values[i] ?? null,
+    soilTemperature6cm: soilTemperature6cm?.values[i] ?? null,
+    soilTemperature18cm: soilTemperature18cm?.values[i] ?? null,
+    soilTemperature54cm: soilTemperature54cm?.values[i] ?? null,
     apparentTemperature: apparentTemperature?.values[i] ?? null,
     dewPoint: dewPoint?.values[i] ?? null,
     humidity: humidity?.values[i] ?? null,
@@ -98,12 +122,18 @@ function toChartData(data: SeriesResponse) {
     precipitationProbability: precipitationProbability?.values[i] ?? null,
     evapotranspiration: evapotranspiration?.values[i] ?? null,
     pressure: pressure?.values[i] ?? null,
+    seaLevelPressure: seaLevelPressure?.values[i] ?? null,
     cloudCover: cloudCover?.values[i] ?? null,
+    cloudCoverLow: cloudCoverLow?.values[i] ?? null,
+    cloudCoverMid: cloudCoverMid?.values[i] ?? null,
+    cloudCoverHigh: cloudCoverHigh?.values[i] ?? null,
     convectiveInhibition: convectiveInhibition?.values[i] ?? null,
     boundaryLayerHeight: boundaryLayerHeight?.values[i] ?? null,
     windSpeed: windSpeed?.values[i] ?? null,
     windDirection: windDirection?.values[i] ?? null,
     windGusts: windGusts?.values[i] ?? null,
+    windSpeed700hPa: windSpeed700hPa?.values[i] ?? null,
+    windDirection700hPa: windDirection700hPa?.values[i] ?? null,
     upperWindSpeed: upperWindSpeed?.values[i] ?? null,
     upperWindDirection: upperWindDirection?.values[i] ?? null,
     upperWindSpeed80m: upperWindSpeed80m?.values[i] ?? null,
@@ -121,6 +151,10 @@ function toChartData(data: SeriesResponse) {
     temperature120m,
     temperature180m,
     temperature925hPa,
+    soilTemperature0cm,
+    soilTemperature6cm,
+    soilTemperature18cm,
+    soilTemperature54cm,
     apparentTemperature,
     dewPoint,
     humidity,
@@ -130,12 +164,18 @@ function toChartData(data: SeriesResponse) {
     precipitationProbability,
     evapotranspiration,
     pressure,
+    seaLevelPressure,
     cloudCover,
+    cloudCoverLow,
+    cloudCoverMid,
+    cloudCoverHigh,
     convectiveInhibition,
     boundaryLayerHeight,
     windSpeed,
     windDirection,
     windGusts,
+    windSpeed700hPa,
+    windDirection700hPa,
     upperWindSpeed,
     upperWindDirection,
     upperWindSpeed80m,
@@ -301,38 +341,69 @@ export function formatUvIndexPeak(data: SeriesResponse, now: Date): string | nul
 // 気温グラフの系列が増え、常に全部重ねて表示すると何の線か分かりにくいという
 // 声があった（Issue #262）。気温・降水（雨量・降雪量）は主要な系列として常に
 // 表示し、それ以外はチェックボックスで必要な時だけ追加できるようにする。
+//
+// さらに項目が増え、目当てのチェックボックスを探すのが大変になったという
+// 声を受け、カテゴリでグループ分けする（Issue #401）。カテゴリ名は
+// displayItems.ts の DISPLAY_ITEMS で使っているものに揃える。
 const SECONDARY_SERIES = [
-  { key: "temperature80m", label: "上空の気温(80m)" },
-  { key: "temperature120m", label: "上空の気温(120m)" },
-  { key: "temperature180m", label: "上空の気温(180m)" },
-  { key: "temperature925hPa", label: "925hPaの気温" },
-  { key: "apparentTemperature", label: "体感温度" },
-  { key: "dewPoint", label: "露点温度" },
-  { key: "humidity", label: "湿度" },
-  { key: "snowDepth", label: "積雪の深さ" },
-  { key: "precipitationProbability", label: "降水確率" },
-  { key: "evapotranspiration", label: "蒸発散量" },
-  { key: "pressure", label: "気圧" },
-  { key: "cloudCover", label: "雲量" },
-  { key: "convectiveInhibition", label: "対流抑制(CIN)" },
-  { key: "boundaryLayerHeight", label: "境界層の高さ" },
-  { key: "windSpeed", label: "風速" },
-  { key: "windDirection", label: "風向き" },
-  { key: "windGusts", label: "瞬間風速" },
-  { key: "upperWindSpeed", label: "上空の風速" },
-  { key: "upperWindDirection", label: "上空の風向き" },
-  { key: "upperWindSpeed80m", label: "上空の風速(80m)" },
-  { key: "upperWindSpeed120m", label: "上空の風速(120m)" },
-  { key: "upperWindSpeed180m", label: "上空の風速(180m)" },
-  { key: "windSpeed925hPa", label: "925hPaの風速" },
-  { key: "windDirection925hPa", label: "925hPaの風向き" },
-  { key: "uvIndex", label: "紫外線指数" },
-  { key: "visibility", label: "視程" },
+  { key: "temperature80m", label: "上空の気温(80m)", category: "気温" },
+  { key: "temperature120m", label: "上空の気温(120m)", category: "気温" },
+  { key: "temperature180m", label: "上空の気温(180m)", category: "気温" },
+  { key: "temperature925hPa", label: "925hPaの気温", category: "気温" },
+  { key: "apparentTemperature", label: "体感温度", category: "気温" },
+  { key: "dewPoint", label: "露点温度", category: "気温" },
+  { key: "soilTemperature0cm", label: "土の温度(地表)", category: "降水・湿度" },
+  { key: "soilTemperature6cm", label: "土の温度(6cm)", category: "降水・湿度" },
+  { key: "soilTemperature18cm", label: "土の温度(18cm)", category: "降水・湿度" },
+  { key: "soilTemperature54cm", label: "土の温度(54cm)", category: "降水・湿度" },
+  { key: "humidity", label: "湿度", category: "降水・湿度" },
+  { key: "snowDepth", label: "積雪の深さ", category: "降水・湿度" },
+  { key: "precipitationProbability", label: "降水確率", category: "降水・湿度" },
+  { key: "evapotranspiration", label: "蒸発散量", category: "降水・湿度" },
+  { key: "pressure", label: "気圧", category: "環境" },
+  { key: "seaLevelPressure", label: "海面気圧", category: "環境" },
+  { key: "cloudCover", label: "雲量", category: "環境" },
+  { key: "cloudCoverLow", label: "雲量(低層)", category: "環境" },
+  { key: "cloudCoverMid", label: "雲量(中層)", category: "環境" },
+  { key: "cloudCoverHigh", label: "雲量(高層)", category: "環境" },
+  { key: "convectiveInhibition", label: "対流抑制(CIN)", category: "環境" },
+  { key: "boundaryLayerHeight", label: "境界層の高さ", category: "環境" },
+  { key: "uvIndex", label: "紫外線指数", category: "環境" },
+  { key: "visibility", label: "視程", category: "環境" },
+  { key: "windSpeed", label: "風速", category: "風" },
+  { key: "windDirection", label: "風向き", category: "風" },
+  { key: "windGusts", label: "瞬間風速", category: "風" },
+  { key: "windSpeed700hPa", label: "700hPaの風速", category: "風" },
+  { key: "windDirection700hPa", label: "700hPaの風向き", category: "風" },
+  { key: "upperWindSpeed", label: "上空の風速", category: "風" },
+  { key: "upperWindDirection", label: "上空の風向き", category: "風" },
+  { key: "upperWindSpeed80m", label: "上空の風速(80m)", category: "風" },
+  { key: "upperWindSpeed120m", label: "上空の風速(120m)", category: "風" },
+  { key: "upperWindSpeed180m", label: "上空の風速(180m)", category: "風" },
+  { key: "windSpeed925hPa", label: "925hPaの風速", category: "風" },
+  { key: "windDirection925hPa", label: "925hPaの風向き", category: "風" },
 ] as const;
+
+// チェックボックスをグループ表示する順番。displayItems.ts の CATEGORY_ORDER と
+// 完全には揃えていない（気温グラフには「日照・時刻」の系列が無いため）。
+const SECONDARY_SERIES_CATEGORY_ORDER = ["気温", "風", "降水・湿度", "環境"] as const;
 
 type SecondarySeriesKey = (typeof SECONDARY_SERIES)[number]["key"];
 
 const SECONDARY_SERIES_KEYS = new Set<string>(SECONDARY_SERIES.map(({ key }) => key));
+
+// availableSecondary（表示可能な項目）をカテゴリごとにまとめる。カテゴリ内の
+// 順序は SECONDARY_SERIES の並びのまま、カテゴリの並びは
+// SECONDARY_SERIES_CATEGORY_ORDER に従う。表示可能な項目が1つも無いカテゴリは
+// 見出しごと出さない。
+function groupSecondaryByCategory<T extends { category: string }>(
+  items: readonly T[],
+): { category: string; items: T[] }[] {
+  return SECONDARY_SERIES_CATEGORY_ORDER.map((category) => ({
+    category,
+    items: items.filter((item) => item.category === category),
+  })).filter((group) => group.items.length > 0);
+}
 
 // チェックボックスの選択状態を保存するキー。毎回同じ組み合わせを選び直すのが
 // 面倒という声を受け、次回表示時にも引き継ぐ（Issue #310）。
@@ -391,6 +462,10 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     temperature120m,
     temperature180m,
     temperature925hPa,
+    soilTemperature0cm,
+    soilTemperature6cm,
+    soilTemperature18cm,
+    soilTemperature54cm,
     apparentTemperature,
     dewPoint,
     humidity,
@@ -400,12 +475,18 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     precipitationProbability,
     evapotranspiration,
     pressure,
+    seaLevelPressure,
     cloudCover,
+    cloudCoverLow,
+    cloudCoverMid,
+    cloudCoverHigh,
     convectiveInhibition,
     boundaryLayerHeight,
     windSpeed,
     windDirection,
     windGusts,
+    windSpeed700hPa,
+    windDirection700hPa,
     upperWindSpeed,
     upperWindDirection,
     upperWindSpeed80m,
@@ -445,6 +526,14 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             return Boolean(temperature180m);
           case "temperature925hPa":
             return Boolean(temperature925hPa);
+          case "soilTemperature0cm":
+            return Boolean(soilTemperature0cm);
+          case "soilTemperature6cm":
+            return Boolean(soilTemperature6cm);
+          case "soilTemperature18cm":
+            return Boolean(soilTemperature18cm);
+          case "soilTemperature54cm":
+            return Boolean(soilTemperature54cm);
           case "apparentTemperature":
             return Boolean(apparentTemperature);
           case "dewPoint":
@@ -459,8 +548,16 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             return Boolean(evapotranspiration);
           case "pressure":
             return Boolean(pressure);
+          case "seaLevelPressure":
+            return Boolean(seaLevelPressure);
           case "cloudCover":
             return Boolean(cloudCover);
+          case "cloudCoverLow":
+            return Boolean(cloudCoverLow);
+          case "cloudCoverMid":
+            return Boolean(cloudCoverMid);
+          case "cloudCoverHigh":
+            return Boolean(cloudCoverHigh);
           case "convectiveInhibition":
             return Boolean(convectiveInhibition);
           case "boundaryLayerHeight":
@@ -471,6 +568,10 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             return Boolean(windDirection);
           case "windGusts":
             return Boolean(windGusts);
+          case "windSpeed700hPa":
+            return Boolean(windSpeed700hPa);
+          case "windDirection700hPa":
+            return Boolean(windDirection700hPa);
           case "upperWindSpeed":
             return Boolean(upperWindSpeed);
           case "upperWindDirection":
@@ -496,6 +597,10 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
       temperature120m,
       temperature180m,
       temperature925hPa,
+      soilTemperature0cm,
+      soilTemperature6cm,
+      soilTemperature18cm,
+      soilTemperature54cm,
       apparentTemperature,
       dewPoint,
       humidity,
@@ -503,12 +608,18 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
       precipitationProbability,
       evapotranspiration,
       pressure,
+      seaLevelPressure,
       cloudCover,
+      cloudCoverLow,
+      cloudCoverMid,
+      cloudCoverHigh,
       convectiveInhibition,
       boundaryLayerHeight,
       windSpeed,
       windDirection,
       windGusts,
+      windSpeed700hPa,
+      windDirection700hPa,
       upperWindSpeed,
       upperWindDirection,
       upperWindSpeed80m,
@@ -538,6 +649,10 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
   const showTemperature120m = temperature120m && visibleSecondary.has("temperature120m");
   const showTemperature180m = temperature180m && visibleSecondary.has("temperature180m");
   const showTemperature925hPa = temperature925hPa && visibleSecondary.has("temperature925hPa");
+  const showSoilTemperature0cm = soilTemperature0cm && visibleSecondary.has("soilTemperature0cm");
+  const showSoilTemperature6cm = soilTemperature6cm && visibleSecondary.has("soilTemperature6cm");
+  const showSoilTemperature18cm = soilTemperature18cm && visibleSecondary.has("soilTemperature18cm");
+  const showSoilTemperature54cm = soilTemperature54cm && visibleSecondary.has("soilTemperature54cm");
   const showApparentTemperature = apparentTemperature && visibleSecondary.has("apparentTemperature");
   const showDewPoint = dewPoint && visibleSecondary.has("dewPoint");
   const showHumidity = humidity && visibleSecondary.has("humidity");
@@ -545,12 +660,18 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
   const showPrecipitationProbability = precipitationProbability && visibleSecondary.has("precipitationProbability");
   const showEvapotranspiration = evapotranspiration && visibleSecondary.has("evapotranspiration");
   const showPressure = pressure && visibleSecondary.has("pressure");
+  const showSeaLevelPressure = seaLevelPressure && visibleSecondary.has("seaLevelPressure");
   const showCloudCover = cloudCover && visibleSecondary.has("cloudCover");
+  const showCloudCoverLow = cloudCoverLow && visibleSecondary.has("cloudCoverLow");
+  const showCloudCoverMid = cloudCoverMid && visibleSecondary.has("cloudCoverMid");
+  const showCloudCoverHigh = cloudCoverHigh && visibleSecondary.has("cloudCoverHigh");
   const showConvectiveInhibition = convectiveInhibition && visibleSecondary.has("convectiveInhibition");
   const showBoundaryLayerHeight = boundaryLayerHeight && visibleSecondary.has("boundaryLayerHeight");
   const showWindSpeed = windSpeed && visibleSecondary.has("windSpeed");
   const showWindDirection = windDirection && visibleSecondary.has("windDirection");
   const showWindGusts = windGusts && visibleSecondary.has("windGusts");
+  const showWindSpeed700hPa = windSpeed700hPa && visibleSecondary.has("windSpeed700hPa");
+  const showWindDirection700hPa = windDirection700hPa && visibleSecondary.has("windDirection700hPa");
   const showUpperWindSpeed = upperWindSpeed && visibleSecondary.has("upperWindSpeed");
   const showUpperWindDirection = upperWindDirection && visibleSecondary.has("upperWindDirection");
   const showUpperWindSpeed80m = upperWindSpeed80m && visibleSecondary.has("upperWindSpeed80m");
@@ -567,33 +688,40 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
       <p style={{ color: colors.tick, fontSize: 14, margin: "0 0 8px" }}>{uvPeakText}</p>
     )}
     {availableSecondary.length > 0 && (
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "4px 12px", margin: "0 0 8px" }}>
-        {availableSecondary.map(({ key, label }) => (
-          <label
-            key={key}
-            style={{
-              fontSize: isNarrow ? 15 : 13,
-              color: colors.tick,
-              cursor: "pointer",
-              display: "inline-flex",
-              alignItems: "center",
-              // スマホだと指では小さくて押しにくいという声があったため、
-              // 狭い画面ではラベル全体の余白も広げてタップ領域を確保する。
-              padding: isNarrow ? "6px 4px" : 0,
-            }}
-          >
-            <input
-              type="checkbox"
-              checked={visibleSecondary.has(key)}
-              onChange={() => toggleSecondary(key)}
-              style={{
-                marginRight: 6,
-                width: isNarrow ? 20 : 13,
-                height: isNarrow ? 20 : 13,
-              }}
-            />
-            {label}
-          </label>
+      <div style={{ display: "flex", flexDirection: "column", gap: 4, margin: "0 0 8px" }}>
+        {groupSecondaryByCategory(availableSecondary).map(({ category, items }) => (
+          <div key={category} style={{ display: "flex", flexWrap: "wrap", gap: "4px 12px", alignItems: "center" }}>
+            <span style={{ fontSize: isNarrow ? 13 : 12, color: colors.tick, opacity: 0.7, minWidth: isNarrow ? "100%" : undefined }}>
+              {category}
+            </span>
+            {items.map(({ key, label }) => (
+              <label
+                key={key}
+                style={{
+                  fontSize: isNarrow ? 15 : 13,
+                  color: colors.tick,
+                  cursor: "pointer",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  // スマホだと指では小さくて押しにくいという声があったため、
+                  // 狭い画面ではラベル全体の余白も広げてタップ領域を確保する。
+                  padding: isNarrow ? "6px 4px" : 0,
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={visibleSecondary.has(key)}
+                  onChange={() => toggleSecondary(key)}
+                  style={{
+                    marginRight: 6,
+                    width: isNarrow ? 20 : 13,
+                    height: isNarrow ? 20 : 13,
+                  }}
+                />
+                {label}
+              </label>
+            ))}
+          </div>
         ))}
       </div>
     )}
@@ -685,6 +813,18 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
           // 瞬間風速は風速より大きくなるので、風速とも軸を分ける。
           <YAxis yAxisId="windGusts" hide domain={[0, Math.max(windGusts!.max ?? 0, 1) + 1]} />
         )}
+        {showWindSpeed700hPa && (
+          // 700hPa の風速も他の風速系列とスケールが異なるため、軸を分ける。
+          <YAxis
+            yAxisId="windSpeed700hPa"
+            hide
+            domain={[0, Math.max(windSpeed700hPa!.max ?? 0, 1) + 1]}
+          />
+        )}
+        {showWindDirection700hPa && (
+          // 700hPa の風向きも度数（0〜360）固定なので、他の風向き系列とは別軸にする。
+          <YAxis yAxisId="windDirection700hPa" hide domain={[0, 360]} />
+        )}
         {showUpperWindSpeed && (
           // 上空の風速は地上より大きくなるので、地上の風速とも軸を分ける。
           <YAxis
@@ -733,16 +873,30 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
           // 925hPa の風向きも度数（0〜360）固定なので、他の風向き系列とは別軸にする。
           <YAxis yAxisId="windDirection925hPa" hide domain={[0, 360]} />
         )}
-        {showPressure && (
-          // 気圧も他系列と単位・スケールが違うので、独立した軸にする。
+        {(showPressure || showSeaLevelPressure) && (
+          // 気圧・海面気圧は他系列と単位・スケールが違うので、独立した軸にする。
+          // 海面気圧は地上気圧（surface_pressure）と単位・スケールが近いため、
+          // 軸は共有し、表示中の系列の min/max から範囲を決める。
           <YAxis
             yAxisId="pressure"
             hide
-            domain={[(pressure!.min ?? 0) - 1, (pressure!.max ?? 0) + 1]}
+            domain={[
+              Math.min(
+                ...[showPressure ? pressure!.min : null, showSeaLevelPressure ? seaLevelPressure!.min : null].filter(
+                  (v): v is number => v !== null && v !== undefined,
+                ),
+              ) - 1,
+              Math.max(
+                ...[showPressure ? pressure!.max : null, showSeaLevelPressure ? seaLevelPressure!.max : null].filter(
+                  (v): v is number => v !== null && v !== undefined,
+                ),
+              ) + 1,
+            ]}
           />
         )}
-        {showCloudCover && (
-          // 雲量は % 固定なので、降水確率と同じく 0〜100 のスケールで別軸にする。
+        {(showCloudCover || showCloudCoverLow || showCloudCoverMid || showCloudCoverHigh) && (
+          // 雲量（全体・低層・中層・高層）は % 固定なので、降水確率と同じく
+          // 0〜100 のスケールで軸を共有する。
           <YAxis yAxisId="cloudCover" hide domain={[0, 100]} />
         )}
         {showConvectiveInhibition && (
@@ -790,6 +944,14 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
                       ? temperature180m?.unit
                   : name === "925hPaの気温"
                     ? temperature925hPa?.unit
+                  : name === "土の温度(地表)"
+                    ? soilTemperature0cm?.unit
+                  : name === "土の温度(6cm)"
+                    ? soilTemperature6cm?.unit
+                  : name === "土の温度(18cm)"
+                    ? soilTemperature18cm?.unit
+                  : name === "土の温度(54cm)"
+                    ? soilTemperature54cm?.unit
                   : name === "体感温度"
                     ? apparentTemperature?.unit
                   : name === "露点温度"
@@ -806,18 +968,30 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
                             ? evapotranspiration?.unit
                           : name === "気圧"
                             ? pressure?.unit
+                            : name === "海面気圧"
+                              ? seaLevelPressure?.unit
                             : name === "雲量"
                               ? cloudCover?.unit
-                              : name === "対流抑制(CIN)"
-                                ? convectiveInhibition?.unit
-                                : name === "境界層の高さ"
-                                  ? boundaryLayerHeight?.unit
-                                  : name === "風速"
+                              : name === "雲量(低層)"
+                                ? cloudCoverLow?.unit
+                                : name === "雲量(中層)"
+                                  ? cloudCoverMid?.unit
+                                  : name === "雲量(高層)"
+                                    ? cloudCoverHigh?.unit
+                                    : name === "対流抑制(CIN)"
+                                      ? convectiveInhibition?.unit
+                                      : name === "境界層の高さ"
+                                        ? boundaryLayerHeight?.unit
+                              : name === "風速"
                                 ? windSpeed?.unit
                                 : name === "風向き"
                                   ? windDirection?.unit
                                   : name === "瞬間風速"
                                     ? windGusts?.unit
+                                    : name === "700hPaの風速"
+                                      ? windSpeed700hPa?.unit
+                                      : name === "700hPaの風向き"
+                                        ? windDirection700hPa?.unit
                                     : name === "上空の風速"
                                     ? upperWindSpeed?.unit
                                     : name === "上空の風向き"
@@ -904,6 +1078,62 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             dot={false}
             isAnimationActive={false}
             name="925hPaの気温"
+            connectNulls
+          />
+        )}
+        {showSoilTemperature0cm && (
+          <Line
+            yAxisId="temperature"
+            type="monotone"
+            dataKey="soilTemperature0cm"
+            stroke="#8d6e63"
+            strokeDasharray="1 3"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="土の温度(地表)"
+            connectNulls
+          />
+        )}
+        {showSoilTemperature6cm && (
+          <Line
+            yAxisId="temperature"
+            type="monotone"
+            dataKey="soilTemperature6cm"
+            stroke="#a1662f"
+            strokeDasharray="1 3"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="土の温度(6cm)"
+            connectNulls
+          />
+        )}
+        {showSoilTemperature18cm && (
+          <Line
+            yAxisId="temperature"
+            type="monotone"
+            dataKey="soilTemperature18cm"
+            stroke="#c1440e"
+            strokeDasharray="1 3"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="土の温度(18cm)"
+            connectNulls
+          />
+        )}
+        {showSoilTemperature54cm && (
+          <Line
+            yAxisId="temperature"
+            type="monotone"
+            dataKey="soilTemperature54cm"
+            stroke="#6f4518"
+            strokeDasharray="1 3"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="土の温度(54cm)"
             connectNulls
           />
         )}
@@ -1023,6 +1253,19 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             connectNulls
           />
         )}
+        {showSeaLevelPressure && (
+          <Line
+            yAxisId="pressure"
+            type="monotone"
+            dataKey="seaLevelPressure"
+            stroke="#5f3dc4"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="海面気圧"
+            connectNulls
+          />
+        )}
         {showCloudCover && (
           <Line
             yAxisId="cloudCover"
@@ -1036,12 +1279,51 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             connectNulls
           />
         )}
+        {showCloudCoverLow && (
+          <Line
+            yAxisId="cloudCover"
+            type="monotone"
+            dataKey="cloudCoverLow"
+            stroke="#5c7cfa"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="雲量(低層)"
+            connectNulls
+          />
+        )}
+        {showCloudCoverMid && (
+          <Line
+            yAxisId="cloudCover"
+            type="monotone"
+            dataKey="cloudCoverMid"
+            stroke="#adb5bd"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="雲量(中層)"
+            connectNulls
+          />
+        )}
+        {showCloudCoverHigh && (
+          <Line
+            yAxisId="cloudCover"
+            type="monotone"
+            dataKey="cloudCoverHigh"
+            stroke="#343a40"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="雲量(高層)"
+            connectNulls
+          />
+        )}
         {showConvectiveInhibition && (
           <Line
             yAxisId="convectiveInhibition"
             type="monotone"
             dataKey="convectiveInhibition"
-            stroke="#5f3dc4"
+            stroke="#862e9c"
             strokeWidth={2}
             dot={false}
             isAnimationActive={false}
@@ -1099,6 +1381,34 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             dot={false}
             isAnimationActive={false}
             name="瞬間風速"
+            connectNulls
+          />
+        )}
+        {showWindSpeed700hPa && (
+          <Line
+            yAxisId="windSpeed700hPa"
+            type="monotone"
+            dataKey="windSpeed700hPa"
+            stroke="#c92a2a"
+            strokeWidth={2}
+            strokeDasharray="4 2"
+            dot={false}
+            isAnimationActive={false}
+            name="700hPaの風速"
+            connectNulls
+          />
+        )}
+        {showWindDirection700hPa && (
+          <Line
+            yAxisId="windDirection700hPa"
+            type="monotone"
+            dataKey="windDirection700hPa"
+            stroke="#5c7cfa"
+            strokeWidth={2}
+            strokeDasharray="4 2"
+            dot={false}
+            isAnimationActive={false}
+            name="700hPaの風向き"
             connectNulls
           />
         )}
