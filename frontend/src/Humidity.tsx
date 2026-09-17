@@ -12,9 +12,11 @@ export function formatHumidity(data: WeatherResponse): string {
 
 // 気温（CurrentTemperature.tsx）ほど主要な数値ではないため同じ大きさにはせず、
 // 気温に比べて小さすぎて見づらいという声（Issue #280）を踏まえた中間の大きさにする。
+// 24px でもまだ見づらいという声（Issue #407）を受けてさらに引き上げたが、
+// 気温（96px）と並んでも湿度が主役に見えない範囲には収めている。
 export function Humidity({ data }: { data: WeatherResponse }) {
   return (
-    <p style={{ color: "var(--text-secondary)", fontSize: 24, fontWeight: 600, margin: "0 0 8px" }}>
+    <p style={{ color: "var(--text-secondary)", fontSize: 32, fontWeight: 600, margin: "0 0 8px" }}>
       {formatHumidity(data)}
     </p>
   );
