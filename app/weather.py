@@ -289,6 +289,8 @@ HOURLY_FIELDS = [
     "wind_speed_925hPa",
     "wind_direction_925hPa",
     "wind_speed_80m",
+    "wind_speed_120m",
+    "wind_speed_180m",
     "is_day",
     "uv_index",
     "visibility",
@@ -873,6 +875,8 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
                 _series("wind_speed_925hPa", "925hPaの風速", "km/h"),
                 _series("wind_direction_925hPa", "925hPaの風向き", "°"),
                 _series("wind_speed_80m", "上空の風速(80m)", "km/h"),
+                _series("wind_speed_120m", "上空の風速(120m)", "km/h"),
+                _series("wind_speed_180m", "上空の風速(180m)", "km/h"),
                 _series("uv_index", "紫外線指数", ""),
                 _series("visibility", "視程", "m"),
             ]

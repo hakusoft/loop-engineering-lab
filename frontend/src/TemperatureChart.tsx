@@ -50,6 +50,8 @@ function toChartData(data: SeriesResponse) {
   const upperWindSpeed = data.series.find((s) => s.label === "上空の風速");
   const upperWindDirection = data.series.find((s) => s.label === "上空の風向き");
   const upperWindSpeed80m = data.series.find((s) => s.label === "上空の風速(80m)");
+  const upperWindSpeed120m = data.series.find((s) => s.label === "上空の風速(120m)");
+  const upperWindSpeed180m = data.series.find((s) => s.label === "上空の風速(180m)");
   const windSpeed925hPa = data.series.find((s) => s.label === "925hPaの風速");
   const windDirection925hPa = data.series.find((s) => s.label === "925hPaの風向き");
   const uvIndex = data.series.find((s) => s.label === "紫外線指数");
@@ -90,6 +92,8 @@ function toChartData(data: SeriesResponse) {
       upperWindSpeed: undefined,
       upperWindDirection: undefined,
       upperWindSpeed80m: undefined,
+      upperWindSpeed120m: undefined,
+      upperWindSpeed180m: undefined,
       windSpeed925hPa: undefined,
       windDirection925hPa: undefined,
       uvIndex: undefined,
@@ -133,6 +137,8 @@ function toChartData(data: SeriesResponse) {
     upperWindSpeed: upperWindSpeed?.values[i] ?? null,
     upperWindDirection: upperWindDirection?.values[i] ?? null,
     upperWindSpeed80m: upperWindSpeed80m?.values[i] ?? null,
+    upperWindSpeed120m: upperWindSpeed120m?.values[i] ?? null,
+    upperWindSpeed180m: upperWindSpeed180m?.values[i] ?? null,
     windSpeed925hPa: windSpeed925hPa?.values[i] ?? null,
     windDirection925hPa: windDirection925hPa?.values[i] ?? null,
     uvIndex: uvIndex?.values[i] ?? null,
@@ -173,6 +179,8 @@ function toChartData(data: SeriesResponse) {
     upperWindSpeed,
     upperWindDirection,
     upperWindSpeed80m,
+    upperWindSpeed120m,
+    upperWindSpeed180m,
     windSpeed925hPa,
     windDirection925hPa,
     uvIndex,
@@ -370,6 +378,8 @@ const SECONDARY_SERIES = [
   { key: "upperWindSpeed", label: "上空の風速", category: "風" },
   { key: "upperWindDirection", label: "上空の風向き", category: "風" },
   { key: "upperWindSpeed80m", label: "上空の風速(80m)", category: "風" },
+  { key: "upperWindSpeed120m", label: "上空の風速(120m)", category: "風" },
+  { key: "upperWindSpeed180m", label: "上空の風速(180m)", category: "風" },
   { key: "windSpeed925hPa", label: "925hPaの風速", category: "風" },
   { key: "windDirection925hPa", label: "925hPaの風向き", category: "風" },
 ] as const;
@@ -480,6 +490,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     upperWindSpeed,
     upperWindDirection,
     upperWindSpeed80m,
+    upperWindSpeed120m,
+    upperWindSpeed180m,
     windSpeed925hPa,
     windDirection925hPa,
     uvIndex,
@@ -566,6 +578,10 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             return Boolean(upperWindDirection);
           case "upperWindSpeed80m":
             return Boolean(upperWindSpeed80m);
+          case "upperWindSpeed120m":
+            return Boolean(upperWindSpeed120m);
+          case "upperWindSpeed180m":
+            return Boolean(upperWindSpeed180m);
           case "windSpeed925hPa":
             return Boolean(windSpeed925hPa);
           case "windDirection925hPa":
@@ -607,6 +623,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
       upperWindSpeed,
       upperWindDirection,
       upperWindSpeed80m,
+      upperWindSpeed120m,
+      upperWindSpeed180m,
       windSpeed925hPa,
       windDirection925hPa,
       uvIndex,
@@ -657,6 +675,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
   const showUpperWindSpeed = upperWindSpeed && visibleSecondary.has("upperWindSpeed");
   const showUpperWindDirection = upperWindDirection && visibleSecondary.has("upperWindDirection");
   const showUpperWindSpeed80m = upperWindSpeed80m && visibleSecondary.has("upperWindSpeed80m");
+  const showUpperWindSpeed120m = upperWindSpeed120m && visibleSecondary.has("upperWindSpeed120m");
+  const showUpperWindSpeed180m = upperWindSpeed180m && visibleSecondary.has("upperWindSpeed180m");
   const showWindSpeed925hPa = windSpeed925hPa && visibleSecondary.has("windSpeed925hPa");
   const showWindDirection925hPa = windDirection925hPa && visibleSecondary.has("windDirection925hPa");
   const showUvIndex = uvIndex && visibleSecondary.has("uvIndex");
@@ -825,6 +845,22 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             domain={[0, Math.max(upperWindSpeed80m!.max ?? 0, 1) + 1]}
           />
         )}
+        {showUpperWindSpeed120m && (
+          // 120m 高度の風速も他の風速系列とスケールが異なるため、軸を分ける。
+          <YAxis
+            yAxisId="upperWindSpeed120m"
+            hide
+            domain={[0, Math.max(upperWindSpeed120m!.max ?? 0, 1) + 1]}
+          />
+        )}
+        {showUpperWindSpeed180m && (
+          // 180m 高度の風速も他の風速系列とスケールが異なるため、軸を分ける。
+          <YAxis
+            yAxisId="upperWindSpeed180m"
+            hide
+            domain={[0, Math.max(upperWindSpeed180m!.max ?? 0, 1) + 1]}
+          />
+        )}
         {showWindSpeed925hPa && (
           // 925hPa の風速も他の風速系列とスケールが異なるため、軸を分ける。
           <YAxis
@@ -962,6 +998,10 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
                                       ? upperWindDirection?.unit
                                       : name === "上空の風速(80m)"
                                         ? upperWindSpeed80m?.unit
+                                        : name === "上空の風速(120m)"
+                                          ? upperWindSpeed120m?.unit
+                                          : name === "上空の風速(180m)"
+                                            ? upperWindSpeed180m?.unit
                                         : name === "925hPaの風速"
                                           ? windSpeed925hPa?.unit
                                           : name === "925hPaの風向き"
@@ -1411,6 +1451,34 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             dot={false}
             isAnimationActive={false}
             name="上空の風速(80m)"
+            connectNulls
+          />
+        )}
+        {showUpperWindSpeed120m && (
+          <Line
+            yAxisId="upperWindSpeed120m"
+            type="monotone"
+            dataKey="upperWindSpeed120m"
+            stroke="#2b8a3e"
+            strokeWidth={2}
+            strokeDasharray="4 2"
+            dot={false}
+            isAnimationActive={false}
+            name="上空の風速(120m)"
+            connectNulls
+          />
+        )}
+        {showUpperWindSpeed180m && (
+          <Line
+            yAxisId="upperWindSpeed180m"
+            type="monotone"
+            dataKey="upperWindSpeed180m"
+            stroke="#e8590c"
+            strokeWidth={2}
+            strokeDasharray="4 2"
+            dot={false}
+            isAnimationActive={false}
+            name="上空の風速(180m)"
             connectNulls
           />
         )}
