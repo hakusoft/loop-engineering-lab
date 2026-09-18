@@ -16,6 +16,7 @@ from app.weather import (
     DAILY_FIELDS,
     HOURLY_FIELDS,
     _clamp_uv_index,
+    _compass_abbreviation,
     _compass_direction,
     _daylight_duration_hours,
     _round_coordinate,
@@ -197,7 +198,12 @@ def test_format_forecast_maps_values_and_units():
     assert result["soil_moisture_deepest"] == {"value": 0.35, "unit": "m³/m³"}
     assert result["humidity"] == {"value": 71, "unit": "%"}
     assert result["wind_speed"] == {"value": 12.3, "unit": "km/h"}
-    assert result["wind_direction"] == {"value": 250, "unit": "°", "compass": "西南西"}
+    assert result["wind_direction"] == {
+        "value": 250,
+        "unit": "°",
+        "compass": "西南西",
+        "abbreviation": "WSW",
+    }
     assert result["wind_gusts"] == {"value": 24.8, "unit": "km/h"}
     assert result["precipitation"] == {"value": 0.0, "unit": "mm"}
     assert result["rain"] == {"value": 0.0, "unit": "mm"}
@@ -248,6 +254,7 @@ def test_format_forecast_maps_values_and_units():
         "value": 250,
         "unit": "°",
         "compass": "西南西",
+        "abbreviation": "WSW",
     }
     assert result["sunrise"] == "2026-07-21T04:44"
     assert result["sunset"] == "2026-07-21T18:47"
@@ -320,6 +327,19 @@ def test_compass_direction_wraps_around_north():
     assert _compass_direction(348.75) == "北"
     assert _compass_direction(349) == "北"
     assert _compass_direction(360) == "北"
+
+
+def test_compass_abbreviation_maps_cardinal_points():
+    assert _compass_abbreviation(0) == "N"
+    assert _compass_abbreviation(90) == "E"
+    assert _compass_abbreviation(180) == "S"
+    assert _compass_abbreviation(270) == "W"
+
+
+def test_compass_abbreviation_matches_compass_direction_for_wind_speed():
+    # Wind.tsx の formatWindSpeed で compass の代わりに使う想定のため、
+    # STUB_RESPONSE の風向き（250°、西南西）と対応が取れていることを確認する。
+    assert _compass_abbreviation(250) == "WSW"
 
 
 STUB_SERIES = {
