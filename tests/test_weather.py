@@ -368,6 +368,7 @@ STUB_SERIES = {
         "wind_speed_180m": "km/h",
         "is_day": "",
         "uv_index": "",
+        "sunshine_duration": "s",
         "visibility": "m",
     },
     "hourly": {
@@ -413,6 +414,7 @@ STUB_SERIES = {
         "wind_speed_180m": [25.0, 26.6, 27.9],
         "is_day": [1, 1, 1],
         "uv_index": [0.2, 1.5, 3.1],
+        "sunshine_duration": [3600.0, 1800.0, 0.0],
         "visibility": [22000.0, 18500.0, 9200.0],
     },
 }
@@ -466,6 +468,7 @@ def test_series_keeps_units_separate_for_split_axes():
     wind_speed_925hPa = by_label["925hPaの風速"]
     wind_direction_925hPa = by_label["925hPaの風向き"]
     uv_index = by_label["紫外線指数"]
+    sunshine_duration = by_label["日照時間"]
     visibility = by_label["視程"]
 
     assert temperature["label"] == "気温"
@@ -540,6 +543,8 @@ def test_series_keeps_units_separate_for_split_axes():
     assert wind_direction_925hPa["unit"] == "°"
     assert uv_index["label"] == "紫外線指数"
     assert uv_index["unit"] == ""
+    assert sunshine_duration["label"] == "日照時間"
+    assert sunshine_duration["unit"] == "s"
     assert visibility["label"] == "視程"
     assert visibility["unit"] == "m"
 
@@ -584,6 +589,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     wind_speed_925hPa = by_label["925hPaの風速"]
     wind_direction_925hPa = by_label["925hPaの風向き"]
     uv_index = by_label["紫外線指数"]
+    sunshine_duration = by_label["日照時間"]
     visibility = by_label["視程"]
 
     assert (temperature["min"], temperature["max"]) == (24.9, 26.1)
@@ -622,6 +628,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     assert (wind_speed_925hPa["min"], wind_speed_925hPa["max"]) == (20.1, 22.8)
     assert (wind_direction_925hPa["min"], wind_direction_925hPa["max"]) == (235.0, 255.0)
     assert (uv_index["min"], uv_index["max"]) == (0.2, 3.1)
+    assert (sunshine_duration["min"], sunshine_duration["max"]) == (0.0, 3600.0)
     assert (visibility["min"], visibility["max"]) == (9200.0, 22000.0)
 
 
@@ -1455,6 +1462,7 @@ def test_hourly_series_are_all_requested_fields():
         "上空の風速(120m)": "wind_speed_120m",
         "上空の風速(180m)": "wind_speed_180m",
         "紫外線指数": "uv_index",
+        "日照時間": "sunshine_duration",
         "視程": "visibility",
     }
     used = {labels_to_keys[s["label"]] for s in result["series"] if s["label"] in labels_to_keys}

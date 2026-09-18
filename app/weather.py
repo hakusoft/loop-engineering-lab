@@ -293,6 +293,7 @@ HOURLY_FIELDS = [
     "wind_speed_180m",
     "is_day",
     "uv_index",
+    "sunshine_duration",
     "visibility",
 ]
 
@@ -878,6 +879,7 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
                 _series("wind_speed_120m", "上空の風速(120m)", "km/h"),
                 _series("wind_speed_180m", "上空の風速(180m)", "km/h"),
                 _series("uv_index", "紫外線指数", ""),
+                _series("sunshine_duration", "日照時間", "s"),
                 _series("visibility", "視程", "m"),
             ]
             if s is not None
