@@ -13,6 +13,7 @@ import { Elevation } from "./Elevation";
 import { GardenWatering } from "./GardenWatering";
 import { HeatStrokeRisk } from "./HeatStrokeRisk";
 import { Humidity } from "./Humidity";
+import { HumiditySparkline } from "./HumiditySparkline";
 import { HumidityMean } from "./HumidityMean";
 import { HumidityRange } from "./HumidityRange";
 import { LaundryDryness } from "./LaundryDryness";
@@ -101,6 +102,7 @@ export const DISPLAY_ITEMS: DisplayItem[] = [
   { category: "風", component: Wind, tier: "primary" },
 
   { category: "降水・湿度", component: Humidity, tier: "primary" },
+  { category: "降水・湿度", component: HumiditySparkline, tier: "primary" },
   { category: "降水・湿度", component: HumidityRange, tier: "more" },
   { category: "降水・湿度", component: HumidityMean, tier: "more" },
   { category: "降水・湿度", component: Precipitation, tier: "primary" },
