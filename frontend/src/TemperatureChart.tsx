@@ -459,6 +459,54 @@ function useIsNarrowViewport(): boolean {
   return isNarrow;
 }
 
+type LegendPayloadEntry = { value?: string; color?: string };
+
+// Legend のデフォルト描画は横一列に並べるだけで折り返さず、スマホで複数系列を
+// 選ぶと凡例が画面の外にはみ出て読めなくなるという声があった（Issue #417）。
+// flexWrap で折り返す独自の凡例に差し替える。
+function WrappingLegend({
+  payload,
+  isNarrow,
+  color,
+}: {
+  payload?: LegendPayloadEntry[];
+  isNarrow: boolean;
+  color: string;
+}) {
+  if (!payload || payload.length === 0) return null;
+  return (
+    <ul
+      style={{
+        display: "flex",
+        flexWrap: "wrap",
+        justifyContent: "center",
+        gap: isNarrow ? "4px 10px" : "4px 14px",
+        padding: 0,
+        margin: "8px 0 0",
+        listStyle: "none",
+        fontSize: isNarrow ? 12 : 13,
+        color,
+      }}
+    >
+      {payload.map((entry, i) => (
+        <li key={`legend-${entry.value ?? i}`} style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+          <span
+            style={{
+              display: "inline-block",
+              width: 10,
+              height: 10,
+              borderRadius: "50%",
+              background: entry.color,
+              flexShrink: 0,
+            }}
+          />
+          {entry.value}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?: boolean }) {
   const {
     rows,
@@ -1035,7 +1083,15 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             return [`${v}${unit ?? ""}`, name];
           }}
         />
-        <Legend wrapperStyle={{ fontSize: tickFontSize, color: colors.tick }} />
+        <Legend
+          content={(props) => (
+            <WrappingLegend
+              payload={props.payload as LegendPayloadEntry[] | undefined}
+              isNarrow={isNarrow}
+              color={colors.tick}
+            />
+          )}
+        />
         <Line
           yAxisId="temperature"
           type="monotone"
