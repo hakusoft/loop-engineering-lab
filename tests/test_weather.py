@@ -346,6 +346,8 @@ STUB_SERIES = {
         "soil_temperature_54cm": "°C",
         "apparent_temperature": "°C",
         "dew_point_2m": "°C",
+        "wet_bulb_temperature_2m": "°C",
+        "vapour_pressure_deficit": "kPa",
         "relative_humidity_2m": "%",
         "rain": "mm",
         "snowfall": "cm",
@@ -392,6 +394,8 @@ STUB_SERIES = {
         "soil_temperature_54cm": [21.9, 21.8, 21.7],
         "apparent_temperature": [27.3, 26.5, 25.8],
         "dew_point_2m": [21.8, 21.5, 21.2],
+        "wet_bulb_temperature_2m": [23.5, 23.1, 22.6],
+        "vapour_pressure_deficit": [0.85, 0.78, 0.68],
         "relative_humidity_2m": [78, 81, 85],
         "rain": [0.0, 0.5, 1.2],
         "snowfall": [0.0, 0.0, 0.0],
@@ -443,6 +447,8 @@ def test_series_keeps_units_separate_for_split_axes():
     soil_temperature_54cm = by_label["土の温度(54cm)"]
     apparent_temperature = by_label["体感温度"]
     dew_point = by_label["露点温度"]
+    wet_bulb_temperature = by_label["湿球温度"]
+    vapor_pressure_deficit = by_label["飽差(VPD)"]
     humidity = by_label["湿度"]
     rain = by_label["雨量"]
     snow = by_label["降雪量"]
@@ -493,6 +499,10 @@ def test_series_keeps_units_separate_for_split_axes():
     assert apparent_temperature["unit"] == "°C"
     assert dew_point["label"] == "露点温度"
     assert dew_point["unit"] == "°C"
+    assert wet_bulb_temperature["label"] == "湿球温度"
+    assert wet_bulb_temperature["unit"] == "°C"
+    assert vapor_pressure_deficit["label"] == "飽差(VPD)"
+    assert vapor_pressure_deficit["unit"] == "kPa"
     assert humidity["label"] == "湿度"
     assert humidity["unit"] == "%"
     assert rain["label"] == "雨量"
@@ -564,6 +574,8 @@ def test_series_exposes_min_max_for_axis_scaling():
     soil_temperature_54cm = by_label["土の温度(54cm)"]
     apparent_temperature = by_label["体感温度"]
     dew_point = by_label["露点温度"]
+    wet_bulb_temperature = by_label["湿球温度"]
+    vapor_pressure_deficit = by_label["飽差(VPD)"]
     humidity = by_label["湿度"]
     rain = by_label["雨量"]
     snow = by_label["降雪量"]
@@ -603,6 +615,8 @@ def test_series_exposes_min_max_for_axis_scaling():
     assert (soil_temperature_54cm["min"], soil_temperature_54cm["max"]) == (21.7, 21.9)
     assert (apparent_temperature["min"], apparent_temperature["max"]) == (25.8, 27.3)
     assert (dew_point["min"], dew_point["max"]) == (21.2, 21.8)
+    assert (wet_bulb_temperature["min"], wet_bulb_temperature["max"]) == (22.6, 23.5)
+    assert (vapor_pressure_deficit["min"], vapor_pressure_deficit["max"]) == (0.68, 0.85)
     assert (humidity["min"], humidity["max"]) == (78, 85)
     assert (rain["min"], rain["max"]) == (0.0, 1.2)
     assert (snow["min"], snow["max"]) == (0.0, 0.0)
@@ -1438,6 +1452,8 @@ def test_hourly_series_are_all_requested_fields():
         "925hPaの気温": "temperature_925hPa",
         "体感温度": "apparent_temperature",
         "露点温度": "dew_point_2m",
+        "湿球温度": "wet_bulb_temperature_2m",
+        "飽差(VPD)": "vapour_pressure_deficit",
         "湿度": "relative_humidity_2m",
         "雨量": "rain",
         "降雪量": "snowfall",

@@ -28,6 +28,8 @@ function toChartData(data: SeriesResponse) {
   const soilTemperature54cm = data.series.find((s) => s.label === "土の温度(54cm)");
   const apparentTemperature = data.series.find((s) => s.label === "体感温度");
   const dewPoint = data.series.find((s) => s.label === "露点温度");
+  const wetBulbTemperature = data.series.find((s) => s.label === "湿球温度");
+  const vaporPressureDeficit = data.series.find((s) => s.label === "飽差(VPD)");
   const humidity = data.series.find((s) => s.label === "湿度");
   const rain = data.series.find((s) => s.label === "雨量");
   const snow = data.series.find((s) => s.label === "降雪量");
@@ -71,6 +73,8 @@ function toChartData(data: SeriesResponse) {
       soilTemperature54cm: undefined,
       apparentTemperature: undefined,
       dewPoint: undefined,
+      wetBulbTemperature: undefined,
+      vaporPressureDeficit: undefined,
       humidity: undefined,
       rain: undefined,
       snow: undefined,
@@ -117,6 +121,8 @@ function toChartData(data: SeriesResponse) {
     soilTemperature54cm: soilTemperature54cm?.values[i] ?? null,
     apparentTemperature: apparentTemperature?.values[i] ?? null,
     dewPoint: dewPoint?.values[i] ?? null,
+    wetBulbTemperature: wetBulbTemperature?.values[i] ?? null,
+    vaporPressureDeficit: vaporPressureDeficit?.values[i] ?? null,
     humidity: humidity?.values[i] ?? null,
     rain: rain?.values[i] ?? null,
     snow: snow?.values[i] ?? null,
@@ -160,6 +166,8 @@ function toChartData(data: SeriesResponse) {
     soilTemperature54cm,
     apparentTemperature,
     dewPoint,
+    wetBulbTemperature,
+    vaporPressureDeficit,
     humidity,
     rain,
     snow,
@@ -356,6 +364,8 @@ const SECONDARY_SERIES = [
   { key: "temperature925hPa", label: "925hPaの気温", category: "気温" },
   { key: "apparentTemperature", label: "体感温度", category: "気温" },
   { key: "dewPoint", label: "露点温度", category: "気温" },
+  { key: "wetBulbTemperature", label: "湿球温度", category: "気温" },
+  { key: "vaporPressureDeficit", label: "飽差(VPD)", category: "気温" },
   { key: "soilTemperature0cm", label: "土の温度(地表)", category: "降水・湿度" },
   { key: "soilTemperature6cm", label: "土の温度(6cm)", category: "降水・湿度" },
   { key: "soilTemperature18cm", label: "土の温度(18cm)", category: "降水・湿度" },
@@ -521,6 +531,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     soilTemperature54cm,
     apparentTemperature,
     dewPoint,
+    wetBulbTemperature,
+    vaporPressureDeficit,
     humidity,
     rain,
     snow,
@@ -592,6 +604,10 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             return Boolean(apparentTemperature);
           case "dewPoint":
             return Boolean(dewPoint);
+          case "wetBulbTemperature":
+            return Boolean(wetBulbTemperature);
+          case "vaporPressureDeficit":
+            return Boolean(vaporPressureDeficit);
           case "humidity":
             return Boolean(humidity);
           case "snowDepth":
@@ -712,6 +728,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
   const showSoilTemperature54cm = soilTemperature54cm && visibleSecondary.has("soilTemperature54cm");
   const showApparentTemperature = apparentTemperature && visibleSecondary.has("apparentTemperature");
   const showDewPoint = dewPoint && visibleSecondary.has("dewPoint");
+  const showWetBulbTemperature = wetBulbTemperature && visibleSecondary.has("wetBulbTemperature");
+  const showVaporPressureDeficit = vaporPressureDeficit && visibleSecondary.has("vaporPressureDeficit");
   const showHumidity = humidity && visibleSecondary.has("humidity");
   const showSnowDepth = snowDepth && visibleSecondary.has("snowDepth");
   const showPrecipitationProbability = precipitationProbability && visibleSecondary.has("precipitationProbability");
@@ -866,6 +884,14 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             yAxisId="evapotranspiration"
             hide
             domain={[0, Math.max(evapotranspiration!.max ?? 0, 1) + 1]}
+          />
+        )}
+        {showVaporPressureDeficit && (
+          // 飽差(VPD)は kPa 単位で気温とスケールが違うので、独立した軸にする。
+          <YAxis
+            yAxisId="vaporPressureDeficit"
+            hide
+            domain={[0, Math.max(vaporPressureDeficit!.max ?? 0, 1) + 1]}
           />
         )}
         {showWindSpeed && (
@@ -1023,6 +1049,10 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
                     ? apparentTemperature?.unit
                   : name === "露点温度"
                     ? dewPoint?.unit
+                  : name === "湿球温度"
+                    ? wetBulbTemperature?.unit
+                  : name === "飽差(VPD)"
+                    ? vaporPressureDeficit?.unit
                     : name === "湿度"
                     ? humidity?.unit
                     : name === "雨量"
@@ -1238,6 +1268,33 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             dot={false}
             isAnimationActive={false}
             name="露点温度"
+            connectNulls
+          />
+        )}
+        {showWetBulbTemperature && (
+          <Line
+            yAxisId="temperature"
+            type="monotone"
+            dataKey="wetBulbTemperature"
+            stroke="#e8590c"
+            strokeDasharray="6 2"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="湿球温度"
+            connectNulls
+          />
+        )}
+        {showVaporPressureDeficit && (
+          <Line
+            yAxisId="vaporPressureDeficit"
+            type="monotone"
+            dataKey="vaporPressureDeficit"
+            stroke="#d6336c"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="飽差(VPD)"
             connectNulls
           />
         )}
