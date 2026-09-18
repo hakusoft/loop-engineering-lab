@@ -50,9 +50,12 @@ function toChartData(data: SeriesResponse) {
   const upperWindSpeed = data.series.find((s) => s.label === "上空の風速");
   const upperWindDirection = data.series.find((s) => s.label === "上空の風向き");
   const upperWindSpeed80m = data.series.find((s) => s.label === "上空の風速(80m)");
+  const upperWindSpeed120m = data.series.find((s) => s.label === "上空の風速(120m)");
+  const upperWindSpeed180m = data.series.find((s) => s.label === "上空の風速(180m)");
   const windSpeed925hPa = data.series.find((s) => s.label === "925hPaの風速");
   const windDirection925hPa = data.series.find((s) => s.label === "925hPaの風向き");
   const uvIndex = data.series.find((s) => s.label === "紫外線指数");
+  const sunshineDuration = data.series.find((s) => s.label === "日照時間");
   const visibility = data.series.find((s) => s.label === "視程");
   if (!temperature) {
     return {
@@ -90,9 +93,12 @@ function toChartData(data: SeriesResponse) {
       upperWindSpeed: undefined,
       upperWindDirection: undefined,
       upperWindSpeed80m: undefined,
+      upperWindSpeed120m: undefined,
+      upperWindSpeed180m: undefined,
       windSpeed925hPa: undefined,
       windDirection925hPa: undefined,
       uvIndex: undefined,
+      sunshineDuration: undefined,
       visibility: undefined,
     };
   }
@@ -133,9 +139,12 @@ function toChartData(data: SeriesResponse) {
     upperWindSpeed: upperWindSpeed?.values[i] ?? null,
     upperWindDirection: upperWindDirection?.values[i] ?? null,
     upperWindSpeed80m: upperWindSpeed80m?.values[i] ?? null,
+    upperWindSpeed120m: upperWindSpeed120m?.values[i] ?? null,
+    upperWindSpeed180m: upperWindSpeed180m?.values[i] ?? null,
     windSpeed925hPa: windSpeed925hPa?.values[i] ?? null,
     windDirection925hPa: windDirection925hPa?.values[i] ?? null,
     uvIndex: uvIndex?.values[i] ?? null,
+    sunshineDuration: sunshineDuration?.values[i] ?? null,
     visibility: visibility?.values[i] ?? null,
   }));
   return {
@@ -173,9 +182,12 @@ function toChartData(data: SeriesResponse) {
     upperWindSpeed,
     upperWindDirection,
     upperWindSpeed80m,
+    upperWindSpeed120m,
+    upperWindSpeed180m,
     windSpeed925hPa,
     windDirection925hPa,
     uvIndex,
+    sunshineDuration,
     visibility,
   };
 }
@@ -361,6 +373,7 @@ const SECONDARY_SERIES = [
   { key: "convectiveInhibition", label: "対流抑制(CIN)", category: "環境" },
   { key: "boundaryLayerHeight", label: "境界層の高さ", category: "環境" },
   { key: "uvIndex", label: "紫外線指数", category: "環境" },
+  { key: "sunshineDuration", label: "日照時間", category: "環境" },
   { key: "visibility", label: "視程", category: "環境" },
   { key: "windSpeed", label: "風速", category: "風" },
   { key: "windDirection", label: "風向き", category: "風" },
@@ -370,6 +383,8 @@ const SECONDARY_SERIES = [
   { key: "upperWindSpeed", label: "上空の風速", category: "風" },
   { key: "upperWindDirection", label: "上空の風向き", category: "風" },
   { key: "upperWindSpeed80m", label: "上空の風速(80m)", category: "風" },
+  { key: "upperWindSpeed120m", label: "上空の風速(120m)", category: "風" },
+  { key: "upperWindSpeed180m", label: "上空の風速(180m)", category: "風" },
   { key: "windSpeed925hPa", label: "925hPaの風速", category: "風" },
   { key: "windDirection925hPa", label: "925hPaの風向き", category: "風" },
 ] as const;
@@ -480,9 +495,12 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     upperWindSpeed,
     upperWindDirection,
     upperWindSpeed80m,
+    upperWindSpeed120m,
+    upperWindSpeed180m,
     windSpeed925hPa,
     windDirection925hPa,
     uvIndex,
+    sunshineDuration,
     visibility,
   } = toChartData(data);
   const isNarrow = useIsNarrowViewport();
@@ -566,12 +584,18 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             return Boolean(upperWindDirection);
           case "upperWindSpeed80m":
             return Boolean(upperWindSpeed80m);
+          case "upperWindSpeed120m":
+            return Boolean(upperWindSpeed120m);
+          case "upperWindSpeed180m":
+            return Boolean(upperWindSpeed180m);
           case "windSpeed925hPa":
             return Boolean(windSpeed925hPa);
           case "windDirection925hPa":
             return Boolean(windDirection925hPa);
           case "uvIndex":
             return Boolean(uvIndex);
+          case "sunshineDuration":
+            return Boolean(sunshineDuration);
           case "visibility":
             return Boolean(visibility);
         }
@@ -607,9 +631,12 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
       upperWindSpeed,
       upperWindDirection,
       upperWindSpeed80m,
+      upperWindSpeed120m,
+      upperWindSpeed180m,
       windSpeed925hPa,
       windDirection925hPa,
       uvIndex,
+      sunshineDuration,
       visibility,
     ],
   );
@@ -657,9 +684,12 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
   const showUpperWindSpeed = upperWindSpeed && visibleSecondary.has("upperWindSpeed");
   const showUpperWindDirection = upperWindDirection && visibleSecondary.has("upperWindDirection");
   const showUpperWindSpeed80m = upperWindSpeed80m && visibleSecondary.has("upperWindSpeed80m");
+  const showUpperWindSpeed120m = upperWindSpeed120m && visibleSecondary.has("upperWindSpeed120m");
+  const showUpperWindSpeed180m = upperWindSpeed180m && visibleSecondary.has("upperWindSpeed180m");
   const showWindSpeed925hPa = windSpeed925hPa && visibleSecondary.has("windSpeed925hPa");
   const showWindDirection925hPa = windDirection925hPa && visibleSecondary.has("windDirection925hPa");
   const showUvIndex = uvIndex && visibleSecondary.has("uvIndex");
+  const showSunshineDuration = sunshineDuration && visibleSecondary.has("sunshineDuration");
   const showVisibility = visibility && visibleSecondary.has("visibility");
 
   return (
@@ -774,6 +804,14 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
           // 紫外線指数は他系列と単位もスケールも違うので、独立した軸にする。
           <YAxis yAxisId="uvIndex" hide domain={[0, Math.max(uvIndex!.max ?? 0, 1) + 1]} />
         )}
+        {showSunshineDuration && (
+          // 日照時間（秒）も他系列と単位・スケールが違うので、独立した軸にする。
+          <YAxis
+            yAxisId="sunshineDuration"
+            hide
+            domain={[0, Math.max(sunshineDuration!.max ?? 0, 60) + 60]}
+          />
+        )}
         {showEvapotranspiration && (
           // 蒸発散量も他系列と単位・スケールが違うので、独立した軸にする。
           <YAxis
@@ -824,6 +862,22 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             yAxisId="upperWindSpeed80m"
             hide
             domain={[0, Math.max(upperWindSpeed80m!.max ?? 0, 1) + 1]}
+          />
+        )}
+        {showUpperWindSpeed120m && (
+          // 120m 高度の風速も他の風速系列とスケールが異なるため、軸を分ける。
+          <YAxis
+            yAxisId="upperWindSpeed120m"
+            hide
+            domain={[0, Math.max(upperWindSpeed120m!.max ?? 0, 1) + 1]}
+          />
+        )}
+        {showUpperWindSpeed180m && (
+          // 180m 高度の風速も他の風速系列とスケールが異なるため、軸を分ける。
+          <YAxis
+            yAxisId="upperWindSpeed180m"
+            hide
+            domain={[0, Math.max(upperWindSpeed180m!.max ?? 0, 1) + 1]}
           />
         )}
         {showWindSpeed925hPa && (
@@ -963,6 +1017,10 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
                                       ? upperWindDirection?.unit
                                       : name === "上空の風速(80m)"
                                         ? upperWindSpeed80m?.unit
+                                        : name === "上空の風速(120m)"
+                                          ? upperWindSpeed120m?.unit
+                                          : name === "上空の風速(180m)"
+                                            ? upperWindSpeed180m?.unit
                                         : name === "925hPaの風速"
                                           ? windSpeed925hPa?.unit
                                           : name === "925hPaの風向き"
@@ -971,7 +1029,9 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
                                           ? visibility?.unit
                                           : name === "積雪の深さ"
                                             ? snowDepth?.unit
-                                            : uvIndex?.unit;
+                                            : name === "日照時間"
+                                              ? sunshineDuration?.unit
+                                              : uvIndex?.unit;
             return [`${v}${unit ?? ""}`, name];
           }}
         />
@@ -1415,6 +1475,34 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             connectNulls
           />
         )}
+        {showUpperWindSpeed120m && (
+          <Line
+            yAxisId="upperWindSpeed120m"
+            type="monotone"
+            dataKey="upperWindSpeed120m"
+            stroke="#2b8a3e"
+            strokeWidth={2}
+            strokeDasharray="4 2"
+            dot={false}
+            isAnimationActive={false}
+            name="上空の風速(120m)"
+            connectNulls
+          />
+        )}
+        {showUpperWindSpeed180m && (
+          <Line
+            yAxisId="upperWindSpeed180m"
+            type="monotone"
+            dataKey="upperWindSpeed180m"
+            stroke="#e8590c"
+            strokeWidth={2}
+            strokeDasharray="4 2"
+            dot={false}
+            isAnimationActive={false}
+            name="上空の風速(180m)"
+            connectNulls
+          />
+        )}
         {showWindSpeed925hPa && (
           <Line
             yAxisId="windSpeed925hPa"
@@ -1453,6 +1541,19 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             dot={false}
             isAnimationActive={false}
             name="紫外線指数"
+            connectNulls
+          />
+        )}
+        {showSunshineDuration && (
+          <Line
+            yAxisId="sunshineDuration"
+            type="monotone"
+            dataKey="sunshineDuration"
+            stroke="#f59f00"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="日照時間"
             connectNulls
           />
         )}
