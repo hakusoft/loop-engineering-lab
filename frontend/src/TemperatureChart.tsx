@@ -715,7 +715,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
                   alignItems: "center",
                   // スマホだと指では小さくて押しにくいという声があったため、
                   // 狭い画面ではラベル全体の余白も広げてタップ領域を確保する。
-                  padding: isNarrow ? "6px 4px" : 0,
+                  // 20px でもまだ狙いにくいという声（Issue #413）を受け、さらに広げた。
+                  padding: isNarrow ? "8px 4px" : 0,
                 }}
               >
                 <input
@@ -724,8 +725,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
                   onChange={() => toggleSecondary(key)}
                   style={{
                     marginRight: 6,
-                    width: isNarrow ? 20 : 13,
-                    height: isNarrow ? 20 : 13,
+                    width: isNarrow ? 24 : 13,
+                    height: isNarrow ? 24 : 13,
                   }}
                 />
                 {label}
