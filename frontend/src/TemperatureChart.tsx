@@ -1666,7 +1666,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
         )}
         {showUpperWindDirection120m && (
           <Line
-            yAxisId="upperWindSpeed120m"
+            yAxisId="upperWindDirection120m"
             type="monotone"
             dataKey="upperWindDirection120m"
             stroke="#495057"
