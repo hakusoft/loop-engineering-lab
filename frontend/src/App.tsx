@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect, useState, type CSSProperties, type ReactNode
 import { fetchSeries, fetchWeather, type SeriesResponse, type WeatherResponse } from "./api";
 import { CATEGORY_ORDER, DISPLAY_ITEMS } from "./displayItems";
 import { LocationName } from "./LocationName";
+import { Coordinates } from "./Coordinates";
 import { DailySummary } from "./DailySummary";
 import { HourlyConditions } from "./HourlyConditions";
 import { ThunderstormOutlook } from "./ThunderstormOutlook";
@@ -314,7 +315,10 @@ export default function App() {
         <div style={{ display: "flex", alignItems: "baseline" }}>
           <h1 style={{ fontSize: 20, marginBottom: 4 }}>東京の天気（48時間）</h1>
           {weatherState.status === "ready" && state.status === "ready" && (
-            <LocationName data={weatherState.data} />
+            <>
+              <LocationName data={weatherState.data} />
+              <Coordinates data={state.data} />
+            </>
           )}
         </div>
         <label
