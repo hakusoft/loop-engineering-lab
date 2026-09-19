@@ -7,6 +7,15 @@ export function formatTemperature(data: WeatherResponse): string {
   return `${Math.round(value * 10) / 10}${unit}`;
 }
 
+// 摂氏だけでなく華氏でも見たいという声を受けて併記する（Issue #427）。
+// Wind.tsx の formatWindSpeed が km/h と m/s を併記しているのと同じ方針で、
+// メインの表示（摂氏）は変えずに小さく添える。
+export function formatTemperatureFahrenheit(data: WeatherResponse): string {
+  const { value } = data.temperature;
+  const fahrenheit = Math.round(((value * 9) / 5 + 32) * 10) / 10;
+  return `${fahrenheit}°F`;
+}
+
 export function CurrentTemperature({ data }: { data: WeatherResponse }) {
   // スマホで下までスクロールすると今の気温を見失うという声を受け、画面上部に
   // 固定表示されるようにする（Issue #337）。下にスクロールしてきた他の項目と
@@ -28,6 +37,9 @@ export function CurrentTemperature({ data }: { data: WeatherResponse }) {
       }}
     >
       {formatTemperature(data)}
+      <span style={{ fontSize: 28, fontWeight: 400, color: "var(--text-secondary)", marginLeft: 8 }}>
+        {formatTemperatureFahrenheit(data)}
+      </span>
     </p>
   );
 }
