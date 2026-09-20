@@ -9,7 +9,7 @@ import type { WeatherResponse } from "./api";
 // という指摘があった（Issue #333、Issue #402）。行自体は残し、取得できて
 // いないことを伝える。
 export function formatSoilMoistureBedrock(data: WeatherResponse): string {
-  const { value, unit } = data.soil_moisture_deepest;
+  const { value, unit } = data.soil_moisture_bedrock;
   if (value === null) {
     return "土の湿り気（27〜81cm） 現在取得できません";
   }
