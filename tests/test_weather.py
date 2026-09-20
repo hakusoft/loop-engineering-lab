@@ -340,6 +340,7 @@ STUB_SERIES = {
         "temperature_120m": "°C",
         "temperature_180m": "°C",
         "temperature_925hPa": "°C",
+        "freezing_level_height": "m",
         "soil_temperature_0cm": "°C",
         "soil_temperature_6cm": "°C",
         "soil_temperature_18cm": "°C",
@@ -373,6 +374,7 @@ STUB_SERIES = {
         "wind_direction_180m": "°",
         "is_day": "",
         "uv_index": "",
+        "shortwave_radiation": "W/m²",
         "sunshine_duration": "s",
         "visibility": "m",
     },
@@ -391,6 +393,7 @@ STUB_SERIES = {
         "temperature_120m": [24.2, 23.5, 23.0],
         "temperature_180m": [23.4, 22.7, 22.2],
         "temperature_925hPa": [23.6, 23.0, 22.5],
+        "freezing_level_height": [3200.0, 3100.0, 3000.0],
         "soil_temperature_0cm": [29.8, 28.6, 27.1],
         "soil_temperature_6cm": [27.5, 27.0, 26.4],
         "soil_temperature_18cm": [25.2, 25.0, 24.8],
@@ -424,6 +427,7 @@ STUB_SERIES = {
         "wind_direction_180m": [236.0, 246.0, 256.0],
         "is_day": [1, 1, 1],
         "uv_index": [0.2, 1.5, 3.1],
+        "shortwave_radiation": [412.0, 350.0, 0.0],
         "sunshine_duration": [3600.0, 1800.0, 0.0],
         "visibility": [22000.0, 18500.0, 9200.0],
     },
@@ -447,6 +451,7 @@ def test_series_keeps_units_separate_for_split_axes():
     temperature_120m = by_label["上空の気温(120m)"]
     temperature_180m = by_label["上空の気温(180m)"]
     temperature_925hPa = by_label["925hPaの気温"]
+    freezing_level = by_label["凍結高度"]
     soil_temperature_0cm = by_label["土の温度(地表)"]
     soil_temperature_6cm = by_label["土の温度(6cm)"]
     soil_temperature_18cm = by_label["土の温度(18cm)"]
@@ -483,6 +488,7 @@ def test_series_keeps_units_separate_for_split_axes():
     wind_speed_925hPa = by_label["925hPaの風速"]
     wind_direction_925hPa = by_label["925hPaの風向き"]
     uv_index = by_label["紫外線指数"]
+    shortwave_radiation = by_label["日射量"]
     sunshine_duration = by_label["日照時間"]
     visibility = by_label["視程"]
 
@@ -496,6 +502,8 @@ def test_series_keeps_units_separate_for_split_axes():
     assert temperature_180m["unit"] == "°C"
     assert temperature_925hPa["label"] == "925hPaの気温"
     assert temperature_925hPa["unit"] == "°C"
+    assert freezing_level["label"] == "凍結高度"
+    assert freezing_level["unit"] == "m"
     assert soil_temperature_0cm["label"] == "土の温度(地表)"
     assert soil_temperature_0cm["unit"] == "°C"
     assert soil_temperature_6cm["label"] == "土の温度(6cm)"
@@ -568,6 +576,8 @@ def test_series_keeps_units_separate_for_split_axes():
     assert wind_direction_925hPa["unit"] == "°"
     assert uv_index["label"] == "紫外線指数"
     assert uv_index["unit"] == ""
+    assert shortwave_radiation["label"] == "日射量"
+    assert shortwave_radiation["unit"] == "W/m²"
     assert sunshine_duration["label"] == "日照時間"
     assert sunshine_duration["unit"] == "s"
     assert visibility["label"] == "視程"
@@ -583,6 +593,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     temperature_120m = by_label["上空の気温(120m)"]
     temperature_180m = by_label["上空の気温(180m)"]
     temperature_925hPa = by_label["925hPaの気温"]
+    freezing_level = by_label["凍結高度"]
     soil_temperature_0cm = by_label["土の温度(地表)"]
     soil_temperature_6cm = by_label["土の温度(6cm)"]
     soil_temperature_18cm = by_label["土の温度(18cm)"]
@@ -619,6 +630,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     wind_speed_925hPa = by_label["925hPaの風速"]
     wind_direction_925hPa = by_label["925hPaの風向き"]
     uv_index = by_label["紫外線指数"]
+    shortwave_radiation = by_label["日射量"]
     sunshine_duration = by_label["日照時間"]
     visibility = by_label["視程"]
 
@@ -627,6 +639,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     assert (temperature_120m["min"], temperature_120m["max"]) == (23.0, 24.2)
     assert (temperature_180m["min"], temperature_180m["max"]) == (22.2, 23.4)
     assert (temperature_925hPa["min"], temperature_925hPa["max"]) == (22.5, 23.6)
+    assert (freezing_level["min"], freezing_level["max"]) == (3000.0, 3200.0)
     assert (soil_temperature_0cm["min"], soil_temperature_0cm["max"]) == (27.1, 29.8)
     assert (soil_temperature_6cm["min"], soil_temperature_6cm["max"]) == (26.4, 27.5)
     assert (soil_temperature_18cm["min"], soil_temperature_18cm["max"]) == (24.8, 25.2)
@@ -663,6 +676,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     assert (wind_speed_925hPa["min"], wind_speed_925hPa["max"]) == (20.1, 22.8)
     assert (wind_direction_925hPa["min"], wind_direction_925hPa["max"]) == (235.0, 255.0)
     assert (uv_index["min"], uv_index["max"]) == (0.2, 3.1)
+    assert (shortwave_radiation["min"], shortwave_radiation["max"]) == (0.0, 412.0)
     assert (sunshine_duration["min"], sunshine_duration["max"]) == (0.0, 3600.0)
     assert (visibility["min"], visibility["max"]) == (9200.0, 22000.0)
 
@@ -1471,6 +1485,7 @@ def test_hourly_series_are_all_requested_fields():
         "上空の気温(120m)": "temperature_120m",
         "上空の気温(180m)": "temperature_180m",
         "925hPaの気温": "temperature_925hPa",
+        "凍結高度": "freezing_level_height",
         "体感温度": "apparent_temperature",
         "露点温度": "dew_point_2m",
         "湿球温度": "wet_bulb_temperature_2m",
@@ -1502,6 +1517,7 @@ def test_hourly_series_are_all_requested_fields():
         "上空の風速(180m)": "wind_speed_180m",
         "上空の風向き(180m)": "wind_direction_180m",
         "紫外線指数": "uv_index",
+        "日射量": "shortwave_radiation",
         "日照時間": "sunshine_duration",
         "視程": "visibility",
     }
