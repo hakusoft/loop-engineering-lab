@@ -22,6 +22,7 @@ function toChartData(data: SeriesResponse) {
   const temperature120m = data.series.find((s) => s.label === "上空の気温(120m)");
   const temperature180m = data.series.find((s) => s.label === "上空の気温(180m)");
   const temperature925hPa = data.series.find((s) => s.label === "925hPaの気温");
+  const freezingLevel = data.series.find((s) => s.label === "凍結高度");
   const soilTemperature0cm = data.series.find((s) => s.label === "土の温度(地表)");
   const soilTemperature6cm = data.series.find((s) => s.label === "土の温度(6cm)");
   const soilTemperature18cm = data.series.find((s) => s.label === "土の温度(18cm)");
@@ -57,6 +58,7 @@ function toChartData(data: SeriesResponse) {
   const windSpeed925hPa = data.series.find((s) => s.label === "925hPaの風速");
   const windDirection925hPa = data.series.find((s) => s.label === "925hPaの風向き");
   const uvIndex = data.series.find((s) => s.label === "紫外線指数");
+  const shortwaveRadiation = data.series.find((s) => s.label === "日射量");
   const sunshineDuration = data.series.find((s) => s.label === "日照時間");
   const visibility = data.series.find((s) => s.label === "視程");
   if (!temperature) {
@@ -67,6 +69,7 @@ function toChartData(data: SeriesResponse) {
       temperature120m: undefined,
       temperature180m: undefined,
       temperature925hPa: undefined,
+      freezingLevel: undefined,
       soilTemperature0cm: undefined,
       soilTemperature6cm: undefined,
       soilTemperature18cm: undefined,
@@ -102,6 +105,7 @@ function toChartData(data: SeriesResponse) {
       windSpeed925hPa: undefined,
       windDirection925hPa: undefined,
       uvIndex: undefined,
+      shortwaveRadiation: undefined,
       sunshineDuration: undefined,
       visibility: undefined,
     };
@@ -115,6 +119,7 @@ function toChartData(data: SeriesResponse) {
     temperature120m: temperature120m?.values[i] ?? null,
     temperature180m: temperature180m?.values[i] ?? null,
     temperature925hPa: temperature925hPa?.values[i] ?? null,
+    freezingLevel: freezingLevel?.values[i] ?? null,
     soilTemperature0cm: soilTemperature0cm?.values[i] ?? null,
     soilTemperature6cm: soilTemperature6cm?.values[i] ?? null,
     soilTemperature18cm: soilTemperature18cm?.values[i] ?? null,
@@ -150,6 +155,7 @@ function toChartData(data: SeriesResponse) {
     windSpeed925hPa: windSpeed925hPa?.values[i] ?? null,
     windDirection925hPa: windDirection925hPa?.values[i] ?? null,
     uvIndex: uvIndex?.values[i] ?? null,
+    shortwaveRadiation: shortwaveRadiation?.values[i] ?? null,
     sunshineDuration: sunshineDuration?.values[i] ?? null,
     visibility: visibility?.values[i] ?? null,
   }));
@@ -160,6 +166,7 @@ function toChartData(data: SeriesResponse) {
     temperature120m,
     temperature180m,
     temperature925hPa,
+    freezingLevel,
     soilTemperature0cm,
     soilTemperature6cm,
     soilTemperature18cm,
@@ -195,6 +202,7 @@ function toChartData(data: SeriesResponse) {
     windSpeed925hPa,
     windDirection925hPa,
     uvIndex,
+    shortwaveRadiation,
     sunshineDuration,
     visibility,
   };
@@ -382,7 +390,9 @@ const SECONDARY_SERIES = [
   { key: "cloudCoverHigh", label: "雲量(高層)", category: "環境" },
   { key: "convectiveInhibition", label: "対流抑制(CIN)", category: "環境" },
   { key: "boundaryLayerHeight", label: "境界層の高さ", category: "環境" },
+  { key: "freezingLevel", label: "凍結高度", category: "環境" },
   { key: "uvIndex", label: "紫外線指数", category: "環境" },
+  { key: "shortwaveRadiation", label: "日射量", category: "環境" },
   { key: "sunshineDuration", label: "日照時間", category: "環境" },
   { key: "visibility", label: "視程", category: "環境" },
   { key: "windSpeed", label: "風速", category: "風" },
@@ -525,6 +535,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     temperature120m,
     temperature180m,
     temperature925hPa,
+    freezingLevel,
     soilTemperature0cm,
     soilTemperature6cm,
     soilTemperature18cm,
@@ -560,6 +571,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     windSpeed925hPa,
     windDirection925hPa,
     uvIndex,
+    shortwaveRadiation,
     sunshineDuration,
     visibility,
   } = toChartData(data);
@@ -592,6 +604,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             return Boolean(temperature180m);
           case "temperature925hPa":
             return Boolean(temperature925hPa);
+          case "freezingLevel":
+            return Boolean(freezingLevel);
           case "soilTemperature0cm":
             return Boolean(soilTemperature0cm);
           case "soilTemperature6cm":
@@ -658,6 +672,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             return Boolean(windDirection925hPa);
           case "uvIndex":
             return Boolean(uvIndex);
+          case "shortwaveRadiation":
+            return Boolean(shortwaveRadiation);
           case "sunshineDuration":
             return Boolean(sunshineDuration);
           case "visibility":
@@ -669,6 +685,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
       temperature120m,
       temperature180m,
       temperature925hPa,
+      freezingLevel,
       soilTemperature0cm,
       soilTemperature6cm,
       soilTemperature18cm,
@@ -700,6 +717,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
       windSpeed925hPa,
       windDirection925hPa,
       uvIndex,
+      shortwaveRadiation,
       sunshineDuration,
       visibility,
     ],
@@ -722,6 +740,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
   const showTemperature120m = temperature120m && visibleSecondary.has("temperature120m");
   const showTemperature180m = temperature180m && visibleSecondary.has("temperature180m");
   const showTemperature925hPa = temperature925hPa && visibleSecondary.has("temperature925hPa");
+  const showFreezingLevel = freezingLevel && visibleSecondary.has("freezingLevel");
   const showSoilTemperature0cm = soilTemperature0cm && visibleSecondary.has("soilTemperature0cm");
   const showSoilTemperature6cm = soilTemperature6cm && visibleSecondary.has("soilTemperature6cm");
   const showSoilTemperature18cm = soilTemperature18cm && visibleSecondary.has("soilTemperature18cm");
@@ -755,6 +774,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
   const showWindSpeed925hPa = windSpeed925hPa && visibleSecondary.has("windSpeed925hPa");
   const showWindDirection925hPa = windDirection925hPa && visibleSecondary.has("windDirection925hPa");
   const showUvIndex = uvIndex && visibleSecondary.has("uvIndex");
+  const showShortwaveRadiation = shortwaveRadiation && visibleSecondary.has("shortwaveRadiation");
   const showSunshineDuration = sunshineDuration && visibleSecondary.has("sunshineDuration");
   const showVisibility = visibility && visibleSecondary.has("visibility");
 
@@ -1016,6 +1036,22 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             domain={[0, Math.max(visibility!.max ?? 0, 1) + 1]}
           />
         )}
+        {showFreezingLevel && (
+          // 凍結高度は m 単位で他系列よりスケールが大きく違うので、独立した軸にする。
+          <YAxis
+            yAxisId="freezingLevel"
+            hide
+            domain={[0, Math.max(freezingLevel!.max ?? 0, 1) + 50]}
+          />
+        )}
+        {showShortwaveRadiation && (
+          // 日射量（W/m²）も他系列と単位・スケールが違うので、独立した軸にする。
+          <YAxis
+            yAxisId="shortwaveRadiation"
+            hide
+            domain={[0, Math.max(shortwaveRadiation!.max ?? 0, 1) + 10]}
+          />
+        )}
         {showSnowDepth && (
           // 積雪の深さは m 単位で降雪量（cm）とスケールが違うので、独立した軸にする。
           <YAxis
@@ -1037,6 +1073,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
                       ? temperature180m?.unit
                   : name === "925hPaの気温"
                     ? temperature925hPa?.unit
+                  : name === "凍結高度"
+                    ? freezingLevel?.unit
                   : name === "土の温度(地表)"
                     ? soilTemperature0cm?.unit
                   : name === "土の温度(6cm)"
@@ -1109,7 +1147,9 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
                                             ? snowDepth?.unit
                                             : name === "日照時間"
                                               ? sunshineDuration?.unit
-                                              : uvIndex?.unit;
+                                              : name === "日射量"
+                                                ? shortwaveRadiation?.unit
+                                                : uvIndex?.unit;
             return [`${v}${unit ?? ""}`, name];
           }}
         />
@@ -1185,6 +1225,19 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             dot={false}
             isAnimationActive={false}
             name="925hPaの気温"
+            connectNulls
+          />
+        )}
+        {showFreezingLevel && (
+          <Line
+            yAxisId="freezingLevel"
+            type="monotone"
+            dataKey="freezingLevel"
+            stroke="#4263eb"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="凍結高度"
             connectNulls
           />
         )}
@@ -1654,6 +1707,19 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             dot={false}
             isAnimationActive={false}
             name="紫外線指数"
+            connectNulls
+          />
+        )}
+        {showShortwaveRadiation && (
+          <Line
+            yAxisId="shortwaveRadiation"
+            type="monotone"
+            dataKey="shortwaveRadiation"
+            stroke="#fd7e14"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="日射量"
             connectNulls
           />
         )}

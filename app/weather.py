@@ -264,6 +264,7 @@ HOURLY_FIELDS = [
     "temperature_120m",
     "temperature_180m",
     "temperature_925hPa",
+    "freezing_level_height",
     "soil_temperature_0cm",
     "soil_temperature_6cm",
     "soil_temperature_18cm",
@@ -295,6 +296,7 @@ HOURLY_FIELDS = [
     "wind_speed_180m",
     "is_day",
     "uv_index",
+    "shortwave_radiation",
     "sunshine_duration",
     "visibility",
 ]
@@ -848,6 +850,7 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
                 _series("temperature_120m", "上空の気温(120m)", "°C"),
                 _series("temperature_180m", "上空の気温(180m)", "°C"),
                 _series("temperature_925hPa", "925hPaの気温", "°C"),
+                _series("freezing_level_height", "凍結高度", "m"),
                 _series("soil_temperature_0cm", "土の温度(地表)", "°C"),
                 _series("soil_temperature_6cm", "土の温度(6cm)", "°C"),
                 _series("soil_temperature_18cm", "土の温度(18cm)", "°C"),
@@ -883,6 +886,7 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
                 _series("wind_speed_120m", "上空の風速(120m)", "km/h"),
                 _series("wind_speed_180m", "上空の風速(180m)", "km/h"),
                 _series("uv_index", "紫外線指数", ""),
+                _series("shortwave_radiation", "日射量", "W/m²"),
                 _series("sunshine_duration", "日照時間", "s"),
                 _series("visibility", "視程", "m"),
             ]
