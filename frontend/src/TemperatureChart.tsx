@@ -507,7 +507,7 @@ function WrappingLegend({
         justifyContent: "center",
         gap: isNarrow ? "4px 10px" : "4px 14px",
         padding: 0,
-        margin: "8px 0 0",
+        margin: isNarrow ? "4px 0 0" : "8px 0 0",
         listStyle: "none",
         fontSize: isNarrow ? 12 : 13,
         color,
@@ -586,6 +586,10 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
   const axisWidth = isNarrow ? 68 : 56;
   // 目盛りを拡大した分、右端のラベルが枠からはみ出さないよう余白も広げる。
   const chartRightMargin = isNarrow ? 40 : 24;
+  // スマホだとグラフ下の余白が広くスクロールが長くなるという声（Issue #430）を受け、
+  // 狭い画面では高さと下側の余白を削る。広い画面の表示は変えない。
+  const chartHeight = isNarrow ? 300 : 360;
+  const chartBottomMargin = isNarrow ? 4 : 8;
   const nowLabel = nearestTimeLabel(data.timestamps, rows, new Date());
   const dateBoundaries = dateBoundaryLabels(data.timestamps, rows);
   const uvPeakText = formatUvIndexPeak(data, new Date());
@@ -832,8 +836,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
         ))}
       </div>
     )}
-    <ResponsiveContainer width="100%" height={360}>
-      <LineChart data={rows} margin={{ top: 16, right: chartRightMargin, bottom: 8, left: 0 }}>
+    <ResponsiveContainer width="100%" height={chartHeight}>
+      <LineChart data={rows} margin={{ top: 16, right: chartRightMargin, bottom: chartBottomMargin, left: 0 }}>
         <CartesianGrid strokeDasharray="3 3" stroke={colors.grid} />
         <XAxis dataKey="time" minTickGap={40} tick={{ fontSize: tickFontSize, fill: colors.tick }} />
         {stormRanges.map((range) => (
