@@ -12,6 +12,7 @@ import {
   YAxis,
 } from "recharts";
 import type { SeriesResponse } from "./api";
+import { compassAbbreviation } from "./compassAbbreviation";
 
 // series の中から気温・湿度・雨量・降雪量・降水確率・紫外線指数を取り出し、
 // Recharts が食える {time, temperature, humidity, rain, snow, precipitationProbability, uvIndex}[] にする。
@@ -427,6 +428,17 @@ const SECONDARY_SERIES = [
 // チェックボックスをグループ表示する順番。displayItems.ts の CATEGORY_ORDER と
 // 完全には揃えていない（気温グラフには「日照・時刻」の系列が無いため）。
 const SECONDARY_SERIES_CATEGORY_ORDER = ["気温", "風", "降水・湿度", "環境"] as const;
+
+// ツールチップで方位略号(N/NNE/...)を添える対象の風向き系列名（Issue #437）。
+const WIND_DIRECTION_SERIES_NAMES = new Set([
+  "風向き",
+  "700hPaの風向き",
+  "上空の風向き",
+  "上空の風向き(80m)",
+  "上空の風向き(120m)",
+  "上空の風向き(180m)",
+  "925hPaの風向き",
+]);
 
 type SecondarySeriesKey = (typeof SECONDARY_SERIES)[number]["key"];
 
@@ -1202,7 +1214,12 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
                                               : name === "日射量"
                                                 ? shortwaveRadiation?.unit
                                                 : uvIndex?.unit;
-            return [`${v}${unit ?? ""}`, name];
+            // 風向き系列は度数(°)だけだとパッと見て分からないという声を受け、
+            // 短い方位表記(N/NNE/...)を添える（Issue #437）。度数の値自体は変えない。
+            const abbreviation = WIND_DIRECTION_SERIES_NAMES.has(name)
+              ? ` (${compassAbbreviation(v)})`
+              : "";
+            return [`${v}${unit ?? ""}${abbreviation}`, name];
           }}
         />
         <Legend
