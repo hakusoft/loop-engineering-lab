@@ -45,8 +45,9 @@ def _compass_abbreviation(degrees: float) -> str:
     """度数（0〜360）を 16 方位の短い略号（N/NNE/...）に変換する。
 
     日本語の方角表記（北北東など）は画面によっては長すぎるという声があった。
+    _compass_direction と同じ境界（北を 348.75°〜11.25° の中心に置く）を使う。
     """
-    index = int(degrees / 22.5) % len(COMPASS_ABBREVIATIONS)
+    index = int((degrees + 11.25) / 22.5) % len(COMPASS_ABBREVIATIONS)
     return COMPASS_ABBREVIATIONS[index]
 
 

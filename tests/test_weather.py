@@ -12,6 +12,8 @@ from app.weather import (
     summarize_day,
     thunderstorm_hours,
     cape_peak,
+    COMPASS_ABBREVIATIONS,
+    COMPASS_POINTS,
     CURRENT_FIELDS,
     DAILY_FIELDS,
     HOURLY_FIELDS,
@@ -340,6 +342,31 @@ def test_compass_abbreviation_matches_compass_direction_for_wind_speed():
     # Wind.tsx の formatWindSpeed で compass の代わりに使う想定のため、
     # STUB_RESPONSE の風向き（250°、西南西）と対応が取れていることを確認する。
     assert _compass_abbreviation(250) == "WSW"
+
+
+def test_compass_abbreviation_maps_boundary_values():
+    assert _compass_abbreviation(11.24) == "N"
+    assert _compass_abbreviation(11.25) == "NNE"
+
+
+def test_compass_abbreviation_wraps_around_north():
+    assert _compass_abbreviation(348.74) == "NNW"
+    assert _compass_abbreviation(348.75) == "N"
+    assert _compass_abbreviation(349) == "N"
+    assert _compass_abbreviation(360) == "N"
+
+
+def test_compass_abbreviation_always_matches_compass_direction():
+    """compass と abbreviation は同じ16方位表を指すため、全度数で対応が取れること。
+
+    レビュー指摘（PR #420）: _compass_abbreviation が _compass_direction の
+    +11.25 の境界補正を欠いたまま実装され、0〜359°のうち約半分でずれていた。
+    カーディナルポイント（0/90/180/270）はどちらの式でも同じインデックスに
+    なるため、そのテストだけでは検出できなかった。度数を1つずつ全数チェックする。
+    """
+    compass_to_abbreviation = dict(zip(COMPASS_POINTS, COMPASS_ABBREVIATIONS))
+    for degrees in range(360):
+        assert _compass_abbreviation(degrees) == compass_to_abbreviation[_compass_direction(degrees)]
 
 
 STUB_SERIES = {
