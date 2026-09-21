@@ -432,6 +432,58 @@ type SecondarySeriesKey = (typeof SECONDARY_SERIES)[number]["key"];
 
 const SECONDARY_SERIES_KEYS = new Set<string>(SECONDARY_SERIES.map(({ key }) => key));
 
+// チェックボックスの色見本用。各項目の stroke 色（下の <Line> 群）と同じ値を
+// ここにまとめておく。項目名だけだとグラフのどの色の線か分かりにくいという
+// 声（Issue #436）を受けて追加した。
+// apparentTemperature だけはダーク/ライトで色が変わる（colors.apparentTemperature）ため、
+// ここでは占位の値を置き、描画側で colors から取った値に差し替える。
+const SECONDARY_SERIES_COLOR: Record<SecondarySeriesKey, string> = {
+  temperature80m: "#4263eb",
+  temperature120m: "#5c940d",
+  temperature180m: "#ae3ec9",
+  temperature925hPa: "#1c7ed6",
+  apparentTemperature: "",
+  dewPoint: "#20c997",
+  wetBulbTemperature: "#e8590c",
+  vaporPressureDeficit: "#d6336c",
+  soilTemperature0cm: "#8d6e63",
+  soilTemperature6cm: "#a1662f",
+  soilTemperature18cm: "#c1440e",
+  soilTemperature54cm: "#6f4518",
+  humidity: "#2c7be2",
+  snowDepth: "#364fc7",
+  precipitationProbability: "#748ffc",
+  evapotranspiration: "#099268",
+  pressure: "#495057",
+  seaLevelPressure: "#5f3dc4",
+  cloudCover: "#868e96",
+  cloudCoverLow: "#5c7cfa",
+  cloudCoverMid: "#adb5bd",
+  cloudCoverHigh: "#343a40",
+  convectiveInhibition: "#862e9c",
+  boundaryLayerHeight: "#099268",
+  freezingLevel: "#4263eb",
+  uvIndex: "#ffd43b",
+  shortwaveRadiation: "#fd7e14",
+  sunshineDuration: "#f59f00",
+  visibility: "#1098ad",
+  windSpeed: "#e64980",
+  windDirection: "#0ca678",
+  windGusts: "#f76707",
+  windSpeed700hPa: "#c92a2a",
+  windDirection700hPa: "#5c7cfa",
+  upperWindSpeed: "#7048e8",
+  upperWindDirection: "#1864ab",
+  upperWindSpeed80m: "#9c36b5",
+  upperWindDirection80m: "#0c8599",
+  upperWindSpeed120m: "#2b8a3e",
+  upperWindDirection120m: "#495057",
+  upperWindSpeed180m: "#e8590c",
+  upperWindDirection180m: "#d6336c",
+  windSpeed925hPa: "#f06595",
+  windDirection925hPa: "#0b7285",
+};
+
 // availableSecondary（表示可能な項目）をカテゴリごとにまとめる。カテゴリ内の
 // 順序は SECONDARY_SERIES の並びのまま、カテゴリの並びは
 // SECONDARY_SERIES_CATEGORY_ORDER に従う。表示可能な項目が1つも無いカテゴリは
@@ -847,6 +899,18 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
                     marginRight: 6,
                     width: isNarrow ? 24 : 13,
                     height: isNarrow ? 24 : 13,
+                  }}
+                />
+                <span
+                  aria-hidden="true"
+                  style={{
+                    display: "inline-block",
+                    width: 10,
+                    height: 10,
+                    borderRadius: 2,
+                    marginRight: 6,
+                    backgroundColor:
+                      key === "apparentTemperature" ? colors.apparentTemperature : SECONDARY_SERIES_COLOR[key],
                   }}
                 />
                 {label}
