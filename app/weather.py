@@ -213,6 +213,7 @@ CURRENT_FIELDS = [
     "soil_moisture_1_to_3cm",
     "soil_moisture_3_to_9cm",
     "soil_moisture_9_to_27cm",
+    "soil_moisture_27_to_81cm",
     "shortwave_radiation",
     "direct_radiation",
     "diffuse_radiation",
@@ -481,6 +482,14 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
             # （soil_moisture_deep / soil_moisture_deeper と同じ方針）。
             "value": _round_soil_moisture(current.get("soil_moisture_9_to_27cm")),
             "unit": units.get("soil_moisture_9_to_27cm", "m³/m³"),
+        },
+        "soil_moisture_bedrock": {
+            # soil_moisture_27_to_81cm も同様に実 API での応答確認ができていない
+            # （soil_moisture_deep / soil_moisture_deeper / soil_moisture_deepest と同じ方針）。
+            # deep/deeper/deepest の比較級は soil_moisture_9_to_27cm で使い切っている
+            # ため、Open-Meteo の最深層（岩盤に近い層）を指す別名にした。
+            "value": _round_soil_moisture(current.get("soil_moisture_27_to_81cm")),
+            "unit": units.get("soil_moisture_27_to_81cm", "m³/m³"),
         },
         "humidity": {
             "value": _round_humidity(current["relative_humidity_2m"]),
