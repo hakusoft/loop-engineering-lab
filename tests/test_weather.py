@@ -39,6 +39,7 @@ STUB_RESPONSE = {
         "time": "iso8601",
         "temperature_2m": "°C",
         "relative_humidity_2m": "%",
+        "relative_humidity_850hPa": "%",
         "wind_speed_10m": "km/h",
         "wind_direction_10m": "°",
         "wind_gusts_10m": "km/h",
@@ -76,6 +77,7 @@ STUB_RESPONSE = {
         "time": "2026-07-21T09:00",
         "temperature_2m": 28.4,
         "relative_humidity_2m": 71,
+        "relative_humidity_850hPa": 58.4,
         "wind_speed_10m": 12.3,
         "wind_direction_10m": 250,
         "wind_gusts_10m": 24.8,
@@ -228,6 +230,9 @@ def test_format_forecast_maps_values_and_units():
     assert result["humidity_max"] == {"value": 85, "unit": "%"}
     assert result["humidity_min"] == {"value": 55, "unit": "%"}
     assert result["humidity_mean"] == {"value": 68, "unit": "%"}
+    assert result["humidity_aloft"] == {"value": 58.4, "unit": "%"}
+    assert result["humidity_diff_ground_aloft"]["unit"] == "%"
+    assert result["humidity_diff_ground_aloft"]["value"] == pytest.approx(12.6)
     assert result["precipitation_probability"] == {
         "value": 20,
         "unit": "%",
@@ -969,6 +974,28 @@ def test_format_forecast_tolerates_missing_temperature_850hpa():
 
     assert result["temperature_aloft"]["value"] is None
     assert result["temperature_diff_ground_aloft"]["value"] is None
+
+
+def test_format_forecast_tolerates_missing_relative_humidity_850hpa():
+    """relative_humidity_850hPa が current に無くても TypeError にしない。
+
+    この項目は実 API での応答を確認できないまま追加した（Issue #435）。
+    temperature_850hPa と同じ理由（None のまま引き算すると TypeError）で
+    humidity_aloft・humidity_diff_ground_aloft のいずれも None を返す。
+    """
+    raw = {
+        **STUB_RESPONSE,
+        "current": {
+            k: v
+            for k, v in STUB_RESPONSE["current"].items()
+            if k != "relative_humidity_850hPa"
+        },
+    }
+
+    result = format_forecast(raw)
+
+    assert result["humidity_aloft"]["value"] is None
+    assert result["humidity_diff_ground_aloft"]["value"] is None
 
 
 def test_format_forecast_tolerates_missing_soil_temperature_deep():

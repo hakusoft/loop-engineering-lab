@@ -183,6 +183,7 @@ def _seconds_to_hours(seconds: float | None) -> float | None:
 CURRENT_FIELDS = [
     "temperature_2m",
     "relative_humidity_2m",
+    "relative_humidity_850hPa",
     "wind_speed_10m",
     "wind_direction_10m",
     "wind_gusts_10m",
@@ -366,6 +367,11 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
     # 返しているだけなので影響しない）。
     temperature_aloft_value = current.get("temperature_850hPa")
 
+    # relative_humidity_850hPa も同様に実 API での応答確認ができていないため、
+    # 地上湿度との差を計算する前に None かどうかを見ておく（temperature_aloft_value
+    # と同じ方針）。
+    humidity_aloft_value = current.get("relative_humidity_850hPa")
+
     return {
         "location_name": DEFAULT_LOCATION_NAME,
         "observed_at": current["time"],
@@ -497,6 +503,21 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
         "humidity_mean": {
             "value": _round_humidity(daily["relative_humidity_2m_mean"][0]),
             "unit": daily_units.get("relative_humidity_2m_mean", "%"),
+        },
+        "humidity_aloft": {
+            # relative_humidity_850hPa は今回新規に要求した項目で、実 API での応答確認が
+            # できていない（フィクスチャ未更新）。他の新規項目と同様 .get() で読み、
+            # 無ければ None を返す（#164 / #67-#68 と同型の KeyError を避ける）。
+            "value": _round_humidity(humidity_aloft_value),
+            "unit": units.get("relative_humidity_850hPa", "%"),
+        },
+        "humidity_diff_ground_aloft": {
+            "value": (
+                current["relative_humidity_2m"] - humidity_aloft_value
+                if humidity_aloft_value is not None
+                else None
+            ),
+            "unit": "%",
         },
         "wind_speed": {
             "value": _round_wind_speed(current["wind_speed_10m"]),
