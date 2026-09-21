@@ -48,6 +48,10 @@ export type WeatherResponse = {
   humidity_max: { value: number; unit: string };
   humidity_min: { value: number; unit: string };
   humidity_mean: { value: number; unit: string };
+  // 実 API での応答未確認の項目。取れないときは value が null になるので、
+  // 表示側で必ず null を扱う。
+  humidity_aloft: { value: number | null; unit: string };
+  humidity_diff_ground_aloft: { value: number | null; unit: string };
   dew_point: { value: number; unit: string };
   vapor_pressure_deficit: { value: number; unit: string };
   wet_bulb_temperature: { value: number; unit: string };
