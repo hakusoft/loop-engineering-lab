@@ -583,7 +583,9 @@ function WrappingLegend({
         padding: 0,
         margin: isNarrow ? "4px 0 0" : "8px 0 0",
         listStyle: "none",
-        fontSize: isNarrow ? 12 : 13,
+        // 文字が小さいという声（Issue #445）を受けて、14px に統一した
+        // （元は isNarrow ? 12 : 13 で、狭い画面のほうがむしろ小さかった）。
+        fontSize: 14,
         color,
       }}
     >
