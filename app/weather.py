@@ -32,6 +32,25 @@ def _compass_direction(degrees: float) -> str:
     return COMPASS_POINTS[index]
 
 
+# 16 方位の短い英字略号。COMPASS_POINTS と同じ並び順・境界。
+COMPASS_ABBREVIATIONS = [
+    "N", "NNE", "NE", "ENE",
+    "E", "ESE", "SE", "SSE",
+    "S", "SSW", "SW", "WSW",
+    "W", "WNW", "NW", "NNW",
+]
+
+
+def _compass_abbreviation(degrees: float) -> str:
+    """度数（0〜360）を 16 方位の短い略号（N/NNE/...）に変換する。
+
+    日本語の方角表記（北北東など）は画面によっては長すぎるという声があった。
+    _compass_direction と同じ境界（北を 348.75°〜11.25° の中心に置く）を使う。
+    """
+    index = int((degrees + 11.25) / 22.5) % len(COMPASS_ABBREVIATIONS)
+    return COMPASS_ABBREVIATIONS[index]
+
+
 # WMO Weather interpretation codes（Open-Meteo の weather_code）→ 日本語表記。
 # https://open-meteo.com/en/docs で定義されているコード表に基づく。
 WEATHER_CODES = {
@@ -536,6 +555,7 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
             "value": current["wind_direction_10m"],
             "unit": units.get("wind_direction_10m", "°"),
             "compass": _compass_direction(current["wind_direction_10m"]),
+            "abbreviation": _compass_abbreviation(current["wind_direction_10m"]),
         },
         "wind_gusts": {
             "value": _round_wind_speed(current["wind_gusts_10m"]),
@@ -553,6 +573,7 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
             "value": daily["wind_direction_10m_dominant"][0],
             "unit": daily_units.get("wind_direction_10m_dominant", "°"),
             "compass": _compass_direction(daily["wind_direction_10m_dominant"][0]),
+            "abbreviation": _compass_abbreviation(daily["wind_direction_10m_dominant"][0]),
         },
         "precipitation": {
             "value": current["precipitation"],

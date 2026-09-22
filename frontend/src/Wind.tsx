@@ -28,12 +28,14 @@ export function windSpeedDescription(speedKmh: number): string {
 // km/h の方がピンとこない、m/s も見たいという声を受けて併記する（Issue #336）。
 const KMH_TO_MS = 1 / 3.6;
 
+// 方角の日本語表記（北北東など）は画面によっては長く、窮屈になるという声が
+// あった（Issue #419）。ここは短い略号（NNE など）に置き換える。
 export function formatWindSpeed(data: WeatherResponse): string {
   const { value, unit } = data.wind_speed;
-  const { compass } = data.wind_direction;
+  const { abbreviation } = data.wind_direction;
   const rounded = Math.round(value * 10) / 10;
   const roundedMs = Math.round(value * KMH_TO_MS * 10) / 10;
-  return `風速 ${rounded}${unit}（${roundedMs}m/s）（${compass}・${windSpeedDescription(value)}）`;
+  return `風速 ${rounded}${unit}（${roundedMs}m/s）（${abbreviation}・${windSpeedDescription(value)}）`;
 }
 
 export function formatWindSpeedMax(data: WeatherResponse): string {

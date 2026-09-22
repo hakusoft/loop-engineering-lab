@@ -112,8 +112,8 @@ export type WeatherResponse = {
   solar_radiation_diffuse: { value: number; unit: string };
   solar_radiation_sum: { value: number; unit: string };
   wind_speed: { value: number; unit: string };
-  wind_direction: { value: number; unit: string; compass: string };
-  wind_direction_dominant: { value: number; unit: string; compass: string };
+  wind_direction: { value: number; unit: string; compass: string; abbreviation: string };
+  wind_direction_dominant: { value: number; unit: string; compass: string; abbreviation: string };
   wind_speed_max: { value: number; unit: string };
   wind_gusts: { value: number; unit: string };
   wind_gusts_max: { value: number; unit: string };

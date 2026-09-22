@@ -12,10 +12,13 @@ from app.weather import (
     summarize_day,
     thunderstorm_hours,
     cape_peak,
+    COMPASS_ABBREVIATIONS,
+    COMPASS_POINTS,
     CURRENT_FIELDS,
     DAILY_FIELDS,
     HOURLY_FIELDS,
     _clamp_uv_index,
+    _compass_abbreviation,
     _compass_direction,
     _daylight_duration_hours,
     _round_coordinate,
@@ -201,7 +204,12 @@ def test_format_forecast_maps_values_and_units():
     assert result["soil_moisture_bedrock"] == {"value": 0.37, "unit": "m³/m³"}
     assert result["humidity"] == {"value": 71, "unit": "%"}
     assert result["wind_speed"] == {"value": 12.3, "unit": "km/h"}
-    assert result["wind_direction"] == {"value": 250, "unit": "°", "compass": "西南西"}
+    assert result["wind_direction"] == {
+        "value": 250,
+        "unit": "°",
+        "compass": "西南西",
+        "abbreviation": "WSW",
+    }
     assert result["wind_gusts"] == {"value": 24.8, "unit": "km/h"}
     assert result["precipitation"] == {"value": 0.0, "unit": "mm"}
     assert result["rain"] == {"value": 0.0, "unit": "mm"}
@@ -255,6 +263,7 @@ def test_format_forecast_maps_values_and_units():
         "value": 250,
         "unit": "°",
         "compass": "西南西",
+        "abbreviation": "WSW",
     }
     assert result["sunrise"] == "2026-07-21T04:44"
     assert result["sunset"] == "2026-07-21T18:47"
@@ -327,6 +336,44 @@ def test_compass_direction_wraps_around_north():
     assert _compass_direction(348.75) == "北"
     assert _compass_direction(349) == "北"
     assert _compass_direction(360) == "北"
+
+
+def test_compass_abbreviation_maps_cardinal_points():
+    assert _compass_abbreviation(0) == "N"
+    assert _compass_abbreviation(90) == "E"
+    assert _compass_abbreviation(180) == "S"
+    assert _compass_abbreviation(270) == "W"
+
+
+def test_compass_abbreviation_matches_compass_direction_for_wind_speed():
+    # Wind.tsx の formatWindSpeed で compass の代わりに使う想定のため、
+    # STUB_RESPONSE の風向き（250°、西南西）と対応が取れていることを確認する。
+    assert _compass_abbreviation(250) == "WSW"
+
+
+def test_compass_abbreviation_maps_boundary_values():
+    assert _compass_abbreviation(11.24) == "N"
+    assert _compass_abbreviation(11.25) == "NNE"
+
+
+def test_compass_abbreviation_wraps_around_north():
+    assert _compass_abbreviation(348.74) == "NNW"
+    assert _compass_abbreviation(348.75) == "N"
+    assert _compass_abbreviation(349) == "N"
+    assert _compass_abbreviation(360) == "N"
+
+
+def test_compass_abbreviation_always_matches_compass_direction():
+    """compass と abbreviation は同じ16方位表を指すため、全度数で対応が取れること。
+
+    レビュー指摘（PR #420）: _compass_abbreviation が _compass_direction の
+    +11.25 の境界補正を欠いたまま実装され、0〜359°のうち約半分でずれていた。
+    カーディナルポイント（0/90/180/270）はどちらの式でも同じインデックスに
+    なるため、そのテストだけでは検出できなかった。度数を1つずつ全数チェックする。
+    """
+    compass_to_abbreviation = dict(zip(COMPASS_POINTS, COMPASS_ABBREVIATIONS))
+    for degrees in range(360):
+        assert _compass_abbreviation(degrees) == compass_to_abbreviation[_compass_direction(degrees)]
 
 
 STUB_SERIES = {
