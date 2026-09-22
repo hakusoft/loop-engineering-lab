@@ -23,6 +23,7 @@ from app.weather import (
     _daylight_duration_hours,
     _round_coordinate,
     _round_humidity,
+    _round_precipitation,
     _round_pressure,
     _round_soil_moisture,
     _round_visibility,
@@ -1247,6 +1248,29 @@ def test_round_visibility_passes_through_none():
 def test_round_wind_speed_rounds_to_one_decimal_place():
     assert _round_wind_speed(12.349999) == 12.3
     assert _round_wind_speed(24.849999) == 24.8
+
+
+def test_format_hourly_series_rounds_rain():
+    """雨量の系列は小数第1位に丸める。他の系列と違って小数点以下の桁数が長くなることがある
+    という報告（Slack）への対応。min/maxの計算にも丸め後の値が反映される。"""
+    hourly = {**STUB_SERIES["hourly"], "rain": [0.049999999999, 0.5, 1.249999999999]}
+    raw = {**STUB_SERIES, "hourly": hourly}
+
+    result = format_hourly_series(raw)
+
+    rain = next(s for s in result["series"] if s["label"] == "雨量")
+    assert rain["values"] == [0.0, 0.5, 1.2]
+    assert (rain["min"], rain["max"]) == (0.0, 1.2)
+
+
+def test_round_precipitation_rounds_to_one_decimal_place():
+    assert _round_precipitation(0.049999999999) == 0.0
+    assert _round_precipitation(1.249999999999) == 1.2
+
+
+def test_round_precipitation_passes_through_none():
+    """欠測（None）は丸めずにそのまま返す（_round_visibility 等と同じ方針）。"""
+    assert _round_precipitation(None) is None
 
 
 def test_round_wind_speed_passes_through_none():

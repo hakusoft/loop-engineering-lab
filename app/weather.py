@@ -158,6 +158,19 @@ def _round_visibility(value: float | None) -> float | None:
     return value if value is None else round(value, VISIBILITY_PRECISION)
 
 
+PRECIPITATION_PRECISION = 1
+
+
+def _round_precipitation(value: float | None) -> float | None:
+    """雨量を小数第1位に丸める。他の項目と同じく、桁数が値によってばらつくことがある。
+
+    グラフのツールチップにそのまま出すと他の項目と桁数が揃わない（_round_visibility
+    と同じ経緯）。欠測（None）はそのまま返す（_round_pressure / _round_wind_speed
+    / _round_humidity / _round_soil_moisture / _round_visibility と同じ方針）。
+    """
+    return value if value is None else round(value, PRECIPITATION_PRECISION)
+
+
 def _clamp_uv_index(value: float | None) -> float | None:
     """紫外線指数の下限を0にする。
 
@@ -841,6 +854,9 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
 
     if "visibility" in hourly:
         hourly["visibility"] = [_round_visibility(v) for v in hourly["visibility"]]
+
+    if "rain" in hourly:
+        hourly["rain"] = [_round_precipitation(v) for v in hourly["rain"]]
 
     def _series(key: str, label: str, default_unit: str) -> dict[str, Any] | None:
         """key が hourly に無ければ None を返し、系列自体を出さない。
