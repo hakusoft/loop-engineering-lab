@@ -831,6 +831,13 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     });
   }
 
+  // 項目が増え、1つずつオフにするのが大変という声を受けて追加（Issue #443）。
+  function clearSecondary() {
+    const next = new Set<SecondarySeriesKey>();
+    writeStoredVisibleSecondary(next);
+    setVisibleSecondary(next);
+  }
+
   const showTemperature80m = temperature80m && visibleSecondary.has("temperature80m");
   const showTemperature120m = temperature120m && visibleSecondary.has("temperature120m");
   const showTemperature180m = temperature180m && visibleSecondary.has("temperature180m");
@@ -883,6 +890,24 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     )}
     {availableSecondary.length > 0 && (
       <div style={{ display: "flex", flexDirection: "column", gap: 4, margin: "0 0 8px" }}>
+        {visibleSecondary.size > 0 && (
+          <button
+            type="button"
+            onClick={clearSecondary}
+            style={{
+              alignSelf: "flex-start",
+              fontSize: isNarrow ? 13 : 12,
+              color: colors.tick,
+              background: "none",
+              border: `1px solid ${colors.grid}`,
+              borderRadius: 4,
+              padding: isNarrow ? "6px 10px" : "2px 8px",
+              cursor: "pointer",
+            }}
+          >
+            すべてオフ
+          </button>
+        )}
         {groupSecondaryByCategory(availableSecondary).map(({ category, items }) => (
           <div key={category} style={{ display: "flex", flexWrap: "wrap", gap: "4px 12px", alignItems: "center" }}>
             <span style={{ fontSize: isNarrow ? 13 : 12, color: colors.tick, opacity: 0.7, minWidth: isNarrow ? "100%" : undefined }}>
