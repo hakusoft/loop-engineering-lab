@@ -9,19 +9,20 @@ import type { WeatherResponse } from "./api";
 // value は null になり得る（api.ts のコメント参照）。実 API での応答が
 // 未確認の項目のため、取れないときは NaN 表示にせず null をそのまま扱う
 // （SoilMoistureDeep.tsx と同じ方針）。
-export function formatPrecipitationProbabilityMin(data: WeatherResponse): string | null {
+//
+// 欠測時に項目ごと消してしまうと「壊れているのでは」という不安につながる
+// という指摘があった（Issue #333、Issue #402、Issue #447）。行自体は残し、
+// 取得できていないことを伝える。
+export function formatPrecipitationProbabilityMin(data: WeatherResponse): string {
   const { value, unit } = data.precipitation_probability_min;
   if (value === null) {
-    return null;
+    return "最低 現在取得できません";
   }
   return `最低 ${Math.round(value)}${unit}`;
 }
 
 export function PrecipitationProbabilityMin({ data }: { data: WeatherResponse }) {
   const text = formatPrecipitationProbabilityMin(data);
-  if (text === null) {
-    return null;
-  }
   return (
     <p style={{ color: "var(--text-secondary)", fontSize: 16, margin: "4px 0" }}>{text}</p>
   );

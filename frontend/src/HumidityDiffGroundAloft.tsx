@@ -6,10 +6,14 @@ import type { WeatherResponse } from "./api";
 //
 // value は null になり得る（api.ts のコメント参照）。実 API での応答が
 // 未確認の項目のため、取れないときは NaN 表示にせず null をそのまま扱う。
-export function formatHumidityDiffGroundAloft(data: WeatherResponse): string | null {
+//
+// 欠測時に項目ごと消してしまうと「壊れているのでは」という不安につながる
+// という指摘があった（Issue #333、Issue #402、Issue #447）。行自体は残し、
+// 取得できていないことを伝える。
+export function formatHumidityDiffGroundAloft(data: WeatherResponse): string {
   const { value, unit } = data.humidity_diff_ground_aloft;
   if (value === null) {
-    return null;
+    return "地上と上空(850hPa)の湿度差 現在取得できません";
   }
   const rounded = Math.round(value * 10) / 10;
   const sign = rounded > 0 ? "+" : "";
@@ -18,9 +22,6 @@ export function formatHumidityDiffGroundAloft(data: WeatherResponse): string | n
 
 export function HumidityDiffGroundAloft({ data }: { data: WeatherResponse }) {
   const text = formatHumidityDiffGroundAloft(data);
-  if (text === null) {
-    return null;
-  }
   return (
     <p style={{ color: "var(--text-secondary)", fontSize: 14, margin: "4px 0" }}>
       {text}
