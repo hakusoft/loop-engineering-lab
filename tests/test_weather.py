@@ -1732,3 +1732,27 @@ def test_format_hourly_series_includes_cape_peak():
     result = format_hourly_series(STUB_SERIES)
 
     assert result["cape_peak"] == {"time": "2026-07-21T01:00", "value": 480.0}
+
+
+def test_format_hourly_series_includes_wind_speed_and_gusts_peak():
+    """format_hourly_series の戻り値に、今日一日の最大風速・最大瞬間風速の
+    発生時刻と値が含まれる（cape_peak と同じ考え方）。"""
+    result = format_hourly_series(STUB_SERIES)
+
+    assert result["wind_speed_peak"] == {"time": "2026-07-21T02:00", "value": 10.2}
+    assert result["wind_gusts_peak"] == {"time": "2026-07-21T02:00", "value": 19.6}
+
+
+def test_format_hourly_series_wind_peak_is_none_when_all_missing():
+    """風速・突風が全て欠測なら None（cape_peak と同じ方針）。"""
+    hourly = {
+        **STUB_SERIES["hourly"],
+        "wind_speed_10m": [None, None, None],
+        "wind_gusts_10m": [None, None, None],
+    }
+    raw = {**STUB_SERIES, "hourly": hourly}
+
+    result = format_hourly_series(raw)
+
+    assert result["wind_speed_peak"] is None
+    assert result["wind_gusts_peak"] is None
