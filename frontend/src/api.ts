@@ -26,6 +26,8 @@ export type SeriesResponse = {
   daily_summary: string;
   thunderstorm_hours: string[];
   cape_peak: { time: string; value: number } | null;
+  wind_speed_peak: { time: string; value: number } | null;
+  wind_gusts_peak: { time: string; value: number } | null;
   series: Series[];
   coordinates: { latitude: number; longitude: number };
 };

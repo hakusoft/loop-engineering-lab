@@ -826,12 +826,8 @@ def thunderstorm_hours(timestamps: list[str], codes: list[int]) -> list[str]:
     return [t for t, c in zip(timestamps, codes) if c in THUNDERSTORM_CODES]
 
 
-def cape_peak(timestamps: list[str], values: list[float | None]) -> dict[str, Any] | None:
-    """CAPE（対流有効位置エネルギー）が最大になる時刻と値を返す。
-
-    雷雨が来る時刻（thunderstorm_hours）に加え、どのくらい強まりそうかの
-    目安として使う。値が全て欠測なら None。
-    """
+def _peak_value(timestamps: list[str], values: list[float | None]) -> dict[str, Any] | None:
+    """系列が最大になる時刻と値を返す。値が全て欠測なら None。"""
     best_index = None
     best_value = None
     for i, v in enumerate(values):
@@ -843,6 +839,15 @@ def cape_peak(timestamps: list[str], values: list[float | None]) -> dict[str, An
     if best_index is None:
         return None
     return {"time": timestamps[best_index], "value": best_value}
+
+
+def cape_peak(timestamps: list[str], values: list[float | None]) -> dict[str, Any] | None:
+    """CAPE（対流有効位置エネルギー）が最大になる時刻と値を返す。
+
+    雷雨が来る時刻（thunderstorm_hours）に加え、どのくらい強まりそうかの
+    目安として使う。値が全て欠測なら None。
+    """
+    return _peak_value(timestamps, values)
 
 
 def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
@@ -916,12 +921,26 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
         [hourly["cape"][i] for i in today_index],
     )
 
+    # 最大風速・最大瞬間風速が「何時ごろの予想か分からない」という声を受け、
+    # cape_peak と同じ考え方（今日一日のうち系列が最大になる時刻と値）を
+    # 風速・突風にも適用する。
+    wind_speed_peak_today = _peak_value(
+        [timestamps[i] for i in today_index],
+        [hourly["wind_speed_10m"][i] for i in today_index],
+    )
+    wind_gusts_peak_today = _peak_value(
+        [timestamps[i] for i in today_index],
+        [hourly["wind_gusts_10m"][i] for i in today_index],
+    )
+
     return {
         "timestamps": timestamps,
         "conditions": conditions,
         "daily_summary": daily_summary,
         "thunderstorm_hours": thunder_hours,
         "cape_peak": cape_peak_today,
+        "wind_speed_peak": wind_speed_peak_today,
+        "wind_gusts_peak": wind_gusts_peak_today,
         "series": [
             s
             for s in [
