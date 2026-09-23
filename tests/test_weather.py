@@ -430,6 +430,7 @@ STUB_SERIES = {
         "is_day": "",
         "uv_index": "",
         "shortwave_radiation": "W/m²",
+        "global_tilted_irradiance": "W/m²",
         "sunshine_duration": "s",
         "visibility": "m",
     },
@@ -483,6 +484,7 @@ STUB_SERIES = {
         "is_day": [1, 1, 1],
         "uv_index": [0.2, 1.5, 3.1],
         "shortwave_radiation": [412.0, 350.0, 0.0],
+        "global_tilted_irradiance": [430.0, 300.0, 0.0],
         "sunshine_duration": [3600.0, 1800.0, 0.0],
         "visibility": [22000.0, 18500.0, 9200.0],
     },
@@ -544,6 +546,7 @@ def test_series_keeps_units_separate_for_split_axes():
     wind_direction_925hPa = by_label["925hPaの風向き"]
     uv_index = by_label["紫外線指数"]
     shortwave_radiation = by_label["日射量"]
+    global_tilted_irradiance = by_label["傾斜面日射量(発電目安)"]
     sunshine_duration = by_label["日照時間"]
     visibility = by_label["視程"]
 
@@ -633,6 +636,8 @@ def test_series_keeps_units_separate_for_split_axes():
     assert uv_index["unit"] == ""
     assert shortwave_radiation["label"] == "日射量"
     assert shortwave_radiation["unit"] == "W/m²"
+    assert global_tilted_irradiance["label"] == "傾斜面日射量(発電目安)"
+    assert global_tilted_irradiance["unit"] == "W/m²"
     assert sunshine_duration["label"] == "日照時間"
     assert sunshine_duration["unit"] == "s"
     assert visibility["label"] == "視程"
@@ -686,6 +691,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     wind_direction_925hPa = by_label["925hPaの風向き"]
     uv_index = by_label["紫外線指数"]
     shortwave_radiation = by_label["日射量"]
+    global_tilted_irradiance = by_label["傾斜面日射量(発電目安)"]
     sunshine_duration = by_label["日照時間"]
     visibility = by_label["視程"]
 
@@ -732,6 +738,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     assert (wind_direction_925hPa["min"], wind_direction_925hPa["max"]) == (235.0, 255.0)
     assert (uv_index["min"], uv_index["max"]) == (0.2, 3.1)
     assert (shortwave_radiation["min"], shortwave_radiation["max"]) == (0.0, 412.0)
+    assert (global_tilted_irradiance["min"], global_tilted_irradiance["max"]) == (0.0, 430.0)
     assert (sunshine_duration["min"], sunshine_duration["max"]) == (0.0, 3600.0)
     assert (visibility["min"], visibility["max"]) == (9200.0, 22000.0)
 
@@ -1636,6 +1643,7 @@ def test_hourly_series_are_all_requested_fields():
         "上空の風向き(180m)": "wind_direction_180m",
         "紫外線指数": "uv_index",
         "日射量": "shortwave_radiation",
+        "傾斜面日射量(発電目安)": "global_tilted_irradiance",
         "日照時間": "sunshine_duration",
         "視程": "visibility",
     }

@@ -63,6 +63,7 @@ function toChartData(data: SeriesResponse) {
   const windDirection925hPa = data.series.find((s) => s.label === "925hPaの風向き");
   const uvIndex = data.series.find((s) => s.label === "紫外線指数");
   const shortwaveRadiation = data.series.find((s) => s.label === "日射量");
+  const globalTiltedIrradiance = data.series.find((s) => s.label === "傾斜面日射量(発電目安)");
   const sunshineDuration = data.series.find((s) => s.label === "日照時間");
   const visibility = data.series.find((s) => s.label === "視程");
   if (!temperature) {
@@ -113,6 +114,7 @@ function toChartData(data: SeriesResponse) {
       windDirection925hPa: undefined,
       uvIndex: undefined,
       shortwaveRadiation: undefined,
+      globalTiltedIrradiance: undefined,
       sunshineDuration: undefined,
       visibility: undefined,
     };
@@ -166,6 +168,7 @@ function toChartData(data: SeriesResponse) {
     windDirection925hPa: windDirection925hPa?.values[i] ?? null,
     uvIndex: uvIndex?.values[i] ?? null,
     shortwaveRadiation: shortwaveRadiation?.values[i] ?? null,
+    globalTiltedIrradiance: globalTiltedIrradiance?.values[i] ?? null,
     sunshineDuration: sunshineDuration?.values[i] ?? null,
     visibility: visibility?.values[i] ?? null,
   }));
@@ -216,6 +219,7 @@ function toChartData(data: SeriesResponse) {
     windDirection925hPa,
     uvIndex,
     shortwaveRadiation,
+    globalTiltedIrradiance,
     sunshineDuration,
     visibility,
   };
@@ -406,6 +410,7 @@ const SECONDARY_SERIES = [
   { key: "freezingLevel", label: "凍結高度", category: "環境" },
   { key: "uvIndex", label: "紫外線指数", category: "環境" },
   { key: "shortwaveRadiation", label: "日射量", category: "環境" },
+  { key: "globalTiltedIrradiance", label: "傾斜面日射量(発電目安)", category: "環境" },
   { key: "sunshineDuration", label: "日照時間", category: "環境" },
   { key: "visibility", label: "視程", category: "環境" },
   { key: "windSpeed", label: "風速", category: "風" },
@@ -477,6 +482,7 @@ const SECONDARY_SERIES_COLOR: Record<SecondarySeriesKey, string> = {
   freezingLevel: "#4263eb",
   uvIndex: "#ffd43b",
   shortwaveRadiation: "#fd7e14",
+  globalTiltedIrradiance: "#d9480f",
   sunshineDuration: "#f59f00",
   visibility: "#1098ad",
   windSpeed: "#e64980",
@@ -656,6 +662,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     windDirection925hPa,
     uvIndex,
     shortwaveRadiation,
+    globalTiltedIrradiance,
     sunshineDuration,
     visibility,
   } = toChartData(data);
@@ -768,6 +775,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             return Boolean(uvIndex);
           case "shortwaveRadiation":
             return Boolean(shortwaveRadiation);
+          case "globalTiltedIrradiance":
+            return Boolean(globalTiltedIrradiance);
           case "sunshineDuration":
             return Boolean(sunshineDuration);
           case "visibility":
@@ -815,6 +824,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
       windDirection925hPa,
       uvIndex,
       shortwaveRadiation,
+      globalTiltedIrradiance,
       sunshineDuration,
       visibility,
     ],
@@ -882,6 +892,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
   const showWindDirection925hPa = windDirection925hPa && visibleSecondary.has("windDirection925hPa");
   const showUvIndex = uvIndex && visibleSecondary.has("uvIndex");
   const showShortwaveRadiation = shortwaveRadiation && visibleSecondary.has("shortwaveRadiation");
+  const showGlobalTiltedIrradiance = globalTiltedIrradiance && visibleSecondary.has("globalTiltedIrradiance");
   const showSunshineDuration = sunshineDuration && visibleSecondary.has("sunshineDuration");
   const showVisibility = visibility && visibleSecondary.has("visibility");
 
@@ -1201,6 +1212,15 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             domain={[0, Math.max(shortwaveRadiation!.max ?? 0, 1) + 10]}
           />
         )}
+        {showGlobalTiltedIrradiance && (
+          // 傾斜面日射量は日射量と同じ単位(W/m²)だが値の水準が変わるため、
+          // 独立した軸にする（他の系列と同じ方針）。
+          <YAxis
+            yAxisId="globalTiltedIrradiance"
+            hide
+            domain={[0, Math.max(globalTiltedIrradiance!.max ?? 0, 1) + 10]}
+          />
+        )}
         {showSnowDepth && (
           // 積雪の深さは m 単位で降雪量（cm）とスケールが違うので、独立した軸にする。
           <YAxis
@@ -1304,7 +1324,9 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
                                               ? sunshineDuration?.unit
                                               : name === "日射量"
                                                 ? shortwaveRadiation?.unit
-                                                : uvIndex?.unit;
+                                                : name === "傾斜面日射量(発電目安)"
+                                                  ? globalTiltedIrradiance?.unit
+                                                  : uvIndex?.unit;
             // 風向き系列は度数(°)だけだとパッと見て分からないという声を受け、
             // 短い方位表記(N/NNE/...)を添える（Issue #437）。度数の値自体は変えない。
             const abbreviation = WIND_DIRECTION_SERIES_NAMES.has(name)
@@ -1922,6 +1944,19 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             dot={false}
             isAnimationActive={false}
             name="日射量"
+            connectNulls
+          />
+        )}
+        {showGlobalTiltedIrradiance && (
+          <Line
+            yAxisId="globalTiltedIrradiance"
+            type="monotone"
+            dataKey="globalTiltedIrradiance"
+            stroke="#d9480f"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="傾斜面日射量(発電目安)"
             connectNulls
           />
         )}

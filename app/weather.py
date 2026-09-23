@@ -334,6 +334,7 @@ HOURLY_FIELDS = [
     "is_day",
     "uv_index",
     "shortwave_radiation",
+    "global_tilted_irradiance",
     "sunshine_duration",
     "visibility",
 ]
@@ -361,6 +362,13 @@ def fetch_forecast(
     return response.json()
 
 
+# 太陽光パネルの発電目安(global_tilted_irradiance)を求めるための想定値。
+# 各家庭の実際の設置角度は分からないため、一般的な傾斜屋根を想定した固定値
+# （南向き・30度）を使う。個別の設置には対応しない。
+SOLAR_PANEL_TILT_DEGREES = 30
+SOLAR_PANEL_AZIMUTH_DEGREES = 0
+
+
 def fetch_hourly_series(
     latitude: float = DEFAULT_LATITUDE,
     longitude: float = DEFAULT_LONGITUDE,
@@ -376,6 +384,8 @@ def fetch_hourly_series(
             "hourly": ",".join(HOURLY_FIELDS),
             "past_days": past_days,
             "forecast_days": 1,
+            "tilt": SOLAR_PANEL_TILT_DEGREES,
+            "azimuth": SOLAR_PANEL_AZIMUTH_DEGREES,
         },
         timeout=timeout,
     )
@@ -960,6 +970,7 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
                 _series("wind_direction_180m", "上空の風向き(180m)", "°"),
                 _series("uv_index", "紫外線指数", ""),
                 _series("shortwave_radiation", "日射量", "W/m²"),
+                _series("global_tilted_irradiance", "傾斜面日射量(発電目安)", "W/m²"),
                 _series("sunshine_duration", "日照時間", "s"),
                 _series("visibility", "視程", "m"),
             ]
