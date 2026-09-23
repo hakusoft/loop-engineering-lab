@@ -509,6 +509,10 @@ function groupSecondaryByCategory<T extends { category: string }>(
   })).filter((group) => group.items.length > 0);
 }
 
+// チェックボックスの一覧は SECONDARY_SERIES 全件を常に出す（Issue #448）。
+// データの有無に関わらず並びが変わらないよう、コンポーネントの外で1回だけ計算する。
+const ALL_SECONDARY_GROUPED = groupSecondaryByCategory(SECONDARY_SERIES);
+
 // チェックボックスの選択状態を保存するキー。毎回同じ組み合わせを選び直すのが
 // 面倒という声を受け、次回表示時にも引き継ぐ（Issue #310）。
 const VISIBLE_SECONDARY_STORAGE_KEY = "loop-engineering-lab:temperature-chart-visible-secondary";
@@ -680,7 +684,11 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
   const [visibleSecondary, setVisibleSecondary] = useState<Set<SecondarySeriesKey>>(
     () => readStoredVisibleSecondary() ?? new Set(["precipitationProbability"]),
   );
-  const availableSecondary = useMemo(
+  // データがある項目（キーの一覧）。以前はこれでチェックボックスの一覧自体を
+  // 絞り込んでいたが、「ある項目は急に消える」という不整合に見えるという
+  // 指摘があった（Issue #448）。一覧は ALL_SECONDARY_GROUPED で常に全件出し、
+  // ここでは disabled 表示の判定にだけ使う。
+  const availableSecondaryItems = useMemo(
     () =>
       SECONDARY_SERIES.filter(({ key }) => {
         switch (key) {
@@ -819,6 +827,10 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
       visibility,
     ],
   );
+  const availableSecondaryKeys = useMemo(
+    () => new Set<SecondarySeriesKey>(availableSecondaryItems.map(({ key }) => key)),
+    [availableSecondaryItems],
+  );
 
   function toggleSecondary(key: SecondarySeriesKey) {
     setVisibleSecondary((prev) => {
@@ -890,7 +902,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     {uvPeakText && (
       <p style={{ color: colors.tick, fontSize: 14, margin: "0 0 8px" }}>{uvPeakText}</p>
     )}
-    {availableSecondary.length > 0 && (
+    {ALL_SECONDARY_GROUPED.length > 0 && (
       <div style={{ display: "flex", flexDirection: "column", gap: 4, margin: "0 0 8px" }}>
         {visibleSecondary.size > 0 && (
           <button
@@ -910,51 +922,64 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             すべてオフ
           </button>
         )}
-        {groupSecondaryByCategory(availableSecondary).map(({ category, items }) => (
+        {ALL_SECONDARY_GROUPED.map(({ category, items }) => (
           <div key={category} style={{ display: "flex", flexWrap: "wrap", gap: "4px 12px", alignItems: "center" }}>
             <span style={{ fontSize: isNarrow ? 13 : 12, color: colors.tick, opacity: 0.7, minWidth: isNarrow ? "100%" : undefined }}>
               {category}
             </span>
-            {items.map(({ key, label }) => (
-              <label
-                key={key}
-                style={{
-                  fontSize: isNarrow ? 15 : 13,
-                  color: colors.tick,
-                  cursor: "pointer",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  // スマホだと指では小さくて押しにくいという声があったため、
-                  // 狭い画面ではラベル全体の余白も広げてタップ領域を確保する。
-                  // 20px でもまだ狙いにくいという声（Issue #413）を受け、さらに広げた。
-                  padding: isNarrow ? "8px 4px" : 0,
-                }}
-              >
-                <input
-                  type="checkbox"
-                  checked={visibleSecondary.has(key)}
-                  onChange={() => toggleSecondary(key)}
+            {items.map(({ key, label }) => {
+              // Open-Meteo のレスポンスにキー自体が無い項目は、以前はチェックボックス
+              // ごと画面から消していたが、「ある項目は急に消える」という不整合に
+              // 見えるという指摘があった（Issue #448）。一覧には常に出し、選べない
+              // ことと理由が分かるよう disabled にして「(データなし)」を添える。
+              const hasData = availableSecondaryKeys.has(key);
+              return (
+                <label
+                  key={key}
                   style={{
-                    marginRight: 6,
-                    width: isNarrow ? 24 : 13,
-                    height: isNarrow ? 24 : 13,
+                    fontSize: isNarrow ? 15 : 13,
+                    color: colors.tick,
+                    opacity: hasData ? 1 : 0.5,
+                    cursor: hasData ? "pointer" : "default",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    // スマホだと指では小さくて押しにくいという声があったため、
+                    // 狭い画面ではラベル全体の余白も広げてタップ領域を確保する。
+                    // 20px でもまだ狙いにくいという声（Issue #413）を受け、さらに広げた。
+                    padding: isNarrow ? "8px 4px" : 0,
                   }}
-                />
-                <span
-                  aria-hidden="true"
-                  style={{
-                    display: "inline-block",
-                    width: 10,
-                    height: 10,
-                    borderRadius: 2,
-                    marginRight: 6,
-                    backgroundColor:
-                      key === "apparentTemperature" ? colors.apparentTemperature : SECONDARY_SERIES_COLOR[key],
-                  }}
-                />
-                {label}
-              </label>
-            ))}
+                >
+                  <input
+                    type="checkbox"
+                    checked={hasData && visibleSecondary.has(key)}
+                    disabled={!hasData}
+                    onChange={() => hasData && toggleSecondary(key)}
+                    style={{
+                      marginRight: 6,
+                      width: isNarrow ? 24 : 13,
+                      height: isNarrow ? 24 : 13,
+                    }}
+                  />
+                  <span
+                    aria-hidden="true"
+                    style={{
+                      display: "inline-block",
+                      width: 10,
+                      height: 10,
+                      borderRadius: 2,
+                      marginRight: 6,
+                      backgroundColor: !hasData
+                        ? colors.grid
+                        : key === "apparentTemperature"
+                          ? colors.apparentTemperature
+                          : SECONDARY_SERIES_COLOR[key],
+                    }}
+                  />
+                  {label}
+                  {!hasData && "(データなし)"}
+                </label>
+              );
+            })}
           </div>
         ))}
       </div>
