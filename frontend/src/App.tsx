@@ -218,6 +218,7 @@ function writeStoredDarkModeOverride(value: boolean) {
 export default function App() {
   const [state, setState] = useState<State>({ status: "loading" });
   const [weatherState, setWeatherState] = useState<WeatherState>({ status: "loading" });
+  const [manualRefreshing, setManualRefreshing] = useState(false);
 
   // 画面を開きっぱなしにしていると数字が更新されないという声を受け、初回だけで
   // なく一定間隔で再取得する（Issue #361）。再取得が一時的に失敗しても、
@@ -264,6 +265,21 @@ export default function App() {
       clearInterval(id);
     };
   }, []);
+
+  // 自動更新（10分ごと）とは別に、今すぐ最新にしたいという声を受け、手動更新
+  // ボタンからその場で再取得できるようにする（Issue #459）。上の2つの
+  // useEffect と同じ取得・反映ロジックを、ボタン押下時にも一回分だけ実行する。
+  const handleManualRefresh = () => {
+    setManualRefreshing(true);
+    Promise.allSettled([
+      fetchSeries()
+        .then((data) => setState({ status: "ready", data }))
+        .catch((e) => setState({ status: "error", message: String(e.message ?? e) })),
+      fetchWeather()
+        .then((data) => setWeatherState({ status: "ready", data }))
+        .catch(() => setWeatherState({ status: "error" })),
+    ]).finally(() => setManualRefreshing(false));
+  };
 
   // ブラウザタブのアイコン(favicon)を、現在の天気アイコンに変える。
   // 取得前・失敗時は既定のfaviconのまま変更しない。
@@ -322,28 +338,47 @@ export default function App() {
             </>
           )}
         </div>
-        <label
-          style={{
-            fontSize: 13,
-            color: "var(--text-secondary)",
-            cursor: "pointer",
-            display: "inline-flex",
-            alignItems: "center",
-            whiteSpace: "nowrap",
-          }}
-        >
-          <input
-            type="checkbox"
-            checked={forceDark}
-            onChange={(e) => {
-              const next = e.target.checked;
-              setForceDark(next);
-              writeStoredDarkModeOverride(next);
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <button
+            type="button"
+            onClick={handleManualRefresh}
+            disabled={manualRefreshing}
+            style={{
+              fontSize: 13,
+              color: "var(--text-secondary)",
+              background: "none",
+              border: "1px solid var(--text-tertiary)",
+              borderRadius: 999,
+              padding: "4px 10px",
+              cursor: manualRefreshing ? "default" : "pointer",
+              whiteSpace: "nowrap",
             }}
-            style={{ marginRight: 6 }}
-          />
-          暗めの表示
-        </label>
+          >
+            {manualRefreshing ? "更新中…" : "今すぐ更新"}
+          </button>
+          <label
+            style={{
+              fontSize: 13,
+              color: "var(--text-secondary)",
+              cursor: "pointer",
+              display: "inline-flex",
+              alignItems: "center",
+              whiteSpace: "nowrap",
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={forceDark}
+              onChange={(e) => {
+                const next = e.target.checked;
+                setForceDark(next);
+                writeStoredDarkModeOverride(next);
+              }}
+              style={{ marginRight: 6 }}
+            />
+            暗めの表示
+          </label>
+        </div>
       </div>
       <p style={{ color: "var(--text-secondary)", marginTop: 0, fontSize: 14 }}>
         loop-engineering-lab / <code>/weather/series</code>
