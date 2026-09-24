@@ -686,10 +686,10 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
   const stormRanges = thunderstormRanges(data.timestamps, data.thunderstorm_hours, rows);
 
   // 降水確率は「傘が要るかすぐ分かりたい」という要望から、他の副系列と違い
-  // デフォルトで表示する（Issue #272）。保存された選択があればそちらを使う
-  // （Issue #310）。
+  // デフォルトで表示する（Issue #272）。湿度もよく見る項目として初期からONにする
+  // （Issue #457）。保存された選択があればそちらを使う（Issue #310）。
   const [visibleSecondary, setVisibleSecondary] = useState<Set<SecondarySeriesKey>>(
-    () => readStoredVisibleSecondary() ?? new Set(["precipitationProbability"]),
+    () => readStoredVisibleSecondary() ?? new Set(["precipitationProbability", "humidity"]),
   );
   // データがある項目（キーの一覧）。以前はこれでチェックボックスの一覧自体を
   // 絞り込んでいたが、「ある項目は急に消える」という不整合に見えるという
