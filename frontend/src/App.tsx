@@ -269,15 +269,25 @@ export default function App() {
   // 自動更新（10分ごと）とは別に、今すぐ最新にしたいという声を受け、手動更新
   // ボタンからその場で再取得できるようにする（Issue #459）。上の2つの
   // useEffect と同じ取得・反映ロジックを、ボタン押下時にも一回分だけ実行する。
+  // 失敗時に「既に ready なら表示を維持する」判定も、自動更新と揃える
+  // （レビュー指摘: 揃えないと手動更新だけ一時的な通信の揺らぎで正常画面が消える）。
   const handleManualRefresh = () => {
     setManualRefreshing(true);
     Promise.allSettled([
       fetchSeries()
         .then((data) => setState({ status: "ready", data }))
-        .catch((e) => setState({ status: "error", message: String(e.message ?? e) })),
+        .catch((e) =>
+          setState((prev) =>
+            prev.status === "ready"
+              ? prev
+              : { status: "error", message: String(e.message ?? e) },
+          ),
+        ),
       fetchWeather()
         .then((data) => setWeatherState({ status: "ready", data }))
-        .catch(() => setWeatherState({ status: "error" })),
+        .catch(() =>
+          setWeatherState((prev) => (prev.status === "ready" ? prev : { status: "error" })),
+        ),
     ]).finally(() => setManualRefreshing(false));
   };
 
