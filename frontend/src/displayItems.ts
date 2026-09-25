@@ -97,8 +97,8 @@ export const DISPLAY_ITEMS: DisplayItem[] = [
   { category: "気温", component: ApparentTemperatureMean, tier: "more" },
   { category: "気温", component: TemperatureRange, tier: "more" },
   { category: "気温", component: TemperatureMean, tier: "more" },
-  { category: "気温", component: DewPoint, tier: "primary" },
-  { category: "気温", component: WetBulbTemperature, tier: "primary" },
+  { category: "気温", component: DewPoint, tier: "more" },
+  { category: "気温", component: WetBulbTemperature, tier: "more" },
   { category: "気温", component: TemperatureDiffGroundAloft, tier: "more" },
 
   { category: "風", component: Wind, tier: "primary" },
