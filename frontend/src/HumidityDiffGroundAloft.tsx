@@ -20,11 +20,26 @@ export function formatHumidityDiffGroundAloft(data: WeatherResponse): string {
   return `地上と上空(850hPa)の湿度差 ${sign}${rounded}${unit}`;
 }
 
+// 差だけでなく上空自体の実際の湿度も知りたいという声を受けて追加する（Issue #470）。
+// humidity_aloft は humidity_diff_ground_aloft と同じく実 API での応答が未確認の
+// 項目のため、null をそのまま扱う（formatHumidityDiffGroundAloft と同じ方針）。
+export function formatHumidityAloft(data: WeatherResponse): string {
+  const { value, unit } = data.humidity_aloft;
+  if (value === null) {
+    return "上空(850hPa)の湿度 現在取得できません";
+  }
+  return `上空(850hPa)の湿度 ${Math.round(value * 10) / 10}${unit}`;
+}
+
 export function HumidityDiffGroundAloft({ data }: { data: WeatherResponse }) {
-  const text = formatHumidityDiffGroundAloft(data);
   return (
-    <p style={{ color: "var(--text-secondary)", fontSize: 14, margin: "4px 0" }}>
-      {text}
-    </p>
+    <>
+      <p style={{ color: "var(--text-secondary)", fontSize: 14, margin: "4px 0" }}>
+        {formatHumidityAloft(data)}
+      </p>
+      <p style={{ color: "var(--text-secondary)", fontSize: 14, margin: "4px 0" }}>
+        {formatHumidityDiffGroundAloft(data)}
+      </p>
+    </>
   );
 }
