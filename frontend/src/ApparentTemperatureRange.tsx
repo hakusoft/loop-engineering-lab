@@ -1,4 +1,5 @@
 import type { WeatherResponse } from "./api";
+import { ItemDescription } from "./ItemDescription";
 
 // 表示ロジックを純関数に切り出す。TemperatureRange.tsx の formatTemperatureRange と同様。
 export function formatApparentTemperatureRange(data: WeatherResponse): string {
@@ -9,8 +10,11 @@ export function formatApparentTemperatureRange(data: WeatherResponse): string {
 
 export function ApparentTemperatureRange({ data }: { data: WeatherResponse }) {
   return (
-    <p style={{ color: "var(--text-secondary)", fontSize: 16, margin: "4px 0" }}>
-      {formatApparentTemperatureRange(data)}
-    </p>
+    <>
+      <p style={{ color: "var(--text-secondary)", fontSize: 16, margin: "4px 0" }}>
+        {formatApparentTemperatureRange(data)}
+      </p>
+      <ItemDescription text="本日の体感温度の最高・最低" />
+    </>
   );
 }
