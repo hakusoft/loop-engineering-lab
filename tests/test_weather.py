@@ -405,7 +405,7 @@ STUB_SERIES = {
         "wet_bulb_temperature_2m": "°C",
         "vapour_pressure_deficit": "kPa",
         "relative_humidity_2m": "%",
-        "precipitable_water": "mm",
+        "total_column_integrated_water_vapour": "mm",
         "rain": "mm",
         "snowfall": "cm",
         "snow_depth": "m",
@@ -460,7 +460,7 @@ STUB_SERIES = {
         "wet_bulb_temperature_2m": [23.5, 23.1, 22.6],
         "vapour_pressure_deficit": [0.85, 0.78, 0.68],
         "relative_humidity_2m": [78, 81, 85],
-        "precipitable_water": [42.5, 45.1, 48.3],
+        "total_column_integrated_water_vapour": [42.5, 45.1, 48.3],
         "rain": [0.0, 0.5, 1.2],
         "snowfall": [0.0, 0.0, 0.0],
         "snow_depth": [0.02, 0.02, 0.03],
@@ -1451,6 +1451,20 @@ def test_requested_fields_have_no_empty_or_duplicated_names():
         assert all(f.strip() == f for f in fields), f"{name} に前後の空白を含む項目がある"
         assert all("," not in f for f in fields), f"{name} にカンマを含む項目がある"
         assert len(fields) == len(set(fields)), f"{name} に重複した項目がある"
+
+
+def test_hourly_fields_uses_correct_water_vapour_parameter_name():
+    """可降水量は total_column_integrated_water_vapour が正しい項目名。
+
+    precipitable_water は Open-Meteo に存在しない項目名だった。hourly は
+    カンマ区切りで一括送信されるため、1つでも無効な項目名が混ざると
+    Open-Meteo はリクエスト全体を 400 で拒否し、/weather/series が
+    丸ごと 500 になった（本番 Sentry: LOOP-ENGINEERING-LAB-B、Issue #466）。
+    応答に無いキーを読む場合と違い .get() では防げない失敗のため、
+    項目名そのものをここで固定する。
+    """
+    assert "precipitable_water" not in HOURLY_FIELDS
+    assert "total_column_integrated_water_vapour" in HOURLY_FIELDS
 
 
 def test_stub_current_matches_requested_current_fields():
