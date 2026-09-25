@@ -7,7 +7,7 @@ import type { WeatherResponse } from "./api";
 // Issue #355 と同様の考え方）。
 export function formatSnowDepth(data: WeatherResponse): string {
   const { value } = data.snow_depth;
-  const centimeters = Math.round(value * 10 * 10) / 10;
+  const centimeters = Math.round(value * 1000) / 10;
   return `積雪の深さ ${centimeters}cm`;
 }
 
