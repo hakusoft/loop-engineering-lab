@@ -22,6 +22,7 @@ from app.weather import (
     _compass_direction,
     _daylight_duration_hours,
     _round_coordinate,
+    _round_evapotranspiration,
     _round_humidity,
     _round_precipitation,
     _round_pressure,
@@ -465,7 +466,7 @@ STUB_SERIES = {
         "snowfall": [0.0, 0.0, 0.0],
         "snow_depth": [0.02, 0.02, 0.03],
         "precipitation_probability": [10, 30, 60],
-        "et0_fao_evapotranspiration": [0.12, 0.18, 0.25],
+        "et0_fao_evapotranspiration": [0.1, 0.2, 0.3],
         "surface_pressure": [1008.2, 1008.0, 1007.6],
         "pressure_msl": [1010.5, 1010.3, 1009.9],
         "wind_speed_10m": [8.1, 9.4, 10.2],
@@ -716,7 +717,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     assert (snow["min"], snow["max"]) == (0.0, 0.0)
     assert (snow_depth["min"], snow_depth["max"]) == (0.02, 0.03)
     assert (precipitation_probability["min"], precipitation_probability["max"]) == (10, 60)
-    assert (evapotranspiration["min"], evapotranspiration["max"]) == (0.12, 0.25)
+    assert (evapotranspiration["min"], evapotranspiration["max"]) == (0.1, 0.3)
     assert (pressure["min"], pressure["max"]) == (1007.6, 1008.2)
     assert (sea_level_pressure["min"], sea_level_pressure["max"]) == (1009.9, 1010.5)
     assert (cloud_cover["min"], cloud_cover["max"]) == (20, 90)
@@ -1280,6 +1281,32 @@ def test_round_precipitation_rounds_to_one_decimal_place():
 def test_round_precipitation_passes_through_none():
     """欠測（None）は丸めずにそのまま返す（_round_visibility 等と同じ方針）。"""
     assert _round_precipitation(None) is None
+
+
+def test_format_hourly_series_rounds_evapotranspiration():
+    """蒸発散量の系列は小数第1位に丸める。他の系列と違って小数点以下の桁数が長くなることがある
+    という報告（Slack）への対応。rain と同じ方針。"""
+    hourly = {
+        **STUB_SERIES["hourly"],
+        "et0_fao_evapotranspiration": [0.049999999999, 0.15, 0.249999999999],
+    }
+    raw = {**STUB_SERIES, "hourly": hourly}
+
+    result = format_hourly_series(raw)
+
+    evapotranspiration = next(s for s in result["series"] if s["label"] == "蒸発散量")
+    assert evapotranspiration["values"] == [0.0, 0.1, 0.2]
+    assert (evapotranspiration["min"], evapotranspiration["max"]) == (0.0, 0.2)
+
+
+def test_round_evapotranspiration_rounds_to_one_decimal_place():
+    assert _round_evapotranspiration(0.049999999999) == 0.0
+    assert _round_evapotranspiration(0.249999999999) == 0.2
+
+
+def test_round_evapotranspiration_passes_through_none():
+    """欠測（None）は丸めずにそのまま返す（_round_precipitation 等と同じ方針）。"""
+    assert _round_evapotranspiration(None) is None
 
 
 def test_round_wind_speed_passes_through_none():
