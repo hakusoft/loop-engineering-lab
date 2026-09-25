@@ -1,4 +1,5 @@
 import type { WeatherResponse } from "./api";
+import { ItemDescription } from "./ItemDescription";
 
 // 表示ロジックを純関数に切り出す。TemperatureRange.tsx の formatTemperatureRange と同様。
 export function formatTemperatureMean(data: WeatherResponse): string {
@@ -8,8 +9,11 @@ export function formatTemperatureMean(data: WeatherResponse): string {
 
 export function TemperatureMean({ data }: { data: WeatherResponse }) {
   return (
-    <p style={{ color: "var(--text-secondary)", fontSize: 16, margin: "4px 0" }}>
-      {formatTemperatureMean(data)}
-    </p>
+    <>
+      <p style={{ color: "var(--text-secondary)", fontSize: 16, margin: "4px 0" }}>
+        {formatTemperatureMean(data)}
+      </p>
+      <ItemDescription text="本日の気温の平均" />
+    </>
   );
 }

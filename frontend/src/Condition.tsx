@@ -1,5 +1,6 @@
 import type { WeatherResponse } from "./api";
 import { iconForWeatherCode } from "./weatherIcons";
+import { ItemDescription } from "./ItemDescription";
 
 // 表示ロジックを純関数に切り出す。天気状況の文字表記をそのまま返す。
 export function formatCondition(data: WeatherResponse): string {
@@ -14,9 +15,12 @@ export function formatConditionIcon(data: WeatherResponse): string | null {
 export function Condition({ data }: { data: WeatherResponse }) {
   const icon = formatConditionIcon(data);
   return (
-    <p style={{ fontSize: 20, margin: "0 0 8px" }}>
-      {icon && <span aria-hidden="true">{icon} </span>}
-      {formatCondition(data)}
-    </p>
+    <>
+      <p style={{ fontSize: 20, margin: "0 0 8px" }}>
+        {icon && <span aria-hidden="true">{icon} </span>}
+        {formatCondition(data)}
+      </p>
+      <ItemDescription text="現在の天気の状況（快晴・曇り・雨など）" />
+    </>
   );
 }

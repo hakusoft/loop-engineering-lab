@@ -1,4 +1,5 @@
 import type { WeatherResponse } from "./api";
+import { ItemDescription } from "./ItemDescription";
 
 // 日付（YYYY-MM-DD）を「M/D」の表記にする。
 function formatMonthDay(date: string): string {
@@ -16,8 +17,11 @@ export function formatTemperatureRange(data: WeatherResponse): string {
 
 export function TemperatureRange({ data }: { data: WeatherResponse }) {
   return (
-    <p style={{ color: "var(--text-secondary)", fontSize: 16, margin: "4px 0" }}>
-      {formatTemperatureRange(data)}
-    </p>
+    <>
+      <p style={{ color: "var(--text-secondary)", fontSize: 16, margin: "4px 0" }}>
+        {formatTemperatureRange(data)}
+      </p>
+      <ItemDescription text="本日の気温の最高・最低" />
+    </>
   );
 }

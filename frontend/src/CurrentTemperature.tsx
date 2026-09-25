@@ -1,4 +1,5 @@
 import type { WeatherResponse } from "./api";
+import { ItemDescription } from "./ItemDescription";
 
 // 表示ロジックを純関数に切り出す。値の丸め・単位の組み立てだけなのでテスト基盤は不要だが、
 // コンポーネントから分離しておくと後から検証しやすい。
@@ -24,22 +25,25 @@ export function CurrentTemperature({ data }: { data: WeatherResponse }) {
   // なるため、App.tsx が実効テーマから設定する `--surface-background` を
   // 参照する（レビュー指摘）。
   return (
-    <p
-      style={{
-        position: "sticky",
-        top: 0,
-        zIndex: 1,
-        background: "var(--surface-background)",
-        fontSize: 96,
-        fontWeight: 700,
-        margin: "8px 0",
-        lineHeight: 1,
-      }}
-    >
-      {formatTemperature(data)}
-      <span style={{ fontSize: 28, fontWeight: 400, color: "var(--text-secondary)", marginLeft: 8 }}>
-        {formatTemperatureFahrenheit(data)}
-      </span>
-    </p>
+    <>
+      <p
+        style={{
+          position: "sticky",
+          top: 0,
+          zIndex: 1,
+          background: "var(--surface-background)",
+          fontSize: 96,
+          fontWeight: 700,
+          margin: "8px 0",
+          lineHeight: 1,
+        }}
+      >
+        {formatTemperature(data)}
+        <span style={{ fontSize: 28, fontWeight: 400, color: "var(--text-secondary)", marginLeft: 8 }}>
+          {formatTemperatureFahrenheit(data)}
+        </span>
+      </p>
+      <ItemDescription text="現在の気温（右上の小さい数字は華氏換算）" />
+    </>
   );
 }

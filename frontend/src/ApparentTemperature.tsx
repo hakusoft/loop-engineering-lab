@@ -1,4 +1,5 @@
 import type { WeatherResponse } from "./api";
+import { ItemDescription } from "./ItemDescription";
 
 // 表示ロジックを純関数に切り出す。CurrentTemperature.tsx の formatTemperature と同様。
 //
@@ -12,8 +13,11 @@ export function formatApparentTemperature(data: WeatherResponse): string {
 
 export function ApparentTemperature({ data }: { data: WeatherResponse }) {
   return (
-    <p style={{ fontSize: 24, fontWeight: 600, margin: "0 0 8px", color: "#444" }}>
-      {formatApparentTemperature(data)}
-    </p>
+    <>
+      <p style={{ fontSize: 24, fontWeight: 600, margin: "0 0 8px", color: "#444" }}>
+        {formatApparentTemperature(data)}
+      </p>
+      <ItemDescription text="湿度や風などを考慮した、体感上の暑さ・寒さの目安" />
+    </>
   );
 }
