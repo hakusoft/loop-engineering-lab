@@ -1,4 +1,5 @@
 import type { WeatherResponse } from "./api";
+import { ItemDescription } from "./ItemDescription";
 
 // 表示ロジックを純関数に切り出す。LaundryDryness.tsx の laundryDryingLevel と同様。
 //
@@ -47,9 +48,12 @@ export function heatStrokeRiskColor(level: string): string {
 export function HeatStrokeRisk({ data }: { data: WeatherResponse }) {
   const level = heatStrokeRiskLevel(data.wet_bulb_temperature.value);
   return (
-    <p style={{ color: "var(--text-secondary)", fontSize: 16, margin: "4px 0" }}>
-      熱中症の目安{" "}
-      <span style={{ color: heatStrokeRiskColor(level), fontWeight: 600 }}>{level}</span>
-    </p>
+    <>
+      <p style={{ color: "var(--text-secondary)", fontSize: 16, margin: "4px 0" }}>
+        熱中症の目安{" "}
+        <span style={{ color: heatStrokeRiskColor(level), fontWeight: 600 }}>{level}</span>
+      </p>
+      <ItemDescription text="湿球温度をもとにした熱中症の警戒レベルの目安" />
+    </>
   );
 }

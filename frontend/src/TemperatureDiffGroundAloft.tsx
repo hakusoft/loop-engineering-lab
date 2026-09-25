@@ -1,4 +1,5 @@
 import type { WeatherResponse } from "./api";
+import { ItemDescription } from "./ItemDescription";
 
 // 表示ロジックを純関数に切り出す。SoilTemperatureDeep.tsx と同様。
 // 地上と上空でどのくらい気温が違うか知りたいという声を受けて追加する
@@ -40,6 +41,7 @@ export function TemperatureDiffGroundAloft({ data }: { data: WeatherResponse }) 
       <p style={{ color: "var(--text-secondary)", fontSize: 14, margin: "4px 0" }}>
         {formatTemperatureDiffGroundAloft(data)}
       </p>
+      <ItemDescription text="地上と上空(850hPa、目安として高度1500m前後)の気温差" />
     </>
   );
 }
