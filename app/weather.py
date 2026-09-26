@@ -171,6 +171,19 @@ def _round_precipitation(value: float | None) -> float | None:
     return value if value is None else round(value, PRECIPITATION_PRECISION)
 
 
+EVAPOTRANSPIRATION_PRECISION = 1
+
+
+def _round_evapotranspiration(value: float | None) -> float | None:
+    """蒸発散量を小数第1位に丸める。他の項目と同じく、桁数が値によってばらつくことがある。
+
+    気温グラフのツールチップにそのまま出すと他の項目と桁数が揃わない
+    （_round_visibility / _round_precipitation と同じ経緯）。欠測（None）は
+    そのまま返す（_round_pressure 以降の各丸め関数と同じ方針）。
+    """
+    return value if value is None else round(value, EVAPOTRANSPIRATION_PRECISION)
+
+
 TEMPERATURE_PRECISION = 1
 
 
@@ -349,6 +362,7 @@ HOURLY_FIELDS = [
     "wind_direction_180m",
     "is_day",
     "uv_index",
+    "uv_index_clear_sky",
     "shortwave_radiation",
     "global_tilted_irradiance",
     "sunshine_duration",
@@ -883,11 +897,22 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
             uv_index = _zero_uv_index_at_night(uv_index, hourly["is_day"])
         hourly["uv_index"] = uv_index
 
+    if "uv_index_clear_sky" in hourly:
+        uv_index_clear_sky = [_clamp_uv_index(v) for v in hourly["uv_index_clear_sky"]]
+        if "is_day" in hourly:
+            uv_index_clear_sky = _zero_uv_index_at_night(uv_index_clear_sky, hourly["is_day"])
+        hourly["uv_index_clear_sky"] = uv_index_clear_sky
+
     if "visibility" in hourly:
         hourly["visibility"] = [_round_visibility(v) for v in hourly["visibility"]]
 
     if "rain" in hourly:
         hourly["rain"] = [_round_precipitation(v) for v in hourly["rain"]]
+
+    if "et0_fao_evapotranspiration" in hourly:
+        hourly["et0_fao_evapotranspiration"] = [
+            _round_evapotranspiration(v) for v in hourly["et0_fao_evapotranspiration"]
+        ]
 
     if "dew_point_2m" in hourly:
         hourly["dew_point_2m"] = [_round_temperature(v) for v in hourly["dew_point_2m"]]
@@ -1013,6 +1038,7 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
                 _series("wind_speed_180m", "上空の風速(180m)", "km/h"),
                 _series("wind_direction_180m", "上空の風向き(180m)", "°"),
                 _series("uv_index", "紫外線指数", ""),
+                _series("uv_index_clear_sky", "紫外線指数(快晴時の目安)", ""),
                 _series("shortwave_radiation", "日射量", "W/m²"),
                 _series("global_tilted_irradiance", "傾斜面日射量(発電目安)", "W/m²"),
                 _series("sunshine_duration", "日照時間", "s"),

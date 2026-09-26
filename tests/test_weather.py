@@ -22,6 +22,7 @@ from app.weather import (
     _compass_direction,
     _daylight_duration_hours,
     _round_coordinate,
+    _round_evapotranspiration,
     _round_humidity,
     _round_precipitation,
     _round_pressure,
@@ -431,6 +432,7 @@ STUB_SERIES = {
         "wind_direction_180m": "°",
         "is_day": "",
         "uv_index": "",
+        "uv_index_clear_sky": "",
         "shortwave_radiation": "W/m²",
         "global_tilted_irradiance": "W/m²",
         "sunshine_duration": "s",
@@ -466,7 +468,7 @@ STUB_SERIES = {
         "snowfall": [0.0, 0.0, 0.0],
         "snow_depth": [0.02, 0.02, 0.03],
         "precipitation_probability": [10, 30, 60],
-        "et0_fao_evapotranspiration": [0.12, 0.18, 0.25],
+        "et0_fao_evapotranspiration": [0.1, 0.2, 0.3],
         "surface_pressure": [1008.2, 1008.0, 1007.6],
         "pressure_msl": [1010.5, 1010.3, 1009.9],
         "wind_speed_10m": [8.1, 9.4, 10.2],
@@ -486,6 +488,7 @@ STUB_SERIES = {
         "wind_direction_180m": [236.0, 246.0, 256.0],
         "is_day": [1, 1, 1],
         "uv_index": [0.2, 1.5, 3.1],
+        "uv_index_clear_sky": [0.3, 1.8, 3.6],
         "shortwave_radiation": [412.0, 350.0, 0.0],
         "global_tilted_irradiance": [430.0, 300.0, 0.0],
         "sunshine_duration": [3600.0, 1800.0, 0.0],
@@ -548,6 +551,7 @@ def test_series_keeps_units_separate_for_split_axes():
     wind_speed_925hPa = by_label["925hPaの風速"]
     wind_direction_925hPa = by_label["925hPaの風向き"]
     uv_index = by_label["紫外線指数"]
+    uv_index_clear_sky = by_label["紫外線指数(快晴時の目安)"]
     shortwave_radiation = by_label["日射量"]
     global_tilted_irradiance = by_label["傾斜面日射量(発電目安)"]
     sunshine_duration = by_label["日照時間"]
@@ -637,6 +641,8 @@ def test_series_keeps_units_separate_for_split_axes():
     assert wind_direction_925hPa["unit"] == "°"
     assert uv_index["label"] == "紫外線指数"
     assert uv_index["unit"] == ""
+    assert uv_index_clear_sky["label"] == "紫外線指数(快晴時の目安)"
+    assert uv_index_clear_sky["unit"] == ""
     assert shortwave_radiation["label"] == "日射量"
     assert shortwave_radiation["unit"] == "W/m²"
     assert global_tilted_irradiance["label"] == "傾斜面日射量(発電目安)"
@@ -693,6 +699,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     wind_speed_925hPa = by_label["925hPaの風速"]
     wind_direction_925hPa = by_label["925hPaの風向き"]
     uv_index = by_label["紫外線指数"]
+    uv_index_clear_sky = by_label["紫外線指数(快晴時の目安)"]
     shortwave_radiation = by_label["日射量"]
     global_tilted_irradiance = by_label["傾斜面日射量(発電目安)"]
     sunshine_duration = by_label["日照時間"]
@@ -717,7 +724,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     assert (snow["min"], snow["max"]) == (0.0, 0.0)
     assert (snow_depth["min"], snow_depth["max"]) == (0.02, 0.03)
     assert (precipitation_probability["min"], precipitation_probability["max"]) == (10, 60)
-    assert (evapotranspiration["min"], evapotranspiration["max"]) == (0.12, 0.25)
+    assert (evapotranspiration["min"], evapotranspiration["max"]) == (0.1, 0.3)
     assert (pressure["min"], pressure["max"]) == (1007.6, 1008.2)
     assert (sea_level_pressure["min"], sea_level_pressure["max"]) == (1009.9, 1010.5)
     assert (cloud_cover["min"], cloud_cover["max"]) == (20, 90)
@@ -740,6 +747,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     assert (wind_speed_925hPa["min"], wind_speed_925hPa["max"]) == (20.1, 22.8)
     assert (wind_direction_925hPa["min"], wind_direction_925hPa["max"]) == (235.0, 255.0)
     assert (uv_index["min"], uv_index["max"]) == (0.2, 3.1)
+    assert (uv_index_clear_sky["min"], uv_index_clear_sky["max"]) == (0.3, 3.6)
     assert (shortwave_radiation["min"], shortwave_radiation["max"]) == (0.0, 412.0)
     assert (global_tilted_irradiance["min"], global_tilted_irradiance["max"]) == (0.0, 430.0)
     assert (sunshine_duration["min"], sunshine_duration["max"]) == (0.0, 3600.0)
@@ -1232,6 +1240,28 @@ def test_format_hourly_series_zeroes_uv_index_at_night():
     assert uv_index["min"] == 0.0
 
 
+def test_format_hourly_series_clamps_and_zeroes_uv_index_clear_sky():
+    """快晴時紫外線指数の目安も、実際の紫外線指数と同じ補正（負値0・夜間0）を適用する。
+
+    Issue #472: 実際の紫外線指数(uv_index)と時間ごとに比較する用途のため、
+    片方だけ未補正だと夜間や日の出直後の比較がずれる。
+    """
+    hourly = {
+        **STUB_SERIES["hourly"],
+        "is_day": [0, 1, 1],
+        "uv_index_clear_sky": [-0.05, 0.2, 1.5],
+    }
+    raw = {**STUB_SERIES, "hourly": hourly}
+
+    result = format_hourly_series(raw)
+
+    uv_index_clear_sky = next(
+        s for s in result["series"] if s["label"] == "紫外線指数(快晴時の目安)"
+    )
+    assert uv_index_clear_sky["values"] == [0.0, 0.2, 1.5]
+    assert uv_index_clear_sky["min"] == 0.0
+
+
 def test_format_hourly_series_rounds_visibility():
     """視程の系列は整数mに丸める。他の系列と違って小数点以下の桁数が長くなることがある
     という報告（Slack）への対応。min/maxの計算にも丸め後の値が反映される。"""
@@ -1281,6 +1311,32 @@ def test_round_precipitation_rounds_to_one_decimal_place():
 def test_round_precipitation_passes_through_none():
     """欠測（None）は丸めずにそのまま返す（_round_visibility 等と同じ方針）。"""
     assert _round_precipitation(None) is None
+
+
+def test_format_hourly_series_rounds_evapotranspiration():
+    """蒸発散量の系列は小数第1位に丸める。他の系列と違って小数点以下の桁数が長くなることがある
+    という報告（Slack）への対応。rain と同じ方針。"""
+    hourly = {
+        **STUB_SERIES["hourly"],
+        "et0_fao_evapotranspiration": [0.049999999999, 0.15, 0.249999999999],
+    }
+    raw = {**STUB_SERIES, "hourly": hourly}
+
+    result = format_hourly_series(raw)
+
+    evapotranspiration = next(s for s in result["series"] if s["label"] == "蒸発散量")
+    assert evapotranspiration["values"] == [0.0, 0.1, 0.2]
+    assert (evapotranspiration["min"], evapotranspiration["max"]) == (0.0, 0.2)
+
+
+def test_round_evapotranspiration_rounds_to_one_decimal_place():
+    assert _round_evapotranspiration(0.049999999999) == 0.0
+    assert _round_evapotranspiration(0.249999999999) == 0.2
+
+
+def test_round_evapotranspiration_passes_through_none():
+    """欠測（None）は丸めずにそのまま返す（_round_precipitation 等と同じ方針）。"""
+    assert _round_evapotranspiration(None) is None
 
 
 def test_format_hourly_series_rounds_dew_point_and_wet_bulb_temperature():
@@ -1687,6 +1743,7 @@ def test_hourly_series_are_all_requested_fields():
         "上空の風速(180m)": "wind_speed_180m",
         "上空の風向き(180m)": "wind_direction_180m",
         "紫外線指数": "uv_index",
+        "紫外線指数(快晴時の目安)": "uv_index_clear_sky",
         "日射量": "shortwave_radiation",
         "傾斜面日射量(発電目安)": "global_tilted_irradiance",
         "日照時間": "sunshine_duration",
