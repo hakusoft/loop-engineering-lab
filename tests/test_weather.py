@@ -26,6 +26,7 @@ from app.weather import (
     _round_precipitation,
     _round_pressure,
     _round_soil_moisture,
+    _round_temperature,
     _round_visibility,
     _round_wind_speed,
     _seconds_to_hours,
@@ -1280,6 +1281,34 @@ def test_round_precipitation_rounds_to_one_decimal_place():
 def test_round_precipitation_passes_through_none():
     """欠測（None）は丸めずにそのまま返す（_round_visibility 等と同じ方針）。"""
     assert _round_precipitation(None) is None
+
+
+def test_format_hourly_series_rounds_dew_point_and_wet_bulb_temperature():
+    """露点温度・湿球温度の系列は小数第1位に丸める。他の気温項目と違って小数点以下の
+    桁数が長くなることがあるという報告（Slack、Issue #479）への対応。"""
+    hourly = {
+        **STUB_SERIES["hourly"],
+        "dew_point_2m": [21.799999999999, 21.5, 21.200000000001],
+        "wet_bulb_temperature_2m": [23.549999999999, 23.1, 22.600000000001],
+    }
+    raw = {**STUB_SERIES, "hourly": hourly}
+
+    result = format_hourly_series(raw)
+
+    dew_point = next(s for s in result["series"] if s["label"] == "露点温度")
+    wet_bulb_temperature = next(s for s in result["series"] if s["label"] == "湿球温度")
+    assert dew_point["values"] == [21.8, 21.5, 21.2]
+    assert wet_bulb_temperature["values"] == [23.5, 23.1, 22.6]
+
+
+def test_round_temperature_rounds_to_one_decimal_place():
+    assert _round_temperature(21.799999999999) == 21.8
+    assert _round_temperature(23.549999999999) == 23.5
+
+
+def test_round_temperature_passes_through_none():
+    """欠測（None）は丸めずにそのまま返す（_round_visibility 等と同じ方針）。"""
+    assert _round_temperature(None) is None
 
 
 def test_round_wind_speed_passes_through_none():

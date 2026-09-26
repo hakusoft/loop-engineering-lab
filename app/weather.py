@@ -171,6 +171,21 @@ def _round_precipitation(value: float | None) -> float | None:
     return value if value is None else round(value, PRECIPITATION_PRECISION)
 
 
+TEMPERATURE_PRECISION = 1
+
+
+def _round_temperature(value: float | None) -> float | None:
+    """気温系の値（露点温度・湿球温度）を小数第1位に丸める。他の項目と同じく、
+    桁数が値によってばらつくことがある。
+
+    気温グラフのツールチップにそのまま出すと他の項目と桁数が揃わない
+    （_round_visibility / _round_precipitation と同じ経緯）。欠測（None）は
+    そのまま返す（_round_pressure / _round_wind_speed / _round_humidity /
+    _round_soil_moisture / _round_visibility / _round_precipitation と同じ方針）。
+    """
+    return value if value is None else round(value, TEMPERATURE_PRECISION)
+
+
 def _clamp_uv_index(value: float | None) -> float | None:
     """紫外線指数の下限を0にする。
 
@@ -873,6 +888,14 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
 
     if "rain" in hourly:
         hourly["rain"] = [_round_precipitation(v) for v in hourly["rain"]]
+
+    if "dew_point_2m" in hourly:
+        hourly["dew_point_2m"] = [_round_temperature(v) for v in hourly["dew_point_2m"]]
+
+    if "wet_bulb_temperature_2m" in hourly:
+        hourly["wet_bulb_temperature_2m"] = [
+            _round_temperature(v) for v in hourly["wet_bulb_temperature_2m"]
+        ]
 
     def _series(key: str, label: str, default_unit: str) -> dict[str, Any] | None:
         """key が hourly に無ければ None を返し、系列自体を出さない。
