@@ -171,6 +171,19 @@ def _round_precipitation(value: float | None) -> float | None:
     return value if value is None else round(value, PRECIPITATION_PRECISION)
 
 
+EVAPOTRANSPIRATION_PRECISION = 1
+
+
+def _round_evapotranspiration(value: float | None) -> float | None:
+    """蒸発散量を小数第1位に丸める。他の項目と同じく、桁数が値によってばらつくことがある。
+
+    気温グラフのツールチップにそのまま出すと他の項目と桁数が揃わない
+    （_round_visibility / _round_precipitation と同じ経緯）。欠測（None）は
+    そのまま返す（_round_pressure 以降の各丸め関数と同じ方針）。
+    """
+    return value if value is None else round(value, EVAPOTRANSPIRATION_PRECISION)
+
+
 def _clamp_uv_index(value: float | None) -> float | None:
     """紫外線指数の下限を0にする。
 
@@ -873,6 +886,11 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
 
     if "rain" in hourly:
         hourly["rain"] = [_round_precipitation(v) for v in hourly["rain"]]
+
+    if "et0_fao_evapotranspiration" in hourly:
+        hourly["et0_fao_evapotranspiration"] = [
+            _round_evapotranspiration(v) for v in hourly["et0_fao_evapotranspiration"]
+        ]
 
     def _series(key: str, label: str, default_unit: str) -> dict[str, Any] | None:
         """key が hourly に無ければ None を返し、系列自体を出さない。
