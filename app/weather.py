@@ -334,6 +334,7 @@ HOURLY_FIELDS = [
     "wind_direction_180m",
     "is_day",
     "uv_index",
+    "uv_index_clear_sky",
     "shortwave_radiation",
     "global_tilted_irradiance",
     "sunshine_duration",
@@ -868,6 +869,12 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
             uv_index = _zero_uv_index_at_night(uv_index, hourly["is_day"])
         hourly["uv_index"] = uv_index
 
+    if "uv_index_clear_sky" in hourly:
+        uv_index_clear_sky = [_clamp_uv_index(v) for v in hourly["uv_index_clear_sky"]]
+        if "is_day" in hourly:
+            uv_index_clear_sky = _zero_uv_index_at_night(uv_index_clear_sky, hourly["is_day"])
+        hourly["uv_index_clear_sky"] = uv_index_clear_sky
+
     if "visibility" in hourly:
         hourly["visibility"] = [_round_visibility(v) for v in hourly["visibility"]]
 
@@ -990,6 +997,7 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
                 _series("wind_speed_180m", "上空の風速(180m)", "km/h"),
                 _series("wind_direction_180m", "上空の風向き(180m)", "°"),
                 _series("uv_index", "紫外線指数", ""),
+                _series("uv_index_clear_sky", "紫外線指数(快晴時の目安)", ""),
                 _series("shortwave_radiation", "日射量", "W/m²"),
                 _series("global_tilted_irradiance", "傾斜面日射量(発電目安)", "W/m²"),
                 _series("sunshine_duration", "日照時間", "s"),
