@@ -316,7 +316,7 @@ export default function App() {
       ),
     ])
       .then((results) => {
-        const ok = results.every((r) => r.status === "fulfilled");
+        const ok = results.every((r) => r.status === "fulfilled" && r.value === true);
         setRefreshNotice(ok ? "success" : "error");
         if (refreshNoticeTimeoutRef.current !== null) {
           clearTimeout(refreshNoticeTimeoutRef.current);
