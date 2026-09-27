@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState, type CSSProperties, type ReactNode } from "react";
+import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { fetchSeries, fetchWeather, type SeriesResponse, type WeatherResponse } from "./api";
 import { CATEGORY_ORDER, DISPLAY_ITEMS } from "./displayItems";
 import { LocationName } from "./LocationName";
@@ -219,6 +219,17 @@ export default function App() {
   const [state, setState] = useState<State>({ status: "loading" });
   const [weatherState, setWeatherState] = useState<WeatherState>({ status: "loading" });
   const [manualRefreshing, setManualRefreshing] = useState(false);
+  const [refreshNotice, setRefreshNotice] = useState<"success" | "error" | null>(null);
+  const refreshNoticeTimeoutRef = useRef<number | null>(null);
+
+  // アンマウント後に setState を呼ばないよう、表示中のタイマーは片付ける。
+  useEffect(() => {
+    return () => {
+      if (refreshNoticeTimeoutRef.current !== null) {
+        clearTimeout(refreshNoticeTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // 画面を開きっぱなしにしていると数字が更新されないという声を受け、初回だけで
   // なく一定間隔で再取得する（Issue #361）。再取得が一時的に失敗しても、
@@ -271,24 +282,48 @@ export default function App() {
   // useEffect と同じ取得・反映ロジックを、ボタン押下時にも一回分だけ実行する。
   // 失敗時に「既に ready なら表示を維持する」判定も、自動更新と揃える
   // （レビュー指摘: 揃えないと手動更新だけ一時的な通信の揺らぎで正常画面が消える）。
+  //
+  // 更新できたのか分かりにくいという声を受け、完了後に一言（更新しました／
+  // 更新に失敗しました）を表示する（Issue #483）。両方の取得が成功したかを
+  // 判定するため、成否を boolean で返すようにした。
   const handleManualRefresh = () => {
     setManualRefreshing(true);
+    setRefreshNotice(null);
     Promise.allSettled([
-      fetchSeries()
-        .then((data) => setState({ status: "ready", data }))
-        .catch((e) =>
+      fetchSeries().then(
+        (data) => {
+          setState({ status: "ready", data });
+          return true;
+        },
+        (e) => {
           setState((prev) =>
             prev.status === "ready"
               ? prev
               : { status: "error", message: String(e.message ?? e) },
-          ),
-        ),
-      fetchWeather()
-        .then((data) => setWeatherState({ status: "ready", data }))
-        .catch(() =>
-          setWeatherState((prev) => (prev.status === "ready" ? prev : { status: "error" })),
-        ),
-    ]).finally(() => setManualRefreshing(false));
+          );
+          return false;
+        },
+      ),
+      fetchWeather().then(
+        (data) => {
+          setWeatherState({ status: "ready", data });
+          return true;
+        },
+        () => {
+          setWeatherState((prev) => (prev.status === "ready" ? prev : { status: "error" }));
+          return false;
+        },
+      ),
+    ])
+      .then((results) => {
+        const ok = results.every((r) => r.status === "fulfilled");
+        setRefreshNotice(ok ? "success" : "error");
+        if (refreshNoticeTimeoutRef.current !== null) {
+          clearTimeout(refreshNoticeTimeoutRef.current);
+        }
+        refreshNoticeTimeoutRef.current = window.setTimeout(() => setRefreshNotice(null), 3000);
+      })
+      .finally(() => setManualRefreshing(false));
   };
 
   // ブラウザタブのアイコン(favicon)を、現在の天気アイコンに変える。
@@ -366,6 +401,16 @@ export default function App() {
           >
             {manualRefreshing ? "更新中…" : "今すぐ更新"}
           </button>
+          {refreshNotice === "success" && (
+            <span style={{ fontSize: 12, color: "var(--text-tertiary)", whiteSpace: "nowrap" }}>
+              更新しました
+            </span>
+          )}
+          {refreshNotice === "error" && (
+            <span style={{ fontSize: 12, color: "#c00", whiteSpace: "nowrap" }}>
+              更新に失敗しました
+            </span>
+          )}
           <label
             style={{
               fontSize: 13,
