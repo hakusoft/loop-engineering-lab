@@ -5,8 +5,16 @@ import type { WeatherResponse } from "./api";
 // Open-Meteo のモデル値は仕様上まれに100%を超えることがある。元データ自体は
 // バグではないが、数字だけ見ると変な感じがするという声を受け、表示側だけ
 // 100%で上限キャップする（Issue #276）。API レスポンス自体の値は変更しない。
+//
+// value は null になり得る（api.ts のコメント参照）。null チェックが無いと
+// Math.min(null, 100) が 0 に暗黙変換され、欠測が「湿度 0%」という誤った
+// 表示になってしまう（Issue #485）。TemperatureDiffGroundAloft.tsx の
+// formatTemperatureAloft と同じ方針で、欠測時は行自体を残して伝える。
 export function formatHumidity(data: WeatherResponse): string {
   const { value, unit } = data.humidity;
+  if (value === null) {
+    return "湿度 現在取得できません";
+  }
   return `湿度 ${Math.round(Math.min(value, 100))}${unit}`;
 }
 

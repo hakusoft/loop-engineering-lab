@@ -46,7 +46,8 @@ export type WeatherResponse = {
   temperature_max: { value: number; unit: string; date: string };
   temperature_min: { value: number; unit: string; date: string };
   temperature_mean: { value: number; unit: string };
-  humidity: { value: number; unit: string };
+  // 稀に null になることがある（Humidity.tsx 参照）。
+  humidity: { value: number | null; unit: string };
   humidity_max: { value: number; unit: string };
   humidity_min: { value: number; unit: string };
   humidity_mean: { value: number; unit: string };
