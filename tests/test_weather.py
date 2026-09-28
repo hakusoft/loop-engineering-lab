@@ -20,6 +20,7 @@ from app.weather import (
     _clamp_uv_index,
     _compass_abbreviation,
     _compass_direction,
+    _condition_sentence,
     _daylight_duration_hours,
     _round_coordinate,
     _round_evapotranspiration,
@@ -272,7 +273,11 @@ def test_format_forecast_maps_values_and_units():
     assert result["sunset"] == "2026-07-21T18:47"
     assert result["daylight_duration"] == {"value": 14.05, "unit": "h"}
     assert result["is_day"] is True
-    assert result["condition"] == {"code": 1, "description": "晴れ"}
+    assert result["condition"] == {
+        "code": 1,
+        "description": "晴れ",
+        "sentence": "晴れ、気温28.4°C、西南西の風 12.3km/h",
+    }
     assert result["coordinates"] == {"latitude": 35.68, "longitude": 139.76}
     assert result["location_name"] == "東京"
     assert result["elevation"] == {"value": 40.0, "unit": "m"}
@@ -878,6 +883,18 @@ def test_weather_description_maps_representative_codes():
 
 def test_weather_description_falls_back_for_unknown_code():
     assert _weather_description(1234) == "不明"
+
+
+def test_condition_sentence_combines_description_temperature_and_wind():
+    assert (
+        _condition_sentence("晴れ", 28.4, 12.3, "西南西")
+        == "晴れ、気温28.4°C、西南西の風 12.3km/h"
+    )
+    # 丸め方は他の項目と同じく小数第1位。
+    assert (
+        _condition_sentence("曇り", 5.049, 3.049, "北")
+        == "曇り、気温5.0°C、北の風 3.0km/h"
+    )
 
 
 def test_round_coordinate_rounds_to_two_decimal_places():
