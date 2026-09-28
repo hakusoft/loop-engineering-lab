@@ -555,6 +555,48 @@ function writeStoredVisibleSecondary(keys: Set<SecondarySeriesKey>) {
   }
 }
 
+// よく見る組み合わせを名前をつけて保存できるようにする（Issue #488）。
+// VISIBLE_SECONDARY_STORAGE_KEY が「直前の選択」を1つだけ覚えるのに対し、
+// こちらは複数の組み合わせを名前つきで保持する別のキー。
+type ChartPreset = { name: string; keys: SecondarySeriesKey[] };
+
+const CHART_PRESETS_STORAGE_KEY = "loop-engineering-lab:temperature-chart-presets";
+
+// readStoredVisibleSecondary と同じく、localStorage が使えない・壊れている
+// 場合は空の一覧に倒す。
+function readStoredPresets(): ChartPreset[] {
+  try {
+    const stored = localStorage.getItem(CHART_PRESETS_STORAGE_KEY);
+    if (stored === null) {
+      return [];
+    }
+    const parsed: unknown = JSON.parse(stored);
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+    return parsed.filter(
+      (preset): preset is ChartPreset =>
+        typeof preset === "object" &&
+        preset !== null &&
+        typeof (preset as ChartPreset).name === "string" &&
+        Array.isArray((preset as ChartPreset).keys),
+    ).map((preset) => ({
+      name: preset.name,
+      keys: preset.keys.filter((key): key is SecondarySeriesKey => SECONDARY_SERIES_KEYS.has(key)),
+    }));
+  } catch {
+    return [];
+  }
+}
+
+function writeStoredPresets(presets: ChartPreset[]) {
+  try {
+    localStorage.setItem(CHART_PRESETS_STORAGE_KEY, JSON.stringify(presets));
+  } catch {
+    // 保存できなくても表示は続行する。
+  }
+}
+
 const NARROW_VIEWPORT_QUERY = "(max-width: 480px)";
 
 // スマホ幅では固定 12px の目盛りが相対的に読みにくいという声があったため、
@@ -698,6 +740,11 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
   const [visibleSecondary, setVisibleSecondary] = useState<Set<SecondarySeriesKey>>(
     () => readStoredVisibleSecondary() ?? new Set(["precipitationProbability", "humidity"]),
   );
+  // よく見る組み合わせを名前をつけて保存し、後から選んで切り替えたいという
+  // 声を受けて追加する（Issue #488）。visibleSecondary（直前の選択）とは別に
+  // 複数保持できる。
+  const [presets, setPresets] = useState<ChartPreset[]>(() => readStoredPresets());
+  const [newPresetName, setNewPresetName] = useState("");
   // データがある項目（キーの一覧）。以前はこれでチェックボックスの一覧自体を
   // 絞り込んでいたが、「ある項目は急に消える」という不整合に見えるという
   // 指摘があった（Issue #448）。一覧は ALL_SECONDARY_GROUPED で常に全件出し、
@@ -872,6 +919,34 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     setVisibleSecondary(next);
   }
 
+  // 現在のチェック状態を名前をつけて保存する。同じ名前が既にあれば上書きする。
+  function savePreset() {
+    const name = newPresetName.trim();
+    if (!name) {
+      return;
+    }
+    setPresets((prev) => {
+      const next = [...prev.filter((preset) => preset.name !== name), { name, keys: [...visibleSecondary] }];
+      writeStoredPresets(next);
+      return next;
+    });
+    setNewPresetName("");
+  }
+
+  function applyPreset(preset: ChartPreset) {
+    const next = new Set(preset.keys);
+    writeStoredVisibleSecondary(next);
+    setVisibleSecondary(next);
+  }
+
+  function deletePreset(name: string) {
+    setPresets((prev) => {
+      const next = prev.filter((preset) => preset.name !== name);
+      writeStoredPresets(next);
+      return next;
+    });
+  }
+
   const showTemperature80m = temperature80m && visibleSecondary.has("temperature80m");
   const showTemperature120m = temperature120m && visibleSecondary.has("temperature120m");
   const showTemperature180m = temperature180m && visibleSecondary.has("temperature180m");
@@ -944,6 +1019,86 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             すべてオフ
           </button>
         )}
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "4px 8px", alignItems: "center" }}>
+          {presets.map((preset) => (
+            <span
+              key={preset.name}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 4,
+                fontSize: isNarrow ? 13 : 12,
+                color: colors.tick,
+                border: `1px solid ${colors.grid}`,
+                borderRadius: 4,
+                padding: isNarrow ? "4px 8px" : "2px 6px",
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => applyPreset(preset)}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: colors.tick,
+                  cursor: "pointer",
+                  padding: 0,
+                  fontSize: "inherit",
+                }}
+              >
+                {preset.name}
+              </button>
+              <button
+                type="button"
+                onClick={() => deletePreset(preset.name)}
+                aria-label={`${preset.name}を削除`}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: colors.tick,
+                  cursor: "pointer",
+                  padding: 0,
+                  fontSize: "inherit",
+                  opacity: 0.6,
+                }}
+              >
+                ×
+              </button>
+            </span>
+          ))}
+          <input
+            type="text"
+            value={newPresetName}
+            onChange={(e) => setNewPresetName(e.target.value)}
+            placeholder="組み合わせの名前"
+            style={{
+              fontSize: isNarrow ? 15 : 13,
+              padding: isNarrow ? "6px 8px" : "2px 6px",
+              border: `1px solid ${colors.grid}`,
+              borderRadius: 4,
+              background: "none",
+              color: colors.tick,
+              width: isNarrow ? "100%" : 140,
+            }}
+          />
+          <button
+            type="button"
+            onClick={savePreset}
+            disabled={!newPresetName.trim()}
+            style={{
+              fontSize: isNarrow ? 13 : 12,
+              color: colors.tick,
+              background: "none",
+              border: `1px solid ${colors.grid}`,
+              borderRadius: 4,
+              padding: isNarrow ? "6px 10px" : "2px 8px",
+              cursor: newPresetName.trim() ? "pointer" : "default",
+              opacity: newPresetName.trim() ? 1 : 0.5,
+            }}
+          >
+            お気に入りに保存
+          </button>
+        </div>
         {ALL_SECONDARY_GROUPED.map(({ category, items }) => (
           <div key={category} style={{ display: "flex", flexWrap: "wrap", gap: "4px 12px", alignItems: "center" }}>
             <span style={{ fontSize: isNarrow ? 13 : 12, color: colors.tick, opacity: 0.7, minWidth: isNarrow ? "100%" : undefined }}>
