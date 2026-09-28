@@ -90,6 +90,18 @@ def _weather_description(code: int) -> str:
     return WEATHER_CODES.get(code, "不明")
 
 
+def _condition_sentence(
+    description: str, temperature: float, wind_speed_kmh: float, wind_compass: str
+) -> str:
+    """天気の状況を、気温・風も含めた一文にする。
+
+    Condition.tsx の表示が「晴れ」のような単語だけで、気温や風も一緒に知りたい
+    という声を受けて追加する（Issue #486）。_weather_description 自体は
+    HourlyConditions.tsx など短い語で使う箇所にも使われているため変えない。
+    """
+    return f"{description}、気温{round(temperature, 1)}°C、{wind_compass}の風 {round(wind_speed_kmh, 1)}km/h"
+
+
 COORDINATE_PRECISION = 2
 
 
@@ -769,6 +781,12 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
         "condition": {
             "code": current["weather_code"],
             "description": _weather_description(current["weather_code"]),
+            "sentence": _condition_sentence(
+                _weather_description(current["weather_code"]),
+                current["temperature_2m"],
+                current["wind_speed_10m"],
+                _compass_direction(current["wind_direction_10m"]),
+            ),
         },
         "elevation": {
             "value": raw["elevation"],
