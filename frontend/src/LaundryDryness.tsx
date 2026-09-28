@@ -15,9 +15,14 @@ export function laundryDryingLevel(humidity: number, windSpeed: number): string 
   return "普通";
 }
 
+// 湿度は稀に null になることがある（api.ts のコメント、Issue #485 参照）。
+// 欠測時は目安を計算できないため「現在取得できません」に切り替える。
 export function formatLaundryDryness(data: WeatherResponse): string {
   const { value: humidity } = data.humidity;
   const { value: windSpeed } = data.wind_speed;
+  if (humidity === null) {
+    return "洗濯物の乾きやすさ 現在取得できません";
+  }
   return `洗濯物の乾きやすさ ${laundryDryingLevel(humidity, windSpeed)}`;
 }
 
@@ -38,6 +43,13 @@ export function laundryDryingLevelColor(level: string): string {
 export function LaundryDryness({ data }: { data: WeatherResponse }) {
   const { value: humidity } = data.humidity;
   const { value: windSpeed } = data.wind_speed;
+  if (humidity === null) {
+    return (
+      <p style={{ color: "var(--text-secondary)", fontSize: 16, margin: "4px 0" }}>
+        洗濯物の乾きやすさ 現在取得できません
+      </p>
+    );
+  }
   const level = laundryDryingLevel(humidity, windSpeed);
   return (
     <p style={{ color: "var(--text-secondary)", fontSize: 16, margin: "4px 0" }}>
