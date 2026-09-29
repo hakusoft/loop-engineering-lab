@@ -12,10 +12,12 @@ import httpx
 
 OPEN_METEO_URL = "https://api.open-meteo.com/v1/forecast"
 
-# 東京。題材が固定でよい段階なので定数で持つ。
+# 東京駅付近（千代田区）。題材が固定でよい段階なので定数で持つ。
 DEFAULT_LATITUDE = 35.68
 DEFAULT_LONGITUDE = 139.76
-DEFAULT_LOCATION_NAME = "東京"
+# 「東京」だけだと大まかすぎるという声を受け、この座標に見合った詳しい地名にする
+# （Issue #493）。緯度経度を切り替える複数地点対応ではなく、表示名のみの変更。
+DEFAULT_LOCATION_NAME = "東京都千代田区"
 
 # 度数 → 16 方位。北を境界の中心（348.75°〜11.25°）として 22.5° 刻みで割り当てる。
 COMPASS_POINTS = [
