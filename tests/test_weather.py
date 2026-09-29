@@ -279,7 +279,7 @@ def test_format_forecast_maps_values_and_units():
         "sentence": "晴れ、気温28.4°C、西南西の風 12.3km/h",
     }
     assert result["coordinates"] == {"latitude": 35.68, "longitude": 139.76}
-    assert result["location_name"] == "東京"
+    assert result["location_name"] == "東京都千代田区"
     assert result["elevation"] == {"value": 40.0, "unit": "m"}
 
 
@@ -874,7 +874,7 @@ def test_format_forecast_falls_back_when_units_missing():
     assert result["sea_level_pressure"] == {"value": 1012.6, "unit": "hPa"}
     assert result["solar_radiation"] == {"value": 412.0, "unit": "W/m²"}
     assert result["dew_point"] == {"value": 22.6, "unit": "°C"}
-    assert result["location_name"] == "東京"
+    assert result["location_name"] == "東京都千代田区"
     assert result["elevation"] == {"value": 40.0, "unit": "m"}
 
 
