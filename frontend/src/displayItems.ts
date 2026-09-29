@@ -91,7 +91,7 @@ export const CATEGORY_ORDER: DisplayCategory[] = [
 export const DISPLAY_ITEMS: DisplayItem[] = [
   { category: "気温", component: Condition, tier: "primary" },
   { category: "気温", component: CurrentTemperature, tier: "primary" },
-  { category: "気温", component: ApparentTemperature, tier: "more" },
+  { category: "気温", component: ApparentTemperature, tier: "primary" },
   { category: "気温", component: HeatStrokeRisk, tier: "more" },
   { category: "気温", component: ApparentTemperatureRange, tier: "more" },
   { category: "気温", component: ApparentTemperatureMean, tier: "more" },
