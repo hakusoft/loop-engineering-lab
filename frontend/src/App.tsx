@@ -64,13 +64,21 @@ function categoryAnchorId(title: string): string {
 function CategoryGroup({
   title,
   defaultOpen,
+  onOpenChange,
   children,
 }: {
   title: string;
   defaultOpen: boolean;
+  onOpenChange: (title: string, open: boolean) => void;
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(() => readStoredCategoryOpen(title) ?? defaultOpen);
+
+  // マウント時の初期状態も、カテゴリナビ（CategoryNav）の強調表示に伝える。
+  useEffect(() => {
+    onOpenChange(title, open);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <details
@@ -80,6 +88,7 @@ function CategoryGroup({
         const isOpen = (e.target as HTMLDetailsElement).open;
         setOpen(isOpen);
         writeStoredCategoryOpen(title, isOpen);
+        onOpenChange(title, isOpen);
       }}
     >
       <summary
@@ -169,28 +178,66 @@ function jumpToCategory(title: string) {
   details.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
-function CategoryNav({ categories }: { categories: string[] }) {
+// 今どのカテゴリが開いているか色で分かると嬉しいという声を受け、開いている
+// カテゴリのボタンを強調する（Issue #503）。開閉状態は CategoryGroup から
+// onOpenChange で伝わってくる。
+function CategoryNav({
+  categories,
+  openCategories,
+}: {
+  categories: string[];
+  openCategories: Set<string>;
+}) {
   return (
     <nav style={{ display: "flex", flexWrap: "wrap", gap: 8, margin: "12px 0" }}>
-      {categories.map((title) => (
-        <button
-          key={title}
-          type="button"
-          onClick={() => jumpToCategory(title)}
-          style={{
-            background: "none",
-            border: "1px solid var(--text-tertiary)",
-            borderRadius: 999,
-            color: "var(--text-secondary)",
-            fontSize: 12,
-            padding: "4px 10px",
-            cursor: "pointer",
-          }}
-        >
-          {title}
-        </button>
-      ))}
+      {categories.map((title) => {
+        const isOpen = openCategories.has(title);
+        return (
+          <button
+            key={title}
+            type="button"
+            onClick={() => jumpToCategory(title)}
+            style={{
+              background: isOpen ? "var(--text-secondary)" : "none",
+              border: "1px solid var(--text-tertiary)",
+              borderRadius: 999,
+              color: isOpen ? "var(--surface-background)" : "var(--text-secondary)",
+              fontSize: 12,
+              padding: "4px 10px",
+              cursor: "pointer",
+            }}
+          >
+            {title}
+          </button>
+        );
+      })}
     </nav>
+  );
+}
+
+// 画面を下までスクロールしたあと先頭へ戻る手段が無いという声を受けて追加する
+// （Issue #503）。
+function BackToTopButton() {
+  return (
+    <button
+      type="button"
+      onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+      style={{
+        position: "fixed",
+        right: 16,
+        bottom: 16,
+        background: "var(--surface-background)",
+        border: "1px solid var(--text-tertiary)",
+        borderRadius: 999,
+        color: "var(--text-secondary)",
+        fontSize: 12,
+        padding: "8px 14px",
+        cursor: "pointer",
+        boxShadow: "0 1px 4px rgba(0, 0, 0, 0.2)",
+      }}
+    >
+      先頭へ戻る
+    </button>
   );
 }
 
@@ -347,6 +394,20 @@ export default function App() {
 
   const [forceDark, setForceDark] = useState(() => readStoredDarkModeOverride());
 
+  // CategoryNav で今開いているカテゴリを強調するための状態（Issue #503）。
+  const [openCategories, setOpenCategories] = useState<Set<string>>(new Set());
+  const handleCategoryOpenChange = (title: string, open: boolean) => {
+    setOpenCategories((prev) => {
+      const next = new Set(prev);
+      if (open) {
+        next.add(title);
+      } else {
+        next.delete(title);
+      }
+      return next;
+    });
+  };
+
   const effectiveIsDay = forceDark
     ? false
     : weatherState.status === "ready"
@@ -439,7 +500,9 @@ export default function App() {
         loop-engineering-lab / <code>/weather/series</code>
       </p>
 
-      {weatherState.status === "ready" && <CategoryNav categories={CATEGORY_ORDER} />}
+      {weatherState.status === "ready" && (
+        <CategoryNav categories={CATEGORY_ORDER} openCategories={openCategories} />
+      )}
 
       {state.status === "ready" && <DailySummary data={state.data} />}
       {state.status === "ready" && <ThunderstormOutlook data={state.data} />}
@@ -457,7 +520,12 @@ export default function App() {
               .filter((item) => item.tier === "more")
               .map(({ component: Item }, i) => <Item key={`more-${i}`} data={weatherState.data} />);
             return (
-              <CategoryGroup key={category} title={category} defaultOpen={categoryIndex === 0}>
+              <CategoryGroup
+                key={category}
+                title={category}
+                defaultOpen={categoryIndex === 0}
+                onOpenChange={handleCategoryOpenChange}
+              >
                 <ExpandableItems primary={primary} more={more} />
               </CategoryGroup>
             );
@@ -477,6 +545,7 @@ export default function App() {
           <HourlyConditions data={state.data} />
         </>
       )}
+      <BackToTopButton />
     </main>
   );
 }
