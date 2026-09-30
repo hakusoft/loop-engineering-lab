@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { SeriesResponse } from "./api";
 import { iconForWeatherCode } from "./weatherIcons";
 
@@ -33,12 +33,28 @@ export function HourlyConditions({ data }: { data: SeriesResponse }) {
   // title 属性はホバー前提でスマホのタップでは出ないため、タップでも見えるよう
   // 選択中のセルの説明を別途表示する（トグルで開閉）。
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
+  // 開いたまま他をタップしても説明が消えずに残るという声を受け、コンポーネント
+  // 外をタップ/クリックしたときは選択を解除する（Issue #477）。同じセルの
+  // 再タップで閉じる既存の挙動（cell の onClick）はそのまま。
+  useEffect(() => {
+    if (selectedIndex === null) return;
+    const handleOutside = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setSelectedIndex(null);
+      }
+    };
+    document.addEventListener("click", handleOutside);
+    return () => document.removeEventListener("click", handleOutside);
+  }, [selectedIndex]);
+
   if (cells.length === 0) return null;
 
   const selected = selectedIndex !== null ? cells[selectedIndex] : undefined;
 
   return (
-    <div>
+    <div ref={containerRef}>
       <div
         style={{
           display: "flex",
