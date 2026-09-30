@@ -412,6 +412,7 @@ STUB_SERIES = {
         "wet_bulb_temperature_2m": "°C",
         "vapour_pressure_deficit": "kPa",
         "relative_humidity_2m": "%",
+        "relative_humidity_700hPa": "%",
         "total_column_integrated_water_vapour": "mm",
         "rain": "mm",
         "snowfall": "cm",
@@ -470,6 +471,7 @@ STUB_SERIES = {
         "wet_bulb_temperature_2m": [23.5, 23.1, 22.6],
         "vapour_pressure_deficit": [0.85, 0.78, 0.68],
         "relative_humidity_2m": [78, 81, 85],
+        "relative_humidity_700hPa": [55.0, 60.0, 62.0],
         "total_column_integrated_water_vapour": [42.5, 45.1, 48.3],
         "rain": [0.0, 0.5, 1.2],
         "snowfall": [0.0, 0.0, 0.0],
@@ -533,6 +535,7 @@ def test_series_keeps_units_separate_for_split_axes():
     wet_bulb_temperature = by_label["湿球温度"]
     vapor_pressure_deficit = by_label["飽差(VPD)"]
     humidity = by_label["湿度"]
+    humidity_700hpa = by_label["700hPaの湿度"]
     rain = by_label["雨量"]
     snow = by_label["降雪量"]
     snow_depth = by_label["積雪の深さ"]
@@ -598,6 +601,8 @@ def test_series_keeps_units_separate_for_split_axes():
     assert vapor_pressure_deficit["unit"] == "kPa"
     assert humidity["label"] == "湿度"
     assert humidity["unit"] == "%"
+    assert humidity_700hpa["label"] == "700hPaの湿度"
+    assert humidity_700hpa["unit"] == "%"
     assert rain["label"] == "雨量"
     assert rain["unit"] == "mm"
     assert snow["label"] == "降雪量"
@@ -687,6 +692,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     wet_bulb_temperature = by_label["湿球温度"]
     vapor_pressure_deficit = by_label["飽差(VPD)"]
     humidity = by_label["湿度"]
+    humidity_700hpa = by_label["700hPaの湿度"]
     rain = by_label["雨量"]
     snow = by_label["降雪量"]
     snow_depth = by_label["積雪の深さ"]
@@ -737,6 +743,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     assert (wet_bulb_temperature["min"], wet_bulb_temperature["max"]) == (22.6, 23.5)
     assert (vapor_pressure_deficit["min"], vapor_pressure_deficit["max"]) == (0.68, 0.85)
     assert (humidity["min"], humidity["max"]) == (78, 85)
+    assert (humidity_700hpa["min"], humidity_700hpa["max"]) == (55.0, 62.0)
     assert (rain["min"], rain["max"]) == (0.0, 1.2)
     assert (snow["min"], snow["max"]) == (0.0, 0.0)
     assert (snow_depth["min"], snow_depth["max"]) == (0.02, 0.03)
@@ -842,6 +849,22 @@ def test_format_hourly_series_omits_convective_inhibition_and_boundary_layer_hei
 
     assert "対流抑制(CIN)" not in labels
     assert "境界層の高さ" not in labels
+    assert "気温" in labels  # 他の系列には影響しない
+
+
+def test_format_hourly_series_omits_relative_humidity_700hpa_when_missing():
+    """relative_humidity_700hPa も実 API での応答確認ができていないキーのため、
+    無ければ添字アクセスで落とさず静かに省く（Issue #502、temperature_120m と同型）。
+    """
+    hourly = {
+        k: v for k, v in STUB_SERIES["hourly"].items() if k != "relative_humidity_700hPa"
+    }
+    raw = {**STUB_SERIES, "hourly": hourly}
+
+    result = format_hourly_series(raw)
+    labels = {s["label"] for s in result["series"]}
+
+    assert "700hPaの湿度" not in labels
     assert "気温" in labels  # 他の系列には影響しない
 
 
