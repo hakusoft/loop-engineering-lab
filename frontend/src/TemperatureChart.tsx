@@ -46,6 +46,7 @@ function toChartData(data: SeriesResponse) {
   const cloudCoverMid = data.series.find((s) => s.label === "雲量(中層)");
   const cloudCoverHigh = data.series.find((s) => s.label === "雲量(高層)");
   const convectiveInhibition = data.series.find((s) => s.label === "対流抑制(CIN)");
+  const liftedIndex = data.series.find((s) => s.label === "Lifted Index");
   const boundaryLayerHeight = data.series.find((s) => s.label === "境界層の高さ");
   const windSpeed = data.series.find((s) => s.label === "風速");
   const windDirection = data.series.find((s) => s.label === "風向き");
@@ -100,6 +101,7 @@ function toChartData(data: SeriesResponse) {
       cloudCoverMid: undefined,
       cloudCoverHigh: undefined,
       convectiveInhibition: undefined,
+      liftedIndex: undefined,
       boundaryLayerHeight: undefined,
       windSpeed: undefined,
       windDirection: undefined,
@@ -157,6 +159,7 @@ function toChartData(data: SeriesResponse) {
     cloudCoverMid: cloudCoverMid?.values[i] ?? null,
     cloudCoverHigh: cloudCoverHigh?.values[i] ?? null,
     convectiveInhibition: convectiveInhibition?.values[i] ?? null,
+    liftedIndex: liftedIndex?.values[i] ?? null,
     boundaryLayerHeight: boundaryLayerHeight?.values[i] ?? null,
     windSpeed: windSpeed?.values[i] ?? null,
     windDirection: windDirection?.values[i] ?? null,
@@ -211,6 +214,7 @@ function toChartData(data: SeriesResponse) {
     cloudCoverMid,
     cloudCoverHigh,
     convectiveInhibition,
+    liftedIndex,
     boundaryLayerHeight,
     windSpeed,
     windDirection,
@@ -459,6 +463,7 @@ const SECONDARY_SERIES = [
   { key: "cloudCoverMid", label: "雲量(中層)", category: "環境" },
   { key: "cloudCoverHigh", label: "雲量(高層)", category: "環境" },
   { key: "convectiveInhibition", label: "対流抑制(CIN)", category: "環境" },
+  { key: "liftedIndex", label: "Lifted Index", category: "環境" },
   { key: "boundaryLayerHeight", label: "境界層の高さ", category: "環境" },
   { key: "freezingLevel", label: "凍結高度", category: "環境" },
   { key: "uvIndex", label: "紫外線指数", category: "環境" },
@@ -535,6 +540,7 @@ const SECONDARY_SERIES_COLOR: Record<SecondarySeriesKey, string> = {
   cloudCoverMid: "#adb5bd",
   cloudCoverHigh: "#343a40",
   convectiveInhibition: "#862e9c",
+  liftedIndex: "#f06595",
   boundaryLayerHeight: "#099268",
   freezingLevel: "#4263eb",
   uvIndex: "#ffd43b",
@@ -750,6 +756,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     cloudCoverMid,
     cloudCoverHigh,
     convectiveInhibition,
+    liftedIndex,
     boundaryLayerHeight,
     windSpeed,
     windDirection,
@@ -859,6 +866,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             return Boolean(cloudCoverHigh);
           case "convectiveInhibition":
             return Boolean(convectiveInhibition);
+          case "liftedIndex":
+            return Boolean(liftedIndex);
           case "boundaryLayerHeight":
             return Boolean(boundaryLayerHeight);
           case "windSpeed":
@@ -931,6 +940,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
       cloudCoverMid,
       cloudCoverHigh,
       convectiveInhibition,
+      liftedIndex,
       boundaryLayerHeight,
       windSpeed,
       windDirection,
@@ -1034,6 +1044,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
   const showCloudCoverMid = cloudCoverMid && visibleSecondary.has("cloudCoverMid");
   const showCloudCoverHigh = cloudCoverHigh && visibleSecondary.has("cloudCoverHigh");
   const showConvectiveInhibition = convectiveInhibition && visibleSecondary.has("convectiveInhibition");
+  const showLiftedIndex = liftedIndex && visibleSecondary.has("liftedIndex");
   const showBoundaryLayerHeight = boundaryLayerHeight && visibleSecondary.has("boundaryLayerHeight");
   const showWindSpeed = windSpeed && visibleSecondary.has("windSpeed");
   const showWindDirection = windDirection && visibleSecondary.has("windDirection");
@@ -1467,6 +1478,14 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             domain={[(convectiveInhibition!.min ?? 0) - 1, Math.max(convectiveInhibition!.max ?? 0, 0)]}
           />
         )}
+        {showLiftedIndex && (
+          // Lifted Index は正負どちらも取りうるので、他系列とは別軸にする。
+          <YAxis
+            yAxisId="liftedIndex"
+            hide
+            domain={[(liftedIndex!.min ?? 0) - 1, (liftedIndex!.max ?? 0) + 1]}
+          />
+        )}
         {showBoundaryLayerHeight && (
           // 境界層の高さは m 単位で他系列よりスケールが大きく違うので、独立した軸にする。
           <YAxis
@@ -1573,8 +1592,10 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
                                     ? cloudCoverHigh?.unit
                                     : name === "対流抑制(CIN)"
                                       ? convectiveInhibition?.unit
-                                      : name === "境界層の高さ"
-                                        ? boundaryLayerHeight?.unit
+                                      : name === "Lifted Index"
+                                        ? liftedIndex?.unit
+                                        : name === "境界層の高さ"
+                                          ? boundaryLayerHeight?.unit
                               : name === "風速"
                                 ? windSpeed?.unit
                                 : name === "風向き"
@@ -2004,6 +2025,18 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             isAnimationActive={false}
             name="対流抑制(CIN)"
             connectNulls
+          />
+        )}
+        {showLiftedIndex && (
+          <Line
+            yAxisId="liftedIndex"
+            type="monotone"
+            dataKey="liftedIndex"
+            stroke="#f06595"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="Lifted Index"
           />
         )}
         {showBoundaryLayerHeight && (

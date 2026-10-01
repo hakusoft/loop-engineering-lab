@@ -331,6 +331,7 @@ HOURLY_FIELDS = [
     "weather_code",
     "cape",
     "convective_inhibition",
+    "lifted_index",
     "boundary_layer_height",
     "cloud_cover",
     "cloud_cover_low",
@@ -1047,6 +1048,9 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
                 _series("surface_pressure", "気圧", "hPa"),
                 _series("pressure_msl", "海面気圧", "hPa"),
                 _series("convective_inhibition", "対流抑制(CIN)", "J/kg"),
+                # CAPE 以外の大気不安定指数もほしいという声を受けて追加する
+                # （Issue #480）。値が低い/負であるほど大気が不安定とされる。
+                _series("lifted_index", "Lifted Index", "°C"),
                 _series("boundary_layer_height", "境界層の高さ", "m"),
                 _series("cloud_cover", "雲量", "%"),
                 _series("cloud_cover_low", "雲量(低層)", "%"),
