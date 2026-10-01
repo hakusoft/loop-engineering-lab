@@ -50,7 +50,7 @@ export function formatElapsedSince(iso: string, now: Date = nowInJst()): string 
 
 export function ObservedAt({ data }: { data: WeatherResponse }) {
   return (
-    <p style={{ color: "var(--text-tertiary)", fontSize: 12, margin: "0 0 8px" }}>
+    <p style={{ color: "var(--text-tertiary)", fontSize: 14, margin: "0 0 8px" }}>
       {formatObservedAt(data.observed_at)}（{formatElapsedSince(data.observed_at)}）
     </p>
   );

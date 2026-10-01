@@ -46,6 +46,7 @@ function toChartData(data: SeriesResponse) {
   const cloudCoverMid = data.series.find((s) => s.label === "雲量(中層)");
   const cloudCoverHigh = data.series.find((s) => s.label === "雲量(高層)");
   const convectiveInhibition = data.series.find((s) => s.label === "対流抑制(CIN)");
+  const liftedIndex = data.series.find((s) => s.label === "Lifted Index");
   const boundaryLayerHeight = data.series.find((s) => s.label === "境界層の高さ");
   const windSpeed = data.series.find((s) => s.label === "風速");
   const windDirection = data.series.find((s) => s.label === "風向き");
@@ -100,6 +101,7 @@ function toChartData(data: SeriesResponse) {
       cloudCoverMid: undefined,
       cloudCoverHigh: undefined,
       convectiveInhibition: undefined,
+      liftedIndex: undefined,
       boundaryLayerHeight: undefined,
       windSpeed: undefined,
       windDirection: undefined,
@@ -157,6 +159,7 @@ function toChartData(data: SeriesResponse) {
     cloudCoverMid: cloudCoverMid?.values[i] ?? null,
     cloudCoverHigh: cloudCoverHigh?.values[i] ?? null,
     convectiveInhibition: convectiveInhibition?.values[i] ?? null,
+    liftedIndex: liftedIndex?.values[i] ?? null,
     boundaryLayerHeight: boundaryLayerHeight?.values[i] ?? null,
     windSpeed: windSpeed?.values[i] ?? null,
     windDirection: windDirection?.values[i] ?? null,
@@ -211,6 +214,7 @@ function toChartData(data: SeriesResponse) {
     cloudCoverMid,
     cloudCoverHigh,
     convectiveInhibition,
+    liftedIndex,
     boundaryLayerHeight,
     windSpeed,
     windDirection,
@@ -346,6 +350,44 @@ export function nightRanges(
   return ranges;
 }
 
+// 降水確率（precipitationProbability の values、timestamps と同じ並び）が
+// しきい値以上の時間帯を、thunderstormRanges と同じ要領で連続区間にまとめる。
+// 雷の時間帯と同じ気温グラフで見たいという声を受ける（Issue #469）。雷雨帯と
+// 見分けが付くよう、色は chartColors().precipitation を別に使う。
+const PRECIPITATION_PROBABILITY_THRESHOLD = 50;
+
+export function precipitationRanges(
+  timestamps: string[],
+  precipitationProbabilityValues: (number | null)[] | undefined,
+  rows: { time: string }[],
+): { x1: string; x2: string }[] {
+  if (
+    !precipitationProbabilityValues ||
+    timestamps.length === 0 ||
+    timestamps.length !== rows.length ||
+    timestamps.length !== precipitationProbabilityValues.length
+  ) {
+    return [];
+  }
+  const ranges: { x1: string; x2: string }[] = [];
+  let start: number | null = null;
+  for (let i = 0; i < timestamps.length; i++) {
+    const value = precipitationProbabilityValues[i];
+    if (value !== null && value >= PRECIPITATION_PROBABILITY_THRESHOLD) {
+      if (start === null) {
+        start = i;
+      }
+    } else if (start !== null) {
+      ranges.push({ x1: rows[start].time, x2: rows[i - 1].time });
+      start = null;
+    }
+  }
+  if (start !== null) {
+    ranges.push({ x1: rows[start].time, x2: rows[timestamps.length - 1].time });
+  }
+  return ranges;
+}
+
 // 夜間表示（App.tsx の NIGHT_THEME）では背景が濃紺になるため、目盛り・グリッド線・
 // 現在時刻線のデフォルト色（グレー系）はコントラストが低く読みにくい。
 // 昼夜で色を切り替える。
@@ -364,6 +406,7 @@ function chartColors(isDay: boolean | undefined) {
       apparentTemperature: "#ffe066",
       thunderstorm: "#ff8a65",
       night: "#000020",
+      precipitation: "#4dabf7",
     };
   }
   return {
@@ -375,6 +418,7 @@ function chartColors(isDay: boolean | undefined) {
     apparentTemperature: "#f4a300",
     thunderstorm: "#e2492c",
     night: "#1a2744",
+    precipitation: "#1971c2",
   };
 }
 
@@ -453,6 +497,7 @@ const SECONDARY_SERIES = [
   { key: "cloudCoverMid", label: "雲量(中層)", category: "環境" },
   { key: "cloudCoverHigh", label: "雲量(高層)", category: "環境" },
   { key: "convectiveInhibition", label: "対流抑制(CIN)", category: "環境" },
+  { key: "liftedIndex", label: "Lifted Index", category: "環境" },
   { key: "boundaryLayerHeight", label: "境界層の高さ", category: "環境" },
   { key: "freezingLevel", label: "凍結高度", category: "環境" },
   { key: "uvIndex", label: "紫外線指数", category: "環境" },
@@ -529,6 +574,7 @@ const SECONDARY_SERIES_COLOR: Record<SecondarySeriesKey, string> = {
   cloudCoverMid: "#adb5bd",
   cloudCoverHigh: "#343a40",
   convectiveInhibition: "#862e9c",
+  liftedIndex: "#f06595",
   boundaryLayerHeight: "#099268",
   freezingLevel: "#4263eb",
   uvIndex: "#ffd43b",
@@ -744,6 +790,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     cloudCoverMid,
     cloudCoverHigh,
     convectiveInhibition,
+    liftedIndex,
     boundaryLayerHeight,
     windSpeed,
     windDirection,
@@ -783,6 +830,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
   const colors = chartColors(isDay);
   const stormRanges = thunderstormRanges(data.timestamps, data.thunderstorm_hours, rows);
   const nightBackgroundRanges = nightRanges(data.timestamps, data.night_hours, rows);
+  const wetRanges = precipitationRanges(data.timestamps, precipitationProbability?.values, rows);
 
   // 降水確率は「傘が要るかすぐ分かりたい」という要望から、他の副系列と違い
   // デフォルトで表示する（Issue #272）。湿度もよく見る項目として初期からONにする
@@ -853,6 +901,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             return Boolean(cloudCoverHigh);
           case "convectiveInhibition":
             return Boolean(convectiveInhibition);
+          case "liftedIndex":
+            return Boolean(liftedIndex);
           case "boundaryLayerHeight":
             return Boolean(boundaryLayerHeight);
           case "windSpeed":
@@ -925,6 +975,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
       cloudCoverMid,
       cloudCoverHigh,
       convectiveInhibition,
+      liftedIndex,
       boundaryLayerHeight,
       windSpeed,
       windDirection,
@@ -1028,6 +1079,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
   const showCloudCoverMid = cloudCoverMid && visibleSecondary.has("cloudCoverMid");
   const showCloudCoverHigh = cloudCoverHigh && visibleSecondary.has("cloudCoverHigh");
   const showConvectiveInhibition = convectiveInhibition && visibleSecondary.has("convectiveInhibition");
+  const showLiftedIndex = liftedIndex && visibleSecondary.has("liftedIndex");
   const showBoundaryLayerHeight = boundaryLayerHeight && visibleSecondary.has("boundaryLayerHeight");
   const showWindSpeed = windSpeed && visibleSecondary.has("windSpeed");
   const showWindDirection = windDirection && visibleSecondary.has("windDirection");
@@ -1231,6 +1283,18 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             x2={range.x2}
             fill={colors.night}
             fillOpacity={0.12}
+            ifOverflow="extendDomain"
+          />
+        ))}
+        {wetRanges.map((range) => (
+          <ReferenceArea
+            key={`wet-${range.x1}`}
+            yAxisId="temperature"
+            x1={range.x1}
+            x2={range.x2}
+            fill={colors.precipitation}
+            fillOpacity={0.12}
+            stroke="none"
             ifOverflow="extendDomain"
           />
         ))}
@@ -1460,6 +1524,14 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             domain={[(convectiveInhibition!.min ?? 0) - 1, Math.max(convectiveInhibition!.max ?? 0, 0)]}
           />
         )}
+        {showLiftedIndex && (
+          // Lifted Index は正負どちらも取りうるので、他系列とは別軸にする。
+          <YAxis
+            yAxisId="liftedIndex"
+            hide
+            domain={[(liftedIndex!.min ?? 0) - 1, (liftedIndex!.max ?? 0) + 1]}
+          />
+        )}
         {showBoundaryLayerHeight && (
           // 境界層の高さは m 単位で他系列よりスケールが大きく違うので、独立した軸にする。
           <YAxis
@@ -1566,8 +1638,10 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
                                     ? cloudCoverHigh?.unit
                                     : name === "対流抑制(CIN)"
                                       ? convectiveInhibition?.unit
-                                      : name === "境界層の高さ"
-                                        ? boundaryLayerHeight?.unit
+                                      : name === "Lifted Index"
+                                        ? liftedIndex?.unit
+                                        : name === "境界層の高さ"
+                                          ? boundaryLayerHeight?.unit
                               : name === "風速"
                                 ? windSpeed?.unit
                                 : name === "風向き"
@@ -1997,6 +2071,18 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             isAnimationActive={false}
             name="対流抑制(CIN)"
             connectNulls
+          />
+        )}
+        {showLiftedIndex && (
+          <Line
+            yAxisId="liftedIndex"
+            type="monotone"
+            dataKey="liftedIndex"
+            stroke="#f06595"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="Lifted Index"
           />
         )}
         {showBoundaryLayerHeight && (

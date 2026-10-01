@@ -292,6 +292,7 @@ CURRENT_FIELDS = [
     "shortwave_radiation",
     "direct_radiation",
     "diffuse_radiation",
+    "direct_normal_irradiance",
     "snow_depth",
     "uv_index",
 ]
@@ -330,6 +331,7 @@ HOURLY_FIELDS = [
     "weather_code",
     "cape",
     "convective_inhibition",
+    "lifted_index",
     "boundary_layer_height",
     "cloud_cover",
     "cloud_cover_low",
@@ -743,6 +745,13 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
             "value": current["diffuse_radiation"],
             "unit": units.get("diffuse_radiation", "W/m²"),
         },
+        # パネルの角度に関係ない直射日光の強さ（太陽に正対する面で測った直達日射量）
+        # がほしいという声を受けて追加する（Issue #478）。direct_radiation は水平面
+        # 基準のため、パネル角度の影響を受けない値としては別の項目になる。
+        "solar_radiation_direct_normal": {
+            "value": current.get("direct_normal_irradiance"),
+            "unit": units.get("direct_normal_irradiance", "W/m²"),
+        },
         "solar_radiation_sum": {
             "value": daily["shortwave_radiation_sum"][0],
             "unit": daily_units.get("shortwave_radiation_sum", "MJ/m²"),
@@ -1055,6 +1064,9 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
                 _series("surface_pressure", "気圧", "hPa"),
                 _series("pressure_msl", "海面気圧", "hPa"),
                 _series("convective_inhibition", "対流抑制(CIN)", "J/kg"),
+                # CAPE 以外の大気不安定指数もほしいという声を受けて追加する
+                # （Issue #480）。値が低い/負であるほど大気が不安定とされる。
+                _series("lifted_index", "Lifted Index", "°C"),
                 _series("boundary_layer_height", "境界層の高さ", "m"),
                 _series("cloud_cover", "雲量", "%"),
                 _series("cloud_cover_low", "雲量(低層)", "%"),
