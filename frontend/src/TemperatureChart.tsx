@@ -314,6 +314,44 @@ export function thunderstormRanges(
   return ranges;
 }
 
+// 降水確率（precipitationProbability の values、timestamps と同じ並び）が
+// しきい値以上の時間帯を、thunderstormRanges と同じ要領で連続区間にまとめる。
+// 雷の時間帯と同じ気温グラフで見たいという声を受ける（Issue #469）。雷雨帯と
+// 見分けが付くよう、色は chartColors().precipitation を別に使う。
+const PRECIPITATION_PROBABILITY_THRESHOLD = 50;
+
+export function precipitationRanges(
+  timestamps: string[],
+  precipitationProbabilityValues: (number | null)[] | undefined,
+  rows: { time: string }[],
+): { x1: string; x2: string }[] {
+  if (
+    !precipitationProbabilityValues ||
+    timestamps.length === 0 ||
+    timestamps.length !== rows.length ||
+    timestamps.length !== precipitationProbabilityValues.length
+  ) {
+    return [];
+  }
+  const ranges: { x1: string; x2: string }[] = [];
+  let start: number | null = null;
+  for (let i = 0; i < timestamps.length; i++) {
+    const value = precipitationProbabilityValues[i];
+    if (value !== null && value >= PRECIPITATION_PROBABILITY_THRESHOLD) {
+      if (start === null) {
+        start = i;
+      }
+    } else if (start !== null) {
+      ranges.push({ x1: rows[start].time, x2: rows[i - 1].time });
+      start = null;
+    }
+  }
+  if (start !== null) {
+    ranges.push({ x1: rows[start].time, x2: rows[timestamps.length - 1].time });
+  }
+  return ranges;
+}
+
 // 夜間表示（App.tsx の NIGHT_THEME）では背景が濃紺になるため、目盛り・グリッド線・
 // 現在時刻線のデフォルト色（グレー系）はコントラストが低く読みにくい。
 // 昼夜で色を切り替える。
@@ -331,6 +369,7 @@ function chartColors(isDay: boolean | undefined) {
       temperature: "#ff6b52",
       apparentTemperature: "#ffe066",
       thunderstorm: "#ff8a65",
+      precipitation: "#4dabf7",
     };
   }
   return {
@@ -341,6 +380,7 @@ function chartColors(isDay: boolean | undefined) {
     temperature: "#e2492c",
     apparentTemperature: "#f4a300",
     thunderstorm: "#e2492c",
+    precipitation: "#1971c2",
   };
 }
 
@@ -748,6 +788,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
   const uvPeakText = formatUvIndexPeak(data, new Date());
   const colors = chartColors(isDay);
   const stormRanges = thunderstormRanges(data.timestamps, data.thunderstorm_hours, rows);
+  const wetRanges = precipitationRanges(data.timestamps, precipitationProbability?.values, rows);
 
   // 降水確率は「傘が要るかすぐ分かりたい」という要望から、他の副系列と違い
   // デフォルトで表示する（Issue #272）。湿度もよく見る項目として初期からONにする
@@ -1188,6 +1229,18 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
       <LineChart data={rows} margin={{ top: 16, right: chartRightMargin, bottom: chartBottomMargin, left: 0 }}>
         <CartesianGrid strokeDasharray="3 3" stroke={colors.grid} />
         <XAxis dataKey="time" minTickGap={40} tick={{ fontSize: tickFontSize, fill: colors.tick }} />
+        {wetRanges.map((range) => (
+          <ReferenceArea
+            key={`wet-${range.x1}`}
+            yAxisId="temperature"
+            x1={range.x1}
+            x2={range.x2}
+            fill={colors.precipitation}
+            fillOpacity={0.12}
+            stroke="none"
+            ifOverflow="extendDomain"
+          />
+        ))}
         {stormRanges.map((range) => (
           <ReferenceArea
             key={`storm-${range.x1}`}
