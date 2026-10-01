@@ -77,6 +77,7 @@ STUB_RESPONSE = {
         "shortwave_radiation": "W/m²",
         "direct_radiation": "W/m²",
         "diffuse_radiation": "W/m²",
+        "direct_normal_irradiance": "W/m²",
         "snow_depth": "m",
         "uv_index": "",
     },
@@ -119,6 +120,7 @@ STUB_RESPONSE = {
         "shortwave_radiation": 412.0,
         "direct_radiation": 298.0,
         "diffuse_radiation": 114.0,
+        "direct_normal_irradiance": 612.5,
         "snow_depth": 0.0,
         "uv_index": 5.2,
     },
@@ -229,6 +231,7 @@ def test_format_forecast_maps_values_and_units():
     assert result["freezing_level_height"] == {"value": 4800.0, "unit": "m"}
     assert result["solar_radiation"] == {"value": 412.0, "unit": "W/m²"}
     assert result["solar_radiation_direct"] == {"value": 298.0, "unit": "W/m²"}
+    assert result["solar_radiation_direct_normal"] == {"value": 612.5, "unit": "W/m²"}
     assert result["solar_radiation_diffuse"] == {"value": 114.0, "unit": "W/m²"}
     assert result["solar_radiation_sum"] == {"value": 23.4, "unit": "MJ/m²"}
     assert result["snow_depth"] == {"value": 0.0, "unit": "m"}
@@ -392,6 +395,7 @@ STUB_SERIES = {
         "weather_code": "wmo code",
         "cape": "J/kg",
         "convective_inhibition": "J/kg",
+        "lifted_index": "°C",
         "boundary_layer_height": "m",
         "cloud_cover": "%",
         "cloud_cover_low": "%",
@@ -451,6 +455,7 @@ STUB_SERIES = {
         "weather_code": [0, 3, 61],
         "cape": [120.0, 480.0, 90.0],
         "convective_inhibition": [-15.0, -60.0, -5.0],
+        "lifted_index": [2.5, -3.0, 1.0],
         "boundary_layer_height": [850.0, 620.0, 300.0],
         "cloud_cover": [20, 55, 90],
         "cloud_cover_low": [10, 40, 80],
@@ -548,6 +553,7 @@ def test_series_keeps_units_separate_for_split_axes():
     cloud_cover_mid = by_label["雲量(中層)"]
     cloud_cover_high = by_label["雲量(高層)"]
     convective_inhibition = by_label["対流抑制(CIN)"]
+    lifted_index = by_label["Lifted Index"]
     boundary_layer_height = by_label["境界層の高さ"]
     wind_direction = by_label["風向き"]
     wind_gusts = by_label["瞬間風速"]
@@ -627,6 +633,8 @@ def test_series_keeps_units_separate_for_split_axes():
     assert cloud_cover_high["unit"] == "%"
     assert convective_inhibition["label"] == "対流抑制(CIN)"
     assert convective_inhibition["unit"] == "J/kg"
+    assert lifted_index["label"] == "Lifted Index"
+    assert lifted_index["unit"] == "°C"
     assert boundary_layer_height["label"] == "境界層の高さ"
     assert boundary_layer_height["unit"] == "m"
     assert wind_direction["label"] == "風向き"
@@ -705,6 +713,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     cloud_cover_mid = by_label["雲量(中層)"]
     cloud_cover_high = by_label["雲量(高層)"]
     convective_inhibition = by_label["対流抑制(CIN)"]
+    lifted_index = by_label["Lifted Index"]
     boundary_layer_height = by_label["境界層の高さ"]
     wind_direction = by_label["風向き"]
     wind_gusts = by_label["瞬間風速"]
@@ -756,6 +765,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     assert (cloud_cover_mid["min"], cloud_cover_mid["max"]) == (15, 50)
     assert (cloud_cover_high["min"], cloud_cover_high["max"]) == (5, 35)
     assert (convective_inhibition["min"], convective_inhibition["max"]) == (-60.0, -5.0)
+    assert (lifted_index["min"], lifted_index["max"]) == (-3.0, 2.5)
     assert (boundary_layer_height["min"], boundary_layer_height["max"]) == (300.0, 850.0)
     assert (wind_direction["min"], wind_direction["max"]) == (200.0, 220.0)
     assert (wind_gusts["min"], wind_gusts["max"]) == (15.2, 19.6)
@@ -849,6 +859,20 @@ def test_format_hourly_series_omits_convective_inhibition_and_boundary_layer_hei
 
     assert "対流抑制(CIN)" not in labels
     assert "境界層の高さ" not in labels
+    assert "気温" in labels  # 他の系列には影響しない
+
+
+def test_format_hourly_series_omits_lifted_index_when_missing():
+    """lifted_index も実 API での応答確認ができていないキーのため、無ければ
+    添字アクセスで落とさず静かに省く（Issue #480、temperature_120m と同型）。
+    """
+    hourly = {k: v for k, v in STUB_SERIES["hourly"].items() if k != "lifted_index"}
+    raw = {**STUB_SERIES, "hourly": hourly}
+
+    result = format_hourly_series(raw)
+    labels = {s["label"] for s in result["series"]}
+
+    assert "Lifted Index" not in labels
     assert "気温" in labels  # 他の系列には影響しない
 
 
@@ -1136,6 +1160,26 @@ def test_format_forecast_tolerates_missing_relative_humidity_850hpa():
 
     assert result["humidity_aloft"]["value"] is None
     assert result["humidity_diff_ground_aloft"]["value"] is None
+
+
+def test_format_forecast_tolerates_missing_direct_normal_irradiance():
+    """direct_normal_irradiance が current に無くても TypeError にしない。
+
+    この項目は実 API での応答を確認できないまま追加した（Issue #478）。
+    solar_radiation_direct_normal は None を返す。
+    """
+    raw = {
+        **STUB_RESPONSE,
+        "current": {
+            k: v
+            for k, v in STUB_RESPONSE["current"].items()
+            if k != "direct_normal_irradiance"
+        },
+    }
+
+    result = format_forecast(raw)
+
+    assert result["solar_radiation_direct_normal"]["value"] is None
 
 
 def test_format_forecast_tolerates_missing_soil_temperature_deep():

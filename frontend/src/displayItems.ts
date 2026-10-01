@@ -44,6 +44,7 @@ import { SnowDepth } from "./SnowDepth";
 import { SolarRadiation } from "./SolarRadiation";
 import { SolarRadiationDirect } from "./SolarRadiationDirect";
 import { SolarRadiationDiffuse } from "./SolarRadiationDiffuse";
+import { SolarRadiationDirectNormal } from "./SolarRadiationDirectNormal";
 import { SolarRadiationSum } from "./SolarRadiationSum";
 import { SunTimes } from "./SunTimes";
 import { SunshineDuration } from "./SunshineDuration";
@@ -141,6 +142,7 @@ export const DISPLAY_ITEMS: DisplayItem[] = [
   { category: "環境", component: SolarRadiation, tier: "more" },
   { category: "環境", component: SolarRadiationDirect, tier: "more" },
   { category: "環境", component: SolarRadiationDiffuse, tier: "more" },
+  { category: "環境", component: SolarRadiationDirectNormal, tier: "more" },
   { category: "環境", component: SolarRadiationSum, tier: "more" },
   { category: "環境", component: UvIndex, tier: "more" },
   { category: "環境", component: Elevation, tier: "more" },
