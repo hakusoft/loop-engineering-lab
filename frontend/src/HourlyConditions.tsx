@@ -7,6 +7,7 @@ const STEP_HOURS = 3;
 
 export type HourlyConditionCell = {
   time: string;
+  timestamp: string;
   icon: string | null;
   description: string;
 };
@@ -21,11 +22,31 @@ export function toHourlyConditionCells(data: SeriesResponse): HourlyConditionCel
     cells.push({
       // "2026-07-21T00:00" -> "00時" 程度の短い表示に。
       time: data.timestamps[i].slice(11, 13) + "時",
+      timestamp: data.timestamps[i],
       icon: iconForWeatherCode(condition.code),
       description: condition.description,
     });
   }
   return cells;
+}
+
+// 今が何時ごろか分かりにくいという声を受け、現在時刻に最も近いセルを示す
+// （Issue #501）。TemperatureChart.tsx の nearestTimeLabel と同様の考え方。
+export function nearestConditionCellIndex(
+  cells: HourlyConditionCell[],
+  now: Date,
+): number | null {
+  if (cells.length === 0) return null;
+  let bestIndex = 0;
+  let bestDiff = Infinity;
+  cells.forEach((cell, i) => {
+    const diff = Math.abs(new Date(cell.timestamp).getTime() - now.getTime());
+    if (diff < bestDiff) {
+      bestDiff = diff;
+      bestIndex = i;
+    }
+  });
+  return bestIndex;
 }
 
 export function HourlyConditions({ data }: { data: SeriesResponse }) {
@@ -52,6 +73,7 @@ export function HourlyConditions({ data }: { data: SeriesResponse }) {
   if (cells.length === 0) return null;
 
   const selected = selectedIndex !== null ? cells[selectedIndex] : undefined;
+  const nearestIndex = nearestConditionCellIndex(cells, new Date());
 
   return (
     <div ref={containerRef}>
@@ -76,6 +98,7 @@ export function HourlyConditions({ data }: { data: SeriesResponse }) {
               fontSize: 12,
               color: "var(--text-secondary)",
               cursor: "pointer",
+              borderBottom: i === nearestIndex ? "2px solid var(--text-secondary)" : "2px solid transparent",
             }}
           >
             <div style={{ fontSize: 18, lineHeight: 1.4 }}>{cell.icon ?? "—"}</div>
