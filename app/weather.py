@@ -878,6 +878,17 @@ def thunderstorm_hours(timestamps: list[str], codes: list[int]) -> list[str]:
     return [t for t, c in zip(timestamps, codes) if c in THUNDERSTORM_CODES]
 
 
+def night_hours(timestamps: list[str], is_day: list[int]) -> list[str]:
+    """夜間（is_day=0）の時刻を返す。無ければ空リスト。
+
+    気温グラフの背景で夜の時間帯も色分けしたいという声を受けて追加する
+    （Issue #509）。thunderstorm_hours と同じ形（時刻の一覧）で返し、
+    利用側（フロント）で連続区間にまとめて ReferenceArea として描ける
+    ようにする。
+    """
+    return [t for t, day in zip(timestamps, is_day) if day == 0]
+
+
 def _peak_value(timestamps: list[str], values: list[float | None]) -> dict[str, Any] | None:
     """系列が最大になる時刻と値を返す。値が全て欠測なら None。"""
     best_index = None
@@ -987,6 +998,10 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
         [hourly["weather_code"][i] for i in today_index],
     )
 
+    # 夜の時間帯はグラフ全体（過去日＋当日）を通して塗りたいため、thunder_hours
+    # と異なり today_index に絞らず timestamps 全体を対象にする。
+    night_hours_all = night_hours(timestamps, hourly["is_day"]) if "is_day" in hourly else []
+
     cape_peak_today = cape_peak(
         [timestamps[i] for i in today_index],
         [hourly["cape"][i] for i in today_index],
@@ -1009,6 +1024,7 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
         "conditions": conditions,
         "daily_summary": daily_summary,
         "thunderstorm_hours": thunder_hours,
+        "night_hours": night_hours_all,
         "cape_peak": cape_peak_today,
         "wind_speed_peak": wind_speed_peak_today,
         "wind_gusts_peak": wind_gusts_peak_today,

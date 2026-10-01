@@ -25,6 +25,7 @@ export type SeriesResponse = {
   conditions: HourlyCondition[];
   daily_summary: string;
   thunderstorm_hours: string[];
+  night_hours: string[];
   cape_peak: { time: string; value: number } | null;
   wind_speed_peak: { time: string; value: number } | null;
   wind_gusts_peak: { time: string; value: number } | null;
