@@ -77,6 +77,7 @@ STUB_RESPONSE = {
         "shortwave_radiation": "W/m²",
         "direct_radiation": "W/m²",
         "diffuse_radiation": "W/m²",
+        "direct_normal_irradiance": "W/m²",
         "snow_depth": "m",
         "uv_index": "",
     },
@@ -119,6 +120,7 @@ STUB_RESPONSE = {
         "shortwave_radiation": 412.0,
         "direct_radiation": 298.0,
         "diffuse_radiation": 114.0,
+        "direct_normal_irradiance": 612.5,
         "snow_depth": 0.0,
         "uv_index": 5.2,
     },
@@ -229,6 +231,7 @@ def test_format_forecast_maps_values_and_units():
     assert result["freezing_level_height"] == {"value": 4800.0, "unit": "m"}
     assert result["solar_radiation"] == {"value": 412.0, "unit": "W/m²"}
     assert result["solar_radiation_direct"] == {"value": 298.0, "unit": "W/m²"}
+    assert result["solar_radiation_direct_normal"] == {"value": 612.5, "unit": "W/m²"}
     assert result["solar_radiation_diffuse"] == {"value": 114.0, "unit": "W/m²"}
     assert result["solar_radiation_sum"] == {"value": 23.4, "unit": "MJ/m²"}
     assert result["snow_depth"] == {"value": 0.0, "unit": "m"}
@@ -1113,6 +1116,26 @@ def test_format_forecast_tolerates_missing_relative_humidity_850hpa():
 
     assert result["humidity_aloft"]["value"] is None
     assert result["humidity_diff_ground_aloft"]["value"] is None
+
+
+def test_format_forecast_tolerates_missing_direct_normal_irradiance():
+    """direct_normal_irradiance が current に無くても TypeError にしない。
+
+    この項目は実 API での応答を確認できないまま追加した（Issue #478）。
+    solar_radiation_direct_normal は None を返す。
+    """
+    raw = {
+        **STUB_RESPONSE,
+        "current": {
+            k: v
+            for k, v in STUB_RESPONSE["current"].items()
+            if k != "direct_normal_irradiance"
+        },
+    }
+
+    result = format_forecast(raw)
+
+    assert result["solar_radiation_direct_normal"]["value"] is None
 
 
 def test_format_forecast_tolerates_missing_soil_temperature_deep():

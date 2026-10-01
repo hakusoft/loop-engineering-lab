@@ -292,6 +292,7 @@ CURRENT_FIELDS = [
     "shortwave_radiation",
     "direct_radiation",
     "diffuse_radiation",
+    "direct_normal_irradiance",
     "snow_depth",
     "uv_index",
 ]
@@ -742,6 +743,13 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
         "solar_radiation_diffuse": {
             "value": current["diffuse_radiation"],
             "unit": units.get("diffuse_radiation", "W/m²"),
+        },
+        # パネルの角度に関係ない直射日光の強さ（太陽に正対する面で測った直達日射量）
+        # がほしいという声を受けて追加する（Issue #478）。direct_radiation は水平面
+        # 基準のため、パネル角度の影響を受けない値としては別の項目になる。
+        "solar_radiation_direct_normal": {
+            "value": current.get("direct_normal_irradiance"),
+            "unit": units.get("direct_normal_irradiance", "W/m²"),
         },
         "solar_radiation_sum": {
             "value": daily["shortwave_radiation_sum"][0],
