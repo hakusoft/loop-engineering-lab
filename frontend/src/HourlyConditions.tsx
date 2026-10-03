@@ -12,6 +12,36 @@ export type HourlyConditionCell = {
   description: string;
 };
 
+// 降水の現在値（Precipitation.tsx）だけでなく、直近1時間の合計も知りたいという
+// 声を受けて追加する（Issue #508）。Open-Meteo の hourly の「雨量」1点は
+// その時間1時間分の合計を表すため、新しい API フィールドを足さなくても、
+// 既存の雨量系列から「今に最も近い時刻」の値を取れば「直近1時間の合計」になる。
+// Precipitation.tsx は現在値（/weather）のみを扱い時系列を持たないため、
+// 時系列（/weather/series）を既に受け取っているこのコンポーネント側に置く。
+export function formatRecentPrecipitationTotal(
+  data: SeriesResponse,
+  now: Date = new Date(),
+): string | null {
+  const rain = data.series.find((s) => s.label === "雨量");
+  if (!rain || data.timestamps.length === 0) {
+    return null;
+  }
+  let bestIndex = 0;
+  let bestDiff = Infinity;
+  data.timestamps.forEach((t, i) => {
+    const diff = Math.abs(new Date(t).getTime() - now.getTime());
+    if (diff < bestDiff) {
+      bestDiff = diff;
+      bestIndex = i;
+    }
+  });
+  const value = rain.values[bestIndex];
+  if (value === null) {
+    return null;
+  }
+  return `直近1時間の降水量 ${Math.round(value * 10) / 10}${rain.unit}`;
+}
+
 // 表示ロジックを純関数に切り出す。Condition.tsx の formatCondition と同様。
 // timestamps と conditions を突き合わせ、STEP_HOURS おきのセルにする。
 export function toHourlyConditionCells(data: SeriesResponse): HourlyConditionCell[] {
@@ -74,9 +104,15 @@ export function HourlyConditions({ data }: { data: SeriesResponse }) {
 
   const selected = selectedIndex !== null ? cells[selectedIndex] : undefined;
   const nearestIndex = nearestConditionCellIndex(cells, new Date());
+  const recentPrecipitationTotal = formatRecentPrecipitationTotal(data);
 
   return (
     <div ref={containerRef}>
+      {recentPrecipitationTotal && (
+        <p style={{ color: "var(--text-secondary)", fontSize: 14, margin: "4px 0 0" }}>
+          {recentPrecipitationTotal}
+        </p>
+      )}
       <div
         style={{
           display: "flex",
