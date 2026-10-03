@@ -12,7 +12,11 @@ const WARNING_THRESHOLD = 50;
 
 export function formatPrecipitationProbability(data: WeatherResponse): string {
   const { value, unit, date } = data.precipitation_probability;
-  return `降水確率 ${Math.round(value)}${unit}（${formatMonthDay(date)}）`;
+  // 本日の降水確率の最大値（daily の precipitation_probability_max）を表示している。
+  // 「もっと見る」内の平均・最低（PrecipitationProbabilityMean.tsx /
+  // PrecipitationProbabilityMin.tsx）と並べたとき、こちらに「最高」が無いと
+  // 大小関係が逆に見えるという指摘があった（Issue #516）。ラベルに明示する。
+  return `降水確率（最高） ${Math.round(value)}${unit}（${formatMonthDay(date)}）`;
 }
 
 export function formatPrecipitationWarning(data: WeatherResponse): string | null {
