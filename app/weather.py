@@ -17,7 +17,11 @@ DEFAULT_LATITUDE = 35.68
 DEFAULT_LONGITUDE = 139.76
 # 「東京」だけだと大まかすぎるという声を受け、この座標に見合った詳しい地名にする
 # （Issue #493）。緯度経度を切り替える複数地点対応ではなく、表示名のみの変更。
-DEFAULT_LOCATION_NAME = "東京都千代田区"
+# 都道府県と市区町村を別項目で使いたいという声を受け（Issue #517）、
+# 2つに分けて持つ。DEFAULT_LOCATION_NAME は後方互換のため、この2つを連結した値。
+DEFAULT_PREFECTURE_NAME = "東京都"
+DEFAULT_CITY_NAME = "千代田区"
+DEFAULT_LOCATION_NAME = DEFAULT_PREFECTURE_NAME + DEFAULT_CITY_NAME
 
 # 度数 → 16 方位。北を境界の中心（348.75°〜11.25°）として 22.5° 刻みで割り当てる。
 COMPASS_POINTS = [
@@ -465,6 +469,8 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
 
     return {
         "location_name": DEFAULT_LOCATION_NAME,
+        "prefecture_name": DEFAULT_PREFECTURE_NAME,
+        "city_name": DEFAULT_CITY_NAME,
         "observed_at": current["time"],
         "coordinates": {
             "latitude": _round_coordinate(raw["latitude"]),
