@@ -130,6 +130,8 @@ export type WeatherResponse = {
   is_day: boolean;
   observed_at: string;
   location_name: string;
+  prefecture_name: string;
+  city_name: string;
   elevation: { value: number; unit: string };
 };
 

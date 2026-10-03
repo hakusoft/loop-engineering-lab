@@ -283,6 +283,8 @@ def test_format_forecast_maps_values_and_units():
     }
     assert result["coordinates"] == {"latitude": 35.68, "longitude": 139.76}
     assert result["location_name"] == "東京都千代田区"
+    assert result["prefecture_name"] == "東京都"
+    assert result["city_name"] == "千代田区"
     assert result["elevation"] == {"value": 40.0, "unit": "m"}
 
 
@@ -899,6 +901,8 @@ def test_format_forecast_falls_back_when_units_missing():
     assert result["solar_radiation"] == {"value": 412.0, "unit": "W/m²"}
     assert result["dew_point"] == {"value": 22.6, "unit": "°C"}
     assert result["location_name"] == "東京都千代田区"
+    assert result["prefecture_name"] == "東京都"
+    assert result["city_name"] == "千代田区"
     assert result["elevation"] == {"value": 40.0, "unit": "m"}
 
 
