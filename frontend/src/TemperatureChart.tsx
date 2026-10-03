@@ -33,6 +33,7 @@ function toChartData(data: SeriesResponse) {
   const wetBulbTemperature = data.series.find((s) => s.label === "湿球温度");
   const vaporPressureDeficit = data.series.find((s) => s.label === "飽差(VPD)");
   const humidity = data.series.find((s) => s.label === "湿度");
+  const humidity700hPa = data.series.find((s) => s.label === "700hPaの湿度");
   const precipitableWater = data.series.find((s) => s.label === "可降水量");
   const rain = data.series.find((s) => s.label === "雨量");
   const snow = data.series.find((s) => s.label === "降雪量");
@@ -88,6 +89,7 @@ function toChartData(data: SeriesResponse) {
       wetBulbTemperature: undefined,
       vaporPressureDeficit: undefined,
       humidity: undefined,
+      humidity700hPa: undefined,
       precipitableWater: undefined,
       rain: undefined,
       snow: undefined,
@@ -146,6 +148,7 @@ function toChartData(data: SeriesResponse) {
     wetBulbTemperature: wetBulbTemperature?.values[i] ?? null,
     vaporPressureDeficit: vaporPressureDeficit?.values[i] ?? null,
     humidity: humidity?.values[i] ?? null,
+    humidity700hPa: humidity700hPa?.values[i] ?? null,
     precipitableWater: precipitableWater?.values[i] ?? null,
     rain: rain?.values[i] ?? null,
     snow: snow?.values[i] ?? null,
@@ -201,6 +204,7 @@ function toChartData(data: SeriesResponse) {
     wetBulbTemperature,
     vaporPressureDeficit,
     humidity,
+    humidity700hPa,
     precipitableWater,
     rain,
     snow,
@@ -452,6 +456,7 @@ const SECONDARY_SERIES = [
   { key: "soilTemperature18cm", label: "土の温度(18cm)", category: "降水・湿度" },
   { key: "soilTemperature54cm", label: "土の温度(54cm)", category: "降水・湿度" },
   { key: "humidity", label: "湿度", category: "降水・湿度" },
+  { key: "humidity700hPa", label: "700hPaの湿度", category: "降水・湿度" },
   { key: "precipitableWater", label: "可降水量", category: "降水・湿度" },
   { key: "snowDepth", label: "積雪の深さ", category: "降水・湿度" },
   { key: "precipitationProbability", label: "降水確率", category: "降水・湿度" },
@@ -529,6 +534,7 @@ const SECONDARY_SERIES_COLOR: Record<SecondarySeriesKey, string> = {
   soilTemperature18cm: "#c1440e",
   soilTemperature54cm: "#6f4518",
   humidity: "#2c7be2",
+  humidity700hPa: "#339af0",
   precipitableWater: "#0c8599",
   snowDepth: "#364fc7",
   precipitationProbability: "#748ffc",
@@ -743,6 +749,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     wetBulbTemperature,
     vaporPressureDeficit,
     humidity,
+    humidity700hPa,
     precipitableWater,
     rain,
     snow,
@@ -844,6 +851,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             return Boolean(vaporPressureDeficit);
           case "humidity":
             return Boolean(humidity);
+          case "humidity700hPa":
+            return Boolean(humidity700hPa);
           case "precipitableWater":
             return Boolean(precipitableWater);
           case "snowDepth":
@@ -929,6 +938,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
       apparentTemperature,
       dewPoint,
       humidity,
+      humidity700hPa,
       precipitableWater,
       snowDepth,
       precipitationProbability,
@@ -1033,6 +1043,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
   const showWetBulbTemperature = wetBulbTemperature && visibleSecondary.has("wetBulbTemperature");
   const showVaporPressureDeficit = vaporPressureDeficit && visibleSecondary.has("vaporPressureDeficit");
   const showHumidity = humidity && visibleSecondary.has("humidity");
+  const showHumidity700hPa = humidity700hPa && visibleSecondary.has("humidity700hPa");
   const showPrecipitableWater = precipitableWater && visibleSecondary.has("precipitableWater");
   const showSnowDepth = snowDepth && visibleSecondary.has("snowDepth");
   const showPrecipitationProbability = precipitationProbability && visibleSecondary.has("precipitationProbability");
@@ -1299,6 +1310,10 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             domain={[humidity!.min as number, humidity!.max as number]}
             tick={{ fontSize: tickFontSize }}
           />
+        )}
+        {showHumidity700hPa && (
+          // 700hPaの湿度は0〜100%固定なので、雲量と同じく固定スケールの軸にする。
+          <YAxis yAxisId="humidity700hPa" hide domain={[0, 100]} />
         )}
         {showPrecipitableWater && (
           // 可降水量も他系列と単位・スケールが違うので、独立した軸にする。
@@ -1568,6 +1583,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
                     ? vaporPressureDeficit?.unit
                     : name === "湿度"
                     ? humidity?.unit
+                    : name === "700hPaの湿度"
+                    ? humidity700hPa?.unit
                     : name === "可降水量"
                     ? precipitableWater?.unit
                     : name === "雨量"
@@ -1857,6 +1874,19 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             dot={false}
             isAnimationActive={false}
             name="湿度"
+          />
+        )}
+        {showHumidity700hPa && (
+          <Line
+            yAxisId="humidity700hPa"
+            type="monotone"
+            dataKey="humidity700hPa"
+            stroke="#339af0"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="700hPaの湿度"
+            connectNulls
           />
         )}
         {showPrecipitableWater && (

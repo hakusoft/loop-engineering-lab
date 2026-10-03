@@ -355,6 +355,7 @@ HOURLY_FIELDS = [
     "wet_bulb_temperature_2m",
     "vapour_pressure_deficit",
     "relative_humidity_2m",
+    "relative_humidity_700hPa",
     "total_column_integrated_water_vapour",
     "precipitation",
     "rain",
@@ -1045,6 +1046,9 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
                 _series("wet_bulb_temperature_2m", "湿球温度", "°C"),
                 _series("vapour_pressure_deficit", "飽差(VPD)", "kPa"),
                 _series("relative_humidity_2m", "湿度", "%"),
+                # 850hPa気温・湿度は既にあり、風は700hPaまで見られるようになった一方、
+                # 700hPaの湿度が無いという声を受けて追加する（Issue #502）。
+                _series("relative_humidity_700hPa", "700hPaの湿度", "%"),
                 _series("total_column_integrated_water_vapour", "可降水量", "mm"),
                 _series("rain", "雨量", "mm"),
                 _series("snowfall", "降雪量", "cm"),
