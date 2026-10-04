@@ -414,6 +414,7 @@ STUB_SERIES = {
         "soil_temperature_6cm": "°C",
         "soil_temperature_18cm": "°C",
         "soil_temperature_54cm": "°C",
+        "soil_moisture_0_to_1cm": "m³/m³",
         "apparent_temperature": "°C",
         "dew_point_2m": "°C",
         "wet_bulb_temperature_2m": "°C",
@@ -477,6 +478,7 @@ STUB_SERIES = {
         "soil_temperature_6cm": [27.5, 27.0, 26.4],
         "soil_temperature_18cm": [25.2, 25.0, 24.8],
         "soil_temperature_54cm": [21.9, 21.8, 21.7],
+        "soil_moisture_0_to_1cm": [0.32, 0.30, 0.29],
         "apparent_temperature": [27.3, 26.5, 25.8],
         "dew_point_2m": [21.8, 21.5, 21.2],
         "wet_bulb_temperature_2m": [23.5, 23.1, 22.6],
@@ -544,6 +546,7 @@ def test_series_keeps_units_separate_for_split_axes():
     soil_temperature_6cm = by_label["土の温度(6cm)"]
     soil_temperature_18cm = by_label["土の温度(18cm)"]
     soil_temperature_54cm = by_label["土の温度(54cm)"]
+    soil_moisture_0_to_1cm = by_label["土の水分量(表層)"]
     apparent_temperature = by_label["体感温度"]
     dew_point = by_label["露点温度"]
     wet_bulb_temperature = by_label["湿球温度"]
@@ -610,6 +613,8 @@ def test_series_keeps_units_separate_for_split_axes():
     assert soil_temperature_18cm["unit"] == "°C"
     assert soil_temperature_54cm["label"] == "土の温度(54cm)"
     assert soil_temperature_54cm["unit"] == "°C"
+    assert soil_moisture_0_to_1cm["label"] == "土の水分量(表層)"
+    assert soil_moisture_0_to_1cm["unit"] == "m³/m³"
     assert apparent_temperature["label"] == "体感温度"
     assert apparent_temperature["unit"] == "°C"
     assert dew_point["label"] == "露点温度"
@@ -713,6 +718,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     soil_temperature_6cm = by_label["土の温度(6cm)"]
     soil_temperature_18cm = by_label["土の温度(18cm)"]
     soil_temperature_54cm = by_label["土の温度(54cm)"]
+    soil_moisture_0_to_1cm = by_label["土の水分量(表層)"]
     apparent_temperature = by_label["体感温度"]
     dew_point = by_label["露点温度"]
     wet_bulb_temperature = by_label["湿球温度"]
@@ -768,6 +774,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     assert (soil_temperature_6cm["min"], soil_temperature_6cm["max"]) == (26.4, 27.5)
     assert (soil_temperature_18cm["min"], soil_temperature_18cm["max"]) == (24.8, 25.2)
     assert (soil_temperature_54cm["min"], soil_temperature_54cm["max"]) == (21.7, 21.9)
+    assert (soil_moisture_0_to_1cm["min"], soil_moisture_0_to_1cm["max"]) == (0.29, 0.32)
     assert (apparent_temperature["min"], apparent_temperature["max"]) == (25.8, 27.3)
     assert (dew_point["min"], dew_point["max"]) == (21.2, 21.8)
     assert (wet_bulb_temperature["min"], wet_bulb_temperature["max"]) == (22.6, 23.5)
