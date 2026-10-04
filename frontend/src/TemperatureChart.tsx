@@ -811,7 +811,10 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     visibility,
   } = toChartData(data);
   const isNarrow = useIsNarrowViewport();
-  const tickFontSize = isNarrow ? 15 : 12;
+  const tickFontSize = isNarrow ? 17 : 12;
+  // スマホでは軸の数字だけでなく気温の線自体も見分けにくいという声（Issue #526）を受け、
+  // 主系列（気温）の線をスマホ幅のときだけ太くする。
+  const temperatureLineWidth = isNarrow ? 3 : 2;
   const axisWidth = isNarrow ? 68 : 56;
   // 目盛りを拡大した分、右端のラベルが枠からはみ出さないよう余白も広げる。
   const chartRightMargin = isNarrow ? 40 : 24;
@@ -1732,7 +1735,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
           type="monotone"
           dataKey="temperature"
           stroke={colors.temperature}
-          strokeWidth={2}
+          strokeWidth={temperatureLineWidth}
           dot={false}
           isAnimationActive={false}
           name="気温"
