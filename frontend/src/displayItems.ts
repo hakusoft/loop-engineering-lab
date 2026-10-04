@@ -47,6 +47,7 @@ import { SolarRadiationDiffuse } from "./SolarRadiationDiffuse";
 import { SolarRadiationDirectNormal } from "./SolarRadiationDirectNormal";
 import { SolarRadiationSum } from "./SolarRadiationSum";
 import { SunTimes } from "./SunTimes";
+import { SunTimesRelative } from "./SunTimesRelative";
 import { SunshineDuration } from "./SunshineDuration";
 import { TemperatureDiffGroundAloft } from "./TemperatureDiffGroundAloft";
 import { TemperatureMean } from "./TemperatureMean";
@@ -148,6 +149,7 @@ export const DISPLAY_ITEMS: DisplayItem[] = [
   { category: "環境", component: Elevation, tier: "more" },
 
   { category: "日照・時刻", component: SunTimes, tier: "primary" },
+  { category: "日照・時刻", component: SunTimesRelative, tier: "more" },
   { category: "日照・時刻", component: DaylightDuration, tier: "more" },
   { category: "日照・時刻", component: SunshineDuration, tier: "more" },
   { category: "日照・時刻", component: ObservedAt, tier: "primary" },
