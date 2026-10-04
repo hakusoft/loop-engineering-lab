@@ -11,6 +11,7 @@ import pytest
 from app.weather import (
     summarize_day,
     thunderstorm_hours,
+    night_hours,
     cape_peak,
     COMPASS_ABBREVIATIONS,
     COMPASS_POINTS,
@@ -1940,6 +1941,49 @@ def test_thunderstorm_hours_is_empty_without_thunder():
     timestamps = [f"2026-08-26T{h:02d}:00" for h in range(24)]
 
     assert thunderstorm_hours(timestamps, [0, 3, 61] * 8) == []
+
+
+def test_night_hours_lists_hours_at_night():
+    """is_day=0 の時刻を返す。"""
+    timestamps = [f"2026-08-26T{h:02d}:00" for h in range(6)]
+    is_day = [0, 0, 1, 1, 1, 0]
+
+    assert night_hours(timestamps, is_day) == [
+        "2026-08-26T00:00",
+        "2026-08-26T01:00",
+        "2026-08-26T05:00",
+    ]
+
+
+def test_night_hours_is_empty_during_day():
+    """is_day が全て1なら空。画面では何も出さない。"""
+    timestamps = [f"2026-08-26T{h:02d}:00" for h in range(6)]
+
+    assert night_hours(timestamps, [1] * 6) == []
+
+
+def test_format_hourly_series_includes_night_hours():
+    """format_hourly_series の戻り値に、夜間(is_day=0)の時刻一覧が含まれる。
+
+    thunderstorm_hours と違い、今日一日（today_index）に絞らず timestamps
+    全体（過去日＋当日）を対象にする。
+    """
+    hourly = {**STUB_SERIES["hourly"], "is_day": [0, 1, 1]}
+    raw = {**STUB_SERIES, "hourly": hourly}
+
+    result = format_hourly_series(raw)
+
+    assert result["night_hours"] == ["2026-07-21T00:00"]
+
+
+def test_format_hourly_series_night_hours_is_empty_without_is_day():
+    """is_day がレスポンスに無ければ night_hours は空（#164 と同型の KeyError を避ける）。"""
+    hourly = {k: v for k, v in STUB_SERIES["hourly"].items() if k != "is_day"}
+    raw = {**STUB_SERIES, "hourly": hourly}
+
+    result = format_hourly_series(raw)
+
+    assert result["night_hours"] == []
 
 
 def test_cape_peak_returns_time_and_value_of_max():

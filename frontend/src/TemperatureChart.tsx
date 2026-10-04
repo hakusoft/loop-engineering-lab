@@ -334,6 +334,38 @@ export function thunderstormRanges(
   return ranges;
 }
 
+// night_hours（夜間(is_day=0)の時刻一覧、timestamps の部分集合）を、thunderstormRanges
+// と同じ考え方でグラフに ReferenceArea で塗れる連続した範囲（x1〜x2）にまとめる。
+// 雨の時間帯（雷雨帯）と合わせて夜の時間帯も背景の色で分かるようにしたいという
+// 声があった（Issue #509）。thunderstorm_hours と違い、今日一日に絞らずグラフに
+// 表示されている全時間帯（過去日＋当日）が対象。
+export function nightRanges(
+  timestamps: string[],
+  nightHours: string[],
+  rows: { time: string }[],
+): { x1: string; x2: string }[] {
+  if (timestamps.length === 0 || timestamps.length !== rows.length || nightHours.length === 0) {
+    return [];
+  }
+  const hourSet = new Set(nightHours);
+  const ranges: { x1: string; x2: string }[] = [];
+  let start: number | null = null;
+  for (let i = 0; i < timestamps.length; i++) {
+    if (hourSet.has(timestamps[i])) {
+      if (start === null) {
+        start = i;
+      }
+    } else if (start !== null) {
+      ranges.push({ x1: rows[start].time, x2: rows[i - 1].time });
+      start = null;
+    }
+  }
+  if (start !== null) {
+    ranges.push({ x1: rows[start].time, x2: rows[timestamps.length - 1].time });
+  }
+  return ranges;
+}
+
 // 降水確率（precipitationProbability の values、timestamps と同じ並び）が
 // しきい値以上の時間帯を、thunderstormRanges と同じ要領で連続区間にまとめる。
 // 雷の時間帯と同じ気温グラフで見たいという声を受ける（Issue #469）。雷雨帯と
@@ -389,6 +421,7 @@ function chartColors(isDay: boolean | undefined) {
       temperature: "#ff6b52",
       apparentTemperature: "#ffe066",
       thunderstorm: "#ff8a65",
+      night: "#000020",
       precipitation: "#4dabf7",
     };
   }
@@ -400,6 +433,7 @@ function chartColors(isDay: boolean | undefined) {
     temperature: "#e2492c",
     apparentTemperature: "#f4a300",
     thunderstorm: "#e2492c",
+    night: "#1a2744",
     precipitation: "#1971c2",
   };
 }
@@ -824,6 +858,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
   const uvPeakText = formatUvIndexPeak(data, new Date());
   const colors = chartColors(isDay);
   const stormRanges = thunderstormRanges(data.timestamps, data.thunderstorm_hours, rows);
+  const nightBackgroundRanges = nightRanges(data.timestamps, data.night_hours, rows);
   const wetRanges = precipitationRanges(data.timestamps, precipitationProbability?.values, rows);
 
   // 降水確率は「傘が要るかすぐ分かりたい」という要望から、他の副系列と違い
@@ -1285,6 +1320,17 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
       <LineChart data={rows} margin={{ top: 16, right: chartRightMargin, bottom: chartBottomMargin, left: 0 }}>
         <CartesianGrid strokeDasharray="3 3" stroke={colors.grid} />
         <XAxis dataKey="time" minTickGap={40} tick={{ fontSize: tickFontSize, fill: colors.tick }} />
+        {nightBackgroundRanges.map((range) => (
+          <ReferenceArea
+            key={`night-${range.x1}`}
+            yAxisId="temperature"
+            x1={range.x1}
+            x2={range.x2}
+            fill={colors.night}
+            fillOpacity={0.12}
+            ifOverflow="extendDomain"
+          />
+        ))}
         {wetRanges.map((range) => (
           <ReferenceArea
             key={`wet-${range.x1}`}
