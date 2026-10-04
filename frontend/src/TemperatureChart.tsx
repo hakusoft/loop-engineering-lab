@@ -29,6 +29,7 @@ function toChartData(data: SeriesResponse) {
   const soilTemperature6cm = data.series.find((s) => s.label === "土の温度(6cm)");
   const soilTemperature18cm = data.series.find((s) => s.label === "土の温度(18cm)");
   const soilTemperature54cm = data.series.find((s) => s.label === "土の温度(54cm)");
+  const soilMoisture = data.series.find((s) => s.label === "土の水分量(表層)");
   const apparentTemperature = data.series.find((s) => s.label === "体感温度");
   const dewPoint = data.series.find((s) => s.label === "露点温度");
   const wetBulbTemperature = data.series.find((s) => s.label === "湿球温度");
@@ -88,6 +89,7 @@ function toChartData(data: SeriesResponse) {
       soilTemperature6cm: undefined,
       soilTemperature18cm: undefined,
       soilTemperature54cm: undefined,
+      soilMoisture: undefined,
       apparentTemperature: undefined,
       dewPoint: undefined,
       wetBulbTemperature: undefined,
@@ -150,6 +152,7 @@ function toChartData(data: SeriesResponse) {
     soilTemperature6cm: soilTemperature6cm?.values[i] ?? null,
     soilTemperature18cm: soilTemperature18cm?.values[i] ?? null,
     soilTemperature54cm: soilTemperature54cm?.values[i] ?? null,
+    soilMoisture: soilMoisture?.values[i] ?? null,
     apparentTemperature: apparentTemperature?.values[i] ?? null,
     dewPoint: dewPoint?.values[i] ?? null,
     wetBulbTemperature: wetBulbTemperature?.values[i] ?? null,
@@ -209,6 +212,7 @@ function toChartData(data: SeriesResponse) {
     soilTemperature6cm,
     soilTemperature18cm,
     soilTemperature54cm,
+    soilMoisture,
     apparentTemperature,
     dewPoint,
     wetBulbTemperature,
@@ -502,6 +506,7 @@ const SECONDARY_SERIES = [
   { key: "soilTemperature6cm", label: "土の温度(6cm)", category: "降水・湿度" },
   { key: "soilTemperature18cm", label: "土の温度(18cm)", category: "降水・湿度" },
   { key: "soilTemperature54cm", label: "土の温度(54cm)", category: "降水・湿度" },
+  { key: "soilMoisture", label: "土の水分量(表層)", category: "降水・湿度" },
   { key: "humidity", label: "湿度", category: "降水・湿度" },
   { key: "humidity700hPa", label: "700hPaの湿度", category: "降水・湿度" },
   { key: "precipitableWater", label: "可降水量", category: "降水・湿度" },
@@ -584,6 +589,7 @@ const SECONDARY_SERIES_COLOR: Record<SecondarySeriesKey, string> = {
   soilTemperature6cm: "#a1662f",
   soilTemperature18cm: "#c1440e",
   soilTemperature54cm: "#6f4518",
+  soilMoisture: "#1864ab",
   humidity: "#2c7be2",
   humidity700hPa: "#339af0",
   precipitableWater: "#0c8599",
@@ -798,6 +804,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     soilTemperature6cm,
     soilTemperature18cm,
     soilTemperature54cm,
+    soilMoisture,
     apparentTemperature,
     dewPoint,
     wetBulbTemperature,
@@ -900,6 +907,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             return Boolean(soilTemperature18cm);
           case "soilTemperature54cm":
             return Boolean(soilTemperature54cm);
+          case "soilMoisture":
+            return Boolean(soilMoisture);
           case "apparentTemperature":
             return Boolean(apparentTemperature);
           case "dewPoint":
@@ -999,6 +1008,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
       soilTemperature6cm,
       soilTemperature18cm,
       soilTemperature54cm,
+      soilMoisture,
       apparentTemperature,
       dewPoint,
       humidity,
@@ -1105,6 +1115,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
   const showSoilTemperature6cm = soilTemperature6cm && visibleSecondary.has("soilTemperature6cm");
   const showSoilTemperature18cm = soilTemperature18cm && visibleSecondary.has("soilTemperature18cm");
   const showSoilTemperature54cm = soilTemperature54cm && visibleSecondary.has("soilTemperature54cm");
+  const showSoilMoisture = soilMoisture && visibleSecondary.has("soilMoisture");
   const showApparentTemperature = apparentTemperature && visibleSecondary.has("apparentTemperature");
   const showDewPoint = dewPoint && visibleSecondary.has("dewPoint");
   const showWetBulbTemperature = wetBulbTemperature && visibleSecondary.has("wetBulbTemperature");
@@ -1403,6 +1414,14 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             domain={[0, Math.max(precipitableWater!.max ?? 0, 1) + 1]}
           />
         )}
+        {showSoilMoisture && (
+          // 土の水分量(m³/m³)は他系列と単位・スケールが違うので、独立した軸にする。
+          <YAxis
+            yAxisId="soilMoisture"
+            hide
+            domain={[0, Math.max(soilMoisture!.max ?? 0, 0.1) + 0.05]}
+          />
+        )}
         {(rain || snow) && (
           // 気温・湿度と軸が重ならないよう、降水量の軸は目盛りを描画しない（スケールのみ利用）。
           <YAxis
@@ -1667,6 +1686,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
                     ? soilTemperature18cm?.unit
                   : name === "土の温度(54cm)"
                     ? soilTemperature54cm?.unit
+                  : name === "土の水分量(表層)"
+                    ? soilMoisture?.unit
                   : name === "体感温度"
                     ? apparentTemperature?.unit
                   : name === "露点温度"
@@ -1920,6 +1941,18 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             isAnimationActive={false}
             name="土の温度(54cm)"
             connectNulls
+          />
+        )}
+        {showSoilMoisture && (
+          <Line
+            yAxisId="soilMoisture"
+            type="monotone"
+            dataKey="soilMoisture"
+            stroke={SECONDARY_SERIES_COLOR.soilMoisture}
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="土の水分量(表層)"
           />
         )}
         {showApparentTemperature && (
