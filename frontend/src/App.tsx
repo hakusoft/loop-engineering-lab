@@ -119,7 +119,11 @@ function ExpandableItems({
   return (
     <>
       {primary}
-      {expanded && more}
+      {expanded && (
+        <Suspense fallback={<p style={{ color: "var(--text-tertiary)", fontSize: 13 }}>読み込み中…</p>}>
+          {more}
+        </Suspense>
+      )}
       {more.length > 0 && (
         <button
           type="button"
