@@ -1,62 +1,18 @@
-import type { ComponentType } from "react";
+import { lazy, type ComponentType } from "react";
 import type { WeatherResponse } from "./api";
 import { ApparentTemperature } from "./ApparentTemperature";
-import { ApparentTemperatureRange } from "./ApparentTemperatureRange";
-import { ApparentTemperatureMean } from "./ApparentTemperatureMean";
 import { CloudCover } from "./CloudCover";
-import { CloudCoverLayers } from "./CloudCoverLayers";
 import { Condition } from "./Condition";
 import { CurrentTemperature } from "./CurrentTemperature";
-import { DaylightDuration } from "./DaylightDuration";
-import { DewPoint } from "./DewPoint";
-import { Elevation } from "./Elevation";
-import { GardenWatering } from "./GardenWatering";
-import { HeatStrokeRisk } from "./HeatStrokeRisk";
 import { Humidity } from "./Humidity";
 import { HumiditySparkline } from "./HumiditySparkline";
-import { HumidityDiffGroundAloft } from "./HumidityDiffGroundAloft";
-import { HumidityMean } from "./HumidityMean";
-import { HumidityRange } from "./HumidityRange";
-import { LaundryDryness } from "./LaundryDryness";
-import { Evapotranspiration } from "./Evapotranspiration";
-import { SoilTemperature } from "./SoilTemperature";
-import { SoilTemperatureDeep } from "./SoilTemperatureDeep";
-import { SoilTemperatureDeeper } from "./SoilTemperatureDeeper";
-import { SoilTemperatureDeepest } from "./SoilTemperatureDeepest";
-import { SoilMoisture } from "./SoilMoisture";
-import { SoilMoistureDeep } from "./SoilMoistureDeep";
-import { SoilMoistureDeeper } from "./SoilMoistureDeeper";
-import { SoilMoistureDeepest } from "./SoilMoistureDeepest";
-import { SoilMoistureBedrock } from "./SoilMoistureBedrock";
 import { ObservedAt } from "./ObservedAt";
 import { Precipitation } from "./Precipitation";
-import { PrecipitationHours } from "./PrecipitationHours";
 import { PrecipitationProbability } from "./PrecipitationProbability";
-import { PrecipitationProbabilityMean } from "./PrecipitationProbabilityMean";
-import { PrecipitationProbabilityMin } from "./PrecipitationProbabilityMin";
-import { PrecipitationSum } from "./PrecipitationSum";
-import { PrecipitationSumByType } from "./PrecipitationSumByType";
-import { PrecipitationType } from "./PrecipitationType";
-import { Showers } from "./Showers";
 import { Pressure } from "./Pressure";
-import { SeaLevelPressure } from "./SeaLevelPressure";
-import { SnowDepth } from "./SnowDepth";
-import { SolarRadiation } from "./SolarRadiation";
-import { SolarRadiationDirect } from "./SolarRadiationDirect";
-import { SolarRadiationDiffuse } from "./SolarRadiationDiffuse";
-import { SolarRadiationDirectNormal } from "./SolarRadiationDirectNormal";
-import { SolarRadiationSum } from "./SolarRadiationSum";
 import { SunTimes } from "./SunTimes";
-import { SunTimesRelative } from "./SunTimesRelative";
-import { SunshineDuration } from "./SunshineDuration";
-import { TemperatureDiffGroundAloft } from "./TemperatureDiffGroundAloft";
-import { TemperatureMean } from "./TemperatureMean";
 import { TemperatureRange } from "./TemperatureRange";
-import { UvIndex } from "./UvIndex";
-import { VaporPressureDeficit } from "./VaporPressureDeficit";
-import { FreezingLevel } from "./FreezingLevel";
 import { Visibility } from "./Visibility";
-import { WetBulbTemperature } from "./WetBulbTemperature";
 import { Wind } from "./Wind";
 
 // 表示項目の一覧。App.tsx はこれを読んで描くだけで、項目そのものは持たない。
@@ -81,6 +37,24 @@ export type DisplayItem = {
   tier?: DisplayTier;
 };
 
+// tier: "more" の項目は、カテゴリを開いた直後は画面に出ないにもかかわらず、
+// primary と同じ初回バンドルに含めると開いた瞬間の読み込みを重くする一因になる
+// （Issue #513。#308 で TemperatureChart だけ別チャンクにした後、項目数が
+// 数十件規模で増え、同じ問題が再発した）。実体は moreDisplayItems.ts に
+// まとめ、ここでは同じ import("./moreDisplayItems") から React.lazy で
+// 読み込む。呼び出しごとに別チャンクへ分割されるのではなく、同じ動的
+// import 先はバンドラが1つのチャンクにまとめるため、「もっと見る」を
+// 開いたときの追加リクエストは1回で済む。
+type MoreItemName = keyof typeof import("./moreDisplayItems");
+
+function lazyMoreItem(name: MoreItemName): ComponentType<{ data: WeatherResponse }> {
+  return lazy(() =>
+    import("./moreDisplayItems").then((mod) => ({
+      default: mod[name] as ComponentType<{ data: WeatherResponse }>,
+    })),
+  );
+}
+
 // 画面に出るカテゴリの並び。
 export const CATEGORY_ORDER: DisplayCategory[] = [
   "気温",
@@ -94,63 +68,63 @@ export const DISPLAY_ITEMS: DisplayItem[] = [
   { category: "気温", component: Condition, tier: "primary" },
   { category: "気温", component: CurrentTemperature, tier: "primary" },
   { category: "気温", component: ApparentTemperature, tier: "primary" },
-  { category: "気温", component: HeatStrokeRisk, tier: "more" },
-  { category: "気温", component: ApparentTemperatureRange, tier: "more" },
-  { category: "気温", component: ApparentTemperatureMean, tier: "more" },
+  { category: "気温", component: lazyMoreItem("HeatStrokeRisk"), tier: "more" },
+  { category: "気温", component: lazyMoreItem("ApparentTemperatureRange"), tier: "more" },
+  { category: "気温", component: lazyMoreItem("ApparentTemperatureMean"), tier: "more" },
   { category: "気温", component: TemperatureRange, tier: "primary" },
-  { category: "気温", component: TemperatureMean, tier: "more" },
-  { category: "気温", component: DewPoint, tier: "more" },
-  { category: "気温", component: WetBulbTemperature, tier: "more" },
-  { category: "気温", component: TemperatureDiffGroundAloft, tier: "more" },
+  { category: "気温", component: lazyMoreItem("TemperatureMean"), tier: "more" },
+  { category: "気温", component: lazyMoreItem("DewPoint"), tier: "more" },
+  { category: "気温", component: lazyMoreItem("WetBulbTemperature"), tier: "more" },
+  { category: "気温", component: lazyMoreItem("TemperatureDiffGroundAloft"), tier: "more" },
 
   { category: "風", component: Wind, tier: "primary" },
 
   { category: "降水・湿度", component: Humidity, tier: "primary" },
   { category: "降水・湿度", component: HumiditySparkline, tier: "primary" },
-  { category: "降水・湿度", component: HumidityRange, tier: "more" },
-  { category: "降水・湿度", component: HumidityMean, tier: "more" },
-  { category: "降水・湿度", component: HumidityDiffGroundAloft, tier: "more" },
+  { category: "降水・湿度", component: lazyMoreItem("HumidityRange"), tier: "more" },
+  { category: "降水・湿度", component: lazyMoreItem("HumidityMean"), tier: "more" },
+  { category: "降水・湿度", component: lazyMoreItem("HumidityDiffGroundAloft"), tier: "more" },
   { category: "降水・湿度", component: Precipitation, tier: "primary" },
-  { category: "降水・湿度", component: PrecipitationType, tier: "more" },
-  { category: "降水・湿度", component: Showers, tier: "more" },
+  { category: "降水・湿度", component: lazyMoreItem("PrecipitationType"), tier: "more" },
+  { category: "降水・湿度", component: lazyMoreItem("Showers"), tier: "more" },
   { category: "降水・湿度", component: PrecipitationProbability, tier: "primary" },
-  { category: "降水・湿度", component: PrecipitationProbabilityMean, tier: "more" },
-  { category: "降水・湿度", component: PrecipitationProbabilityMin, tier: "more" },
-  { category: "降水・湿度", component: PrecipitationHours, tier: "more" },
-  { category: "降水・湿度", component: PrecipitationSum, tier: "more" },
-  { category: "降水・湿度", component: PrecipitationSumByType, tier: "more" },
-  { category: "降水・湿度", component: SnowDepth, tier: "more" },
-  { category: "降水・湿度", component: LaundryDryness, tier: "more" },
-  { category: "降水・湿度", component: SoilTemperature, tier: "more" },
-  { category: "降水・湿度", component: SoilTemperatureDeep, tier: "more" },
-  { category: "降水・湿度", component: SoilTemperatureDeeper, tier: "more" },
-  { category: "降水・湿度", component: SoilTemperatureDeepest, tier: "more" },
-  { category: "降水・湿度", component: SoilMoisture, tier: "more" },
-  { category: "降水・湿度", component: SoilMoistureDeep, tier: "more" },
-  { category: "降水・湿度", component: SoilMoistureDeeper, tier: "more" },
-  { category: "降水・湿度", component: SoilMoistureDeepest, tier: "more" },
-  { category: "降水・湿度", component: SoilMoistureBedrock, tier: "more" },
-  { category: "降水・湿度", component: Evapotranspiration, tier: "more" },
-  { category: "降水・湿度", component: VaporPressureDeficit, tier: "more" },
-  { category: "降水・湿度", component: GardenWatering, tier: "more" },
+  { category: "降水・湿度", component: lazyMoreItem("PrecipitationProbabilityMean"), tier: "more" },
+  { category: "降水・湿度", component: lazyMoreItem("PrecipitationProbabilityMin"), tier: "more" },
+  { category: "降水・湿度", component: lazyMoreItem("PrecipitationHours"), tier: "more" },
+  { category: "降水・湿度", component: lazyMoreItem("PrecipitationSum"), tier: "more" },
+  { category: "降水・湿度", component: lazyMoreItem("PrecipitationSumByType"), tier: "more" },
+  { category: "降水・湿度", component: lazyMoreItem("SnowDepth"), tier: "more" },
+  { category: "降水・湿度", component: lazyMoreItem("LaundryDryness"), tier: "more" },
+  { category: "降水・湿度", component: lazyMoreItem("SoilTemperature"), tier: "more" },
+  { category: "降水・湿度", component: lazyMoreItem("SoilTemperatureDeep"), tier: "more" },
+  { category: "降水・湿度", component: lazyMoreItem("SoilTemperatureDeeper"), tier: "more" },
+  { category: "降水・湿度", component: lazyMoreItem("SoilTemperatureDeepest"), tier: "more" },
+  { category: "降水・湿度", component: lazyMoreItem("SoilMoisture"), tier: "more" },
+  { category: "降水・湿度", component: lazyMoreItem("SoilMoistureDeep"), tier: "more" },
+  { category: "降水・湿度", component: lazyMoreItem("SoilMoistureDeeper"), tier: "more" },
+  { category: "降水・湿度", component: lazyMoreItem("SoilMoistureDeepest"), tier: "more" },
+  { category: "降水・湿度", component: lazyMoreItem("SoilMoistureBedrock"), tier: "more" },
+  { category: "降水・湿度", component: lazyMoreItem("Evapotranspiration"), tier: "more" },
+  { category: "降水・湿度", component: lazyMoreItem("VaporPressureDeficit"), tier: "more" },
+  { category: "降水・湿度", component: lazyMoreItem("GardenWatering"), tier: "more" },
 
   { category: "環境", component: Pressure, tier: "primary" },
-  { category: "環境", component: SeaLevelPressure, tier: "more" },
+  { category: "環境", component: lazyMoreItem("SeaLevelPressure"), tier: "more" },
   { category: "環境", component: CloudCover, tier: "primary" },
-  { category: "環境", component: CloudCoverLayers, tier: "more" },
+  { category: "環境", component: lazyMoreItem("CloudCoverLayers"), tier: "more" },
   { category: "環境", component: Visibility, tier: "primary" },
-  { category: "環境", component: FreezingLevel, tier: "more" },
-  { category: "環境", component: SolarRadiation, tier: "more" },
-  { category: "環境", component: SolarRadiationDirect, tier: "more" },
-  { category: "環境", component: SolarRadiationDiffuse, tier: "more" },
-  { category: "環境", component: SolarRadiationDirectNormal, tier: "more" },
-  { category: "環境", component: SolarRadiationSum, tier: "more" },
-  { category: "環境", component: UvIndex, tier: "more" },
-  { category: "環境", component: Elevation, tier: "more" },
+  { category: "環境", component: lazyMoreItem("FreezingLevel"), tier: "more" },
+  { category: "環境", component: lazyMoreItem("SolarRadiation"), tier: "more" },
+  { category: "環境", component: lazyMoreItem("SolarRadiationDirect"), tier: "more" },
+  { category: "環境", component: lazyMoreItem("SolarRadiationDiffuse"), tier: "more" },
+  { category: "環境", component: lazyMoreItem("SolarRadiationDirectNormal"), tier: "more" },
+  { category: "環境", component: lazyMoreItem("SolarRadiationSum"), tier: "more" },
+  { category: "環境", component: lazyMoreItem("UvIndex"), tier: "more" },
+  { category: "環境", component: lazyMoreItem("Elevation"), tier: "more" },
 
   { category: "日照・時刻", component: SunTimes, tier: "primary" },
-  { category: "日照・時刻", component: SunTimesRelative, tier: "more" },
-  { category: "日照・時刻", component: DaylightDuration, tier: "more" },
-  { category: "日照・時刻", component: SunshineDuration, tier: "more" },
+  { category: "日照・時刻", component: lazyMoreItem("SunTimesRelative"), tier: "more" },
+  { category: "日照・時刻", component: lazyMoreItem("DaylightDuration"), tier: "more" },
+  { category: "日照・時刻", component: lazyMoreItem("SunshineDuration"), tier: "more" },
   { category: "日照・時刻", component: ObservedAt, tier: "primary" },
 ];
