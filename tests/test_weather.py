@@ -2056,6 +2056,36 @@ def test_trough_value_returns_time_and_value_of_min():
     assert _trough_value(timestamps, values) == {"time": "2026-08-26T13:00", "value": 100.0}
 
 
+def test_trough_value_ignores_missing_values():
+    """欠測(None)は最小値の候補から外す(_peak_value と同じ方針)。"""
+    timestamps = ["2026-08-26T12:00", "2026-08-26T13:00", "2026-08-26T14:00"]
+    values = [25.0, None, 20.0]
+
+    assert _trough_value(timestamps, values) == {"time": "2026-08-26T14:00", "value": 20.0}
+
+
+def test_trough_value_is_none_when_all_missing():
+    """全て欠測なら None。"""
+    timestamps = ["2026-08-26T12:00", "2026-08-26T13:00"]
+
+    assert _trough_value(timestamps, [None, None]) is None
+
+
+def test_format_hourly_series_apparent_temperature_trough_ignores_missing_values():
+    """体感温度の一部が欠測(None)でも /weather/series が落ちず、
+    欠測を除いた最小値を返す(レビュー指摘: _trough_value は _peak_value と
+    異なり欠測スキップが抜けており、欠測混在で TypeError になっていた)。"""
+    hourly = {
+        **STUB_SERIES["hourly"],
+        "apparent_temperature": [27.3, None, 25.8],
+    }
+    raw = {**STUB_SERIES, "hourly": hourly}
+
+    result = format_hourly_series(raw)
+
+    assert result["apparent_temperature_trough"] == {"time": "2026-07-21T02:00", "value": 25.8}
+
+
 def test_format_hourly_series_includes_apparent_temperature_peak_and_trough():
     """format_hourly_series の戻り値に、今日一日の体感温度の最高・最低の
     発生時刻と値が含まれる(wind_speed_peak と同じ考え方)。"""

@@ -938,6 +938,8 @@ def _trough_value(timestamps: list[str], values: list[float | None]) -> dict[str
     best_index = None
     best_value = None
     for i, v in enumerate(values):
+        if v is None:
+            continue
         if best_value is None or v < best_value:
             best_value = v
             best_index = i
