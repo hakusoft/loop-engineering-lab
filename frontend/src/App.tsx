@@ -7,6 +7,8 @@ import { DailySummary } from "./DailySummary";
 import { HourlyConditions } from "./HourlyConditions";
 import { ThunderstormOutlook } from "./ThunderstormOutlook";
 import { WindPeakOutlook } from "./WindPeakOutlook";
+import { ApparentTemperaturePeakOutlook } from "./ApparentTemperaturePeakOutlook";
+import { SolarRadiationPeakOutlook } from "./SolarRadiationPeakOutlook";
 import { faviconHrefForWeather } from "./favicon";
 
 // グラフの描画に使う recharts はサイズが大きく、他の項目より先に初回バンドルへ
@@ -507,6 +509,8 @@ export default function App() {
       {state.status === "ready" && <DailySummary data={state.data} />}
       {state.status === "ready" && <ThunderstormOutlook data={state.data} />}
       {state.status === "ready" && <WindPeakOutlook data={state.data} />}
+      {state.status === "ready" && <ApparentTemperaturePeakOutlook data={state.data} />}
+      {state.status === "ready" && <SolarRadiationPeakOutlook data={state.data} />}
 
       {weatherState.status === "ready" && (
         <div style={{ display: "flex", flexDirection: "column", gap: 20, marginBottom: 16 }}>

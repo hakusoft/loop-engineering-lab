@@ -13,6 +13,7 @@ from app.weather import (
     thunderstorm_hours,
     night_hours,
     cape_peak,
+    _trough_value,
     COMPASS_ABBREVIATIONS,
     COMPASS_POINTS,
     CURRENT_FIELDS,
@@ -2045,3 +2046,28 @@ def test_format_hourly_series_wind_peak_is_none_when_all_missing():
 
     assert result["wind_speed_peak"] is None
     assert result["wind_gusts_peak"] is None
+
+
+def test_trough_value_returns_time_and_value_of_min():
+    """系列が最小になる時刻と値を返す(_peak_value の最大値版と対になる)。"""
+    timestamps = ["2026-08-26T12:00", "2026-08-26T13:00", "2026-08-26T14:00"]
+    values = [500.0, 100.0, 900.0]
+
+    assert _trough_value(timestamps, values) == {"time": "2026-08-26T13:00", "value": 100.0}
+
+
+def test_format_hourly_series_includes_apparent_temperature_peak_and_trough():
+    """format_hourly_series の戻り値に、今日一日の体感温度の最高・最低の
+    発生時刻と値が含まれる(wind_speed_peak と同じ考え方)。"""
+    result = format_hourly_series(STUB_SERIES)
+
+    assert result["apparent_temperature_peak"] == {"time": "2026-07-21T00:00", "value": 27.3}
+    assert result["apparent_temperature_trough"] == {"time": "2026-07-21T02:00", "value": 25.8}
+
+
+def test_format_hourly_series_includes_shortwave_radiation_peak():
+    """format_hourly_series の戻り値に、今日一日の日射量が最大になる
+    発生時刻と値が含まれる。"""
+    result = format_hourly_series(STUB_SERIES)
+
+    assert result["shortwave_radiation_peak"] == {"time": "2026-07-21T00:00", "value": 412.0}

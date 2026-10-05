@@ -933,6 +933,19 @@ def cape_peak(timestamps: list[str], values: list[float | None]) -> dict[str, An
     return _peak_value(timestamps, values)
 
 
+def _trough_value(timestamps: list[str], values: list[float | None]) -> dict[str, Any] | None:
+    """系列が最小になる時刻と値を返す（_peak_value と対になる最小値版）。"""
+    best_index = None
+    best_value = None
+    for i, v in enumerate(values):
+        if best_value is None or v < best_value:
+            best_value = v
+            best_index = i
+    if best_index is None:
+        return None
+    return {"time": timestamps[best_index], "value": best_value}
+
+
 def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
     """時系列の生 JSON を、1 つのチャートに重ねられる形に整える。
 
@@ -1039,6 +1052,23 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
         [hourly["wind_gusts_10m"][i] for i in today_index],
     )
 
+    # 体感温度の最高・最低が「何時頃だったか分からない」という声を受け、
+    # wind_speed_peak と同じ考え方を体感温度（最高・最低の両方）にも適用する。
+    apparent_temperature_peak_today = _peak_value(
+        [timestamps[i] for i in today_index],
+        [hourly["apparent_temperature"][i] for i in today_index],
+    )
+    apparent_temperature_trough_today = _trough_value(
+        [timestamps[i] for i in today_index],
+        [hourly["apparent_temperature"][i] for i in today_index],
+    )
+
+    # 日射量が一番強かった時刻も同じ考え方で加える。
+    shortwave_radiation_peak_today = _peak_value(
+        [timestamps[i] for i in today_index],
+        [hourly["shortwave_radiation"][i] for i in today_index],
+    )
+
     return {
         "timestamps": timestamps,
         "conditions": conditions,
@@ -1048,6 +1078,9 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
         "cape_peak": cape_peak_today,
         "wind_speed_peak": wind_speed_peak_today,
         "wind_gusts_peak": wind_gusts_peak_today,
+        "apparent_temperature_peak": apparent_temperature_peak_today,
+        "apparent_temperature_trough": apparent_temperature_trough_today,
+        "shortwave_radiation_peak": shortwave_radiation_peak_today,
         "series": [
             s
             for s in [

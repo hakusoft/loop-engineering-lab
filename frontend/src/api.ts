@@ -29,6 +29,9 @@ export type SeriesResponse = {
   cape_peak: { time: string; value: number } | null;
   wind_speed_peak: { time: string; value: number } | null;
   wind_gusts_peak: { time: string; value: number } | null;
+  apparent_temperature_peak: { time: string; value: number } | null;
+  apparent_temperature_trough: { time: string; value: number } | null;
+  shortwave_radiation_peak: { time: string; value: number } | null;
   series: Series[];
   coordinates: { latitude: number; longitude: number };
 };
