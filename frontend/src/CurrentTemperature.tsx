@@ -1,5 +1,6 @@
 import type { WeatherResponse } from "./api";
 import { ItemDescription } from "./ItemDescription";
+import { formatTemperatureValue } from "./formatTemperatureValue";
 
 // 表示ロジックを純関数に切り出す。値の丸め・単位の組み立てだけなのでテスト基盤は不要だが、
 // コンポーネントから分離しておくと後から検証しやすい。
@@ -7,7 +8,7 @@ import { ItemDescription } from "./ItemDescription";
 // 桁数がばらつく(Issue #528)。toFixed(1) で常に小数点以下1桁に揃える。
 export function formatTemperature(data: WeatherResponse): string {
   const { value, unit } = data.temperature;
-  return `${value.toFixed(1)}${unit}`;
+  return `${formatTemperatureValue(value)}${unit}`;
 }
 
 // 摂氏だけでなく華氏でも見たいという声を受けて併記する（Issue #427）。
@@ -16,7 +17,7 @@ export function formatTemperature(data: WeatherResponse): string {
 export function formatTemperatureFahrenheit(data: WeatherResponse): string {
   const { value } = data.temperature;
   const fahrenheit = (value * 9) / 5 + 32;
-  return `${fahrenheit.toFixed(1)}°F`;
+  return `${formatTemperatureValue(fahrenheit)}°F`;
 }
 
 export function CurrentTemperature({ data }: { data: WeatherResponse }) {
