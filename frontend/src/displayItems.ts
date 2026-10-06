@@ -9,6 +9,7 @@ import { HumiditySparkline } from "./HumiditySparkline";
 import { ObservedAt } from "./ObservedAt";
 import { Precipitation } from "./Precipitation";
 import { PrecipitationProbability } from "./PrecipitationProbability";
+import { PrecipitationSum } from "./PrecipitationSum";
 import { Pressure } from "./Pressure";
 import { SunTimes } from "./SunTimes";
 import { TemperatureRange } from "./TemperatureRange";
@@ -91,7 +92,7 @@ export const DISPLAY_ITEMS: DisplayItem[] = [
   { category: "降水・湿度", component: lazyMoreItem("PrecipitationProbabilityMean"), tier: "more" },
   { category: "降水・湿度", component: lazyMoreItem("PrecipitationProbabilityMin"), tier: "more" },
   { category: "降水・湿度", component: lazyMoreItem("PrecipitationHours"), tier: "more" },
-  { category: "降水・湿度", component: lazyMoreItem("PrecipitationSum"), tier: "more" },
+  { category: "降水・湿度", component: PrecipitationSum, tier: "primary" },
   { category: "降水・湿度", component: lazyMoreItem("PrecipitationSumByType"), tier: "more" },
   { category: "降水・湿度", component: lazyMoreItem("SnowDepth"), tier: "more" },
   { category: "降水・湿度", component: lazyMoreItem("LaundryDryness"), tier: "more" },
