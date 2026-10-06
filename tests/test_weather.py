@@ -410,6 +410,7 @@ STUB_SERIES = {
         "temperature_180m": "°C",
         "temperature_1000hPa": "°C",
         "temperature_925hPa": "°C",
+        "temperature_700hPa": "°C",
         "freezing_level_height": "m",
         "soil_temperature_0cm": "°C",
         "soil_temperature_6cm": "°C",
@@ -474,6 +475,7 @@ STUB_SERIES = {
         "temperature_180m": [23.4, 22.7, 22.2],
         "temperature_1000hPa": [27.0, 26.3, 25.7],
         "temperature_925hPa": [23.6, 23.0, 22.5],
+        "temperature_700hPa": [10.4, 9.8, 9.1],
         "freezing_level_height": [3200.0, 3100.0, 3000.0],
         "soil_temperature_0cm": [29.8, 28.6, 27.1],
         "soil_temperature_6cm": [27.5, 27.0, 26.4],
@@ -542,6 +544,7 @@ def test_series_keeps_units_separate_for_split_axes():
     temperature_180m = by_label["上空の気温(180m)"]
     temperature_1000hPa = by_label["1000hPaの気温"]
     temperature_925hPa = by_label["925hPaの気温"]
+    temperature_700hPa = by_label["700hPaの気温"]
     freezing_level = by_label["凍結高度"]
     soil_temperature_0cm = by_label["土の温度(地表)"]
     soil_temperature_6cm = by_label["土の温度(6cm)"]
@@ -604,6 +607,8 @@ def test_series_keeps_units_separate_for_split_axes():
     assert temperature_1000hPa["unit"] == "°C"
     assert temperature_925hPa["label"] == "925hPaの気温"
     assert temperature_925hPa["unit"] == "°C"
+    assert temperature_700hPa["label"] == "700hPaの気温"
+    assert temperature_700hPa["unit"] == "°C"
     assert freezing_level["label"] == "凍結高度"
     assert freezing_level["unit"] == "m"
     assert soil_temperature_0cm["label"] == "土の温度(地表)"
@@ -714,6 +719,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     temperature_180m = by_label["上空の気温(180m)"]
     temperature_1000hPa = by_label["1000hPaの気温"]
     temperature_925hPa = by_label["925hPaの気温"]
+    temperature_700hPa = by_label["700hPaの気温"]
     freezing_level = by_label["凍結高度"]
     soil_temperature_0cm = by_label["土の温度(地表)"]
     soil_temperature_6cm = by_label["土の温度(6cm)"]
@@ -770,6 +776,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     assert (temperature_180m["min"], temperature_180m["max"]) == (22.2, 23.4)
     assert (temperature_1000hPa["min"], temperature_1000hPa["max"]) == (25.7, 27.0)
     assert (temperature_925hPa["min"], temperature_925hPa["max"]) == (22.5, 23.6)
+    assert (temperature_700hPa["min"], temperature_700hPa["max"]) == (9.1, 10.4)
     assert (freezing_level["min"], freezing_level["max"]) == (3000.0, 3200.0)
     assert (soil_temperature_0cm["min"], soil_temperature_0cm["max"]) == (27.1, 29.8)
     assert (soil_temperature_6cm["min"], soil_temperature_6cm["max"]) == (26.4, 27.5)
@@ -920,6 +927,20 @@ def test_format_hourly_series_omits_relative_humidity_700hpa_when_missing():
     labels = {s["label"] for s in result["series"]}
 
     assert "700hPaの湿度" not in labels
+    assert "気温" in labels  # 他の系列には影響しない
+
+
+def test_format_hourly_series_omits_temperature_700hpa_when_missing():
+    """temperature_700hPa も実 API での応答確認ができていないキーのため、
+    無ければ添字アクセスで落とさず静かに省く（Issue #533、temperature_120m と同型）。
+    """
+    hourly = {k: v for k, v in STUB_SERIES["hourly"].items() if k != "temperature_700hPa"}
+    raw = {**STUB_SERIES, "hourly": hourly}
+
+    result = format_hourly_series(raw)
+    labels = {s["label"] for s in result["series"]}
+
+    assert "700hPaの気温" not in labels
     assert "気温" in labels  # 他の系列には影響しない
 
 
@@ -1843,6 +1864,7 @@ def test_hourly_series_are_all_requested_fields():
         "上空の気温(180m)": "temperature_180m",
         "1000hPaの気温": "temperature_1000hPa",
         "925hPaの気温": "temperature_925hPa",
+        "700hPaの気温": "temperature_700hPa",
         "凍結高度": "freezing_level_height",
         "体感温度": "apparent_temperature",
         "露点温度": "dew_point_2m",
