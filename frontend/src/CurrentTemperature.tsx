@@ -1,11 +1,14 @@
 import type { WeatherResponse } from "./api";
 import { ItemDescription } from "./ItemDescription";
+import { formatTemperatureValue } from "./formatTemperatureValue";
 
 // 表示ロジックを純関数に切り出す。値の丸め・単位の組み立てだけなのでテスト基盤は不要だが、
 // コンポーネントから分離しておくと後から検証しやすい。
+// Math.round(value * 10) / 10 だと値がちょうど整数のとき小数点以下が落ちて
+// 桁数がばらつく(Issue #528)。toFixed(1) で常に小数点以下1桁に揃える。
 export function formatTemperature(data: WeatherResponse): string {
   const { value, unit } = data.temperature;
-  return `${Math.round(value * 10) / 10}${unit}`;
+  return `${formatTemperatureValue(value)}${unit}`;
 }
 
 // 摂氏だけでなく華氏でも見たいという声を受けて併記する（Issue #427）。
@@ -13,8 +16,8 @@ export function formatTemperature(data: WeatherResponse): string {
 // メインの表示（摂氏）は変えずに小さく添える。
 export function formatTemperatureFahrenheit(data: WeatherResponse): string {
   const { value } = data.temperature;
-  const fahrenheit = Math.round(((value * 9) / 5 + 32) * 10) / 10;
-  return `${fahrenheit}°F`;
+  const fahrenheit = (value * 9) / 5 + 32;
+  return `${formatTemperatureValue(fahrenheit)}°F`;
 }
 
 export function CurrentTemperature({ data }: { data: WeatherResponse }) {
