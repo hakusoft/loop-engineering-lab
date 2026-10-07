@@ -727,20 +727,31 @@ function writeStoredPresets(presets: ChartPreset[]) {
   }
 }
 
-const NARROW_VIEWPORT_QUERY = "(max-width: 480px)";
+const NARROW_VIEWPORT_MAX_DIMENSION = 480;
 
 // スマホ幅では固定 12px の目盛りが相対的に読みにくいという声があったため、
 // 狭い画面では目盛りを大きくする。
+//
+// innerWidth だけで判定すると、スマホを横向きにしたときに innerWidth が
+// 閾値を超えて PC 向けの表示に戻ってしまう（Issue #538）。画面の向きに関わらず
+// スマホ相当の画面サイズを検出できるよう、innerWidth と innerHeight の
+// 小さい方（＝画面の短辺）で判定する。
+function isNarrowViewport(): boolean {
+  if (typeof window === "undefined") return false;
+  return Math.min(window.innerWidth, window.innerHeight) <= NARROW_VIEWPORT_MAX_DIMENSION;
+}
+
 function useIsNarrowViewport(): boolean {
-  const [isNarrow, setIsNarrow] = useState(
-    () => typeof window !== "undefined" && window.matchMedia(NARROW_VIEWPORT_QUERY).matches,
-  );
+  const [isNarrow, setIsNarrow] = useState(isNarrowViewport);
 
   useEffect(() => {
-    const mql = window.matchMedia(NARROW_VIEWPORT_QUERY);
-    const onChange = () => setIsNarrow(mql.matches);
-    mql.addEventListener("change", onChange);
-    return () => mql.removeEventListener("change", onChange);
+    const onChange = () => setIsNarrow(isNarrowViewport());
+    window.addEventListener("resize", onChange);
+    window.addEventListener("orientationchange", onChange);
+    return () => {
+      window.removeEventListener("resize", onChange);
+      window.removeEventListener("orientationchange", onChange);
+    };
   }, []);
 
   return isNarrow;
