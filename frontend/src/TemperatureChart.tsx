@@ -900,6 +900,10 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
   // 複数保持できる。
   const [presets, setPresets] = useState<ChartPreset[]>(() => readStoredPresets());
   const [newPresetName, setNewPresetName] = useState("");
+  // チェックボックスが増えて目当ての項目を探すのが大変という声を受け、
+  // 項目名で絞り込めるようにする（Issue #543）。絞り込みは表示のみに作用し、
+  // 選択状態（visibleSecondary）やその保存には影響しない。
+  const [secondaryFilter, setSecondaryFilter] = useState("");
   // データがある項目（キーの一覧）。以前はこれでチェックボックスの一覧自体を
   // 絞り込んでいたが、「ある項目は急に消える」という不整合に見えるという
   // 指摘があった（Issue #448）。一覧は ALL_SECONDARY_GROUPED で常に全件出し、
@@ -1080,6 +1084,16 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     () => new Set<SecondarySeriesKey>(availableSecondaryItems.map(({ key }) => key)),
     [availableSecondaryItems],
   );
+  // 絞り込み文字列に項目名（label）が一致するものだけを残す。空文字のときは
+  // 全件（ALL_SECONDARY_GROUPED）のまま。選択状態は見た目の表示・非表示とは
+  // 別の state（visibleSecondary）なので、絞り込みで隠れても保持される。
+  const filteredSecondaryGrouped = useMemo(() => {
+    const trimmed = secondaryFilter.trim();
+    if (trimmed === "") {
+      return ALL_SECONDARY_GROUPED;
+    }
+    return groupSecondaryByCategory(SECONDARY_SERIES.filter(({ label }) => label.includes(trimmed)));
+  }, [secondaryFilter]);
 
   function toggleSecondary(key: SecondarySeriesKey) {
     setVisibleSecondary((prev) => {
@@ -1192,6 +1206,21 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     )}
     {ALL_SECONDARY_GROUPED.length > 0 && (
       <div style={{ display: "flex", flexDirection: "column", gap: 4, margin: "0 0 8px" }}>
+        <input
+          type="text"
+          value={secondaryFilter}
+          onChange={(e) => setSecondaryFilter(e.target.value)}
+          placeholder="項目名で絞り込み"
+          style={{
+            fontSize: isNarrow ? 15 : 13,
+            padding: isNarrow ? "6px 8px" : "2px 6px",
+            border: `1px solid ${colors.grid}`,
+            borderRadius: 4,
+            background: "none",
+            color: colors.tick,
+            width: isNarrow ? "100%" : 200,
+          }}
+        />
         {visibleSecondary.size > 0 && (
           <button
             type="button"
@@ -1290,7 +1319,12 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             お気に入りに保存
           </button>
         </div>
-        {ALL_SECONDARY_GROUPED.map(({ category, items }) => (
+        {filteredSecondaryGrouped.length === 0 && (
+          <p style={{ fontSize: isNarrow ? 13 : 12, color: colors.tick, opacity: 0.7, margin: 0 }}>
+            一致する項目がありません
+          </p>
+        )}
+        {filteredSecondaryGrouped.map(({ category, items }) => (
           <div key={category} style={{ display: "flex", flexWrap: "wrap", gap: "4px 12px", alignItems: "center" }}>
             <span style={{ fontSize: isNarrow ? 13 : 12, color: colors.tick, opacity: 0.7, minWidth: isNarrow ? "100%" : undefined }}>
               {category}
