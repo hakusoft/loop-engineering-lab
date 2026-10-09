@@ -348,6 +348,7 @@ HOURLY_FIELDS = [
     "temperature_1000hPa",
     "temperature_925hPa",
     "temperature_700hPa",
+    "temperature_500hPa",
     "freezing_level_height",
     "soil_temperature_0cm",
     "soil_temperature_6cm",
@@ -1097,6 +1098,9 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
                 # （relative_humidity_700hPa、Issue #502）一方、気温だけ700hPaが
                 # 無いという声を受けて追加する（Issue #533）。
                 _series("temperature_700hPa", "700hPaの気温", "°C"),
+                # 500hPaの風向き・風速（Issue #487）は既にあり、気温だけ700hPaで
+                # 止まっていたという声を受けて追加する。
+                _series("temperature_500hPa", "500hPaの気温", "°C"),
                 _series("freezing_level_height", "凍結高度", "m"),
                 _series("soil_temperature_0cm", "土の温度(地表)", "°C"),
                 _series("soil_temperature_6cm", "土の温度(6cm)", "°C"),
