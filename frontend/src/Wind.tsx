@@ -30,28 +30,32 @@ const KMH_TO_MS = 1 / 3.6;
 
 // 方角の日本語表記（北北東など）は画面によっては長く、窮屈になるという声が
 // あった（Issue #419）。ここは短い略号（NNE など）に置き換える。
+// Math.round(value * 10) / 10 は丸めた結果がちょうど整数になったとき
+// （例: 12.0）末尾の `.0` が落ちて `12` と表示され、同じ項目でも観測値に
+// よって桁数が揃って見えない、という指摘があった。toFixed(1) で常に
+// 小数第1位まで表示する。
 export function formatWindSpeed(data: WeatherResponse): string {
   const { value, unit } = data.wind_speed;
   const { abbreviation } = data.wind_direction;
-  const rounded = Math.round(value * 10) / 10;
-  const roundedMs = Math.round(value * KMH_TO_MS * 10) / 10;
+  const rounded = value.toFixed(1);
+  const roundedMs = (value * KMH_TO_MS).toFixed(1);
   return `風速 ${rounded}${unit}（${roundedMs}m/s）（${abbreviation}・${windSpeedDescription(value)}）`;
 }
 
 export function formatWindSpeedMax(data: WeatherResponse): string {
   const { value, unit } = data.wind_speed_max;
-  return `本日の最大風速 ${Math.round(value * 10) / 10}${unit}`;
+  return `本日の最大風速 ${value.toFixed(1)}${unit}`;
 }
 
 export function formatWindGusts(data: WeatherResponse): string {
   const { value, unit } = data.wind_gusts;
-  const roundedMs = Math.round(value * KMH_TO_MS * 10) / 10;
-  return `瞬間風速 ${Math.round(value * 10) / 10}${unit}（${roundedMs}m/s）`;
+  const roundedMs = (value * KMH_TO_MS).toFixed(1);
+  return `瞬間風速 ${value.toFixed(1)}${unit}（${roundedMs}m/s）`;
 }
 
 export function formatWindGustsMax(data: WeatherResponse): string {
   const { value, unit } = data.wind_gusts_max;
-  return `最大瞬間風速 ${Math.round(value * 10) / 10}${unit}`;
+  return `最大瞬間風速 ${value.toFixed(1)}${unit}`;
 }
 
 export function formatWindDirectionDominant(data: WeatherResponse): string {
