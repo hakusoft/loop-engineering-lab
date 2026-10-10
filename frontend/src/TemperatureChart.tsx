@@ -25,6 +25,7 @@ function toChartData(data: SeriesResponse) {
   const temperature1000hPa = data.series.find((s) => s.label === "1000hPaの気温");
   const temperature925hPa = data.series.find((s) => s.label === "925hPaの気温");
   const temperature700hPa = data.series.find((s) => s.label === "700hPaの気温");
+  const temperature600hPa = data.series.find((s) => s.label === "600hPaの気温");
   const temperature500hPa = data.series.find((s) => s.label === "500hPaの気温");
   const freezingLevel = data.series.find((s) => s.label === "凍結高度");
   const soilTemperature0cm = data.series.find((s) => s.label === "土の温度(地表)");
@@ -87,6 +88,7 @@ function toChartData(data: SeriesResponse) {
       temperature1000hPa: undefined,
       temperature925hPa: undefined,
       temperature700hPa: undefined,
+      temperature600hPa: undefined,
       temperature500hPa: undefined,
       freezingLevel: undefined,
       soilTemperature0cm: undefined,
@@ -152,6 +154,7 @@ function toChartData(data: SeriesResponse) {
     temperature1000hPa: temperature1000hPa?.values[i] ?? null,
     temperature925hPa: temperature925hPa?.values[i] ?? null,
     temperature700hPa: temperature700hPa?.values[i] ?? null,
+    temperature600hPa: temperature600hPa?.values[i] ?? null,
     temperature500hPa: temperature500hPa?.values[i] ?? null,
     freezingLevel: freezingLevel?.values[i] ?? null,
     soilTemperature0cm: soilTemperature0cm?.values[i] ?? null,
@@ -214,6 +217,7 @@ function toChartData(data: SeriesResponse) {
     temperature1000hPa,
     temperature925hPa,
     temperature700hPa,
+    temperature600hPa,
     temperature500hPa,
     freezingLevel,
     soilTemperature0cm,
@@ -507,6 +511,7 @@ const SECONDARY_SERIES = [
   { key: "temperature1000hPa", label: "1000hPaの気温", category: "気温" },
   { key: "temperature925hPa", label: "925hPaの気温", category: "気温" },
   { key: "temperature700hPa", label: "700hPaの気温", category: "気温" },
+  { key: "temperature600hPa", label: "600hPaの気温", category: "気温" },
   { key: "temperature500hPa", label: "500hPaの気温", category: "気温" },
   { key: "apparentTemperature", label: "体感温度", category: "気温" },
   { key: "dewPoint", label: "露点温度", category: "気温" },
@@ -592,6 +597,7 @@ const SECONDARY_SERIES_COLOR: Record<SecondarySeriesKey, string> = {
   temperature1000hPa: "#f08c00",
   temperature925hPa: "#1c7ed6",
   temperature700hPa: "#fab005",
+  temperature600hPa: "#9c36b5",
   temperature500hPa: "#e8590c",
   apparentTemperature: "",
   dewPoint: "#20c997",
@@ -823,6 +829,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     temperature1000hPa,
     temperature925hPa,
     temperature700hPa,
+    temperature600hPa,
     temperature500hPa,
     freezingLevel,
     soilTemperature0cm,
@@ -907,6 +914,10 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
   // 複数保持できる。
   const [presets, setPresets] = useState<ChartPreset[]>(() => readStoredPresets());
   const [newPresetName, setNewPresetName] = useState("");
+  // チェックボックスが増えて目当ての項目を探すのが大変という声を受け、
+  // 項目名で絞り込めるようにする（Issue #543）。絞り込みは表示のみに作用し、
+  // 選択状態（visibleSecondary）やその保存には影響しない。
+  const [secondaryFilter, setSecondaryFilter] = useState("");
   // データがある項目（キーの一覧）。以前はこれでチェックボックスの一覧自体を
   // 絞り込んでいたが、「ある項目は急に消える」という不整合に見えるという
   // 指摘があった（Issue #448）。一覧は ALL_SECONDARY_GROUPED で常に全件出し、
@@ -927,6 +938,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             return Boolean(temperature925hPa);
           case "temperature700hPa":
             return Boolean(temperature700hPa);
+          case "temperature600hPa":
+            return Boolean(temperature600hPa);
           case "temperature500hPa":
             return Boolean(temperature500hPa);
           case "freezingLevel":
@@ -1036,6 +1049,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
       temperature1000hPa,
       temperature925hPa,
       temperature700hPa,
+      temperature600hPa,
       temperature500hPa,
       freezingLevel,
       soilTemperature0cm,
@@ -1090,6 +1104,16 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     () => new Set<SecondarySeriesKey>(availableSecondaryItems.map(({ key }) => key)),
     [availableSecondaryItems],
   );
+  // 絞り込み文字列に項目名（label）が一致するものだけを残す。空文字のときは
+  // 全件（ALL_SECONDARY_GROUPED）のまま。選択状態は見た目の表示・非表示とは
+  // 別の state（visibleSecondary）なので、絞り込みで隠れても保持される。
+  const filteredSecondaryGrouped = useMemo(() => {
+    const trimmed = secondaryFilter.trim();
+    if (trimmed === "") {
+      return ALL_SECONDARY_GROUPED;
+    }
+    return groupSecondaryByCategory(SECONDARY_SERIES.filter(({ label }) => label.includes(trimmed)));
+  }, [secondaryFilter]);
 
   function toggleSecondary(key: SecondarySeriesKey) {
     setVisibleSecondary((prev) => {
@@ -1145,6 +1169,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
   const showTemperature1000hPa = temperature1000hPa && visibleSecondary.has("temperature1000hPa");
   const showTemperature925hPa = temperature925hPa && visibleSecondary.has("temperature925hPa");
   const showTemperature700hPa = temperature700hPa && visibleSecondary.has("temperature700hPa");
+  const showTemperature600hPa = temperature600hPa && visibleSecondary.has("temperature600hPa");
   const showTemperature500hPa = temperature500hPa && visibleSecondary.has("temperature500hPa");
   const showFreezingLevel = freezingLevel && visibleSecondary.has("freezingLevel");
   const showSoilTemperature0cm = soilTemperature0cm && visibleSecondary.has("soilTemperature0cm");
@@ -1203,6 +1228,21 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     )}
     {ALL_SECONDARY_GROUPED.length > 0 && (
       <div style={{ display: "flex", flexDirection: "column", gap: 4, margin: "0 0 8px" }}>
+        <input
+          type="text"
+          value={secondaryFilter}
+          onChange={(e) => setSecondaryFilter(e.target.value)}
+          placeholder="項目名で絞り込み"
+          style={{
+            fontSize: isNarrow ? 15 : 13,
+            padding: isNarrow ? "6px 8px" : "2px 6px",
+            border: `1px solid ${colors.grid}`,
+            borderRadius: 4,
+            background: "none",
+            color: colors.tick,
+            width: isNarrow ? "100%" : 200,
+          }}
+        />
         {visibleSecondary.size > 0 && (
           <button
             type="button"
@@ -1301,7 +1341,12 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             お気に入りに保存
           </button>
         </div>
-        {ALL_SECONDARY_GROUPED.map(({ category, items }) => (
+        {filteredSecondaryGrouped.length === 0 && (
+          <p style={{ fontSize: isNarrow ? 13 : 12, color: colors.tick, opacity: 0.7, margin: 0 }}>
+            一致する項目がありません
+          </p>
+        )}
+        {filteredSecondaryGrouped.map(({ category, items }) => (
           <div key={category} style={{ display: "flex", flexWrap: "wrap", gap: "4px 12px", alignItems: "center" }}>
             <span style={{ fontSize: isNarrow ? 13 : 12, color: colors.tick, opacity: 0.7, minWidth: isNarrow ? "100%" : undefined }}>
               {category}
@@ -1714,6 +1759,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
                     ? temperature925hPa?.unit
                   : name === "700hPaの気温"
                     ? temperature700hPa?.unit
+                  : name === "600hPaの気温"
+                    ? temperature600hPa?.unit
                   : name === "500hPaの気温"
                     ? temperature500hPa?.unit
                   : name === "凍結高度"
@@ -1925,6 +1972,20 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             dot={false}
             isAnimationActive={false}
             name="700hPaの気温"
+            connectNulls
+          />
+        )}
+        {showTemperature600hPa && (
+          <Line
+            yAxisId="temperature"
+            type="monotone"
+            dataKey="temperature600hPa"
+            stroke="#9c36b5"
+            strokeDasharray="3 3"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="600hPaの気温"
             connectNulls
           />
         )}
