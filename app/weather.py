@@ -23,6 +23,11 @@ DEFAULT_PREFECTURE_NAME = "東京都"
 DEFAULT_CITY_NAME = "千代田区"
 DEFAULT_LOCATION_NAME = DEFAULT_PREFECTURE_NAME + DEFAULT_CITY_NAME
 
+# 海外の友人に天気をシェアするときに使いたいという声を受け、ローマ字表記も
+# 返す（Issue #558）。地点が固定のため、都道府県・市区町村名と同じく定数で持つ。
+DEFAULT_PREFECTURE_NAME_ROMAJI = "Tokyo"
+DEFAULT_CITY_NAME_ROMAJI = "Chiyoda"
+
 # 度数 → 16 方位。北を境界の中心（348.75°〜11.25°）として 22.5° 刻みで割り当てる。
 COMPASS_POINTS = [
     "北", "北北東", "北東", "東北東",
@@ -477,6 +482,8 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
         "location_name": DEFAULT_LOCATION_NAME,
         "prefecture_name": DEFAULT_PREFECTURE_NAME,
         "city_name": DEFAULT_CITY_NAME,
+        "prefecture_name_romaji": DEFAULT_PREFECTURE_NAME_ROMAJI,
+        "city_name_romaji": DEFAULT_CITY_NAME_ROMAJI,
         "observed_at": current["time"],
         "coordinates": {
             "latitude": _round_coordinate(raw["latitude"]),
