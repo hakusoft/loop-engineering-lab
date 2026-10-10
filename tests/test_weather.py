@@ -10,6 +10,7 @@ import pytest
 
 from app.weather import (
     summarize_day,
+    daily_representative_condition,
     thunderstorm_hours,
     night_hours,
     cape_peak,
@@ -537,6 +538,13 @@ def test_series_shares_one_timeline():
     assert result["timestamps"] == STUB_SERIES["hourly"]["time"]
     for series in result["series"]:
         assert len(series["values"]) == len(result["timestamps"])
+
+
+def test_format_hourly_series_includes_daily_condition():
+    """今日一日を代表する1つの天気コードを返す（weather_code=[0, 3, 61] は全て1回ずつ
+    なので、時系列で先頭の 0 が選ばれる）。"""
+    result = format_hourly_series(STUB_SERIES)
+    assert result["daily_condition"] == {"code": 0, "description": "快晴"}
 
 
 def test_series_keeps_units_separate_for_split_axes():
@@ -1978,6 +1986,23 @@ def test_summarize_day_avoids_repeating_the_same_weather():
 def test_summarize_day_handles_empty_input():
     """データが無いときも落ちない。"""
     assert summarize_day([], []) == "天気の情報がありません"
+
+
+def test_daily_representative_condition_picks_the_most_common_code():
+    """最も多く現れたコードを、説明付きで返す。"""
+    codes = [1] * 2 + [63] * 5 + [3] * 3
+    assert daily_representative_condition(codes) == {"code": 63, "description": "雨"}
+
+
+def test_daily_representative_condition_breaks_ties_by_first_occurrence():
+    """同数のときは時系列で先に現れた方を優先する。"""
+    codes = [3, 1, 3, 1]
+    assert daily_representative_condition(codes) == {"code": 3, "description": "曇り"}
+
+
+def test_daily_representative_condition_handles_empty_input():
+    """データが無いときは None を返す。"""
+    assert daily_representative_condition([]) is None
 
 
 def test_thunderstorm_hours_lists_hours_with_thunder():

@@ -894,6 +894,24 @@ def summarize_day(timestamps: list[str], codes: list[int]) -> str:
     return summary
 
 
+def daily_representative_condition(codes: list[int]) -> dict[str, Any] | None:
+    """1 日の天気コードのうち最も多く現れたものを、一日を代表する1つのコードとして返す。
+
+    summarize_day は「晴れ時々曇り」のような文章にまとめるが、アイコン表示や
+    自分のツールで使うには1つのコードが欲しいという声を受けて追加する
+    （Issue #557）。同数のときは時系列で先に現れた方を優先する。
+    codes が空なら None を返す。
+    """
+    if not codes:
+        return None
+
+    counts: dict[int, int] = {}
+    for c in codes:
+        counts[c] = counts.get(c, 0) + 1
+    best_code = max(counts, key=lambda c: (counts[c], -codes.index(c)))
+    return {"code": best_code, "description": _weather_description(best_code)}
+
+
 # 雷を伴う天気の WMO コード。95=雷雨、96/99=ひょうを伴う雷雨。
 THUNDERSTORM_CODES = (95, 96, 99)
 
@@ -1036,6 +1054,9 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
         [timestamps[i] for i in today_index],
         [hourly["weather_code"][i] for i in today_index],
     )
+    daily_condition = daily_representative_condition(
+        [hourly["weather_code"][i] for i in today_index],
+    )
 
     thunder_hours = thunderstorm_hours(
         [timestamps[i] for i in today_index],
@@ -1084,6 +1105,7 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
         "timestamps": timestamps,
         "conditions": conditions,
         "daily_summary": daily_summary,
+        "daily_condition": daily_condition,
         "thunderstorm_hours": thunder_hours,
         "night_hours": night_hours_all,
         "cape_peak": cape_peak_today,
