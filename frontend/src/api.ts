@@ -136,6 +136,8 @@ export type WeatherResponse = {
   location_name: string;
   prefecture_name: string;
   city_name: string;
+  prefecture_name_romaji: string;
+  city_name_romaji: string;
   elevation: { value: number; unit: string };
 };
 
