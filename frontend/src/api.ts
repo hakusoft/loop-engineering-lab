@@ -24,6 +24,7 @@ export type SeriesResponse = {
   timestamps: string[];
   conditions: HourlyCondition[];
   daily_summary: string;
+  daily_condition: HourlyCondition | null;
   thunderstorm_hours: string[];
   night_hours: string[];
   cape_peak: { time: string; value: number } | null;

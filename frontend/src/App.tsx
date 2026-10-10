@@ -4,6 +4,7 @@ import { CATEGORY_ORDER, DISPLAY_ITEMS } from "./displayItems";
 import { LocationName } from "./LocationName";
 import { Coordinates } from "./Coordinates";
 import { DailySummary } from "./DailySummary";
+import { DailyCondition } from "./DailyCondition";
 import { HourlyConditions } from "./HourlyConditions";
 import { ThunderstormOutlook } from "./ThunderstormOutlook";
 import { WindPeakOutlook } from "./WindPeakOutlook";
@@ -511,6 +512,7 @@ export default function App() {
       )}
 
       {state.status === "ready" && <DailySummary data={state.data} />}
+      {state.status === "ready" && <DailyCondition data={state.data} />}
       {state.status === "ready" && <ThunderstormOutlook data={state.data} />}
       {state.status === "ready" && <WindPeakOutlook data={state.data} />}
       {state.status === "ready" && <ApparentTemperaturePeakOutlook data={state.data} />}
