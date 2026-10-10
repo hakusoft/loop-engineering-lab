@@ -268,6 +268,19 @@ function writeStoredDarkModeOverride(value: boolean) {
   }
 }
 
+// 「暗めの表示」が手動ONによるものか、昼夜自動判定（夜間）によるものかが
+// 画面から分からないという声を受けて追加する（Issue #556）。チェックボックス
+// の ON/OFF 自体の意味は変えず、今の暗め表示の理由だけを短く添える。
+function darkModeStatusLabel(forceDark: boolean, isDay: boolean | undefined): string | null {
+  if (forceDark) {
+    return "(手動)";
+  }
+  if (isDay === false) {
+    return "(自動・夜間)";
+  }
+  return null;
+}
+
 export default function App() {
   const [state, setState] = useState<State>({ status: "loading" });
   const [weatherState, setWeatherState] = useState<WeatherState>({ status: "loading" });
@@ -500,6 +513,11 @@ export default function App() {
             />
             暗めの表示
           </label>
+          {darkModeStatusLabel(forceDark, effectiveIsDay) && (
+            <span style={{ fontSize: 12, color: "var(--text-tertiary)", whiteSpace: "nowrap" }}>
+              {darkModeStatusLabel(forceDark, effectiveIsDay)}
+            </span>
+          )}
         </div>
       </div>
       <p style={{ color: "var(--text-secondary)", marginTop: 0, fontSize: 14 }}>
