@@ -29,8 +29,17 @@ export function formatPrecipitationWarning(data: WeatherResponse): string | null
 
 export function PrecipitationProbability({ data }: { data: WeatherResponse }) {
   const warning = formatPrecipitationWarning(data);
+  // 主要項目が多くどれが大事か分かりにくいという声を受け、既にある閾値
+  // （傘の注意書きが出る条件）に該当するときだけ目立たせる（Issue #541）。
   return (
-    <p style={{ color: "var(--text-secondary)", fontSize: 16, margin: "4px 0" }}>
+    <p
+      style={{
+        color: warning ? "#e8590c" : "var(--text-secondary)",
+        fontSize: 16,
+        fontWeight: warning ? 700 : 400,
+        margin: "4px 0",
+      }}
+    >
       {formatPrecipitationProbability(data)}
       {warning ? ` ${warning}` : ""}
     </p>

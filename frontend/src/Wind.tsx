@@ -25,6 +25,13 @@ export function windSpeedDescription(speedKmh: number): string {
   return "穏やかな風";
 }
 
+// 主要項目が多くどれが大事か分かりにくいという声を受け、既にある風の強さの
+// 目安（windSpeedDescription）が「穏やかな風」を超えるときだけ目立たせる
+// （Issue #541）。新しい閾値は作らず、既存の分類をそのまま使う。
+export function isWindSpeedNotable(data: WeatherResponse): boolean {
+  return windSpeedDescription(data.wind_speed.value) !== "穏やかな風";
+}
+
 // km/h の方がピンとこない、m/s も見たいという声を受けて併記する（Issue #336）。
 const KMH_TO_MS = 1 / 3.6;
 
@@ -60,9 +67,17 @@ export function formatWindDirectionDominant(data: WeatherResponse): string {
 }
 
 export function Wind({ data }: { data: WeatherResponse }) {
+  const notable = isWindSpeedNotable(data);
   return (
     <div style={{ margin: "0 0 8px" }}>
-      <p style={{ color: "var(--text-secondary)", fontSize: 16, margin: "0 0 2px" }}>
+      <p
+        style={{
+          color: notable ? "#e8590c" : "var(--text-secondary)",
+          fontSize: 16,
+          fontWeight: notable ? 700 : 400,
+          margin: "0 0 2px",
+        }}
+      >
         {formatWindSpeed(data)}
       </p>
       <p style={{ color: "var(--text-tertiary)", fontSize: 13, margin: "0 0 2px" }}>
