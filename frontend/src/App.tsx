@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { fetchSeries, fetchWeather, type SeriesResponse, type WeatherResponse } from "./api";
 import { CATEGORY_ORDER, DISPLAY_ITEMS } from "./displayItems";
+import { categorySummaryValue } from "./categorySummary";
 import { LocationName } from "./LocationName";
 import { Coordinates } from "./Coordinates";
 import { DailySummary } from "./DailySummary";
@@ -68,11 +69,13 @@ function CategoryGroup({
   title,
   defaultOpen,
   onOpenChange,
+  summaryValue,
   children,
 }: {
   title: string;
   defaultOpen: boolean;
   onOpenChange: (title: string, open: boolean) => void;
+  summaryValue?: string | null;
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(() => readStoredCategoryOpen(title) ?? defaultOpen);
@@ -98,6 +101,9 @@ function CategoryGroup({
         style={{ color: "var(--text-tertiary)", fontSize: 12, fontWeight: 600, margin: "0 0 6px", cursor: "pointer" }}
       >
         {title}
+        {summaryValue && (
+          <span style={{ fontWeight: 400, marginLeft: 8 }}>{summaryValue}</span>
+        )}
       </summary>
       <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 8 }}>
         {children}
@@ -553,6 +559,7 @@ export default function App() {
                 title={category}
                 defaultOpen={categoryIndex === 0}
                 onOpenChange={handleCategoryOpenChange}
+                summaryValue={categorySummaryValue(category, weatherState.data)}
               >
                 <ExpandableItems primary={primary} more={more} />
               </CategoryGroup>
