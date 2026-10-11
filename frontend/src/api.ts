@@ -131,7 +131,7 @@ export type WeatherResponse = {
   sunshine_duration: { value: number; unit: string };
   evapotranspiration: { value: number; unit: string };
   daylight_duration: { value: number; unit: string };
-  condition: { code: number; description: string; sentence: string };
+  condition: { code: number; description: string; description_en: string; sentence: string };
   is_day: boolean;
   observed_at: string;
   location_name: string;

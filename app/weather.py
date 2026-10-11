@@ -101,6 +101,45 @@ def _weather_description(code: int) -> str:
     return WEATHER_CODES.get(code, "不明")
 
 
+# WEATHER_CODES の英語版。海外の友人に天気をシェアしたいという声を受けて
+# 追加する（Issue #563）。WEATHER_CODES と同じキー（WMO コード）を使う。
+WEATHER_CODES_EN = {
+    0: "Clear",
+    1: "Mainly clear",
+    2: "Partly cloudy",
+    3: "Overcast",
+    45: "Fog",
+    48: "Freezing fog",
+    51: "Light drizzle",
+    53: "Drizzle",
+    55: "Heavy drizzle",
+    56: "Light freezing drizzle",
+    57: "Heavy freezing drizzle",
+    61: "Light rain",
+    63: "Rain",
+    65: "Heavy rain",
+    66: "Light freezing rain",
+    67: "Heavy freezing rain",
+    71: "Light snow",
+    73: "Snow",
+    75: "Heavy snow",
+    77: "Snow grains",
+    80: "Light rain showers",
+    81: "Rain showers",
+    82: "Heavy rain showers",
+    85: "Light snow showers",
+    86: "Heavy snow showers",
+    95: "Thunderstorm",
+    96: "Thunderstorm with light hail",
+    99: "Thunderstorm with heavy hail",
+}
+
+
+def _weather_description_en(code: int) -> str:
+    """WMO Weather code を英語の短い天気表記に変換する。未知のコードは Unknown。"""
+    return WEATHER_CODES_EN.get(code, "Unknown")
+
+
 def _condition_sentence(
     description: str, temperature: float, wind_speed_kmh: float, wind_compass: str
 ) -> str:
@@ -815,6 +854,7 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
         "condition": {
             "code": current["weather_code"],
             "description": _weather_description(current["weather_code"]),
+            "description_en": _weather_description_en(current["weather_code"]),
             "sentence": _condition_sentence(
                 _weather_description(current["weather_code"]),
                 current["temperature_2m"],
