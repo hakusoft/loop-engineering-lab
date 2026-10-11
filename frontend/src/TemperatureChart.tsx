@@ -26,6 +26,7 @@ function toChartData(data: SeriesResponse) {
   const temperature925hPa = data.series.find((s) => s.label === "925hPaの気温");
   const temperature700hPa = data.series.find((s) => s.label === "700hPaの気温");
   const temperature600hPa = data.series.find((s) => s.label === "600hPaの気温");
+  const temperature500hPa = data.series.find((s) => s.label === "500hPaの気温");
   const freezingLevel = data.series.find((s) => s.label === "凍結高度");
   const soilTemperature0cm = data.series.find((s) => s.label === "土の温度(地表)");
   const soilTemperature6cm = data.series.find((s) => s.label === "土の温度(6cm)");
@@ -88,6 +89,7 @@ function toChartData(data: SeriesResponse) {
       temperature925hPa: undefined,
       temperature700hPa: undefined,
       temperature600hPa: undefined,
+      temperature500hPa: undefined,
       freezingLevel: undefined,
       soilTemperature0cm: undefined,
       soilTemperature6cm: undefined,
@@ -153,6 +155,7 @@ function toChartData(data: SeriesResponse) {
     temperature925hPa: temperature925hPa?.values[i] ?? null,
     temperature700hPa: temperature700hPa?.values[i] ?? null,
     temperature600hPa: temperature600hPa?.values[i] ?? null,
+    temperature500hPa: temperature500hPa?.values[i] ?? null,
     freezingLevel: freezingLevel?.values[i] ?? null,
     soilTemperature0cm: soilTemperature0cm?.values[i] ?? null,
     soilTemperature6cm: soilTemperature6cm?.values[i] ?? null,
@@ -215,6 +218,7 @@ function toChartData(data: SeriesResponse) {
     temperature925hPa,
     temperature700hPa,
     temperature600hPa,
+    temperature500hPa,
     freezingLevel,
     soilTemperature0cm,
     soilTemperature6cm,
@@ -508,6 +512,7 @@ const SECONDARY_SERIES = [
   { key: "temperature925hPa", label: "925hPaの気温", category: "気温" },
   { key: "temperature700hPa", label: "700hPaの気温", category: "気温" },
   { key: "temperature600hPa", label: "600hPaの気温", category: "気温" },
+  { key: "temperature500hPa", label: "500hPaの気温", category: "気温" },
   { key: "apparentTemperature", label: "体感温度", category: "気温" },
   { key: "dewPoint", label: "露点温度", category: "気温" },
   { key: "wetBulbTemperature", label: "湿球温度", category: "気温" },
@@ -593,6 +598,7 @@ const SECONDARY_SERIES_COLOR: Record<SecondarySeriesKey, string> = {
   temperature925hPa: "#1c7ed6",
   temperature700hPa: "#fab005",
   temperature600hPa: "#9c36b5",
+  temperature500hPa: "#e8590c",
   apparentTemperature: "",
   dewPoint: "#20c997",
   wetBulbTemperature: "#e8590c",
@@ -824,6 +830,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     temperature925hPa,
     temperature700hPa,
     temperature600hPa,
+    temperature500hPa,
     freezingLevel,
     soilTemperature0cm,
     soilTemperature6cm,
@@ -933,6 +940,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             return Boolean(temperature700hPa);
           case "temperature600hPa":
             return Boolean(temperature600hPa);
+          case "temperature500hPa":
+            return Boolean(temperature500hPa);
           case "freezingLevel":
             return Boolean(freezingLevel);
           case "soilTemperature0cm":
@@ -1041,6 +1050,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
       temperature925hPa,
       temperature700hPa,
       temperature600hPa,
+      temperature500hPa,
       freezingLevel,
       soilTemperature0cm,
       soilTemperature6cm,
@@ -1160,6 +1170,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
   const showTemperature925hPa = temperature925hPa && visibleSecondary.has("temperature925hPa");
   const showTemperature700hPa = temperature700hPa && visibleSecondary.has("temperature700hPa");
   const showTemperature600hPa = temperature600hPa && visibleSecondary.has("temperature600hPa");
+  const showTemperature500hPa = temperature500hPa && visibleSecondary.has("temperature500hPa");
   const showFreezingLevel = freezingLevel && visibleSecondary.has("freezingLevel");
   const showSoilTemperature0cm = soilTemperature0cm && visibleSecondary.has("soilTemperature0cm");
   const showSoilTemperature6cm = soilTemperature6cm && visibleSecondary.has("soilTemperature6cm");
@@ -1750,6 +1761,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
                     ? temperature700hPa?.unit
                   : name === "600hPaの気温"
                     ? temperature600hPa?.unit
+                  : name === "500hPaの気温"
+                    ? temperature500hPa?.unit
                   : name === "凍結高度"
                     ? freezingLevel?.unit
                   : name === "土の温度(地表)"
@@ -1973,6 +1986,20 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             dot={false}
             isAnimationActive={false}
             name="600hPaの気温"
+            connectNulls
+          />
+        )}
+        {showTemperature500hPa && (
+          <Line
+            yAxisId="temperature"
+            type="monotone"
+            dataKey="temperature500hPa"
+            stroke="#e8590c"
+            strokeDasharray="3 3"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="500hPaの気温"
             connectNulls
           />
         )}
