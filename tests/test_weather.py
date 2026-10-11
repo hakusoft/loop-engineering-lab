@@ -35,7 +35,10 @@ from app.weather import (
     _round_visibility,
     _round_wind_speed,
     _seconds_to_hours,
+    WEATHER_CODES,
+    WEATHER_CODES_EN,
     _weather_description,
+    _weather_description_en,
     _zero_uv_index_at_night,
     format_forecast,
     format_hourly_series,
@@ -282,6 +285,7 @@ def test_format_forecast_maps_values_and_units():
     assert result["condition"] == {
         "code": 1,
         "description": "晴れ",
+        "description_en": "Mainly clear",
         "sentence": "晴れ、気温28.4°C、西南西の風 12.3km/h",
     }
     assert result["coordinates"] == {"latitude": 35.68, "longitude": 139.76}
@@ -1032,6 +1036,20 @@ def test_weather_description_maps_representative_codes():
 
 def test_weather_description_falls_back_for_unknown_code():
     assert _weather_description(1234) == "不明"
+
+
+def test_weather_description_en_maps_all_known_codes():
+    # WEATHER_CODES のキーと1対1に対応していることを確認する。片方だけ
+    # 更新してキーが片方で抜けると、既知のコードでも "Unknown" になってしまう。
+    assert set(WEATHER_CODES_EN.keys()) == set(WEATHER_CODES.keys())
+    assert _weather_description_en(0) == "Clear"
+    assert _weather_description_en(63) == "Rain"
+    assert _weather_description_en(73) == "Snow"
+    assert _weather_description_en(95) == "Thunderstorm"
+
+
+def test_weather_description_en_falls_back_for_unknown_code():
+    assert _weather_description_en(1234) == "Unknown"
 
 
 def test_condition_sentence_combines_description_temperature_and_wind():
