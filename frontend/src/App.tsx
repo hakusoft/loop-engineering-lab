@@ -529,6 +529,11 @@ export default function App() {
       </div>
       <p style={{ color: "var(--text-secondary)", marginTop: 0, fontSize: 14 }}>
         loop-engineering-lab / <code>/weather/series</code>
+        {state.status === "ready" && (
+          <span style={{ fontSize: 13, color: "var(--text-tertiary)", marginLeft: 8 }}>
+            {state.data.location_name}（{state.data.city_name_romaji}, {state.data.prefecture_name_romaji}）
+          </span>
+        )}
       </p>
 
       {weatherState.status === "ready" && (

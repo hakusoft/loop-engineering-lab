@@ -1143,6 +1143,13 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
     )
 
     return {
+        # /weather の location_name 等と揃える。地点が固定のため format_forecast と
+        # 同じ定数を使う（Issue #568）。
+        "location_name": DEFAULT_LOCATION_NAME,
+        "prefecture_name": DEFAULT_PREFECTURE_NAME,
+        "city_name": DEFAULT_CITY_NAME,
+        "prefecture_name_romaji": DEFAULT_PREFECTURE_NAME_ROMAJI,
+        "city_name_romaji": DEFAULT_CITY_NAME_ROMAJI,
         "timestamps": timestamps,
         "conditions": conditions,
         "daily_summary": daily_summary,
