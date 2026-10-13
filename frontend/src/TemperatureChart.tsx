@@ -420,6 +420,45 @@ export function precipitationRanges(
   return ranges;
 }
 
+// 紫外線指数（uvIndex の values、timestamps と同じ並び）がしきい値以上の時間帯を、
+// precipitationRanges と同じ要領で連続区間にまとめる。紫外線指数の最大値・ピーク
+// 時刻（uvIndexPeak）は既にあるが、グラフで紫外線が強い時間帯も色で分かるように
+// したいという声を受ける（Issue #578）。しきい値は国際的な紫外線指数の区分
+// （Moderate 以上）の目安である 6 とする。
+const UV_STRONG_THRESHOLD = 6;
+
+export function uvStrongRanges(
+  timestamps: string[],
+  uvIndexValues: (number | null)[] | undefined,
+  rows: { time: string }[],
+): { x1: string; x2: string }[] {
+  if (
+    !uvIndexValues ||
+    timestamps.length === 0 ||
+    timestamps.length !== rows.length ||
+    timestamps.length !== uvIndexValues.length
+  ) {
+    return [];
+  }
+  const ranges: { x1: string; x2: string }[] = [];
+  let start: number | null = null;
+  for (let i = 0; i < timestamps.length; i++) {
+    const value = uvIndexValues[i];
+    if (value !== null && value >= UV_STRONG_THRESHOLD) {
+      if (start === null) {
+        start = i;
+      }
+    } else if (start !== null) {
+      ranges.push({ x1: rows[start].time, x2: rows[i - 1].time });
+      start = null;
+    }
+  }
+  if (start !== null) {
+    ranges.push({ x1: rows[start].time, x2: rows[timestamps.length - 1].time });
+  }
+  return ranges;
+}
+
 // 夜間表示（App.tsx の NIGHT_THEME）では背景が濃紺になるため、目盛り・グリッド線・
 // 現在時刻線のデフォルト色（グレー系）はコントラストが低く読みにくい。
 // 昼夜で色を切り替える。
@@ -439,6 +478,7 @@ function chartColors(isDay: boolean | undefined) {
       thunderstorm: "#ff8a65",
       night: "#000020",
       precipitation: "#4dabf7",
+      uvStrong: "#ffd43b",
     };
   }
   return {
@@ -451,6 +491,7 @@ function chartColors(isDay: boolean | undefined) {
     thunderstorm: "#e2492c",
     night: "#1a2744",
     precipitation: "#1971c2",
+    uvStrong: "#f08c00",
   };
 }
 
@@ -902,6 +943,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
   const stormRanges = thunderstormRanges(data.timestamps, data.thunderstorm_hours, rows);
   const nightBackgroundRanges = nightRanges(data.timestamps, data.night_hours, rows);
   const wetRanges = precipitationRanges(data.timestamps, precipitationProbability?.values, rows);
+  const uvStrongBackgroundRanges = uvStrongRanges(data.timestamps, uvIndex?.values, rows);
 
   // 降水確率は「傘が要るかすぐ分かりたい」という要望から、他の副系列と違い
   // デフォルトで表示する（Issue #272）。湿度もよく見る項目として初期からONにする
@@ -1430,6 +1472,18 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             x1={range.x1}
             x2={range.x2}
             fill={colors.precipitation}
+            fillOpacity={0.12}
+            stroke="none"
+            ifOverflow="extendDomain"
+          />
+        ))}
+        {uvStrongBackgroundRanges.map((range) => (
+          <ReferenceArea
+            key={`uv-${range.x1}`}
+            yAxisId="temperature"
+            x1={range.x1}
+            x2={range.x2}
+            fill={colors.uvStrong}
             fillOpacity={0.12}
             stroke="none"
             ifOverflow="extendDomain"
