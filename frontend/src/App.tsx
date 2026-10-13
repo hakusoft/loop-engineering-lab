@@ -4,7 +4,7 @@ import { CATEGORY_ORDER, DISPLAY_ITEMS } from "./displayItems";
 import { categorySummaryValue } from "./categorySummary";
 import { LocationName } from "./LocationName";
 import { Coordinates } from "./Coordinates";
-import { iconForWeatherCode } from "./weatherIcons";
+import { formatConditionIcon } from "./Condition";
 import { DailySummary } from "./DailySummary";
 import { DailyCondition } from "./DailyCondition";
 import { HourlyConditions } from "./HourlyConditions";
@@ -464,11 +464,11 @@ export default function App() {
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
         <div style={{ display: "flex", alignItems: "baseline" }}>
           {/* 気温カテゴリ内（Condition.tsx）のアイコンはスマホだと目立たないという
-              声を受け、ページ最上部にも大きく表示する（Issue #577）。今日一日を
-              代表するコード（DailyCondition.tsx と同じ daily_condition）を使う。 */}
-          {state.status === "ready" && (
+              声を受け、ページ最上部にも大きく表示する（Issue #577）。現在の天気
+              （Condition.tsx と同じ formatConditionIcon）を使う。 */}
+          {weatherState.status === "ready" && formatConditionIcon(weatherState.data) && (
             <span aria-hidden="true" style={{ fontSize: 36, marginRight: 8, lineHeight: 1 }}>
-              {iconForWeatherCode(state.data.daily_condition!.code)}
+              {formatConditionIcon(weatherState.data)}
             </span>
           )}
           <h1 style={{ fontSize: 20, marginBottom: 4 }}>東京の天気（48時間）</h1>
