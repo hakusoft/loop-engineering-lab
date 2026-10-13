@@ -108,6 +108,7 @@ export const DISPLAY_ITEMS: DisplayItem[] = [
   { category: "降水・湿度", component: lazyMoreItem("Evapotranspiration"), tier: "more" },
   { category: "降水・湿度", component: lazyMoreItem("VaporPressureDeficit"), tier: "more" },
   { category: "降水・湿度", component: lazyMoreItem("GardenWatering"), tier: "more" },
+  { category: "降水・湿度", component: lazyMoreItem("ActionGuidance"), tier: "more" },
 
   { category: "環境", component: Pressure, tier: "primary" },
   { category: "環境", component: lazyMoreItem("SeaLevelPressure"), tier: "more" },
