@@ -39,6 +39,7 @@ export { SoilMoistureBedrock } from "./SoilMoistureBedrock";
 export { Evapotranspiration } from "./Evapotranspiration";
 export { VaporPressureDeficit } from "./VaporPressureDeficit";
 export { GardenWatering } from "./GardenWatering";
+export { ActionGuidance } from "./ActionGuidance";
 export { SeaLevelPressure } from "./SeaLevelPressure";
 export { CloudCoverLayers } from "./CloudCoverLayers";
 export { FreezingLevel } from "./FreezingLevel";
