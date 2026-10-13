@@ -65,16 +65,22 @@ function categoryAnchorId(title: string): string {
   return `category-${title}`;
 }
 
+// 全カテゴリを一括開閉するための信号。token を変えるたびに各 CategoryGroup へ
+// 同じ open 値が伝わる（同じ open 値を連続で送っても再度効かせるため）。
+type BulkToggleSignal = { open: boolean; token: number };
+
 function CategoryGroup({
   title,
   defaultOpen,
   onOpenChange,
+  bulkToggle,
   summaryValue,
   children,
 }: {
   title: string;
   defaultOpen: boolean;
   onOpenChange: (title: string, open: boolean) => void;
+  bulkToggle: BulkToggleSignal | null;
   summaryValue?: string | null;
   children: ReactNode;
 }) {
@@ -85,6 +91,15 @@ function CategoryGroup({
     onOpenChange(title, open);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // 「全て開く」「全て閉じる」ボタン（CategoryNav 付近）が押されたら、このカテゴリ
+  // も合わせて開閉する（Issue #572）。
+  useEffect(() => {
+    if (bulkToggle === null) return;
+    setOpen(bulkToggle.open);
+    onOpenChange(title, bulkToggle.open);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bulkToggle]);
 
   return (
     <details
@@ -197,12 +212,44 @@ function jumpToCategory(title: string) {
 function CategoryNav({
   categories,
   openCategories,
+  onBulkToggle,
 }: {
   categories: string[];
   openCategories: Set<string>;
+  onBulkToggle: (open: boolean) => void;
 }) {
   return (
-    <nav style={{ display: "flex", flexWrap: "wrap", gap: 8, margin: "12px 0" }}>
+    <nav style={{ display: "flex", flexWrap: "wrap", gap: 8, margin: "12px 0", alignItems: "center" }}>
+      <button
+        type="button"
+        onClick={() => onBulkToggle(true)}
+        style={{
+          background: "none",
+          border: "1px solid var(--text-tertiary)",
+          borderRadius: 999,
+          color: "var(--text-secondary)",
+          fontSize: 12,
+          padding: "4px 10px",
+          cursor: "pointer",
+        }}
+      >
+        全て開く
+      </button>
+      <button
+        type="button"
+        onClick={() => onBulkToggle(false)}
+        style={{
+          background: "none",
+          border: "1px solid var(--text-tertiary)",
+          borderRadius: 999,
+          color: "var(--text-secondary)",
+          fontSize: 12,
+          padding: "4px 10px",
+          cursor: "pointer",
+        }}
+      >
+        全て閉じる
+      </button>
       {categories.map((title) => {
         const isOpen = openCategories.has(title);
         return (
@@ -422,6 +469,13 @@ export default function App() {
 
   // CategoryNav で今開いているカテゴリを強調するための状態（Issue #503）。
   const [openCategories, setOpenCategories] = useState<Set<string>>(new Set());
+  // 「全て開く」「全て閉じる」ボタンの信号（Issue #572）。token は押すたびに
+  // 増やし、同じ open 値を連続で送っても各 CategoryGroup の useEffect が
+  // 反応するようにする。
+  const [bulkToggle, setBulkToggle] = useState<{ open: boolean; token: number } | null>(null);
+  const handleBulkToggle = (open: boolean) => {
+    setBulkToggle((prev) => ({ open, token: (prev?.token ?? 0) + 1 }));
+  };
   const handleCategoryOpenChange = (title: string, open: boolean) => {
     setOpenCategories((prev) => {
       const next = new Set(prev);
@@ -537,7 +591,11 @@ export default function App() {
       </p>
 
       {weatherState.status === "ready" && (
-        <CategoryNav categories={CATEGORY_ORDER} openCategories={openCategories} />
+        <CategoryNav
+          categories={CATEGORY_ORDER}
+          openCategories={openCategories}
+          onBulkToggle={handleBulkToggle}
+        />
       )}
 
       {state.status === "ready" && <DailySummary data={state.data} />}
@@ -564,6 +622,7 @@ export default function App() {
                 title={category}
                 defaultOpen={categoryIndex === 0}
                 onOpenChange={handleCategoryOpenChange}
+                bulkToggle={bulkToggle}
                 summaryValue={categorySummaryValue(category, weatherState.data)}
               >
                 <ExpandableItems primary={primary} more={more} />
