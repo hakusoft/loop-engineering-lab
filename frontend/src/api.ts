@@ -21,6 +21,11 @@ export type Series = {
 export type HourlyCondition = { code: number; description: string };
 
 export type SeriesResponse = {
+  location_name: string;
+  prefecture_name: string;
+  city_name: string;
+  prefecture_name_romaji: string;
+  city_name_romaji: string;
   timestamps: string[];
   conditions: HourlyCondition[];
   daily_summary: string;

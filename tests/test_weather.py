@@ -538,6 +538,17 @@ STUB_SERIES = {
 }
 
 
+def test_format_hourly_series_includes_location_name():
+    """/weather と同じ地点名項目を返す（Issue #568）。"""
+    result = format_hourly_series(STUB_SERIES)
+
+    assert result["location_name"] == "東京都千代田区"
+    assert result["prefecture_name"] == "東京都"
+    assert result["city_name"] == "千代田区"
+    assert result["prefecture_name_romaji"] == "Tokyo"
+    assert result["city_name_romaji"] == "Chiyoda"
+
+
 def test_series_shares_one_timeline():
     result = format_hourly_series(STUB_SERIES)
 
