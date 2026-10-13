@@ -433,6 +433,7 @@ STUB_SERIES = {
         "vapour_pressure_deficit": "kPa",
         "relative_humidity_2m": "%",
         "relative_humidity_700hPa": "%",
+        "relative_humidity_850hPa": "%",
         "total_column_integrated_water_vapour": "mm",
         "rain": "mm",
         "snowfall": "cm",
@@ -500,6 +501,7 @@ STUB_SERIES = {
         "vapour_pressure_deficit": [0.85, 0.78, 0.68],
         "relative_humidity_2m": [78, 81, 85],
         "relative_humidity_700hPa": [55.0, 60.0, 62.0],
+        "relative_humidity_850hPa": [68.0, 71.0, 74.0],
         "total_column_integrated_water_vapour": [42.5, 45.1, 48.3],
         "rain": [0.0, 0.5, 1.2],
         "snowfall": [0.0, 0.0, 0.0],
@@ -578,6 +580,7 @@ def test_series_keeps_units_separate_for_split_axes():
     vapor_pressure_deficit = by_label["飽差(VPD)"]
     humidity = by_label["湿度"]
     humidity_700hpa = by_label["700hPaの湿度"]
+    humidity_850hpa = by_label["850hPaの湿度"]
     rain = by_label["雨量"]
     snow = by_label["降雪量"]
     snow_depth = by_label["積雪の深さ"]
@@ -658,6 +661,8 @@ def test_series_keeps_units_separate_for_split_axes():
     assert humidity["unit"] == "%"
     assert humidity_700hpa["label"] == "700hPaの湿度"
     assert humidity_700hpa["unit"] == "%"
+    assert humidity_850hpa["label"] == "850hPaの湿度"
+    assert humidity_850hpa["unit"] == "%"
     assert rain["label"] == "雨量"
     assert rain["unit"] == "mm"
     assert snow["label"] == "降雪量"
@@ -759,6 +764,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     vapor_pressure_deficit = by_label["飽差(VPD)"]
     humidity = by_label["湿度"]
     humidity_700hpa = by_label["700hPaの湿度"]
+    humidity_850hpa = by_label["850hPaの湿度"]
     rain = by_label["雨量"]
     snow = by_label["降雪量"]
     snow_depth = by_label["積雪の深さ"]
@@ -818,6 +824,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     assert (vapor_pressure_deficit["min"], vapor_pressure_deficit["max"]) == (0.68, 0.85)
     assert (humidity["min"], humidity["max"]) == (78, 85)
     assert (humidity_700hpa["min"], humidity_700hpa["max"]) == (55.0, 62.0)
+    assert (humidity_850hpa["min"], humidity_850hpa["max"]) == (68.0, 74.0)
     assert (rain["min"], rain["max"]) == (0.0, 1.2)
     assert (snow["min"], snow["max"]) == (0.0, 0.0)
     assert (snow_depth["min"], snow_depth["max"]) == (0.02, 0.03)
