@@ -1527,7 +1527,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             key={boundary.time}
             yAxisId="temperature"
             x={boundary.time}
-            stroke={colors.grid}
+            stroke={colors.referenceLine}
+            strokeDasharray="1 3"
             label={{ value: boundary.date, position: "top", fontSize: tickFontSize, fill: colors.referenceLabel }}
           />
         ))}
