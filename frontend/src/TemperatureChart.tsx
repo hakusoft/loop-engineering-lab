@@ -43,6 +43,12 @@ function toChartData(data: SeriesResponse) {
   const precipitableWater = data.series.find((s) => s.label === "可降水量");
   const rain = data.series.find((s) => s.label === "雨量");
   const snow = data.series.find((s) => s.label === "降雪量");
+  // 雨(mm)と雪(cm)で単位が違うとどちらが多いか比べにくいという声（Issue #411, #585）
+  // を受け、グラフ上の表示だけ雪をmmに換算して揃える（PrecipitationType.tsx の
+  // formatPrecipitationType と同様、API の値・単位自体は変えない）。
+  const snowUnit = snow?.unit === "cm" ? "mm" : snow?.unit;
+  const snowToMm = (value: number | null) =>
+    value === null ? null : snow?.unit === "cm" ? value * 10 : value;
   const snowDepth = data.series.find((s) => s.label === "積雪の深さ");
   const precipitationProbability = data.series.find((s) => s.label === "降水確率");
   const evapotranspiration = data.series.find((s) => s.label === "蒸発散量");
@@ -173,7 +179,7 @@ function toChartData(data: SeriesResponse) {
     humidity850hPa: humidity850hPa?.values[i] ?? null,
     precipitableWater: precipitableWater?.values[i] ?? null,
     rain: rain?.values[i] ?? null,
-    snow: snow?.values[i] ?? null,
+    snow: snowToMm(snow?.values[i] ?? null),
     snowDepth: snowDepth?.values[i] ?? null,
     precipitationProbability: precipitationProbability?.values[i] ?? null,
     evapotranspiration: evapotranspiration?.values[i] ?? null,
@@ -238,6 +244,7 @@ function toChartData(data: SeriesResponse) {
     precipitableWater,
     rain,
     snow,
+    snowUnit,
     snowDepth,
     precipitationProbability,
     evapotranspiration,
@@ -894,6 +901,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     precipitableWater,
     rain,
     snow,
+    snowUnit,
     snowDepth,
     precipitationProbability,
     evapotranspiration,
@@ -1864,7 +1872,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
                     : name === "雨量"
                       ? rain?.unit
                       : name === "降雪量"
-                        ? snow?.unit
+                        ? snowUnit
                         : name === "降水確率"
                           ? precipitationProbability?.unit
                           : name === "蒸発散量"
