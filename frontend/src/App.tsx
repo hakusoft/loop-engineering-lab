@@ -401,15 +401,15 @@ export default function App() {
     const load = (isAutoRefresh: boolean) => {
       if (isAutoRefresh) setWeatherAutoRefreshing(true);
       fetchWeather()
-        .then((data) => {
-          if (alive) setWeatherState({ status: "ready", data });
-          if (alive && isAutoRefresh) setWeatherAutoRefreshing(false);
-        })
+        .then((data) => alive && setWeatherState({ status: "ready", data }))
         .catch(
           () =>
             alive &&
             setWeatherState((prev) => (prev.status === "ready" ? prev : { status: "error" })),
-        );
+        )
+        .finally(() => {
+          if (alive && isAutoRefresh) setWeatherAutoRefreshing(false);
+        });
     };
     load(false);
     const id = setInterval(() => load(true), REFRESH_INTERVAL_MS);
