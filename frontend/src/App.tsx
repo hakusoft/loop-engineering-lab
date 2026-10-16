@@ -13,6 +13,7 @@ import { WindPeakOutlook } from "./WindPeakOutlook";
 import { ApparentTemperaturePeakOutlook } from "./ApparentTemperaturePeakOutlook";
 import { SolarRadiationPeakOutlook } from "./SolarRadiationPeakOutlook";
 import { faviconHrefForWeather } from "./favicon";
+import { AutoRefreshStatus } from "./AutoRefreshStatus";
 
 // グラフの描画に使う recharts はサイズが大きく、他の項目より先に初回バンドルへ
 // 含めると開いた瞬間の読み込みを遅くする要因になる（Issue #308）。グラフだけ
@@ -343,6 +344,18 @@ export default function App() {
   const [refreshNotice, setRefreshNotice] = useState<"success" | "error" | null>(null);
   const refreshNoticeTimeoutRef = useRef<number | null>(null);
 
+  // 自動更新（10分ごと）が進行中かどうか。「自動更新中かどうか分かりづらい」
+  // という声を受けて追加する（Issue #595）。/weather/series と /weather の
+  // 2本を同時に取得しているため、いずれかが進行中なら「自動更新中」とする。
+  // 初回読み込み（マウント直後の1回目）は自動更新ではなく、既存の読み込み中
+  // 表示で分かるため対象にしない。
+  const [seriesAutoRefreshing, setSeriesAutoRefreshing] = useState(false);
+  const [weatherAutoRefreshing, setWeatherAutoRefreshing] = useState(false);
+  // 次の自動更新までの残り時間を計算する基準時刻。setInterval は手動更新に
+  // 関わらずマウント時のスケジュールのまま走り続けるため、マウント時刻を
+  // 基準にすれば実際のスケジュールと一致する。
+  const mountedAtRef = useRef(Date.now());
+
   // アンマウント後に setState を呼ばないよう、表示中のタイマーは片付ける。
   useEffect(() => {
     return () => {
@@ -358,7 +371,8 @@ export default function App() {
   // 切り替えない（初回読み込みが失敗したときだけ、従来通りエラー表示にする）。
   useEffect(() => {
     let alive = true;
-    const load = () => {
+    const load = (isAutoRefresh: boolean) => {
+      if (isAutoRefresh) setSeriesAutoRefreshing(true);
       fetchSeries()
         .then((data) => alive && setState({ status: "ready", data }))
         .catch(
@@ -369,10 +383,13 @@ export default function App() {
                 ? prev
                 : { status: "error", message: String(e.message ?? e) },
             ),
-        );
+        )
+        .finally(() => {
+          if (alive && isAutoRefresh) setSeriesAutoRefreshing(false);
+        });
     };
-    load();
-    const id = setInterval(load, REFRESH_INTERVAL_MS);
+    load(false);
+    const id = setInterval(() => load(true), REFRESH_INTERVAL_MS);
     return () => {
       alive = false;
       clearInterval(id);
@@ -381,17 +398,21 @@ export default function App() {
 
   useEffect(() => {
     let alive = true;
-    const load = () => {
+    const load = (isAutoRefresh: boolean) => {
+      if (isAutoRefresh) setWeatherAutoRefreshing(true);
       fetchWeather()
-        .then((data) => alive && setWeatherState({ status: "ready", data }))
+        .then((data) => {
+          if (alive) setWeatherState({ status: "ready", data });
+          if (alive && isAutoRefresh) setWeatherAutoRefreshing(false);
+        })
         .catch(
           () =>
             alive &&
             setWeatherState((prev) => (prev.status === "ready" ? prev : { status: "error" })),
         );
     };
-    load();
-    const id = setInterval(load, REFRESH_INTERVAL_MS);
+    load(false);
+    const id = setInterval(() => load(true), REFRESH_INTERVAL_MS);
     return () => {
       alive = false;
       clearInterval(id);
@@ -534,6 +555,11 @@ export default function App() {
           )}
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <AutoRefreshStatus
+            mountedAt={mountedAtRef.current}
+            intervalMs={REFRESH_INTERVAL_MS}
+            refreshing={seriesAutoRefreshing || weatherAutoRefreshing}
+          />
           <button
             type="button"
             onClick={handleManualRefresh}
