@@ -43,6 +43,7 @@ export { ActionGuidance } from "./ActionGuidance";
 export { SeaLevelPressure } from "./SeaLevelPressure";
 export { CloudCoverLayers } from "./CloudCoverLayers";
 export { FreezingLevel } from "./FreezingLevel";
+export { SnowfallHeight } from "./SnowfallHeight";
 export { SolarRadiation } from "./SolarRadiation";
 export { SolarRadiationDirect } from "./SolarRadiationDirect";
 export { SolarRadiationDiffuse } from "./SolarRadiationDiffuse";
