@@ -27,10 +27,24 @@ export function jacketGuidance(temperatureMin: number, apparentTemperatureMin: n
   return "上着は不要";
 }
 
+// 日焼け止めの目安も知りたいという声を受けて追加する（Issue #599）。
+// UV指数(本日の最大)から、WHOの区分(3未満: 低い、3〜7: 中〜高い、8以上: 非常に高い)を
+// 参考に3段階に単純化する。
+export function sunscreenGuidance(uvIndexMax: number): string {
+  if (uvIndexMax >= 8) {
+    return "日焼け止めが必要";
+  }
+  if (uvIndexMax >= 3) {
+    return "日焼け止めがあると安心";
+  }
+  return "日焼け止めは不要";
+}
+
 export function formatActionGuidance(data: WeatherResponse): string {
   const umbrella = umbrellaGuidance(data.precipitation_probability.value, data.precipitation_sum.value);
   const jacket = jacketGuidance(data.temperature_min.value, data.apparent_temperature_min.value);
-  return `傘: ${umbrella} / 上着: ${jacket}`;
+  const sunscreen = sunscreenGuidance(data.uv_index_max.value);
+  return `傘: ${umbrella} / 上着: ${jacket} / 日焼け止め: ${sunscreen}`;
 }
 
 export function ActionGuidance({ data }: { data: WeatherResponse }) {
