@@ -470,6 +470,10 @@ export function uvStrongRanges(
 // 気温・体感温度（グラフ本体の常に出ている基本線）も、昼間向けの色（暖色2色が
 // 近く、暗い背景ではさらに見分けにくい）のままだと読みにくいという声があった
 // （Issue #359）。夜間はコントラストが高く、かつ2色の見分けがつきやすい色にする。
+//
+// 夜間は離れた色になった一方、昼間配色は気温(#e2492c)・体感温度(#f4a300)が
+// どちらも暖色で依然近いという声があった（Issue #587）。体感温度を色相の
+// 離れた青系に変える。
 function chartColors(isDay: boolean | undefined) {
   if (isDay === false) {
     return {
@@ -491,7 +495,7 @@ function chartColors(isDay: boolean | undefined) {
     referenceLine: "#888",
     referenceLabel: "#888",
     temperature: "#e2492c",
-    apparentTemperature: "#f4a300",
+    apparentTemperature: "#1c7ed6",
     thunderstorm: "#e2492c",
     night: "#1a2744",
     precipitation: "#1971c2",
@@ -650,7 +654,9 @@ const SECONDARY_SERIES_COLOR: Record<SecondarySeriesKey, string> = {
   wetBulbTemperature: "#e8590c",
   vaporPressureDeficit: "#d6336c",
   soilTemperature0cm: "#8d6e63",
-  soilTemperature6cm: "#a1662f",
+  // 土の温度(地表)と同じ茶系で近く見分けづらいという声（Issue #587）を受け、
+  // 色相の離れた緑系に変える。
+  soilTemperature6cm: "#2f9e44",
   soilTemperature18cm: "#c1440e",
   soilTemperature54cm: "#6f4518",
   soilMoisture: "#1864ab",
@@ -2107,7 +2113,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             yAxisId="temperature"
             type="monotone"
             dataKey="soilTemperature6cm"
-            stroke="#a1662f"
+            stroke="#2f9e44"
             strokeDasharray="1 3"
             strokeWidth={2}
             dot={false}
