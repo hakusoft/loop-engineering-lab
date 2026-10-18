@@ -3,6 +3,7 @@ import { fetchSeries, fetchWeather, type SeriesResponse, type WeatherResponse } 
 import { CATEGORY_ORDER, DISPLAY_ITEMS } from "./displayItems";
 import { categorySummaryValue } from "./categorySummary";
 import { LocationName } from "./LocationName";
+import { DateWeekday } from "./DateWeekday";
 import { Coordinates } from "./Coordinates";
 import { formatConditionIcon } from "./Condition";
 import { DailySummary } from "./DailySummary";
@@ -527,6 +528,9 @@ export default function App() {
             </span>
           )}
           <h1 style={{ fontSize: 20, marginBottom: 4 }}>東京の天気（48時間）</h1>
+          <span style={{ marginLeft: 10 }}>
+            <DateWeekday />
+          </span>
           {weatherState.status === "ready" && state.status === "ready" && (
             <>
               <LocationName data={weatherState.data} />
