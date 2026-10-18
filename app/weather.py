@@ -445,6 +445,135 @@ HOURLY_FIELDS = [
 ]
 
 
+# /weather の生レスポンスは項目が多く探しづらいという声を受け、フロント
+# （frontend/src/displayItems.ts の DisplayCategory）と同じカテゴリ分けを
+# 返せるようにする（Issue #605）。既存のレスポンス構造自体は変えず、
+# 別途 /weather/fields で項目名→カテゴリ名の対応を返す。
+# フロントの5カテゴリに入らない地点情報は「位置情報」という別カテゴリにする。
+FIELD_CATEGORIES: dict[str, str] = {
+    "location_name": "位置情報",
+    "prefecture_name": "位置情報",
+    "city_name": "位置情報",
+    "prefecture_name_romaji": "位置情報",
+    "city_name_romaji": "位置情報",
+    "coordinates": "位置情報",
+    "elevation": "位置情報",
+    "temperature": "気温",
+    "apparent_temperature": "気温",
+    "dew_point": "気温",
+    "temperature_max": "気温",
+    "temperature_min": "気温",
+    "temperature_mean": "気温",
+    "apparent_temperature_max": "気温",
+    "apparent_temperature_min": "気温",
+    "apparent_temperature_mean": "気温",
+    "temperature_aloft": "気温",
+    "temperature_diff_ground_aloft": "気温",
+    "vapor_pressure_deficit": "気温",
+    "wet_bulb_temperature": "気温",
+    "condition": "気温",
+    "wind_speed": "風",
+    "wind_direction": "風",
+    "wind_gusts": "風",
+    "wind_speed_max": "風",
+    "wind_gusts_max": "風",
+    "wind_direction_dominant": "風",
+    "humidity": "降水・湿度",
+    "humidity_max": "降水・湿度",
+    "humidity_min": "降水・湿度",
+    "humidity_mean": "降水・湿度",
+    "humidity_aloft": "降水・湿度",
+    "humidity_diff_ground_aloft": "降水・湿度",
+    "soil_temperature": "降水・湿度",
+    "soil_temperature_deep": "降水・湿度",
+    "soil_temperature_deeper": "降水・湿度",
+    "soil_temperature_deepest": "降水・湿度",
+    "soil_moisture": "降水・湿度",
+    "soil_moisture_deep": "降水・湿度",
+    "soil_moisture_deeper": "降水・湿度",
+    "soil_moisture_deepest": "降水・湿度",
+    "soil_moisture_bedrock": "降水・湿度",
+    "precipitation": "降水・湿度",
+    "precipitation_probability": "降水・湿度",
+    "precipitation_probability_mean": "降水・湿度",
+    "precipitation_probability_min": "降水・湿度",
+    "precipitation_hours": "降水・湿度",
+    "precipitation_sum": "降水・湿度",
+    "rain_sum": "降水・湿度",
+    "showers_sum": "降水・湿度",
+    "snowfall_sum": "降水・湿度",
+    "rain": "降水・湿度",
+    "showers": "降水・湿度",
+    "snowfall": "降水・湿度",
+    "snow_depth": "降水・湿度",
+    "evapotranspiration": "降水・湿度",
+    "pressure": "環境",
+    "sea_level_pressure": "環境",
+    "cloud_cover": "環境",
+    "cloud_cover_low": "環境",
+    "cloud_cover_mid": "環境",
+    "cloud_cover_high": "環境",
+    "visibility": "環境",
+    "freezing_level_height": "環境",
+    "solar_radiation": "環境",
+    "solar_radiation_direct": "環境",
+    "solar_radiation_diffuse": "環境",
+    "solar_radiation_direct_normal": "環境",
+    "solar_radiation_sum": "環境",
+    "uv_index": "環境",
+    "uv_index_max": "環境",
+    "uv_index_clear_sky_max": "環境",
+    "sunrise": "日照・時刻",
+    "sunset": "日照・時刻",
+    "daylight_duration": "日照・時刻",
+    "sunshine_duration": "日照・時刻",
+    "observed_at": "日照・時刻",
+    "is_day": "日照・時刻",
+}
+
+# 実 API での応答確認ができていない（.get() で読んでいる）ため null になり得る
+# 項目の理由一覧。都度レスポンスに注釈するのではなく一覧として返す方針にした
+# （Issue #605、依頼者の回答 (a)）。
+_UNCONFIRMED_FIELD_NULL_REASON = (
+    "この項目はOpen-Meteoの実際の応答でまだ確認できていないため、"
+    "Open-Meteoがこのキーを返さない場合はnullになります（コード側の不具合ではありません）"
+)
+
+NULLABLE_FIELD_REASONS: dict[str, str] = {
+    "temperature_aloft": _UNCONFIRMED_FIELD_NULL_REASON,
+    "temperature_diff_ground_aloft": (
+        "temperature_aloft が null のときは地上気温との差を計算できないため null になります"
+    ),
+    "humidity_aloft": _UNCONFIRMED_FIELD_NULL_REASON,
+    "humidity_diff_ground_aloft": (
+        "humidity_aloft が null のときは地上湿度との差を計算できないため null になります"
+    ),
+    "soil_temperature_deep": _UNCONFIRMED_FIELD_NULL_REASON,
+    "soil_temperature_deeper": _UNCONFIRMED_FIELD_NULL_REASON,
+    "soil_temperature_deepest": _UNCONFIRMED_FIELD_NULL_REASON,
+    "soil_moisture_deep": _UNCONFIRMED_FIELD_NULL_REASON,
+    "soil_moisture_deeper": _UNCONFIRMED_FIELD_NULL_REASON,
+    "soil_moisture_deepest": _UNCONFIRMED_FIELD_NULL_REASON,
+    "soil_moisture_bedrock": _UNCONFIRMED_FIELD_NULL_REASON,
+    "precipitation_probability_mean": _UNCONFIRMED_FIELD_NULL_REASON,
+    "precipitation_probability_min": _UNCONFIRMED_FIELD_NULL_REASON,
+    "solar_radiation_direct_normal": _UNCONFIRMED_FIELD_NULL_REASON,
+    "uv_index_clear_sky_max": _UNCONFIRMED_FIELD_NULL_REASON,
+}
+
+
+def weather_field_metadata() -> dict[str, Any]:
+    """/weather の各項目について、カテゴリと null になり得る理由を返す。
+
+    /weather 自体のレスポンス構造は変えず、別のエンドポイントとして提供する
+    （Issue #605）。
+    """
+    return {
+        "categories": dict(FIELD_CATEGORIES),
+        "nullable_fields": dict(NULLABLE_FIELD_REASONS),
+    }
+
+
 def fetch_forecast(
     latitude: float = DEFAULT_LATITUDE,
     longitude: float = DEFAULT_LONGITUDE,
