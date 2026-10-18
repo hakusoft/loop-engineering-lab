@@ -1126,6 +1126,17 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
         [hourly["wind_gusts_10m"][i] for i in today_index],
     )
 
+    # 気温そのものの最高・最低も「何時頃だったか分からない」という声を受け、
+    # apparent_temperature_peak と同じ考え方を気温にも適用する。
+    temperature_peak_today = _peak_value(
+        [timestamps[i] for i in today_index],
+        [hourly["temperature_2m"][i] for i in today_index],
+    )
+    temperature_trough_today = _trough_value(
+        [timestamps[i] for i in today_index],
+        [hourly["temperature_2m"][i] for i in today_index],
+    )
+
     # 体感温度の最高・最低が「何時頃だったか分からない」という声を受け、
     # wind_speed_peak と同じ考え方を体感温度（最高・最低の両方）にも適用する。
     apparent_temperature_peak_today = _peak_value(
@@ -1160,6 +1171,8 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
         "cape_peak": cape_peak_today,
         "wind_speed_peak": wind_speed_peak_today,
         "wind_gusts_peak": wind_gusts_peak_today,
+        "temperature_peak": temperature_peak_today,
+        "temperature_trough": temperature_trough_today,
         "apparent_temperature_peak": apparent_temperature_peak_today,
         "apparent_temperature_trough": apparent_temperature_trough_today,
         "shortwave_radiation_peak": shortwave_radiation_peak_today,

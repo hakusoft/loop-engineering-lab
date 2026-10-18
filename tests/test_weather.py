@@ -2225,6 +2225,26 @@ def test_format_hourly_series_includes_apparent_temperature_peak_and_trough():
     assert result["apparent_temperature_trough"] == {"time": "2026-07-21T02:00", "value": 25.8}
 
 
+def test_format_hourly_series_includes_temperature_peak_and_trough():
+    """format_hourly_series の戻り値に、今日一日の気温そのものの最高・最低の
+    発生時刻と値が含まれる(apparent_temperature_peak と同じ考え方)。"""
+    result = format_hourly_series(STUB_SERIES)
+
+    assert result["temperature_peak"] == {"time": "2026-07-21T00:00", "value": 26.1}
+    assert result["temperature_trough"] == {"time": "2026-07-21T02:00", "value": 24.9}
+
+
+def test_format_hourly_series_temperature_peak_is_none_when_all_missing():
+    """気温が全て欠測なら None（apparent_temperature_peak と同じ方針）。"""
+    hourly = {**STUB_SERIES["hourly"], "temperature_2m": [None, None, None]}
+    raw = {**STUB_SERIES, "hourly": hourly}
+
+    result = format_hourly_series(raw)
+
+    assert result["temperature_peak"] is None
+    assert result["temperature_trough"] is None
+
+
 def test_format_hourly_series_includes_shortwave_radiation_peak():
     """format_hourly_series の戻り値に、今日一日の日射量が最大になる
     発生時刻と値が含まれる。"""

@@ -11,6 +11,7 @@ import { DailyCondition } from "./DailyCondition";
 import { HourlyConditions } from "./HourlyConditions";
 import { ThunderstormOutlook } from "./ThunderstormOutlook";
 import { WindPeakOutlook } from "./WindPeakOutlook";
+import { TemperaturePeakOutlook } from "./TemperaturePeakOutlook";
 import { ApparentTemperaturePeakOutlook } from "./ApparentTemperaturePeakOutlook";
 import { SolarRadiationPeakOutlook } from "./SolarRadiationPeakOutlook";
 import { faviconHrefForWeather } from "./favicon";
@@ -620,6 +621,7 @@ export default function App() {
       {state.status === "ready" && <DailyCondition data={state.data} />}
       {state.status === "ready" && <ThunderstormOutlook data={state.data} />}
       {state.status === "ready" && <WindPeakOutlook data={state.data} />}
+      {state.status === "ready" && <TemperaturePeakOutlook data={state.data} />}
       {state.status === "ready" && <ApparentTemperaturePeakOutlook data={state.data} />}
       {state.status === "ready" && <SolarRadiationPeakOutlook data={state.data} />}
 
