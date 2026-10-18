@@ -20,6 +20,9 @@ from app.weather import (
     CURRENT_FIELDS,
     DAILY_FIELDS,
     HOURLY_FIELDS,
+    FIELD_CATEGORIES,
+    NULLABLE_FIELD_REASONS,
+    weather_field_metadata,
     _clamp_uv_index,
     _compass_abbreviation,
     _compass_direction,
@@ -2251,3 +2254,36 @@ def test_format_hourly_series_includes_shortwave_radiation_peak():
     result = format_hourly_series(STUB_SERIES)
 
     assert result["shortwave_radiation_peak"] == {"time": "2026-07-21T00:00", "value": 412.0}
+
+
+def test_field_categories_cover_every_format_forecast_key():
+    """FIELD_CATEGORIES に format_forecast() の返す全キーのカテゴリがある。
+
+    /weather の生レスポンスが項目が多く探しづらいという声を受け、項目名→
+    カテゴリ名の対応を返せるようにした(Issue #605)。項目が増えても漏れが
+    無いことをここで確認する。
+    """
+    result = format_forecast(STUB_RESPONSE)
+
+    assert set(result.keys()) == set(FIELD_CATEGORIES.keys())
+
+
+def test_nullable_field_reasons_are_subset_of_field_categories():
+    """NULLABLE_FIELD_REASONS のキーは FIELD_CATEGORIES のキーの部分集合。
+
+    null になり得る理由を持つ項目は、必ずカテゴリも持つはず(Issue #605)。
+    """
+    assert set(NULLABLE_FIELD_REASONS.keys()) <= set(FIELD_CATEGORIES.keys())
+
+
+def test_weather_field_metadata_returns_categories_and_nullable_reasons():
+    """weather_field_metadata() がカテゴリ対応表とnull理由一覧を返す。"""
+    result = weather_field_metadata()
+
+    assert result["categories"]["temperature"] == "気温"
+    assert result["categories"]["wind_speed"] == "風"
+    assert result["categories"]["humidity"] == "降水・湿度"
+    assert result["categories"]["pressure"] == "環境"
+    assert result["categories"]["sunrise"] == "日照・時刻"
+    assert result["categories"]["location_name"] == "位置情報"
+    assert "temperature_aloft" in result["nullable_fields"]
