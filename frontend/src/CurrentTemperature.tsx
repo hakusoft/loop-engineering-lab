@@ -35,7 +35,7 @@ export function CurrentTemperature({ data }: { data: WeatherResponse }) {
           top: 0,
           zIndex: 1,
           background: "var(--surface-background)",
-          fontSize: 112,
+          fontSize: 136,
           fontWeight: 700,
           margin: "8px 0",
           lineHeight: 1,

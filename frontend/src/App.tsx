@@ -3,6 +3,7 @@ import { fetchSeries, fetchWeather, type SeriesResponse, type WeatherResponse } 
 import { CATEGORY_ORDER, DISPLAY_ITEMS } from "./displayItems";
 import { categorySummaryValue } from "./categorySummary";
 import { LocationName } from "./LocationName";
+import { DateWeekday } from "./DateWeekday";
 import { Coordinates } from "./Coordinates";
 import { formatConditionIcon } from "./Condition";
 import { DailySummary } from "./DailySummary";
@@ -10,10 +11,12 @@ import { DailyCondition } from "./DailyCondition";
 import { HourlyConditions } from "./HourlyConditions";
 import { ThunderstormOutlook } from "./ThunderstormOutlook";
 import { WindPeakOutlook } from "./WindPeakOutlook";
+import { TemperaturePeakOutlook } from "./TemperaturePeakOutlook";
 import { ApparentTemperaturePeakOutlook } from "./ApparentTemperaturePeakOutlook";
 import { SolarRadiationPeakOutlook } from "./SolarRadiationPeakOutlook";
 import { faviconHrefForWeather } from "./favicon";
 import { AutoRefreshStatus } from "./AutoRefreshStatus";
+import { formatObservedAt } from "./ObservedAt";
 
 // グラフの描画に使う recharts はサイズが大きく、他の項目より先に初回バンドルへ
 // 含めると開いた瞬間の読み込みを遅くする要因になる（Issue #308）。グラフだけ
@@ -547,6 +550,9 @@ export default function App() {
             </span>
           )}
           <h1 style={{ fontSize: 20, marginBottom: 4 }}>東京の天気（48時間）</h1>
+          <span style={{ marginLeft: 10 }}>
+            <DateWeekday />
+          </span>
           {weatherState.status === "ready" && state.status === "ready" && (
             <>
               <LocationName data={weatherState.data} />
@@ -579,7 +585,11 @@ export default function App() {
           </button>
           {refreshNotice === "success" && (
             <span style={{ fontSize: 12, color: "var(--text-tertiary)", whiteSpace: "nowrap" }}>
+              {/* 何時のデータに更新されたのか押した直後に分かりにくいという声を受け、
+                  観測時刻を併記する（Issue #589）。 */}
               更新しました
+              {weatherState.status === "ready" &&
+                `（${formatObservedAt(weatherState.data.observed_at)}）`}
             </span>
           )}
           {refreshNotice === "error" && (
@@ -637,6 +647,7 @@ export default function App() {
       {state.status === "ready" && <DailyCondition data={state.data} />}
       {state.status === "ready" && <ThunderstormOutlook data={state.data} />}
       {state.status === "ready" && <WindPeakOutlook data={state.data} />}
+      {state.status === "ready" && <TemperaturePeakOutlook data={state.data} />}
       {state.status === "ready" && <ApparentTemperaturePeakOutlook data={state.data} />}
       {state.status === "ready" && <SolarRadiationPeakOutlook data={state.data} />}
 
