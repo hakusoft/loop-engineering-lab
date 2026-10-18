@@ -116,7 +116,6 @@ export const DISPLAY_ITEMS: DisplayItem[] = [
   { category: "環境", component: lazyMoreItem("CloudCoverLayers"), tier: "more" },
   { category: "環境", component: Visibility, tier: "primary" },
   { category: "環境", component: lazyMoreItem("FreezingLevel"), tier: "more" },
-  { category: "環境", component: lazyMoreItem("SnowfallHeight"), tier: "more" },
   { category: "環境", component: lazyMoreItem("SolarRadiation"), tier: "more" },
   { category: "環境", component: lazyMoreItem("SolarRadiationDirect"), tier: "more" },
   { category: "環境", component: lazyMoreItem("SolarRadiationDiffuse"), tier: "more" },
