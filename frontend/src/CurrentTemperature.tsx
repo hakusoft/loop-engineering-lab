@@ -41,6 +41,19 @@ export function CurrentTemperature({ data }: { data: WeatherResponse }) {
           lineHeight: 1,
         }}
       >
+        {/* 気温グラフの数字と見比べているときに、どちらが「今の値」か一瞬
+            分からなくなるという声を受け、数字本体にラベルを添える（Issue #603）。 */}
+        <span
+          style={{
+            display: "block",
+            fontSize: 14,
+            fontWeight: 400,
+            color: "var(--text-secondary)",
+            lineHeight: 1.4,
+          }}
+        >
+          現在
+        </span>
         {formatTemperature(data)}
         <span style={{ fontSize: 28, fontWeight: 400, color: "var(--text-secondary)", marginLeft: 8 }}>
           {formatTemperatureFahrenheit(data)}
