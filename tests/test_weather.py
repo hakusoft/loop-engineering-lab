@@ -439,6 +439,7 @@ STUB_SERIES = {
         "relative_humidity_850hPa": "%",
         "total_column_integrated_water_vapour": "mm",
         "rain": "mm",
+        "showers": "mm",
         "snowfall": "cm",
         "snow_depth": "m",
         "precipitation_probability": "%",
@@ -507,6 +508,7 @@ STUB_SERIES = {
         "relative_humidity_850hPa": [68.0, 71.0, 74.0],
         "total_column_integrated_water_vapour": [42.5, 45.1, 48.3],
         "rain": [0.0, 0.5, 1.2],
+        "showers": [0.0, 0.0, 0.8],
         "snowfall": [0.0, 0.0, 0.0],
         "snow_depth": [0.02, 0.02, 0.03],
         "precipitation_probability": [10, 30, 60],
@@ -596,6 +598,7 @@ def test_series_keeps_units_separate_for_split_axes():
     humidity_700hpa = by_label["700hPaの湿度"]
     humidity_850hpa = by_label["850hPaの湿度"]
     rain = by_label["雨量"]
+    showers = by_label["にわか雨量"]
     snow = by_label["降雪量"]
     snow_depth = by_label["積雪の深さ"]
     precipitation_probability = by_label["降水確率"]
@@ -679,6 +682,8 @@ def test_series_keeps_units_separate_for_split_axes():
     assert humidity_850hpa["unit"] == "%"
     assert rain["label"] == "雨量"
     assert rain["unit"] == "mm"
+    assert showers["label"] == "にわか雨量"
+    assert showers["unit"] == "mm"
     assert snow["label"] == "降雪量"
     assert snow["unit"] == "cm"
     assert snow_depth["label"] == "積雪の深さ"
@@ -780,6 +785,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     humidity_700hpa = by_label["700hPaの湿度"]
     humidity_850hpa = by_label["850hPaの湿度"]
     rain = by_label["雨量"]
+    showers = by_label["にわか雨量"]
     snow = by_label["降雪量"]
     snow_depth = by_label["積雪の深さ"]
     precipitation_probability = by_label["降水確率"]
@@ -840,6 +846,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     assert (humidity_700hpa["min"], humidity_700hpa["max"]) == (55.0, 62.0)
     assert (humidity_850hpa["min"], humidity_850hpa["max"]) == (68.0, 74.0)
     assert (rain["min"], rain["max"]) == (0.0, 1.2)
+    assert (showers["min"], showers["max"]) == (0.0, 0.8)
     assert (snow["min"], snow["max"]) == (0.0, 0.0)
     assert (snow_depth["min"], snow_depth["max"]) == (0.02, 0.03)
     assert (precipitation_probability["min"], precipitation_probability["max"]) == (10, 60)
@@ -1967,6 +1974,7 @@ def test_hourly_series_are_all_requested_fields():
         "飽差(VPD)": "vapour_pressure_deficit",
         "湿度": "relative_humidity_2m",
         "雨量": "rain",
+        "にわか雨量": "showers",
         "降雪量": "snowfall",
         "積雪の深さ": "snow_depth",
         "降水確率": "precipitation_probability",

@@ -42,6 +42,7 @@ function toChartData(data: SeriesResponse) {
   const humidity850hPa = data.series.find((s) => s.label === "850hPaの湿度");
   const precipitableWater = data.series.find((s) => s.label === "可降水量");
   const rain = data.series.find((s) => s.label === "雨量");
+  const showers = data.series.find((s) => s.label === "にわか雨量");
   const snow = data.series.find((s) => s.label === "降雪量");
   const snowDepth = data.series.find((s) => s.label === "積雪の深さ");
   const precipitationProbability = data.series.find((s) => s.label === "降水確率");
@@ -106,6 +107,7 @@ function toChartData(data: SeriesResponse) {
       humidity850hPa: undefined,
       precipitableWater: undefined,
       rain: undefined,
+      showers: undefined,
       snow: undefined,
       snowDepth: undefined,
       precipitationProbability: undefined,
@@ -173,6 +175,7 @@ function toChartData(data: SeriesResponse) {
     humidity850hPa: humidity850hPa?.values[i] ?? null,
     precipitableWater: precipitableWater?.values[i] ?? null,
     rain: rain?.values[i] ?? null,
+    showers: showers?.values[i] ?? null,
     snow: snow?.values[i] ?? null,
     snowDepth: snowDepth?.values[i] ?? null,
     precipitationProbability: precipitationProbability?.values[i] ?? null,
@@ -237,6 +240,7 @@ function toChartData(data: SeriesResponse) {
     humidity850hPa,
     precipitableWater,
     rain,
+    showers,
     snow,
     snowDepth,
     precipitationProbability,
@@ -899,6 +903,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     humidity850hPa,
     precipitableWater,
     rain,
+    showers,
     snow,
     snowDepth,
     precipitationProbability,
@@ -1579,12 +1584,12 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             domain={[0, Math.max(soilMoisture!.max ?? 0, 0.1) + 0.05]}
           />
         )}
-        {(rain || snow) && (
+        {(rain || showers || snow) && (
           // 気温・湿度と軸が重ならないよう、降水量の軸は目盛りを描画しない（スケールのみ利用）。
           <YAxis
             yAxisId="precipitation"
             hide
-            domain={[0, Math.max(rain?.max ?? 0, snow?.max ?? 0) + 1]}
+            domain={[0, Math.max(rain?.max ?? 0, showers?.max ?? 0, snow?.max ?? 0) + 1]}
           />
         )}
         {showPrecipitationProbability && (
@@ -1869,7 +1874,9 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
                     ? precipitableWater?.unit
                     : name === "雨量"
                       ? rain?.unit
-                      : name === "降雪量"
+                      : name === "にわか雨量"
+                        ? showers?.unit
+                        : name === "降雪量"
                         ? snow?.unit
                         : name === "降水確率"
                           ? precipitationProbability?.unit
@@ -2278,6 +2285,19 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             dot={false}
             isAnimationActive={false}
             name="雨量"
+          />
+        )}
+        {showers && (
+          // まとまった雨（rain）と見分けやすいよう、暖色にする（Issue #607）。
+          <Line
+            yAxisId="precipitation"
+            type="monotone"
+            dataKey="showers"
+            stroke="#fd7e14"
+            strokeWidth={3}
+            dot={false}
+            isAnimationActive={false}
+            name="にわか雨量"
           />
         )}
         {snow && (
