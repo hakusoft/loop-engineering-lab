@@ -409,6 +409,7 @@ HOURLY_FIELDS = [
     "total_column_integrated_water_vapour",
     "precipitation",
     "rain",
+    "showers",
     "snowfall",
     "snow_depth",
     "precipitation_probability",
@@ -1175,6 +1176,9 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
     if "rain" in hourly:
         hourly["rain"] = [_round_precipitation(v) for v in hourly["rain"]]
 
+    if "showers" in hourly:
+        hourly["showers"] = [_round_precipitation(v) for v in hourly["showers"]]
+
     if "et0_fao_evapotranspiration" in hourly:
         hourly["et0_fao_evapotranspiration"] = [
             _round_evapotranspiration(v) for v in hourly["et0_fao_evapotranspiration"]
@@ -1344,6 +1348,11 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
                 _series("relative_humidity_850hPa", "850hPaの湿度", "%"),
                 _series("total_column_integrated_water_vapour", "可降水量", "mm"),
                 _series("rain", "雨量", "mm"),
+                # まとまった雨なのか一時的な雨なのか時間帯ごとに見分けたいという
+                # 声を受けて追加する（Issue #607）。現在値・本日合計では既に
+                # 「雨」と「にわか雨」が分かれている（Showers.tsx）が、時間ごとの
+                # 系列は「雨量」(rain) しか無かった。
+                _series("showers", "にわか雨量", "mm"),
                 _series("snowfall", "降雪量", "cm"),
                 _series("snow_depth", "積雪の深さ", "m"),
                 _series("precipitation_probability", "降水確率", "%"),
