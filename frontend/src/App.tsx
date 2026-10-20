@@ -605,6 +605,10 @@ export default function App() {
               display: "inline-flex",
               alignItems: "center",
               whiteSpace: "nowrap",
+              // スマホだと指では小さくて押しにくいという声（Issue #611）を受け、
+              // 気温グラフの副系列チェックボックス（Issue #284 / #413）と同程度に
+              // タップ領域を広げる。
+              padding: "8px 4px",
             }}
           >
             <input
@@ -615,7 +619,7 @@ export default function App() {
                 setForceDark(next);
                 writeStoredDarkModeOverride(next);
               }}
-              style={{ marginRight: 6 }}
+              style={{ marginRight: 6, width: 24, height: 24 }}
             />
             暗めの表示
           </label>
