@@ -17,6 +17,7 @@ import { SolarRadiationPeakOutlook } from "./SolarRadiationPeakOutlook";
 import { faviconHrefForWeather } from "./favicon";
 import { AutoRefreshStatus } from "./AutoRefreshStatus";
 import { formatObservedAt } from "./ObservedAt";
+import { formatTemperature } from "./CurrentTemperature";
 
 // グラフの描画に使う recharts はサイズが大きく、他の項目より先に初回バンドルへ
 // 含めると開いた瞬間の読み込みを遅くする要因になる（Issue #308）。グラフだけ
@@ -547,6 +548,15 @@ export default function App() {
           {weatherState.status === "ready" && formatConditionIcon(weatherState.data) && (
             <span aria-hidden="true" style={{ fontSize: 36, marginRight: 8, lineHeight: 1 }}>
               {formatConditionIcon(weatherState.data)}
+            </span>
+          )}
+          {/* 開いた直後、一番見たい今の気温がカテゴリの中に埋もれて見えるという
+              声を受け、アイコンと同様にページ最上部にも表示する（Issue #609）。
+              値は CurrentTemperature.tsx（カテゴリ内の大きい表示）と同じ
+              formatTemperature を使い、表示ロジックは重複させない。 */}
+          {weatherState.status === "ready" && (
+            <span style={{ fontSize: 28, fontWeight: 700, marginRight: 8, lineHeight: 1 }}>
+              {formatTemperature(weatherState.data)}
             </span>
           )}
           <h1 style={{ fontSize: 20, marginBottom: 4 }}>東京の天気（48時間）</h1>
