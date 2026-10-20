@@ -42,6 +42,7 @@ function toChartData(data: SeriesResponse) {
   const humidity850hPa = data.series.find((s) => s.label === "850hPaの湿度");
   const precipitableWater = data.series.find((s) => s.label === "可降水量");
   const rain = data.series.find((s) => s.label === "雨量");
+  const showers = data.series.find((s) => s.label === "にわか雨量");
   const snow = data.series.find((s) => s.label === "降雪量");
   // 雨(mm)と雪(cm)で単位が違うとどちらが多いか比べにくいという声（Issue #411, #585）
   // を受け、グラフ上の表示だけ雪をmmに換算して揃える（PrecipitationType.tsx の
@@ -114,6 +115,7 @@ function toChartData(data: SeriesResponse) {
       humidity850hPa: undefined,
       precipitableWater: undefined,
       rain: undefined,
+      showers: undefined,
       snow: undefined,
       snowDepth: undefined,
       precipitationProbability: undefined,
@@ -181,6 +183,7 @@ function toChartData(data: SeriesResponse) {
     humidity850hPa: humidity850hPa?.values[i] ?? null,
     precipitableWater: precipitableWater?.values[i] ?? null,
     rain: rain?.values[i] ?? null,
+    showers: showers?.values[i] ?? null,
     snow: snowToMm(snow?.values[i] ?? null),
     snowDepth: snowDepth?.values[i] ?? null,
     precipitationProbability: precipitationProbability?.values[i] ?? null,
@@ -245,6 +248,7 @@ function toChartData(data: SeriesResponse) {
     humidity850hPa,
     precipitableWater,
     rain,
+    showers,
     snow,
     snowUnit,
     snowMaxMm,
@@ -480,6 +484,10 @@ export function uvStrongRanges(
 // 気温・体感温度（グラフ本体の常に出ている基本線）も、昼間向けの色（暖色2色が
 // 近く、暗い背景ではさらに見分けにくい）のままだと読みにくいという声があった
 // （Issue #359）。夜間はコントラストが高く、かつ2色の見分けがつきやすい色にする。
+//
+// 夜間は離れた色になった一方、昼間配色は気温(#e2492c)・体感温度(#f4a300)が
+// どちらも暖色で依然近いという声があった（Issue #587）。体感温度を色相の
+// 離れた青系に変える。
 function chartColors(isDay: boolean | undefined) {
   if (isDay === false) {
     return {
@@ -501,7 +509,7 @@ function chartColors(isDay: boolean | undefined) {
     referenceLine: "#888",
     referenceLabel: "#888",
     temperature: "#e2492c",
-    apparentTemperature: "#f4a300",
+    apparentTemperature: "#1c7ed6",
     thunderstorm: "#e2492c",
     night: "#1a2744",
     precipitation: "#1971c2",
@@ -660,7 +668,9 @@ const SECONDARY_SERIES_COLOR: Record<SecondarySeriesKey, string> = {
   wetBulbTemperature: "#e8590c",
   vaporPressureDeficit: "#d6336c",
   soilTemperature0cm: "#8d6e63",
-  soilTemperature6cm: "#a1662f",
+  // 土の温度(地表)と同じ茶系で近く見分けづらいという声（Issue #587）を受け、
+  // 色相の離れた緑系に変える。
+  soilTemperature6cm: "#2f9e44",
   soilTemperature18cm: "#c1440e",
   soilTemperature54cm: "#6f4518",
   soilMoisture: "#1864ab",
@@ -903,6 +913,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     humidity850hPa,
     precipitableWater,
     rain,
+    showers,
     snow,
     snowUnit,
     snowMaxMm,
@@ -1585,7 +1596,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             domain={[0, Math.max(soilMoisture!.max ?? 0, 0.1) + 0.05]}
           />
         )}
-        {(rain || snow) && (
+        {(rain || showers || snow) && (
           // 気温・湿度と軸が重ならないよう、降水量の軸は目盛りを描画しない（スケールのみ利用）。
           // snowMaxMm は snow?.max（バックエンドが返す変換前(cm)の最大値）を mm 換算した
           // もの（レビュー指摘: 揃えないと軸のdomain上限がプロット値より小さくなり、
@@ -1593,7 +1604,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
           <YAxis
             yAxisId="precipitation"
             hide
-            domain={[0, Math.max(rain?.max ?? 0, snowMaxMm ?? 0) + 1]}
+            domain={[0, Math.max(rain?.max ?? 0, showers?.max ?? 0, snowMaxMm ?? 0) + 1]}
           />
         )}
         {showPrecipitationProbability && (
@@ -1878,7 +1889,9 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
                     ? precipitableWater?.unit
                     : name === "雨量"
                       ? rain?.unit
-                      : name === "降雪量"
+                      : name === "にわか雨量"
+                        ? showers?.unit
+                        : name === "降雪量"
                         ? snowUnit
                         : name === "降水確率"
                           ? precipitationProbability?.unit
@@ -2122,7 +2135,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             yAxisId="temperature"
             type="monotone"
             dataKey="soilTemperature6cm"
-            stroke="#a1662f"
+            stroke="#2f9e44"
             strokeDasharray="1 3"
             strokeWidth={2}
             dot={false}
@@ -2287,6 +2300,19 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             dot={false}
             isAnimationActive={false}
             name="雨量"
+          />
+        )}
+        {showers && (
+          // まとまった雨（rain）と見分けやすいよう、暖色にする（Issue #607）。
+          <Line
+            yAxisId="precipitation"
+            type="monotone"
+            dataKey="showers"
+            stroke="#fd7e14"
+            strokeWidth={3}
+            dot={false}
+            isAnimationActive={false}
+            name="にわか雨量"
           />
         )}
         {snow && (

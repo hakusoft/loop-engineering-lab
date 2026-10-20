@@ -20,6 +20,9 @@ from app.weather import (
     CURRENT_FIELDS,
     DAILY_FIELDS,
     HOURLY_FIELDS,
+    FIELD_CATEGORIES,
+    NULLABLE_FIELD_REASONS,
+    weather_field_metadata,
     _clamp_uv_index,
     _compass_abbreviation,
     _compass_direction,
@@ -197,6 +200,7 @@ def test_format_forecast_maps_values_and_units():
     result = format_forecast(STUB_RESPONSE)
 
     assert result["observed_at"] == "2026-07-21T09:00"
+    assert result["observed_at_display"] == "2026-07-21 09:00 JST"
     assert result["temperature"] == {"value": 28.4, "unit": "°C"}
     assert result["apparent_temperature"] == {"value": 33.1, "unit": "°C"}
     assert result["dew_point"] == {"value": 22.6, "unit": "°C"}
@@ -436,6 +440,7 @@ STUB_SERIES = {
         "relative_humidity_850hPa": "%",
         "total_column_integrated_water_vapour": "mm",
         "rain": "mm",
+        "showers": "mm",
         "snowfall": "cm",
         "snow_depth": "m",
         "precipitation_probability": "%",
@@ -504,6 +509,7 @@ STUB_SERIES = {
         "relative_humidity_850hPa": [68.0, 71.0, 74.0],
         "total_column_integrated_water_vapour": [42.5, 45.1, 48.3],
         "rain": [0.0, 0.5, 1.2],
+        "showers": [0.0, 0.0, 0.8],
         "snowfall": [0.0, 0.0, 0.0],
         "snow_depth": [0.02, 0.02, 0.03],
         "precipitation_probability": [10, 30, 60],
@@ -593,6 +599,7 @@ def test_series_keeps_units_separate_for_split_axes():
     humidity_700hpa = by_label["700hPaの湿度"]
     humidity_850hpa = by_label["850hPaの湿度"]
     rain = by_label["雨量"]
+    showers = by_label["にわか雨量"]
     snow = by_label["降雪量"]
     snow_depth = by_label["積雪の深さ"]
     precipitation_probability = by_label["降水確率"]
@@ -676,6 +683,8 @@ def test_series_keeps_units_separate_for_split_axes():
     assert humidity_850hpa["unit"] == "%"
     assert rain["label"] == "雨量"
     assert rain["unit"] == "mm"
+    assert showers["label"] == "にわか雨量"
+    assert showers["unit"] == "mm"
     assert snow["label"] == "降雪量"
     assert snow["unit"] == "cm"
     assert snow_depth["label"] == "積雪の深さ"
@@ -777,6 +786,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     humidity_700hpa = by_label["700hPaの湿度"]
     humidity_850hpa = by_label["850hPaの湿度"]
     rain = by_label["雨量"]
+    showers = by_label["にわか雨量"]
     snow = by_label["降雪量"]
     snow_depth = by_label["積雪の深さ"]
     precipitation_probability = by_label["降水確率"]
@@ -837,6 +847,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     assert (humidity_700hpa["min"], humidity_700hpa["max"]) == (55.0, 62.0)
     assert (humidity_850hpa["min"], humidity_850hpa["max"]) == (68.0, 74.0)
     assert (rain["min"], rain["max"]) == (0.0, 1.2)
+    assert (showers["min"], showers["max"]) == (0.0, 0.8)
     assert (snow["min"], snow["max"]) == (0.0, 0.0)
     assert (snow_depth["min"], snow_depth["max"]) == (0.02, 0.03)
     assert (precipitation_probability["min"], precipitation_probability["max"]) == (10, 60)
@@ -1964,6 +1975,7 @@ def test_hourly_series_are_all_requested_fields():
         "飽差(VPD)": "vapour_pressure_deficit",
         "湿度": "relative_humidity_2m",
         "雨量": "rain",
+        "にわか雨量": "showers",
         "降雪量": "snowfall",
         "積雪の深さ": "snow_depth",
         "降水確率": "precipitation_probability",
@@ -2225,9 +2237,62 @@ def test_format_hourly_series_includes_apparent_temperature_peak_and_trough():
     assert result["apparent_temperature_trough"] == {"time": "2026-07-21T02:00", "value": 25.8}
 
 
+def test_format_hourly_series_includes_temperature_peak_and_trough():
+    """format_hourly_series の戻り値に、今日一日の気温そのものの最高・最低の
+    発生時刻と値が含まれる(apparent_temperature_peak と同じ考え方)。"""
+    result = format_hourly_series(STUB_SERIES)
+
+    assert result["temperature_peak"] == {"time": "2026-07-21T00:00", "value": 26.1}
+    assert result["temperature_trough"] == {"time": "2026-07-21T02:00", "value": 24.9}
+
+
+def test_format_hourly_series_temperature_peak_is_none_when_all_missing():
+    """気温が全て欠測なら None（apparent_temperature_peak と同じ方針）。"""
+    hourly = {**STUB_SERIES["hourly"], "temperature_2m": [None, None, None]}
+    raw = {**STUB_SERIES, "hourly": hourly}
+
+    result = format_hourly_series(raw)
+
+    assert result["temperature_peak"] is None
+    assert result["temperature_trough"] is None
+
+
 def test_format_hourly_series_includes_shortwave_radiation_peak():
     """format_hourly_series の戻り値に、今日一日の日射量が最大になる
     発生時刻と値が含まれる。"""
     result = format_hourly_series(STUB_SERIES)
 
     assert result["shortwave_radiation_peak"] == {"time": "2026-07-21T00:00", "value": 412.0}
+
+
+def test_field_categories_cover_every_format_forecast_key():
+    """FIELD_CATEGORIES に format_forecast() の返す全キーのカテゴリがある。
+
+    /weather の生レスポンスが項目が多く探しづらいという声を受け、項目名→
+    カテゴリ名の対応を返せるようにした(Issue #605)。項目が増えても漏れが
+    無いことをここで確認する。
+    """
+    result = format_forecast(STUB_RESPONSE)
+
+    assert set(result.keys()) == set(FIELD_CATEGORIES.keys())
+
+
+def test_nullable_field_reasons_are_subset_of_field_categories():
+    """NULLABLE_FIELD_REASONS のキーは FIELD_CATEGORIES のキーの部分集合。
+
+    null になり得る理由を持つ項目は、必ずカテゴリも持つはず(Issue #605)。
+    """
+    assert set(NULLABLE_FIELD_REASONS.keys()) <= set(FIELD_CATEGORIES.keys())
+
+
+def test_weather_field_metadata_returns_categories_and_nullable_reasons():
+    """weather_field_metadata() がカテゴリ対応表とnull理由一覧を返す。"""
+    result = weather_field_metadata()
+
+    assert result["categories"]["temperature"] == "気温"
+    assert result["categories"]["wind_speed"] == "風"
+    assert result["categories"]["humidity"] == "降水・湿度"
+    assert result["categories"]["pressure"] == "環境"
+    assert result["categories"]["sunrise"] == "日照・時刻"
+    assert result["categories"]["location_name"] == "位置情報"
+    assert "temperature_aloft" in result["nullable_fields"]

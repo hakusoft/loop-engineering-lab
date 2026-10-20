@@ -3,6 +3,7 @@ import { fetchSeries, fetchWeather, type SeriesResponse, type WeatherResponse } 
 import { CATEGORY_ORDER, DISPLAY_ITEMS } from "./displayItems";
 import { categorySummaryValue } from "./categorySummary";
 import { LocationName } from "./LocationName";
+import { DateWeekday } from "./DateWeekday";
 import { Coordinates } from "./Coordinates";
 import { formatConditionIcon } from "./Condition";
 import { DailySummary } from "./DailySummary";
@@ -10,9 +11,13 @@ import { DailyCondition } from "./DailyCondition";
 import { HourlyConditions } from "./HourlyConditions";
 import { ThunderstormOutlook } from "./ThunderstormOutlook";
 import { WindPeakOutlook } from "./WindPeakOutlook";
+import { TemperaturePeakOutlook } from "./TemperaturePeakOutlook";
 import { ApparentTemperaturePeakOutlook } from "./ApparentTemperaturePeakOutlook";
 import { SolarRadiationPeakOutlook } from "./SolarRadiationPeakOutlook";
 import { faviconHrefForWeather } from "./favicon";
+import { AutoRefreshStatus } from "./AutoRefreshStatus";
+import { formatObservedAt } from "./ObservedAt";
+import { formatTemperature } from "./CurrentTemperature";
 
 // グラフの描画に使う recharts はサイズが大きく、他の項目より先に初回バンドルへ
 // 含めると開いた瞬間の読み込みを遅くする要因になる（Issue #308）。グラフだけ
@@ -343,6 +348,18 @@ export default function App() {
   const [refreshNotice, setRefreshNotice] = useState<"success" | "error" | null>(null);
   const refreshNoticeTimeoutRef = useRef<number | null>(null);
 
+  // 自動更新（10分ごと）が進行中かどうか。「自動更新中かどうか分かりづらい」
+  // という声を受けて追加する（Issue #595）。/weather/series と /weather の
+  // 2本を同時に取得しているため、いずれかが進行中なら「自動更新中」とする。
+  // 初回読み込み（マウント直後の1回目）は自動更新ではなく、既存の読み込み中
+  // 表示で分かるため対象にしない。
+  const [seriesAutoRefreshing, setSeriesAutoRefreshing] = useState(false);
+  const [weatherAutoRefreshing, setWeatherAutoRefreshing] = useState(false);
+  // 次の自動更新までの残り時間を計算する基準時刻。setInterval は手動更新に
+  // 関わらずマウント時のスケジュールのまま走り続けるため、マウント時刻を
+  // 基準にすれば実際のスケジュールと一致する。
+  const mountedAtRef = useRef(Date.now());
+
   // アンマウント後に setState を呼ばないよう、表示中のタイマーは片付ける。
   useEffect(() => {
     return () => {
@@ -358,7 +375,8 @@ export default function App() {
   // 切り替えない（初回読み込みが失敗したときだけ、従来通りエラー表示にする）。
   useEffect(() => {
     let alive = true;
-    const load = () => {
+    const load = (isAutoRefresh: boolean) => {
+      if (isAutoRefresh) setSeriesAutoRefreshing(true);
       fetchSeries()
         .then((data) => alive && setState({ status: "ready", data }))
         .catch(
@@ -369,10 +387,13 @@ export default function App() {
                 ? prev
                 : { status: "error", message: String(e.message ?? e) },
             ),
-        );
+        )
+        .finally(() => {
+          if (alive && isAutoRefresh) setSeriesAutoRefreshing(false);
+        });
     };
-    load();
-    const id = setInterval(load, REFRESH_INTERVAL_MS);
+    load(false);
+    const id = setInterval(() => load(true), REFRESH_INTERVAL_MS);
     return () => {
       alive = false;
       clearInterval(id);
@@ -381,17 +402,21 @@ export default function App() {
 
   useEffect(() => {
     let alive = true;
-    const load = () => {
+    const load = (isAutoRefresh: boolean) => {
+      if (isAutoRefresh) setWeatherAutoRefreshing(true);
       fetchWeather()
         .then((data) => alive && setWeatherState({ status: "ready", data }))
         .catch(
           () =>
             alive &&
             setWeatherState((prev) => (prev.status === "ready" ? prev : { status: "error" })),
-        );
+        )
+        .finally(() => {
+          if (alive && isAutoRefresh) setWeatherAutoRefreshing(false);
+        });
     };
-    load();
-    const id = setInterval(load, REFRESH_INTERVAL_MS);
+    load(false);
+    const id = setInterval(() => load(true), REFRESH_INTERVAL_MS);
     return () => {
       alive = false;
       clearInterval(id);
@@ -525,7 +550,19 @@ export default function App() {
               {formatConditionIcon(weatherState.data)}
             </span>
           )}
+          {/* 開いた直後、一番見たい今の気温がカテゴリの中に埋もれて見えるという
+              声を受け、アイコンと同様にページ最上部にも表示する（Issue #609）。
+              値は CurrentTemperature.tsx（カテゴリ内の大きい表示）と同じ
+              formatTemperature を使い、表示ロジックは重複させない。 */}
+          {weatherState.status === "ready" && (
+            <span style={{ fontSize: 28, fontWeight: 700, marginRight: 8, lineHeight: 1 }}>
+              {formatTemperature(weatherState.data)}
+            </span>
+          )}
           <h1 style={{ fontSize: 20, marginBottom: 4 }}>東京の天気（48時間）</h1>
+          <span style={{ marginLeft: 10 }}>
+            <DateWeekday />
+          </span>
           {weatherState.status === "ready" && state.status === "ready" && (
             <>
               <LocationName data={weatherState.data} />
@@ -534,6 +571,11 @@ export default function App() {
           )}
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <AutoRefreshStatus
+            mountedAt={mountedAtRef.current}
+            intervalMs={REFRESH_INTERVAL_MS}
+            refreshing={seriesAutoRefreshing || weatherAutoRefreshing}
+          />
           <button
             type="button"
             onClick={handleManualRefresh}
@@ -553,7 +595,11 @@ export default function App() {
           </button>
           {refreshNotice === "success" && (
             <span style={{ fontSize: 12, color: "var(--text-tertiary)", whiteSpace: "nowrap" }}>
+              {/* 何時のデータに更新されたのか押した直後に分かりにくいという声を受け、
+                  観測時刻を併記する（Issue #589）。 */}
               更新しました
+              {weatherState.status === "ready" &&
+                `（${formatObservedAt(weatherState.data.observed_at)}）`}
             </span>
           )}
           {refreshNotice === "error" && (
@@ -569,6 +615,10 @@ export default function App() {
               display: "inline-flex",
               alignItems: "center",
               whiteSpace: "nowrap",
+              // スマホだと指では小さくて押しにくいという声（Issue #611）を受け、
+              // 気温グラフの副系列チェックボックス（Issue #284 / #413）と同程度に
+              // タップ領域を広げる。
+              padding: "8px 4px",
             }}
           >
             <input
@@ -579,7 +629,7 @@ export default function App() {
                 setForceDark(next);
                 writeStoredDarkModeOverride(next);
               }}
-              style={{ marginRight: 6 }}
+              style={{ marginRight: 6, width: 24, height: 24 }}
             />
             暗めの表示
           </label>
@@ -611,6 +661,7 @@ export default function App() {
       {state.status === "ready" && <DailyCondition data={state.data} />}
       {state.status === "ready" && <ThunderstormOutlook data={state.data} />}
       {state.status === "ready" && <WindPeakOutlook data={state.data} />}
+      {state.status === "ready" && <TemperaturePeakOutlook data={state.data} />}
       {state.status === "ready" && <ApparentTemperaturePeakOutlook data={state.data} />}
       {state.status === "ready" && <SolarRadiationPeakOutlook data={state.data} />}
 

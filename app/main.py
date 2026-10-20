@@ -8,6 +8,7 @@ from app.weather import (
     fetch_hourly_series,
     format_forecast,
     format_hourly_series,
+    weather_field_metadata,
 )
 
 init_sentry()
@@ -24,6 +25,16 @@ def health() -> dict[str, str]:
 def weather() -> dict:
     """現在の天気を返す。"""
     return format_forecast(fetch_forecast())
+
+
+@app.get("/weather/fields")
+def weather_fields() -> dict:
+    """/weather の各項目のカテゴリと、null になり得る理由を返す。
+
+    /weather のレスポンス構造自体は変えず、項目が多く探しづらいという声に
+    対して項目名→カテゴリ名の対応表を別に提供する（Issue #605）。
+    """
+    return weather_field_metadata()
 
 
 @app.get("/weather/series")
