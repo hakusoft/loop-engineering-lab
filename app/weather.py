@@ -529,6 +529,7 @@ FIELD_CATEGORIES: dict[str, str] = {
     "daylight_duration": "日照・時刻",
     "sunshine_duration": "日照・時刻",
     "observed_at": "日照・時刻",
+    "observed_at_display": "日照・時刻",
     "is_day": "日照・時刻",
 }
 
@@ -628,6 +629,13 @@ def fetch_hourly_series(
     return response.json()
 
 
+def _format_observed_at_display(observed_at: str) -> str:
+    """observed_at（Open-MeteoのISO8601文字列、timezone=Asia/Tokyoでの地方時）を
+    読みやすい形式にする。タイムゾーンのオフセットは付かないため、JSTを明記する。
+    """
+    return datetime.fromisoformat(observed_at).strftime("%Y-%m-%d %H:%M JST")
+
+
 def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
     """Open-Meteo の生 JSON を、API が返す形に整える。
 
@@ -657,6 +665,10 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
         "prefecture_name_romaji": DEFAULT_PREFECTURE_NAME_ROMAJI,
         "city_name_romaji": DEFAULT_CITY_NAME_ROMAJI,
         "observed_at": current["time"],
+        # observed_at はOpen-Meteoの生のISO8601文字列のままで読みにくいという
+        # 声を受け、読みやすい形式を別フィールドで追加する（Issue #612）。
+        # observed_at 自体は既存利用者を壊さないよう変更しない。
+        "observed_at_display": _format_observed_at_display(current["time"]),
         "coordinates": {
             "latitude": _round_coordinate(raw["latitude"]),
             "longitude": _round_coordinate(raw["longitude"]),

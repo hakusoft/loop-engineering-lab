@@ -200,6 +200,7 @@ def test_format_forecast_maps_values_and_units():
     result = format_forecast(STUB_RESPONSE)
 
     assert result["observed_at"] == "2026-07-21T09:00"
+    assert result["observed_at_display"] == "2026-07-21 09:00 JST"
     assert result["temperature"] == {"value": 28.4, "unit": "°C"}
     assert result["apparent_temperature"] == {"value": 33.1, "unit": "°C"}
     assert result["dew_point"] == {"value": 22.6, "unit": "°C"}
