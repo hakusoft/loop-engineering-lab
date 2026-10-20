@@ -424,6 +424,7 @@ STUB_SERIES = {
         "temperature_700hPa": "°C",
         "temperature_600hPa": "°C",
         "temperature_500hPa": "°C",
+        "temperature_400hPa": "°C",
         "freezing_level_height": "m",
         "soil_temperature_0cm": "°C",
         "soil_temperature_6cm": "°C",
@@ -455,6 +456,8 @@ STUB_SERIES = {
         "wind_direction_600hPa": "°",
         "wind_speed_500hPa": "km/h",
         "wind_direction_500hPa": "°",
+        "wind_speed_400hPa": "km/h",
+        "wind_direction_400hPa": "°",
         "wind_speed_850hPa": "km/h",
         "wind_direction_850hPa": "°",
         "wind_speed_925hPa": "km/h",
@@ -493,6 +496,7 @@ STUB_SERIES = {
         "temperature_700hPa": [10.4, 9.8, 9.1],
         "temperature_600hPa": [4.1, 3.6, 3.0],
         "temperature_500hPa": [-4.2, -4.8, -5.3],
+        "temperature_400hPa": [-16.8, -17.5, -18.2],
         "freezing_level_height": [3200.0, 3100.0, 3000.0],
         "soil_temperature_0cm": [29.8, 28.6, 27.1],
         "soil_temperature_6cm": [27.5, 27.0, 26.4],
@@ -524,6 +528,8 @@ STUB_SERIES = {
         "wind_direction_600hPa": [232.0, 241.0, 250.0],
         "wind_speed_500hPa": [42.8, 45.2, 47.5],
         "wind_direction_500hPa": [240.0, 248.0, 256.0],
+        "wind_speed_400hPa": [50.1, 52.6, 54.9],
+        "wind_direction_400hPa": [244.0, 252.0, 260.0],
         "wind_speed_850hPa": [24.5, 26.1, 28.3],
         "wind_direction_850hPa": [230.0, 240.0, 250.0],
         "wind_speed_925hPa": [20.1, 21.4, 22.8],
@@ -584,6 +590,7 @@ def test_series_keeps_units_separate_for_split_axes():
     temperature_700hPa = by_label["700hPaの気温"]
     temperature_600hPa = by_label["600hPaの気温"]
     temperature_500hPa = by_label["500hPaの気温"]
+    temperature_400hPa = by_label["400hPaの気温"]
     freezing_level = by_label["凍結高度"]
     soil_temperature_0cm = by_label["土の温度(地表)"]
     soil_temperature_6cm = by_label["土の温度(6cm)"]
@@ -627,6 +634,8 @@ def test_series_keeps_units_separate_for_split_axes():
     wind_direction_600hPa = by_label["600hPaの風向き"]
     wind_speed_500hPa = by_label["500hPaの風速"]
     wind_direction_500hPa = by_label["500hPaの風向き"]
+    wind_speed_400hPa = by_label["400hPaの風速"]
+    wind_direction_400hPa = by_label["400hPaの風向き"]
     wind_speed_925hPa = by_label["925hPaの風速"]
     wind_direction_925hPa = by_label["925hPaの風向き"]
     uv_index = by_label["紫外線指数"]
@@ -654,6 +663,8 @@ def test_series_keeps_units_separate_for_split_axes():
     assert temperature_600hPa["unit"] == "°C"
     assert temperature_500hPa["label"] == "500hPaの気温"
     assert temperature_500hPa["unit"] == "°C"
+    assert temperature_400hPa["label"] == "400hPaの気温"
+    assert temperature_400hPa["unit"] == "°C"
     assert freezing_level["label"] == "凍結高度"
     assert freezing_level["unit"] == "m"
     assert soil_temperature_0cm["label"] == "土の温度(地表)"
@@ -740,6 +751,10 @@ def test_series_keeps_units_separate_for_split_axes():
     assert wind_speed_500hPa["unit"] == "km/h"
     assert wind_direction_500hPa["label"] == "500hPaの風向き"
     assert wind_direction_500hPa["unit"] == "°"
+    assert wind_speed_400hPa["label"] == "400hPaの風速"
+    assert wind_speed_400hPa["unit"] == "km/h"
+    assert wind_direction_400hPa["label"] == "400hPaの風向き"
+    assert wind_direction_400hPa["unit"] == "°"
     assert wind_speed_925hPa["label"] == "925hPaの風速"
     assert wind_speed_925hPa["unit"] == "km/h"
     assert wind_direction_925hPa["label"] == "925hPaの風向き"
@@ -771,6 +786,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     temperature_700hPa = by_label["700hPaの気温"]
     temperature_600hPa = by_label["600hPaの気温"]
     temperature_500hPa = by_label["500hPaの気温"]
+    temperature_400hPa = by_label["400hPaの気温"]
     freezing_level = by_label["凍結高度"]
     soil_temperature_0cm = by_label["土の温度(地表)"]
     soil_temperature_6cm = by_label["土の温度(6cm)"]
@@ -814,6 +830,8 @@ def test_series_exposes_min_max_for_axis_scaling():
     wind_direction_600hPa = by_label["600hPaの風向き"]
     wind_speed_500hPa = by_label["500hPaの風速"]
     wind_direction_500hPa = by_label["500hPaの風向き"]
+    wind_speed_400hPa = by_label["400hPaの風速"]
+    wind_direction_400hPa = by_label["400hPaの風向き"]
     wind_speed_925hPa = by_label["925hPaの風速"]
     wind_direction_925hPa = by_label["925hPaの風向き"]
     uv_index = by_label["紫外線指数"]
@@ -832,6 +850,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     assert (temperature_700hPa["min"], temperature_700hPa["max"]) == (9.1, 10.4)
     assert (temperature_600hPa["min"], temperature_600hPa["max"]) == (3.0, 4.1)
     assert (temperature_500hPa["min"], temperature_500hPa["max"]) == (-5.3, -4.2)
+    assert (temperature_400hPa["min"], temperature_400hPa["max"]) == (-18.2, -16.8)
     assert (freezing_level["min"], freezing_level["max"]) == (3000.0, 3200.0)
     assert (soil_temperature_0cm["min"], soil_temperature_0cm["max"]) == (27.1, 29.8)
     assert (soil_temperature_6cm["min"], soil_temperature_6cm["max"]) == (26.4, 27.5)
@@ -875,6 +894,8 @@ def test_series_exposes_min_max_for_axis_scaling():
     assert (wind_direction_600hPa["min"], wind_direction_600hPa["max"]) == (232.0, 250.0)
     assert (wind_speed_500hPa["min"], wind_speed_500hPa["max"]) == (42.8, 47.5)
     assert (wind_direction_500hPa["min"], wind_direction_500hPa["max"]) == (240.0, 256.0)
+    assert (wind_speed_400hPa["min"], wind_speed_400hPa["max"]) == (50.1, 54.9)
+    assert (wind_direction_400hPa["min"], wind_direction_400hPa["max"]) == (244.0, 260.0)
     assert (wind_speed_925hPa["min"], wind_speed_925hPa["max"]) == (20.1, 22.8)
     assert (wind_direction_925hPa["min"], wind_direction_925hPa["max"]) == (235.0, 255.0)
     assert (uv_index["min"], uv_index["max"]) == (0.2, 3.1)
@@ -1993,6 +2014,8 @@ def test_hourly_series_are_all_requested_fields():
         "600hPaの風向き": "wind_direction_600hPa",
         "500hPaの風速": "wind_speed_500hPa",
         "500hPaの風向き": "wind_direction_500hPa",
+        "400hPaの風速": "wind_speed_400hPa",
+        "400hPaの風向き": "wind_direction_400hPa",
         "上空の風速": "wind_speed_850hPa",
         "上空の風向き": "wind_direction_850hPa",
         "925hPaの風速": "wind_speed_925hPa",
