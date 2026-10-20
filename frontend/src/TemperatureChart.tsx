@@ -2675,7 +2675,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
           <Line
             yAxisId="windDirection400hPa"
             type="monotone"
-            dataKey="windDirection500hPa"
+            dataKey="windDirection400hPa"
             stroke="#f08c00"
             strokeWidth={2}
             strokeDasharray="4 2"
