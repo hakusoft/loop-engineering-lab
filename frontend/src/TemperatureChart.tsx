@@ -44,6 +44,14 @@ function toChartData(data: SeriesResponse) {
   const rain = data.series.find((s) => s.label === "雨量");
   const showers = data.series.find((s) => s.label === "にわか雨量");
   const snow = data.series.find((s) => s.label === "降雪量");
+  // 雨(mm)と雪(cm)で単位が違うとどちらが多いか比べにくいという声（Issue #411, #585）
+  // を受け、グラフ上の表示だけ雪をmmに換算して揃える（PrecipitationType.tsx の
+  // formatPrecipitationType と同様、API の値・単位自体は変えない）。
+  const snowUnit = snow?.unit === "cm" ? "mm" : snow?.unit;
+  const snowToMm = (value: number | null) =>
+    value === null ? null : snow?.unit === "cm" ? value * 10 : value;
+  // Y軸のdomain計算にも使う。snow.max は変換前(cm)の値なので、プロット値と単位を揃える。
+  const snowMaxMm = snowToMm(snow?.max ?? null);
   const snowDepth = data.series.find((s) => s.label === "積雪の深さ");
   const precipitationProbability = data.series.find((s) => s.label === "降水確率");
   const evapotranspiration = data.series.find((s) => s.label === "蒸発散量");
@@ -176,7 +184,7 @@ function toChartData(data: SeriesResponse) {
     precipitableWater: precipitableWater?.values[i] ?? null,
     rain: rain?.values[i] ?? null,
     showers: showers?.values[i] ?? null,
-    snow: snow?.values[i] ?? null,
+    snow: snowToMm(snow?.values[i] ?? null),
     snowDepth: snowDepth?.values[i] ?? null,
     precipitationProbability: precipitationProbability?.values[i] ?? null,
     evapotranspiration: evapotranspiration?.values[i] ?? null,
@@ -242,6 +250,8 @@ function toChartData(data: SeriesResponse) {
     rain,
     showers,
     snow,
+    snowUnit,
+    snowMaxMm,
     snowDepth,
     precipitationProbability,
     evapotranspiration,
@@ -905,6 +915,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     rain,
     showers,
     snow,
+    snowUnit,
+    snowMaxMm,
     snowDepth,
     precipitationProbability,
     evapotranspiration,
@@ -1586,10 +1598,13 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
         )}
         {(rain || showers || snow) && (
           // 気温・湿度と軸が重ならないよう、降水量の軸は目盛りを描画しない（スケールのみ利用）。
+          // snowMaxMm は snow?.max（バックエンドが返す変換前(cm)の最大値）を mm 換算した
+          // もの（レビュー指摘: 揃えないと軸のdomain上限がプロット値より小さくなり、
+          // 降雪量の多い日にラインが上端で切れる）。
           <YAxis
             yAxisId="precipitation"
             hide
-            domain={[0, Math.max(rain?.max ?? 0, showers?.max ?? 0, snow?.max ?? 0) + 1]}
+            domain={[0, Math.max(rain?.max ?? 0, showers?.max ?? 0, snowMaxMm ?? 0) + 1]}
           />
         )}
         {showPrecipitationProbability && (
@@ -1877,7 +1892,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
                       : name === "にわか雨量"
                         ? showers?.unit
                         : name === "降雪量"
-                        ? snow?.unit
+                        ? snowUnit
                         : name === "降水確率"
                           ? precipitationProbability?.unit
                           : name === "蒸発散量"
