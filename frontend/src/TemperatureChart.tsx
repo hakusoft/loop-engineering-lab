@@ -1474,6 +1474,21 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     )}
     <ResponsiveContainer width="100%" height={chartHeight}>
       <LineChart data={rows} margin={{ top: 16, right: chartRightMargin, bottom: chartBottomMargin, left: 0 }}>
+        <defs>
+          {/* 降水確率（wetRanges）と紫外線が強い時間帯（uvStrongBackgroundRanges）を
+              どちらも単色の半透明塗りにすると、重なった時間帯が色の混ざった中間色に
+              なって見分けられないという声があった（Issue #619）。紫外線側だけ斜線の
+              パターン塗りにして、降水確率の塗りと重なっても模様で見分けられるようにする。 */}
+          <pattern
+            id="uvStrongStripePattern"
+            width={8}
+            height={8}
+            patternUnits="userSpaceOnUse"
+            patternTransform="rotate(45)"
+          >
+            <line x1={0} y1={0} x2={0} y2={8} stroke={colors.uvStrong} strokeWidth={4} />
+          </pattern>
+        </defs>
         <CartesianGrid strokeDasharray="3 3" stroke={colors.grid} />
         <XAxis dataKey="time" minTickGap={40} tick={{ fontSize: tickFontSize, fill: colors.tick }} />
         {nightBackgroundRanges.map((range) => (
@@ -1505,8 +1520,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             yAxisId="temperature"
             x1={range.x1}
             x2={range.x2}
-            fill={colors.uvStrong}
-            fillOpacity={0.12}
+            fill="url(#uvStrongStripePattern)"
+            fillOpacity={0.6}
             stroke="none"
             ifOverflow="extendDomain"
           />
