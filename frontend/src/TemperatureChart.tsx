@@ -228,7 +228,13 @@ function toChartData(data: SeriesResponse) {
     uvIndex: uvIndex?.values[i] ?? null,
     shortwaveRadiation: shortwaveRadiation?.values[i] ?? null,
     globalTiltedIrradiance: globalTiltedIrradiance?.values[i] ?? null,
-    sunshineDuration: sunshineDuration?.values[i] ?? null,
+    // 日照時間はグラフでは秒のままだと分かりにくいという声を受け、分単位に
+    // 変換して表示する（Issue #623）。データ自体（/weather/series のAPI
+    // レスポンス）は秒のままで変えない。
+    sunshineDuration:
+      sunshineDuration?.values[i] != null
+        ? Math.round((sunshineDuration.values[i]! / 60) * 10) / 10
+        : null,
     visibility: visibility?.values[i] ?? null,
   }));
   return {
@@ -1665,11 +1671,11 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
           <YAxis yAxisId="uvIndex" hide domain={[0, Math.max(uvIndex!.max ?? 0, 1) + 1]} />
         )}
         {showSunshineDuration && (
-          // 日照時間（秒）も他系列と単位・スケールが違うので、独立した軸にする。
+          // 日照時間（分に変換済み）も他系列と単位・スケールが違うので、独立した軸にする。
           <YAxis
             yAxisId="sunshineDuration"
             hide
-            domain={[0, Math.max(sunshineDuration!.max ?? 0, 60) + 60]}
+            domain={[0, Math.max((sunshineDuration!.max ?? 0) / 60, 1) + 1]}
           />
         )}
         {showEvapotranspiration && (
@@ -2025,7 +2031,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
                                           : name === "積雪の深さ"
                                             ? snowDepth?.unit
                                             : name === "日照時間"
-                                              ? sunshineDuration?.unit
+                                              ? "分"
                                               : name === "日射量"
                                                 ? shortwaveRadiation?.unit
                                                 : name === "傾斜面日射量(発電目安)"
