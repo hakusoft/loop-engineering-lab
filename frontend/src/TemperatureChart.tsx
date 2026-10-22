@@ -27,6 +27,7 @@ function toChartData(data: SeriesResponse) {
   const temperature700hPa = data.series.find((s) => s.label === "700hPaの気温");
   const temperature600hPa = data.series.find((s) => s.label === "600hPaの気温");
   const temperature500hPa = data.series.find((s) => s.label === "500hPaの気温");
+  const temperature400hPa = data.series.find((s) => s.label === "400hPaの気温");
   const freezingLevel = data.series.find((s) => s.label === "凍結高度");
   const soilTemperature0cm = data.series.find((s) => s.label === "土の温度(地表)");
   const soilTemperature6cm = data.series.find((s) => s.label === "土の温度(6cm)");
@@ -73,6 +74,8 @@ function toChartData(data: SeriesResponse) {
   const windDirection600hPa = data.series.find((s) => s.label === "600hPaの風向き");
   const windSpeed500hPa = data.series.find((s) => s.label === "500hPaの風速");
   const windDirection500hPa = data.series.find((s) => s.label === "500hPaの風向き");
+  const windSpeed400hPa = data.series.find((s) => s.label === "400hPaの風速");
+  const windDirection400hPa = data.series.find((s) => s.label === "400hPaの風向き");
   const upperWindSpeed = data.series.find((s) => s.label === "上空の風速");
   const upperWindDirection = data.series.find((s) => s.label === "上空の風向き");
   const upperWindSpeed80m = data.series.find((s) => s.label === "上空の風速(80m)");
@@ -100,6 +103,7 @@ function toChartData(data: SeriesResponse) {
       temperature700hPa: undefined,
       temperature600hPa: undefined,
       temperature500hPa: undefined,
+      temperature400hPa: undefined,
       freezingLevel: undefined,
       soilTemperature0cm: undefined,
       soilTemperature6cm: undefined,
@@ -138,6 +142,8 @@ function toChartData(data: SeriesResponse) {
       windDirection600hPa: undefined,
       windSpeed500hPa: undefined,
       windDirection500hPa: undefined,
+      windSpeed400hPa: undefined,
+      windDirection400hPa: undefined,
       upperWindSpeed: undefined,
       upperWindDirection: undefined,
       upperWindSpeed80m: undefined,
@@ -168,6 +174,7 @@ function toChartData(data: SeriesResponse) {
     temperature700hPa: temperature700hPa?.values[i] ?? null,
     temperature600hPa: temperature600hPa?.values[i] ?? null,
     temperature500hPa: temperature500hPa?.values[i] ?? null,
+    temperature400hPa: temperature400hPa?.values[i] ?? null,
     freezingLevel: freezingLevel?.values[i] ?? null,
     soilTemperature0cm: soilTemperature0cm?.values[i] ?? null,
     soilTemperature6cm: soilTemperature6cm?.values[i] ?? null,
@@ -206,6 +213,8 @@ function toChartData(data: SeriesResponse) {
     windDirection600hPa: windDirection600hPa?.values[i] ?? null,
     windSpeed500hPa: windSpeed500hPa?.values[i] ?? null,
     windDirection500hPa: windDirection500hPa?.values[i] ?? null,
+    windSpeed400hPa: windSpeed400hPa?.values[i] ?? null,
+    windDirection400hPa: windDirection400hPa?.values[i] ?? null,
     upperWindSpeed: upperWindSpeed?.values[i] ?? null,
     upperWindDirection: upperWindDirection?.values[i] ?? null,
     upperWindSpeed80m: upperWindSpeed80m?.values[i] ?? null,
@@ -233,6 +242,7 @@ function toChartData(data: SeriesResponse) {
     temperature700hPa,
     temperature600hPa,
     temperature500hPa,
+    temperature400hPa,
     freezingLevel,
     soilTemperature0cm,
     soilTemperature6cm,
@@ -273,6 +283,8 @@ function toChartData(data: SeriesResponse) {
     windDirection600hPa,
     windSpeed500hPa,
     windDirection500hPa,
+    windSpeed400hPa,
+    windDirection400hPa,
     upperWindSpeed,
     upperWindDirection,
     upperWindSpeed80m,
@@ -576,6 +588,7 @@ const SECONDARY_SERIES = [
   { key: "temperature700hPa", label: "700hPaの気温", category: "気温" },
   { key: "temperature600hPa", label: "600hPaの気温", category: "気温" },
   { key: "temperature500hPa", label: "500hPaの気温", category: "気温" },
+  { key: "temperature400hPa", label: "400hPaの気温", category: "気温" },
   { key: "apparentTemperature", label: "体感温度", category: "気温" },
   { key: "dewPoint", label: "露点温度", category: "気温" },
   { key: "wetBulbTemperature", label: "湿球温度", category: "気温" },
@@ -616,6 +629,8 @@ const SECONDARY_SERIES = [
   { key: "windDirection600hPa", label: "600hPaの風向き", category: "風" },
   { key: "windSpeed500hPa", label: "500hPaの風速", category: "風" },
   { key: "windDirection500hPa", label: "500hPaの風向き", category: "風" },
+  { key: "windSpeed400hPa", label: "400hPaの風速", category: "風" },
+  { key: "windDirection400hPa", label: "400hPaの風向き", category: "風" },
   { key: "upperWindSpeed", label: "上空の風速", category: "風" },
   { key: "upperWindDirection", label: "上空の風向き", category: "風" },
   { key: "upperWindSpeed80m", label: "上空の風速(80m)", category: "風" },
@@ -638,6 +653,7 @@ const WIND_DIRECTION_SERIES_NAMES = new Set([
   "700hPaの風向き",
   "600hPaの風向き",
   "500hPaの風向き",
+  "400hPaの風向き",
   "上空の風向き",
   "上空の風向き(80m)",
   "上空の風向き(120m)",
@@ -663,6 +679,7 @@ const SECONDARY_SERIES_COLOR: Record<SecondarySeriesKey, string> = {
   temperature700hPa: "#fab005",
   temperature600hPa: "#9c36b5",
   temperature500hPa: "#e8590c",
+  temperature400hPa: "#1864ab",
   apparentTemperature: "",
   dewPoint: "#20c997",
   wetBulbTemperature: "#e8590c",
@@ -705,6 +722,8 @@ const SECONDARY_SERIES_COLOR: Record<SecondarySeriesKey, string> = {
   windDirection600hPa: "#1971c2",
   windSpeed500hPa: "#e8590c",
   windDirection500hPa: "#4c6ef5",
+  windSpeed400hPa: "#1864ab",
+  windDirection400hPa: "#f08c00",
   upperWindSpeed: "#7048e8",
   upperWindDirection: "#1864ab",
   upperWindSpeed80m: "#9c36b5",
@@ -898,6 +917,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     temperature700hPa,
     temperature600hPa,
     temperature500hPa,
+    temperature400hPa,
     freezingLevel,
     soilTemperature0cm,
     soilTemperature6cm,
@@ -938,6 +958,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     windDirection600hPa,
     windSpeed500hPa,
     windDirection500hPa,
+    windSpeed400hPa,
+    windDirection400hPa,
     upperWindSpeed,
     upperWindDirection,
     upperWindSpeed80m,
@@ -1014,6 +1036,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             return Boolean(temperature600hPa);
           case "temperature500hPa":
             return Boolean(temperature500hPa);
+          case "temperature400hPa":
+            return Boolean(temperature400hPa);
           case "freezingLevel":
             return Boolean(freezingLevel);
           case "soilTemperature0cm":
@@ -1080,6 +1104,10 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             return Boolean(windSpeed500hPa);
           case "windDirection500hPa":
             return Boolean(windDirection500hPa);
+          case "windSpeed400hPa":
+            return Boolean(windSpeed400hPa);
+          case "windDirection400hPa":
+            return Boolean(windDirection400hPa);
           case "upperWindSpeed":
             return Boolean(upperWindSpeed);
           case "upperWindDirection":
@@ -1125,6 +1153,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
       temperature700hPa,
       temperature600hPa,
       temperature500hPa,
+      temperature400hPa,
       freezingLevel,
       soilTemperature0cm,
       soilTemperature6cm,
@@ -1156,6 +1185,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
       windDirection700hPa,
       windSpeed500hPa,
       windDirection500hPa,
+      windSpeed400hPa,
+      windDirection400hPa,
       upperWindSpeed,
       upperWindDirection,
       upperWindSpeed80m,
@@ -1246,6 +1277,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
   const showTemperature700hPa = temperature700hPa && visibleSecondary.has("temperature700hPa");
   const showTemperature600hPa = temperature600hPa && visibleSecondary.has("temperature600hPa");
   const showTemperature500hPa = temperature500hPa && visibleSecondary.has("temperature500hPa");
+  const showTemperature400hPa = temperature400hPa && visibleSecondary.has("temperature400hPa");
   const showFreezingLevel = freezingLevel && visibleSecondary.has("freezingLevel");
   const showSoilTemperature0cm = soilTemperature0cm && visibleSecondary.has("soilTemperature0cm");
   const showSoilTemperature6cm = soilTemperature6cm && visibleSecondary.has("soilTemperature6cm");
@@ -1281,6 +1313,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
   const showWindDirection600hPa = windDirection600hPa && visibleSecondary.has("windDirection600hPa");
   const showWindSpeed500hPa = windSpeed500hPa && visibleSecondary.has("windSpeed500hPa");
   const showWindDirection500hPa = windDirection500hPa && visibleSecondary.has("windDirection500hPa");
+  const showWindSpeed400hPa = windSpeed400hPa && visibleSecondary.has("windSpeed400hPa");
+  const showWindDirection400hPa = windDirection400hPa && visibleSecondary.has("windDirection400hPa");
   const showUpperWindSpeed = upperWindSpeed && visibleSecondary.has("upperWindSpeed");
   const showUpperWindDirection = upperWindDirection && visibleSecondary.has("upperWindDirection");
   const showUpperWindSpeed80m = upperWindSpeed80m && visibleSecondary.has("upperWindSpeed80m");
@@ -1687,6 +1721,18 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
           // 500hPa の風向きも度数（0〜360）固定なので、他の風向き系列とは別軸にする。
           <YAxis yAxisId="windDirection500hPa" hide domain={[0, 360]} />
         )}
+        {showWindSpeed400hPa && (
+          // 400hPa の風速も他の風速系列とスケールが異なるため、軸を分ける。
+          <YAxis
+            yAxisId="windSpeed400hPa"
+            hide
+            domain={[0, Math.max(windSpeed400hPa!.max ?? 0, 1) + 1]}
+          />
+        )}
+        {showWindDirection400hPa && (
+          // 400hPa の風向きも度数（0〜360）固定なので、他の風向き系列とは別軸にする。
+          <YAxis yAxisId="windDirection400hPa" hide domain={[0, 360]} />
+        )}
         {showUpperWindSpeed && (
           // 上空の風速は地上より大きくなるので、地上の風速とも軸を分ける。
           <YAxis
@@ -1859,6 +1905,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
                     ? temperature600hPa?.unit
                   : name === "500hPaの気温"
                     ? temperature500hPa?.unit
+                  : name === "400hPaの気温"
+                    ? temperature400hPa?.unit
                   : name === "凍結高度"
                     ? freezingLevel?.unit
                   : name === "土の温度(地表)"
@@ -1933,6 +1981,10 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
                                         ? windSpeed500hPa?.unit
                                         : name === "500hPaの風向き"
                                           ? windDirection500hPa?.unit
+                                      : name === "400hPaの風速"
+                                        ? windSpeed400hPa?.unit
+                                        : name === "400hPaの風向き"
+                                          ? windDirection400hPa?.unit
                                     : name === "上空の風速"
                                     ? upperWindSpeed?.unit
                                     : name === "上空の風向き"
@@ -2100,6 +2152,20 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             dot={false}
             isAnimationActive={false}
             name="500hPaの気温"
+            connectNulls
+          />
+        )}
+        {showTemperature400hPa && (
+          <Line
+            yAxisId="temperature"
+            type="monotone"
+            dataKey="temperature400hPa"
+            stroke="#1864ab"
+            strokeDasharray="3 3"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="400hPaの気温"
             connectNulls
           />
         )}
@@ -2603,6 +2669,34 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             dot={false}
             isAnimationActive={false}
             name="500hPaの風向き"
+            connectNulls
+          />
+        )}
+        {showWindSpeed400hPa && (
+          <Line
+            yAxisId="windSpeed400hPa"
+            type="monotone"
+            dataKey="windSpeed400hPa"
+            stroke="#1864ab"
+            strokeWidth={2}
+            strokeDasharray="4 2"
+            dot={false}
+            isAnimationActive={false}
+            name="400hPaの風速"
+            connectNulls
+          />
+        )}
+        {showWindDirection400hPa && (
+          <Line
+            yAxisId="windDirection400hPa"
+            type="monotone"
+            dataKey="windDirection400hPa"
+            stroke="#f08c00"
+            strokeWidth={2}
+            strokeDasharray="4 2"
+            dot={false}
+            isAnimationActive={false}
+            name="400hPaの風向き"
             connectNulls
           />
         )}

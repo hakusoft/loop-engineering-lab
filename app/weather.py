@@ -394,6 +394,7 @@ HOURLY_FIELDS = [
     "temperature_700hPa",
     "temperature_600hPa",
     "temperature_500hPa",
+    "temperature_400hPa",
     "freezing_level_height",
     "soil_temperature_0cm",
     "soil_temperature_6cm",
@@ -426,6 +427,8 @@ HOURLY_FIELDS = [
     "wind_direction_600hPa",
     "wind_speed_500hPa",
     "wind_direction_500hPa",
+    "wind_speed_400hPa",
+    "wind_direction_400hPa",
     "wind_speed_850hPa",
     "wind_direction_850hPa",
     "wind_speed_925hPa",
@@ -1341,6 +1344,9 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
                 # 500hPaの風向き・風速（Issue #487）は既にあり、気温だけ600hPaで
                 # 止まっていたという声を受けて追加する。
                 _series("temperature_500hPa", "500hPaの気温", "°C"),
+                # 500hPaまで見られるようになった一方、400hPaも追加してほしいという
+                # 声を受けて追加する（Issue #610）。
+                _series("temperature_400hPa", "400hPaの気温", "°C"),
                 _series("freezing_level_height", "凍結高度", "m"),
                 _series("soil_temperature_0cm", "土の温度(地表)", "°C"),
                 _series("soil_temperature_6cm", "土の温度(6cm)", "°C"),
@@ -1389,6 +1395,10 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
                 _series("wind_direction_600hPa", "600hPaの風向き", "°"),
                 _series("wind_speed_500hPa", "500hPaの風速", "km/h"),
                 _series("wind_direction_500hPa", "500hPaの風向き", "°"),
+                # 気温の400hPa追加（Issue #610）に合わせて、風も同じ高さまで見られる
+                # ようにする。
+                _series("wind_speed_400hPa", "400hPaの風速", "km/h"),
+                _series("wind_direction_400hPa", "400hPaの風向き", "°"),
                 _series("wind_speed_850hPa", "上空の風速", "km/h"),
                 _series("wind_direction_850hPa", "上空の風向き", "°"),
                 _series("wind_speed_925hPa", "925hPaの風速", "km/h"),
