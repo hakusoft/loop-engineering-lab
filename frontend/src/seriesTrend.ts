@@ -5,8 +5,8 @@ import type { SeriesResponse } from "./api";
 // 同じ「now に最も近いインデックスを探す」考え方を使う。TemperatureTrend.tsx /
 // HumidityTrend.tsx の共通ロジックとして切り出す。
 //
-// 該当する系列が無い、now に最も近い時刻が先頭（1時間前が無い）、または今の値が
-// 欠測（null）のときは null を返す。
+// 該当する系列が無い、now に最も近い時刻が先頭（1時間前が無い）、または今の値・
+// 1時間前の値が欠測（null）のときは null を返す。
 export type Trend = { direction: "up" | "down" | "same"; diff: number };
 
 export function seriesTrend(
@@ -30,7 +30,8 @@ export function seriesTrend(
 
   const current = series.values[nowIndex];
   if (current === null) return null;
-  const previous = series.values[nowIndex - 1] ?? current;
+  const previous = series.values[nowIndex - 1];
+  if (previous === null) return null;
 
   const diff = Math.round((current - previous) * 10) / 10;
   const direction = diff > 0 ? "up" : diff < 0 ? "down" : "same";
