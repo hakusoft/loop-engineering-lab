@@ -2070,6 +2070,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="temperature80m"
             stroke="#4263eb"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeDasharray="5 3"
             strokeWidth={2}
             dot={false}
@@ -2084,6 +2085,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="temperature120m"
             stroke="#5c940d"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeDasharray="5 3"
             strokeWidth={2}
             dot={false}
@@ -2098,6 +2100,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="temperature180m"
             stroke="#ae3ec9"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeDasharray="5 3"
             strokeWidth={2}
             dot={false}
@@ -2112,6 +2115,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="temperature1000hPa"
             stroke="#f08c00"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeDasharray="3 3"
             strokeWidth={2}
             dot={false}
@@ -2126,6 +2130,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="temperature925hPa"
             stroke="#1c7ed6"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeDasharray="3 3"
             strokeWidth={2}
             dot={false}
@@ -2140,6 +2145,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="temperature700hPa"
             stroke="#fab005"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeDasharray="3 3"
             strokeWidth={2}
             dot={false}
@@ -2154,6 +2160,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="temperature600hPa"
             stroke="#9c36b5"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeDasharray="3 3"
             strokeWidth={2}
             dot={false}
@@ -2168,6 +2175,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="temperature500hPa"
             stroke="#e8590c"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeDasharray="3 3"
             strokeWidth={2}
             dot={false}
@@ -2196,6 +2204,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="freezingLevel"
             stroke="#4263eb"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeWidth={2}
             dot={false}
             isAnimationActive={false}
@@ -2209,6 +2218,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="soilTemperature0cm"
             stroke="#8d6e63"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeDasharray="1 3"
             strokeWidth={2}
             dot={false}
@@ -2223,6 +2233,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="soilTemperature6cm"
             stroke="#2f9e44"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeDasharray="1 3"
             strokeWidth={2}
             dot={false}
@@ -2237,6 +2248,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="soilTemperature18cm"
             stroke="#c1440e"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeDasharray="1 3"
             strokeWidth={2}
             dot={false}
@@ -2251,6 +2263,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="soilTemperature54cm"
             stroke="#6f4518"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeDasharray="1 3"
             strokeWidth={2}
             dot={false}
@@ -2290,6 +2303,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="dewPoint"
             stroke="#20c997"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeDasharray="2 3"
             strokeWidth={2}
             dot={false}
@@ -2304,6 +2318,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="wetBulbTemperature"
             stroke="#e8590c"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeDasharray="6 2"
             strokeWidth={2}
             dot={false}
@@ -2318,6 +2333,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="vaporPressureDeficit"
             stroke="#d6336c"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeWidth={2}
             dot={false}
             isAnimationActive={false}
@@ -2331,6 +2347,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="humidity"
             stroke="#2c7be2"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeWidth={2}
             dot={false}
             isAnimationActive={false}
@@ -2343,6 +2360,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="humidity700hPa"
             stroke="#339af0"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeWidth={2}
             dot={false}
             isAnimationActive={false}
@@ -2356,6 +2374,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="humidity850hPa"
             stroke="#1c7ed6"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeWidth={2}
             dot={false}
             isAnimationActive={false}
@@ -2383,6 +2402,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="rain"
             stroke="#12b886"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeWidth={3}
             dot={false}
             isAnimationActive={false}
@@ -2396,6 +2416,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="showers"
             stroke="#fd7e14"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeWidth={3}
             dot={false}
             isAnimationActive={false}
@@ -2408,6 +2429,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="snow"
             stroke="#4dabf7"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeWidth={3}
             dot={false}
             isAnimationActive={false}
@@ -2420,6 +2442,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="snowDepth"
             stroke="#364fc7"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeWidth={2}
             dot={false}
             isAnimationActive={false}
@@ -2433,6 +2456,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="precipitationProbability"
             stroke="#748ffc"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeWidth={2}
             dot={false}
             isAnimationActive={false}
@@ -2446,6 +2470,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="evapotranspiration"
             stroke="#099268"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeWidth={2}
             dot={false}
             isAnimationActive={false}
@@ -2459,6 +2484,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="pressure"
             stroke="#495057"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeWidth={2}
             dot={false}
             isAnimationActive={false}
@@ -2472,6 +2498,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="seaLevelPressure"
             stroke="#5f3dc4"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeWidth={2}
             dot={false}
             isAnimationActive={false}
@@ -2485,6 +2512,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="cloudCover"
             stroke="#868e96"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeWidth={2}
             dot={false}
             isAnimationActive={false}
@@ -2498,6 +2526,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="cloudCoverLow"
             stroke="#5c7cfa"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeWidth={2}
             dot={false}
             isAnimationActive={false}
@@ -2511,6 +2540,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="cloudCoverMid"
             stroke="#adb5bd"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeWidth={2}
             dot={false}
             isAnimationActive={false}
@@ -2524,6 +2554,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="cloudCoverHigh"
             stroke="#343a40"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeWidth={2}
             dot={false}
             isAnimationActive={false}
@@ -2537,6 +2568,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="convectiveInhibition"
             stroke="#862e9c"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeWidth={2}
             dot={false}
             isAnimationActive={false}
@@ -2550,6 +2582,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="liftedIndex"
             stroke="#f06595"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeWidth={2}
             dot={false}
             isAnimationActive={false}
@@ -2562,6 +2595,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="boundaryLayerHeight"
             stroke="#099268"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeWidth={2}
             dot={false}
             isAnimationActive={false}
@@ -2576,6 +2610,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="windSpeed"
             stroke="#e64980"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeWidth={2}
             dot={false}
             isAnimationActive={false}
@@ -2589,6 +2624,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="windDirection"
             stroke="#0ca678"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeWidth={2}
             dot={false}
             isAnimationActive={false}
@@ -2602,6 +2638,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="windGusts"
             stroke="#f76707"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeWidth={2}
             dot={false}
             isAnimationActive={false}
@@ -2615,6 +2652,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="windSpeed700hPa"
             stroke="#c92a2a"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeWidth={2}
             strokeDasharray="4 2"
             dot={false}
@@ -2629,6 +2667,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="windDirection700hPa"
             stroke="#5c7cfa"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeWidth={2}
             strokeDasharray="4 2"
             dot={false}
@@ -2643,6 +2682,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="windSpeed600hPa"
             stroke="#2f9e44"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeWidth={2}
             strokeDasharray="4 2"
             dot={false}
@@ -2657,6 +2697,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="windDirection600hPa"
             stroke="#1971c2"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeWidth={2}
             strokeDasharray="4 2"
             dot={false}
@@ -2671,6 +2712,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="windSpeed500hPa"
             stroke="#e8590c"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeWidth={2}
             strokeDasharray="4 2"
             dot={false}
@@ -2685,6 +2727,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="windDirection500hPa"
             stroke="#4c6ef5"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeWidth={2}
             strokeDasharray="4 2"
             dot={false}
@@ -2727,6 +2770,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="upperWindSpeed"
             stroke="#7048e8"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeWidth={2}
             strokeDasharray="4 2"
             dot={false}
@@ -2741,6 +2785,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="upperWindDirection"
             stroke="#1864ab"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeWidth={2}
             strokeDasharray="4 2"
             dot={false}
@@ -2755,6 +2800,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="upperWindSpeed80m"
             stroke="#9c36b5"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeWidth={2}
             strokeDasharray="4 2"
             dot={false}
@@ -2769,6 +2815,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="upperWindDirection80m"
             stroke="#0c8599"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeWidth={2}
             strokeDasharray="4 2"
             dot={false}
@@ -2783,6 +2830,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="upperWindSpeed120m"
             stroke="#2b8a3e"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeWidth={2}
             strokeDasharray="4 2"
             dot={false}
@@ -2797,6 +2845,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="upperWindDirection120m"
             stroke="#495057"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeWidth={2}
             strokeDasharray="4 2"
             dot={false}
@@ -2811,6 +2860,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="upperWindSpeed180m"
             stroke="#e8590c"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeWidth={2}
             strokeDasharray="4 2"
             dot={false}
@@ -2825,6 +2875,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="upperWindDirection180m"
             stroke="#d6336c"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeWidth={2}
             strokeDasharray="4 2"
             dot={false}
@@ -2839,6 +2890,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="windSpeed925hPa"
             stroke="#f06595"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeWidth={2}
             strokeDasharray="4 2"
             dot={false}
@@ -2853,6 +2905,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="windDirection925hPa"
             stroke="#0b7285"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeWidth={2}
             strokeDasharray="4 2"
             dot={false}
@@ -2867,6 +2920,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="uvIndex"
             stroke="#ffd43b"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeWidth={2}
             dot={false}
             isAnimationActive={false}
@@ -2880,6 +2934,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="shortwaveRadiation"
             stroke="#fd7e14"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeWidth={2}
             dot={false}
             isAnimationActive={false}
@@ -2893,6 +2948,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="globalTiltedIrradiance"
             stroke="#d9480f"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeWidth={2}
             dot={false}
             isAnimationActive={false}
@@ -2906,6 +2962,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="sunshineDuration"
             stroke="#f59f00"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeWidth={2}
             dot={false}
             isAnimationActive={false}
@@ -2919,6 +2976,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="visibility"
             stroke="#1098ad"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeWidth={2}
             dot={false}
             isAnimationActive={false}
