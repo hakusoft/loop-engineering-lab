@@ -1,5 +1,22 @@
 import type { WeatherResponse } from "./api";
 
+// 紫外線指数の数値だけだとピンと来ないという声を受け、「弱い/普通/強い」の
+// 3段階の言葉に変換する（Issue #617）。区分は TemperatureChart.tsx の
+// UV_STRONG_THRESHOLD（紫外線指数6以上を「強い」とする国際的な区分の目安）と
+// 揃える。
+const UV_LEVEL_MODERATE_THRESHOLD = 3;
+const UV_LEVEL_STRONG_THRESHOLD = 6;
+
+export function formatUvIndexLevel(value: number): string {
+  if (value >= UV_LEVEL_STRONG_THRESHOLD) {
+    return "強い";
+  }
+  if (value >= UV_LEVEL_MODERATE_THRESHOLD) {
+    return "普通";
+  }
+  return "弱い";
+}
+
 // 表示ロジックを純関数に切り出す。TemperatureRange.tsx の formatTemperatureRange と同様。
 //
 // uv_index_clear_sky_max は実 API での応答未確認の項目（api.ts のコメント参照）。
@@ -9,12 +26,13 @@ import type { WeatherResponse } from "./api";
 export function formatUvIndex(data: WeatherResponse): string {
   const current = Math.round(data.uv_index.value * 10) / 10;
   const max = Math.round(data.uv_index_max.value * 10) / 10;
+  const level = formatUvIndexLevel(current);
   const { value: clearSkyMaxValue } = data.uv_index_clear_sky_max;
   if (clearSkyMaxValue === null) {
-    return `紫外線指数 ${current}（本日の最大 ${max}）`;
+    return `紫外線指数 ${current}（${level}・本日の最大 ${max}）`;
   }
   const clearSkyMax = Math.round(clearSkyMaxValue * 10) / 10;
-  return `紫外線指数 ${current}（本日の最大 ${max}・快晴時 ${clearSkyMax}）`;
+  return `紫外線指数 ${current}（${level}・本日の最大 ${max}・快晴時 ${clearSkyMax}）`;
 }
 
 export function UvIndex({ data }: { data: WeatherResponse }) {
