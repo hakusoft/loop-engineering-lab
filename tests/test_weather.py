@@ -22,7 +22,9 @@ from app.weather import (
     HOURLY_FIELDS,
     FIELD_CATEGORIES,
     NULLABLE_FIELD_REASONS,
+    SERIES_LABEL_CATEGORIES,
     weather_field_metadata,
+    weather_series_field_metadata,
     _clamp_uv_index,
     _compass_abbreviation,
     _compass_direction,
@@ -2306,6 +2308,26 @@ def test_nullable_field_reasons_are_subset_of_field_categories():
     null になり得る理由を持つ項目は、必ずカテゴリも持つはず(Issue #605)。
     """
     assert set(NULLABLE_FIELD_REASONS.keys()) <= set(FIELD_CATEGORIES.keys())
+
+
+def test_series_label_categories_cover_every_format_hourly_series_label():
+    """SERIES_LABEL_CATEGORIES に format_hourly_series() の全系列のラベルがある。
+
+    /weather/series も項目（系列）が多く探しづらいという声を受け、label→
+    カテゴリ名の対応を返せるようにした(Issue #629)。系列が増えても漏れが
+    無いことをここで確認する。
+    """
+    result = format_hourly_series(STUB_SERIES)
+
+    labels = {s["label"] for s in result["series"]}
+    assert labels == set(SERIES_LABEL_CATEGORIES.keys())
+
+
+def test_weather_series_field_metadata_returns_categories():
+    """weather_series_field_metadata() がラベル→カテゴリの対応表を返す。"""
+    result = weather_series_field_metadata()
+
+    assert result == {"categories": SERIES_LABEL_CATEGORIES}
 
 
 def test_weather_field_metadata_returns_categories_and_nullable_reasons():

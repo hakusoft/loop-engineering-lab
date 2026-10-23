@@ -9,6 +9,7 @@ from app.weather import (
     format_forecast,
     format_hourly_series,
     weather_field_metadata,
+    weather_series_field_metadata,
 )
 
 init_sentry()
@@ -45,3 +46,13 @@ def weather_series() -> dict:
     利用側で軸を分けられる。
     """
     return format_hourly_series(fetch_hourly_series())
+
+
+@app.get("/weather/series/fields")
+def weather_series_fields() -> dict:
+    """/weather/series の各系列（label）のカテゴリを返す。
+
+    /weather/series のレスポンス構造自体は変えず、系列が多く探しづらいという
+    声に対してラベル→カテゴリ名の対応表を別に提供する（Issue #629）。
+    """
+    return weather_series_field_metadata()
