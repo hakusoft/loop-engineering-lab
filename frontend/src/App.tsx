@@ -45,22 +45,34 @@ const REFRESH_INTERVAL_MS = 10 * 60 * 1000;
 // カテゴリの開閉状態を保存するキーの接頭辞。カテゴリ名ごとに分けて保存する。
 const CATEGORY_OPEN_STORAGE_PREFIX = "loop-engineering-lab:category-open:";
 
+// 「もっと見る」の展開状態を保存するキーの接頭辞。カテゴリの開閉状態と同じ方式で、
+// カテゴリごとに分けて保存する（Issue #628）。
+const MORE_EXPANDED_STORAGE_PREFIX = "loop-engineering-lab:more-expanded:";
+
 // localStorage が使えない環境（プライベートブラウジング等）でも落ちないようにする。
-function readStoredCategoryOpen(title: string): boolean | undefined {
+function readStoredFlag(prefix: string, key: string): boolean | undefined {
   try {
-    const stored = localStorage.getItem(CATEGORY_OPEN_STORAGE_PREFIX + title);
+    const stored = localStorage.getItem(prefix + key);
     return stored === null ? undefined : stored === "true";
   } catch {
     return undefined;
   }
 }
 
-function writeStoredCategoryOpen(title: string, open: boolean) {
+function writeStoredFlag(prefix: string, key: string, value: boolean) {
   try {
-    localStorage.setItem(CATEGORY_OPEN_STORAGE_PREFIX + title, String(open));
+    localStorage.setItem(prefix + key, String(value));
   } catch {
     // 保存できなくても表示は続行する。
   }
+}
+
+function readStoredCategoryOpen(title: string): boolean | undefined {
+  return readStoredFlag(CATEGORY_OPEN_STORAGE_PREFIX, title);
+}
+
+function writeStoredCategoryOpen(title: string, open: boolean) {
+  writeStoredFlag(CATEGORY_OPEN_STORAGE_PREFIX, title, open);
 }
 
 // 表示項目をカテゴリごとに区切る。値・表示ロジックは各コンポーネントのまま変えない。
@@ -137,16 +149,20 @@ function CategoryGroup({
 
 // カテゴリを開いても項目が多すぎてどれが大事か分かりにくいという声を受け、
 // 主要項目（primary）だけを初期表示し、残りは「もっと見る」で展開する（Issue #274）。
-// カテゴリの開閉（CategoryGroup）とは別の状態として持ち、カテゴリごとにリセットされる
-// （開閉状態のように localStorage には保存しない）。
+// 展開状態はカテゴリの開閉状態と同様に localStorage に保存し、次回訪問時も
+// 引き継ぐ（Issue #628）。保存が無い場合はカテゴリごとに閉じた状態がデフォルト。
 function ExpandableItems({
+  storageKey,
   primary,
   more,
 }: {
+  storageKey: string;
   primary: ReactNode[];
   more: ReactNode[];
 }) {
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(
+    () => readStoredFlag(MORE_EXPANDED_STORAGE_PREFIX, storageKey) ?? false,
+  );
 
   return (
     <>
@@ -159,7 +175,13 @@ function ExpandableItems({
       {more.length > 0 && (
         <button
           type="button"
-          onClick={() => setExpanded((prev) => !prev)}
+          onClick={() =>
+            setExpanded((prev) => {
+              const next = !prev;
+              writeStoredFlag(MORE_EXPANDED_STORAGE_PREFIX, storageKey, next);
+              return next;
+            })
+          }
           style={{
             alignSelf: "flex-start",
             background: "none",
@@ -689,7 +711,7 @@ export default function App() {
                 bulkToggle={bulkToggle}
                 summaryValue={categorySummaryValue(category, weatherState.data)}
               >
-                <ExpandableItems primary={primary} more={more} />
+                <ExpandableItems storageKey={category} primary={primary} more={more} />
               </CategoryGroup>
             );
           })}
