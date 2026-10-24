@@ -17,6 +17,7 @@ import { HumidityTrend } from "./HumidityTrend";
 import { ApparentTemperaturePeakOutlook } from "./ApparentTemperaturePeakOutlook";
 import { SolarRadiationPeakOutlook } from "./SolarRadiationPeakOutlook";
 import { faviconHrefForWeather } from "./favicon";
+import { pageTitleForWeather } from "./pageTitle";
 import { AutoRefreshStatus } from "./AutoRefreshStatus";
 import { formatObservedAt } from "./ObservedAt";
 import { formatTemperature } from "./CurrentTemperature";
@@ -513,6 +514,16 @@ export default function App() {
       document.head.appendChild(link);
     }
     link.href = href;
+  }, [weatherState]);
+
+  // 複数タブで開いているとどれが天気のタブか見分けにくいという声を受け、
+  // ブラウザタブの名前に今の気温を入れる（Issue #632）。faviconの更新（上の
+  // useEffect）と同じ方針で、取得前・失敗時は既定のタイトルのまま変更しない。
+  useEffect(() => {
+    if (weatherState.status !== "ready") {
+      return;
+    }
+    document.title = pageTitleForWeather(weatherState.data);
   }, [weatherState]);
 
   const [forceDark, setForceDark] = useState(() => readStoredDarkModeOverride());
