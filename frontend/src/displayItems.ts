@@ -125,6 +125,7 @@ export const DISPLAY_ITEMS: DisplayItem[] = [
   { category: "環境", component: lazyMoreItem("Elevation"), tier: "more" },
 
   { category: "日照・時刻", component: SunTimes, tier: "primary" },
+  { category: "日照・時刻", component: lazyMoreItem("MoonTimes"), tier: "more" },
   { category: "日照・時刻", component: lazyMoreItem("SunTimesRelative"), tier: "more" },
   { category: "日照・時刻", component: lazyMoreItem("DaylightDuration"), tier: "more" },
   { category: "日照・時刻", component: lazyMoreItem("SunshineDuration"), tier: "more" },

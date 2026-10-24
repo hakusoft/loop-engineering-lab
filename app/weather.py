@@ -351,6 +351,9 @@ DAILY_FIELDS = [
     "shortwave_radiation_sum",
     "sunrise",
     "sunset",
+    "moonrise",
+    "moonset",
+    "moon_phase",
     "temperature_2m_max",
     "temperature_2m_min",
     "temperature_2m_mean",
@@ -529,6 +532,9 @@ FIELD_CATEGORIES: dict[str, str] = {
     "uv_index_clear_sky_max": "環境",
     "sunrise": "日照・時刻",
     "sunset": "日照・時刻",
+    "moonrise": "日照・時刻",
+    "moonset": "日照・時刻",
+    "moon_phase": "日照・時刻",
     "daylight_duration": "日照・時刻",
     "sunshine_duration": "日照・時刻",
     "observed_at": "日照・時刻",
@@ -564,6 +570,9 @@ NULLABLE_FIELD_REASONS: dict[str, str] = {
     "precipitation_probability_min": _UNCONFIRMED_FIELD_NULL_REASON,
     "solar_radiation_direct_normal": _UNCONFIRMED_FIELD_NULL_REASON,
     "uv_index_clear_sky_max": _UNCONFIRMED_FIELD_NULL_REASON,
+    "moonrise": _UNCONFIRMED_FIELD_NULL_REASON,
+    "moonset": _UNCONFIRMED_FIELD_NULL_REASON,
+    "moon_phase": _UNCONFIRMED_FIELD_NULL_REASON,
 }
 
 
@@ -1079,6 +1088,16 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
         },
         "sunrise": daily["sunrise"][0],
         "sunset": daily["sunset"][0],
+        # moonrise / moonset / moon_phase は今回新規に要求した項目で、実 API での
+        # 応答確認ができていない（フィクスチャ未更新）。他の新規項目と同様 .get()
+        # で読み、無ければ None を返す（#164 / #67-#68 と同型の KeyError を避ける）。
+        # moonrise / moonset は sunrise / sunset と同じくISO8601文字列のまま返す。
+        "moonrise": daily.get("moonrise", [None])[0],
+        "moonset": daily.get("moonset", [None])[0],
+        "moon_phase": {
+            "value": daily.get("moon_phase", [None])[0],
+            "unit": daily_units.get("moon_phase", ""),
+        },
         "daylight_duration": {
             "value": _daylight_duration_hours(daily["sunrise"][0], daily["sunset"][0]),
             "unit": "h",

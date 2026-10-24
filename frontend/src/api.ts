@@ -135,6 +135,11 @@ export type WeatherResponse = {
   wind_gusts_max: { value: number; unit: string };
   sunrise: string;
   sunset: string;
+  // 実 API での応答未確認の項目（app/weather.py のコメント参照）。取れないときは
+  // null になるので、表示側で必ず null を扱う。
+  moonrise: string | null;
+  moonset: string | null;
+  moon_phase: { value: number | null; unit: string };
   sunshine_duration: { value: number; unit: string };
   evapotranspiration: { value: number; unit: string };
   daylight_duration: { value: number; unit: string };

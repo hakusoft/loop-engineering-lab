@@ -142,6 +142,9 @@ STUB_RESPONSE = {
         "shortwave_radiation_sum": "MJ/m²",
         "sunrise": "iso8601",
         "sunset": "iso8601",
+        "moonrise": "iso8601",
+        "moonset": "iso8601",
+        "moon_phase": "",
         "temperature_2m_max": "°C",
         "temperature_2m_min": "°C",
         "temperature_2m_mean": "°C",
@@ -172,6 +175,9 @@ STUB_RESPONSE = {
         "shortwave_radiation_sum": [23.4],
         "sunrise": ["2026-07-21T04:44"],
         "sunset": ["2026-07-21T18:47"],
+        "moonrise": ["2026-07-21T20:15"],
+        "moonset": ["2026-07-21T07:52"],
+        "moon_phase": [0.52],
         "temperature_2m_max": [33.2],
         "temperature_2m_min": [24.7],
         "temperature_2m_mean": [28.9],
@@ -286,6 +292,9 @@ def test_format_forecast_maps_values_and_units():
     }
     assert result["sunrise"] == "2026-07-21T04:44"
     assert result["sunset"] == "2026-07-21T18:47"
+    assert result["moonrise"] == "2026-07-21T20:15"
+    assert result["moonset"] == "2026-07-21T07:52"
+    assert result["moon_phase"] == {"value": 0.52, "unit": ""}
     assert result["daylight_duration"] == {"value": 14.05, "unit": "h"}
     assert result["is_day"] is True
     assert result["condition"] == {
@@ -1430,6 +1439,27 @@ def test_format_forecast_tolerates_missing_uv_index_clear_sky_max():
     result = format_forecast(raw)
 
     assert result["uv_index_clear_sky_max"]["value"] is None
+
+
+def test_format_forecast_tolerates_missing_moon_info():
+    """moonrise / moonset / moon_phase が daily に無くても KeyError にしない。
+
+    実 API での応答未確認の新規項目（uv_index_clear_sky_max 等）と同じ方針。
+    """
+    raw = {
+        **STUB_RESPONSE,
+        "daily": {
+            k: v
+            for k, v in STUB_RESPONSE["daily"].items()
+            if k not in ("moonrise", "moonset", "moon_phase")
+        },
+    }
+
+    result = format_forecast(raw)
+
+    assert result["moonrise"] is None
+    assert result["moonset"] is None
+    assert result["moon_phase"]["value"] is None
 
 
 def test_format_forecast_rounds_pressure():
