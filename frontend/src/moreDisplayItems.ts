@@ -53,4 +53,3 @@ export { Elevation } from "./Elevation";
 export { SunTimesRelative } from "./SunTimesRelative";
 export { DaylightDuration } from "./DaylightDuration";
 export { SunshineDuration } from "./SunshineDuration";
-export { MoonTimes } from "./MoonTimes";
