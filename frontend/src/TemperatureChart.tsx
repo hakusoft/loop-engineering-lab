@@ -343,10 +343,15 @@ export function dateBoundaryLabels(
     return [];
   }
   const boundaries: { time: string; date: string }[] = [];
+  const lastDate = timestamps[timestamps.length - 1].slice(0, 10);
   for (let i = 1; i < timestamps.length; i++) {
     const previousDate = timestamps[i - 1].slice(0, 10);
     const currentDate = timestamps[i].slice(0, 10);
     if (currentDate !== previousDate) {
+      if (currentDate === lastDate) {
+        boundaries.push({ time: rows[i - 1].time, date: "ここから今日" });
+        continue;
+      }
       const month = Number(currentDate.slice(5, 7));
       const day = Number(currentDate.slice(8, 10));
       boundaries.push({ time: rows[i].time, date: `${month}/${day}` });
