@@ -349,7 +349,7 @@ export function dateBoundaryLabels(
     const currentDate = timestamps[i].slice(0, 10);
     if (currentDate !== previousDate) {
       if (currentDate === lastDate) {
-        boundaries.push({ time: rows[i - 1].time, date: "ここから今日" });
+        boundaries.push({ time: rows[i].time, date: "ここから今日" });
         continue;
       }
       const month = Number(currentDate.slice(5, 7));
