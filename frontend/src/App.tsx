@@ -146,7 +146,7 @@ function CategoryGroup({
           // 来るよう sticky にし、下に続く内容が透けないよう背景色を敷く。
           position: "sticky",
           top: 0,
-          zIndex: -1,
+          zIndex: 1,
           background: "var(--surface-background)",
           padding: "4px 0",
         }}
