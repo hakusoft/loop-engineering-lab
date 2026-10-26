@@ -395,6 +395,7 @@ HOURLY_FIELDS = [
     "temperature_600hPa",
     "temperature_500hPa",
     "temperature_400hPa",
+    "temperature_300hPa",
     "freezing_level_height",
     "soil_temperature_0cm",
     "soil_temperature_6cm",
@@ -429,6 +430,8 @@ HOURLY_FIELDS = [
     "wind_direction_500hPa",
     "wind_speed_400hPa",
     "wind_direction_400hPa",
+    "wind_speed_300hPa",
+    "wind_direction_300hPa",
     "wind_speed_850hPa",
     "wind_direction_850hPa",
     "wind_speed_925hPa",
@@ -596,6 +599,7 @@ SERIES_LABEL_CATEGORIES: dict[str, str] = {
     "600hPaの気温": "気温",
     "500hPaの気温": "気温",
     "400hPaの気温": "気温",
+    "300hPaの気温": "気温",
     "体感温度": "気温",
     "露点温度": "気温",
     "湿球温度": "気温",
@@ -636,6 +640,8 @@ SERIES_LABEL_CATEGORIES: dict[str, str] = {
     "500hPaの風向き": "風",
     "400hPaの風速": "風",
     "400hPaの風向き": "風",
+    "300hPaの風速": "風",
+    "300hPaの風向き": "風",
     "上空の風速": "風",
     "上空の風向き": "風",
     "925hPaの風速": "風",
@@ -1434,6 +1440,9 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
                 # 500hPaまで見られるようになった一方、400hPaも追加してほしいという
                 # 声を受けて追加する（Issue #610）。
                 _series("temperature_400hPa", "400hPaの気温", "°C"),
+                # 400hPaまで見られるようになった一方、300hPaも追加してほしいという
+                # 声を受けて追加する（Issue #644）。
+                _series("temperature_300hPa", "300hPaの気温", "°C"),
                 _series("freezing_level_height", "凍結高度", "m"),
                 _series("soil_temperature_0cm", "土の温度(地表)", "°C"),
                 _series("soil_temperature_6cm", "土の温度(6cm)", "°C"),
@@ -1486,6 +1495,10 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
                 # ようにする。
                 _series("wind_speed_400hPa", "400hPaの風速", "km/h"),
                 _series("wind_direction_400hPa", "400hPaの風向き", "°"),
+                # 気温の300hPa追加（Issue #644）に合わせて、風も同じ高さまで見られる
+                # ようにする。
+                _series("wind_speed_300hPa", "300hPaの風速", "km/h"),
+                _series("wind_direction_300hPa", "300hPaの風向き", "°"),
                 _series("wind_speed_850hPa", "上空の風速", "km/h"),
                 _series("wind_direction_850hPa", "上空の風向き", "°"),
                 _series("wind_speed_925hPa", "925hPaの風速", "km/h"),
