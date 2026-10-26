@@ -2190,6 +2190,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="temperature400hPa"
             stroke="#1864ab"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeDasharray="3 3"
             strokeWidth={2}
             dot={false}
@@ -2742,6 +2743,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="windSpeed400hPa"
             stroke="#1864ab"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeWidth={2}
             strokeDasharray="4 2"
             dot={false}
@@ -2756,6 +2758,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             type="monotone"
             dataKey="windDirection400hPa"
             stroke="#f08c00"
+            strokeOpacity={isDay === false ? 0.72 : 1}
             strokeWidth={2}
             strokeDasharray="4 2"
             dot={false}
