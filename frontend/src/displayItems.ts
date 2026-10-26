@@ -128,5 +128,6 @@ export const DISPLAY_ITEMS: DisplayItem[] = [
   { category: "日照・時刻", component: lazyMoreItem("SunTimesRelative"), tier: "more" },
   { category: "日照・時刻", component: lazyMoreItem("DaylightDuration"), tier: "more" },
   { category: "日照・時刻", component: lazyMoreItem("SunshineDuration"), tier: "more" },
+  { category: "日照・時刻", component: lazyMoreItem("MoonTimes"), tier: "more" },
   { category: "日照・時刻", component: ObservedAt, tier: "primary" },
 ];
