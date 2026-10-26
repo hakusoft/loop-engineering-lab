@@ -355,6 +355,23 @@ export function dateBoundaryLabels(
   return boundaries;
 }
 
+// dateBoundaryLabels の結果のうち最後の境目（＝今日が始まる境目）から末尾までを
+// 「今日」の範囲として返す。境目が無い（表示されている時間帯が全て同じ日）ときは
+// 区別する意味が無いため null を返す。
+//
+// グラフに今日と過去の境目の縦線（ReferenceLine）はあるが、パッと見で分かりにくい
+// という声を受け、背景色でも区別できるようにする（Issue #643）。
+export function todayRange(
+  dateBoundaries: { time: string; date: string }[],
+  rows: { time: string }[],
+): { x1: string; x2: string } | null {
+  if (dateBoundaries.length === 0 || rows.length === 0) {
+    return null;
+  }
+  const last = dateBoundaries[dateBoundaries.length - 1];
+  return { x1: last.time, x2: rows[rows.length - 1].time };
+}
+
 // thunderstorm_hours（雷を伴う天気になる時刻の一覧、timestamps の部分集合）を、
 // グラフに ReferenceArea で塗れる連続した範囲（x1〜x2）にまとめる。ThunderstormOutlook
 // は文章だけで、グラフを見ながら雷の時間帯を把握したいという声があった（Issue #379）。
@@ -519,6 +536,7 @@ function chartColors(isDay: boolean | undefined) {
       night: "#000020",
       precipitation: "#4dabf7",
       uvStrong: "#ffd43b",
+      today: "#20c997",
     };
   }
   return {
@@ -532,6 +550,7 @@ function chartColors(isDay: boolean | undefined) {
     night: "#1a2744",
     precipitation: "#1971c2",
     uvStrong: "#f08c00",
+    today: "#12b886",
   };
 }
 
@@ -996,6 +1015,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
   const chartBottomMargin = isNarrow ? 4 : 8;
   const nowLabel = nearestTimeLabel(data.timestamps, rows, new Date());
   const dateBoundaries = dateBoundaryLabels(data.timestamps, rows);
+  const todayBackgroundRange = todayRange(dateBoundaries, rows);
   const uvPeakText = formatUvIndexPeak(data, new Date());
   const colors = chartColors(isDay);
   const stormRanges = thunderstormRanges(data.timestamps, data.thunderstorm_hours, rows);
@@ -1543,6 +1563,17 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
         </defs>
         <CartesianGrid strokeDasharray="3 3" stroke={colors.grid} />
         <XAxis dataKey="time" minTickGap={40} tick={{ fontSize: tickFontSize, fill: colors.tick }} />
+        {todayBackgroundRange && (
+          <ReferenceArea
+            yAxisId="temperature"
+            x1={todayBackgroundRange.x1}
+            x2={todayBackgroundRange.x2}
+            fill={colors.today}
+            fillOpacity={0.08}
+            stroke="none"
+            ifOverflow="extendDomain"
+          />
+        )}
         {nightBackgroundRanges.map((range) => (
           <ReferenceArea
             key={`night-${range.x1}`}
