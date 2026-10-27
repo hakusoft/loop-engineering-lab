@@ -4,7 +4,9 @@
 """
 
 import json
+from datetime import datetime
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 import pytest
 
@@ -569,6 +571,15 @@ def test_format_hourly_series_includes_location_name():
     assert result["city_name"] == "千代田区"
     assert result["prefecture_name_romaji"] == "Tokyo"
     assert result["city_name_romaji"] == "Chiyoda"
+
+
+def test_format_hourly_series_includes_fetched_at():
+    """いつ取得したデータか分からないという声を受けて追加する（Issue #650）。"""
+    fixed_now = datetime(2026, 10, 28, 5, 12, tzinfo=ZoneInfo("Asia/Tokyo"))
+    result = format_hourly_series(STUB_SERIES, now=fixed_now)
+
+    assert result["fetched_at"] == fixed_now.isoformat()
+    assert result["fetched_at_display"] == "2026-10-28 05:12 JST"
 
 
 def test_series_shares_one_timeline():
