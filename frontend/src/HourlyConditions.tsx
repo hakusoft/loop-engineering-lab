@@ -129,7 +129,7 @@ export function HourlyConditions({ data }: { data: SeriesResponse }) {
             onClick={() => setSelectedIndex(i === selectedIndex ? null : i)}
             style={{
               flex: "0 0 auto",
-              minWidth: 52,
+              minWidth: 40,
               textAlign: "center",
               fontSize: 12,
               color: "var(--text-secondary)",
