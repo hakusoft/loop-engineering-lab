@@ -129,7 +129,7 @@ export function HourlyConditions({ data }: { data: SeriesResponse }) {
             onClick={() => setSelectedIndex(i === selectedIndex ? null : i)}
             style={{
               flex: "0 0 auto",
-              minWidth: 44,
+              minWidth: 40,
               textAlign: "center",
               fontSize: 12,
               color: "var(--text-secondary)",
@@ -137,7 +137,8 @@ export function HourlyConditions({ data }: { data: SeriesResponse }) {
               borderBottom: i === nearestIndex ? "2px solid var(--text-secondary)" : "2px solid transparent",
             }}
           >
-            <div style={{ fontSize: 18, lineHeight: 1.4 }}>{cell.icon ?? "—"}</div>
+            {/* 小さくて何の天気か分かりにくいという声を受けて拡大する（Issue #649）。 */}
+            <div style={{ fontSize: 28, lineHeight: 1.4 }}>{cell.icon ?? "—"}</div>
             <div>{cell.time}</div>
           </div>
         ))}
