@@ -134,7 +134,22 @@ function CategoryGroup({
       }}
     >
       <summary
-        style={{ color: "var(--text-tertiary)", fontSize: 12, fontWeight: 600, margin: "0 0 6px", cursor: "pointer" }}
+        style={{
+          color: "var(--text-tertiary)",
+          fontSize: 12,
+          fontWeight: 600,
+          margin: "0 0 6px",
+          cursor: "pointer",
+          // カテゴリを開いた状態でスクロールすると、どのカテゴリを見ているか
+          // 分からなくなるという声を受け、見出しを画面上部に固定する（Issue #645）。
+          // 複数カテゴリを開いても、閲覧中のカテゴリの見出しだけが見える位置に
+          // 来るよう sticky にし、下に続く内容が透けないよう背景色を敷く。
+          position: "sticky",
+          top: 0,
+          zIndex: 1,
+          background: "var(--surface-background)",
+          padding: "4px 0",
+        }}
       >
         {title}
         {summaryValue && (
