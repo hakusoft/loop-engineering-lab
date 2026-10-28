@@ -141,7 +141,7 @@ function CategoryGroup({
           <span style={{ fontWeight: 400, marginLeft: 8 }}>{summaryValue}</span>
         )}
       </summary>
-      <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 8 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 14, marginTop: 8 }}>
         {children}
       </div>
     </details>
