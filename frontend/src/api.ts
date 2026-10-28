@@ -26,6 +26,8 @@ export type SeriesResponse = {
   city_name: string;
   prefecture_name_romaji: string;
   city_name_romaji: string;
+  fetched_at: string;
+  fetched_at_display: string;
   timestamps: string[];
   conditions: HourlyCondition[];
   daily_summary: string;

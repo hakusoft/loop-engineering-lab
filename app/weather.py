@@ -7,8 +7,11 @@ CI が赤いとき「外部 API が落ちた」ではなく「コードが壊れ
 
 from datetime import datetime
 from typing import Any
+from zoneinfo import ZoneInfo
 
 import httpx
+
+JST = ZoneInfo("Asia/Tokyo")
 
 OPEN_METEO_URL = "https://api.open-meteo.com/v1/forecast"
 
@@ -1255,13 +1258,26 @@ def _trough_value(timestamps: list[str], values: list[float | None]) -> dict[str
     return {"time": timestamps[best_index], "value": best_value}
 
 
-def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
+def _format_fetched_at_display(fetched_at: datetime) -> str:
+    """fetched_at を _format_observed_at_display と同じ読みやすい形式にする。"""
+    return fetched_at.strftime("%Y-%m-%d %H:%M JST")
+
+
+def format_hourly_series(
+    raw: dict[str, Any], now: datetime | None = None
+) -> dict[str, Any]:
     """時系列の生 JSON を、1 つのチャートに重ねられる形に整える。
 
     気温(°C)と湿度(%)は単位もスケールも違うので、同じ軸には載せられない。
     系列ごとに unit と min/max を持たせ、利用側が軸を分けて描けるようにする。
     時刻は共通の 1 本（timestamps）にまとめ、系列側は値の配列だけを持つ。
+
+    時系列には observed_at のような単一の観測時刻が無いため、いつ取得した
+    データか分からないという声を受け、この整形処理を呼んだ時点の日本時間を
+    fetched_at / fetched_at_display として付加する（Issue #650）。テストから
+    固定時刻を注入できるよう now を引数で受け取る。
     """
+    fetched_at = now if now is not None else datetime.now(JST)
     hourly = raw["hourly"]
     units = raw.get("hourly_units", {})
     timestamps = hourly["time"]
@@ -1403,6 +1419,8 @@ def format_hourly_series(raw: dict[str, Any]) -> dict[str, Any]:
         "city_name": DEFAULT_CITY_NAME,
         "prefecture_name_romaji": DEFAULT_PREFECTURE_NAME_ROMAJI,
         "city_name_romaji": DEFAULT_CITY_NAME_ROMAJI,
+        "fetched_at": fetched_at.isoformat(),
+        "fetched_at_display": _format_fetched_at_display(fetched_at),
         "timestamps": timestamps,
         "conditions": conditions,
         "daily_summary": daily_summary,
