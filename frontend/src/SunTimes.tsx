@@ -13,7 +13,7 @@ export function SunTimes({ data }: { data: WeatherResponse }) {
   return (
     <p style={{ color: "var(--text-secondary)", fontSize: 16, margin: "4px 0 16px" }}>
       {SUNRISE_ICON} 日の出 {formatTime(data.sunrise)} ・ {SUNSET_ICON} 日の入り{" "}
-      {formatTime(data.sunset)}
+      {formatTime(data.sunset)}（日本時間）
     </p>
   );
 }
