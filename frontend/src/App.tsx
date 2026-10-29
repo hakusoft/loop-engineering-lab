@@ -610,6 +610,14 @@ export default function App() {
               {formatTemperature(weatherState.data)}
             </span>
           )}
+          {/* アイコン・気温が何時の値か分からないという声を受け、ここにも観測時刻を
+              併記する（Issue #657）。値は ObservedAt.tsx と同じ formatObservedAt を
+              使い、表示ロジックは重複させない。 */}
+          {weatherState.status === "ready" && (
+            <span style={{ fontSize: 13, color: "var(--text-tertiary)", marginRight: 8 }}>
+              {formatObservedAt(weatherState.data.observed_at)}
+            </span>
+          )}
           <h1 style={{ fontSize: 20, marginBottom: 4 }}>東京の天気（48時間）</h1>
           <span style={{ marginLeft: 10 }}>
             <DateWeekday />
