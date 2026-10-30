@@ -1,11 +1,9 @@
 import { lazy, type ComponentType } from "react";
 import type { WeatherResponse } from "./api";
-import { ApparentTemperature } from "./ApparentTemperature";
 import { CloudCover } from "./CloudCover";
 import { Condition } from "./Condition";
 import { CurrentTemperature } from "./CurrentTemperature";
 import { Humidity } from "./Humidity";
-import { HumiditySparkline } from "./HumiditySparkline";
 import { ObservedAt } from "./ObservedAt";
 import { Precipitation } from "./Precipitation";
 import { PrecipitationProbability } from "./PrecipitationProbability";
@@ -13,7 +11,6 @@ import { PrecipitationSum } from "./PrecipitationSum";
 import { Pressure } from "./Pressure";
 import { SunTimes } from "./SunTimes";
 import { TemperatureRange } from "./TemperatureRange";
-import { Visibility } from "./Visibility";
 import { Wind } from "./Wind";
 
 // 表示項目の一覧。App.tsx はこれを読んで描くだけで、項目そのものは持たない。
@@ -68,7 +65,7 @@ export const CATEGORY_ORDER: DisplayCategory[] = [
 export const DISPLAY_ITEMS: DisplayItem[] = [
   { category: "気温", component: Condition, tier: "primary" },
   { category: "気温", component: CurrentTemperature, tier: "primary" },
-  { category: "気温", component: ApparentTemperature, tier: "primary" },
+  { category: "気温", component: lazyMoreItem("ApparentTemperature"), tier: "more" },
   { category: "気温", component: lazyMoreItem("HeatStrokeRisk"), tier: "more" },
   { category: "気温", component: lazyMoreItem("ApparentTemperatureRange"), tier: "more" },
   { category: "気温", component: lazyMoreItem("ApparentTemperatureMean"), tier: "more" },
@@ -81,7 +78,7 @@ export const DISPLAY_ITEMS: DisplayItem[] = [
   { category: "風", component: Wind, tier: "primary" },
 
   { category: "降水・湿度", component: Humidity, tier: "primary" },
-  { category: "降水・湿度", component: HumiditySparkline, tier: "primary" },
+  { category: "降水・湿度", component: lazyMoreItem("HumiditySparkline"), tier: "more" },
   { category: "降水・湿度", component: lazyMoreItem("HumidityRange"), tier: "more" },
   { category: "降水・湿度", component: lazyMoreItem("HumidityMean"), tier: "more" },
   { category: "降水・湿度", component: lazyMoreItem("HumidityDiffGroundAloft"), tier: "more" },
@@ -114,7 +111,7 @@ export const DISPLAY_ITEMS: DisplayItem[] = [
   { category: "環境", component: lazyMoreItem("SeaLevelPressure"), tier: "more" },
   { category: "環境", component: CloudCover, tier: "primary" },
   { category: "環境", component: lazyMoreItem("CloudCoverLayers"), tier: "more" },
-  { category: "環境", component: Visibility, tier: "primary" },
+  { category: "環境", component: lazyMoreItem("Visibility"), tier: "more" },
   { category: "環境", component: lazyMoreItem("FreezingLevel"), tier: "more" },
   { category: "環境", component: lazyMoreItem("SolarRadiation"), tier: "more" },
   { category: "環境", component: lazyMoreItem("SolarRadiationDirect"), tier: "more" },
