@@ -348,6 +348,34 @@ function BackToTopButton() {
   );
 }
 
+// 先頭へ戻るボタンはあるが、逆に一番下まで飛べる手段が無いという声を受けて
+// 追加する（Issue #658）。先頭へ戻るボタンと重ならないよう、その上に重ねて表示する。
+function BackToBottomButton() {
+  return (
+    <button
+      type="button"
+      onClick={() =>
+        window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" })
+      }
+      style={{
+        position: "fixed",
+        right: 16,
+        bottom: 64,
+        background: "var(--surface-background)",
+        border: "1px solid var(--text-tertiary)",
+        borderRadius: 999,
+        color: "var(--text-secondary)",
+        fontSize: 12,
+        padding: "8px 14px",
+        cursor: "pointer",
+        boxShadow: "0 1px 4px rgba(0, 0, 0, 0.2)",
+      }}
+    >
+      末尾へ進む
+    </button>
+  );
+}
+
 // 昼夜自動判定とは別に、目が疲れている時など任意のタイミングで暗めの配色に
 // 切り替えたいという要望を受け、手動トグルを追加する（Issue #294）。
 // 状態は CategoryGroup の開閉状態と同様、localStorage に保存して次回訪問時も引き継ぐ。
@@ -767,6 +795,7 @@ export default function App() {
         </>
       )}
       <BackToTopButton />
+      <BackToBottomButton />
     </main>
   );
 }
