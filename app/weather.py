@@ -163,14 +163,15 @@ def _round_coordinate(value: float) -> float:
     return round(value, COORDINATE_PRECISION)
 
 
-PRESSURE_PRECISION = 1
+PRESSURE_PRECISION = 2
 
 
 def _round_pressure(value: float | None) -> float | None:
-    """気圧を小数第1位に丸める。他の項目と桁数が揃うようにする。
+    """気圧を小数第2位に丸める。
 
-    欠測（None）はそのまま返す。丸め処理を挟む前は current の値をそのまま
-    返しており None でも問題なかったため、丸め処理側で欠測を吸収する。
+    もう少し細かい桁数で見たいという声を受け、小数第1位から第2位に変更した
+    （Issue #665）。欠測（None）はそのまま返す。丸め処理を挟む前は current の
+    値をそのまま返しており None でも問題なかったため、丸め処理側で欠測を吸収する。
     """
     return value if value is None else round(value, PRESSURE_PRECISION)
 

@@ -1190,9 +1190,9 @@ def test_format_hourly_series_rounds_coordinates():
     assert result["coordinates"] == {"latitude": 35.7, "longitude": 139.76}
 
 
-def test_round_pressure_rounds_to_one_decimal_place():
-    assert _round_pressure(1013.943127843) == 1013.9
-    assert _round_pressure(998.153) == 998.2
+def test_round_pressure_rounds_to_two_decimal_places():
+    assert _round_pressure(1013.943127843) == 1013.94
+    assert _round_pressure(998.153) == 998.15
 
 
 def test_round_pressure_passes_through_none():
@@ -1465,7 +1465,7 @@ def test_format_forecast_tolerates_missing_uv_index_clear_sky_max():
 
 
 def test_format_forecast_rounds_pressure():
-    """気圧は Open-Meteo が桁の長い小数を返すことがあるため、小数第1位に丸める。"""
+    """気圧は Open-Meteo が桁の長い小数を返すことがあるため、小数第2位に丸める。"""
     raw = {
         **STUB_RESPONSE,
         "current": {
@@ -1477,8 +1477,8 @@ def test_format_forecast_rounds_pressure():
 
     result = format_forecast(raw)
 
-    assert result["pressure"] == {"value": 1008.2, "unit": "hPa"}
-    assert result["sea_level_pressure"] == {"value": 1012.6, "unit": "hPa"}
+    assert result["pressure"] == {"value": 1008.24, "unit": "hPa"}
+    assert result["sea_level_pressure"] == {"value": 1012.65, "unit": "hPa"}
 
 
 def test_clamp_uv_index_floors_negative_values_to_zero():
