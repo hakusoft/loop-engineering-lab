@@ -87,6 +87,17 @@ function categoryAnchorId(title: string): string {
   return `category-${title}`;
 }
 
+// カテゴリ見出しが並ぶと見分けづらいという声を受け、カテゴリごとに異なる
+// アクセントカラーを添える（Issue #664）。チャート（TemperatureChart.tsx の
+// chartColors）の系列色と系統を揃え、昼夜どちらの背景でも視認できる彩度にする。
+const CATEGORY_ACCENT_COLORS: Record<string, string> = {
+  気温: "#e2492c",
+  風: "#0ca678",
+  "降水・湿度": "#1971c2",
+  環境: "#862e9c",
+  "日照・時刻": "#f08c00",
+};
+
 // 全カテゴリを一括開閉するための信号。token を変えるたびに各 CategoryGroup へ
 // 同じ open 値が伝わる（同じ open 値を連続で送っても再度効かせるため）。
 type BulkToggleSignal = { open: boolean; token: number };
@@ -152,6 +163,17 @@ function CategoryGroup({
           padding: "4px 0",
         }}
       >
+        <span
+          aria-hidden="true"
+          style={{
+            display: "inline-block",
+            width: 8,
+            height: 8,
+            borderRadius: "50%",
+            background: CATEGORY_ACCENT_COLORS[title] ?? "var(--text-tertiary)",
+            marginRight: 6,
+          }}
+        />
         {title}
         {summaryValue && (
           <span style={{ fontWeight: 400, marginLeft: 8 }}>{summaryValue}</span>
