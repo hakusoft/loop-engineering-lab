@@ -432,6 +432,11 @@ STUB_SERIES = {
         "temperature_400hPa": "°C",
         "temperature_300hPa": "°C",
         "freezing_level_height": "m",
+        "geopotential_height_700hPa": "m",
+        "geopotential_height_600hPa": "m",
+        "geopotential_height_500hPa": "m",
+        "geopotential_height_400hPa": "m",
+        "geopotential_height_300hPa": "m",
         "soil_temperature_0cm": "°C",
         "soil_temperature_6cm": "°C",
         "soil_temperature_18cm": "°C",
@@ -507,6 +512,11 @@ STUB_SERIES = {
         "temperature_400hPa": [-16.8, -17.5, -18.2],
         "temperature_300hPa": [-30.4, -31.2, -32.0],
         "freezing_level_height": [3200.0, 3100.0, 3000.0],
+        "geopotential_height_700hPa": [3120.0, 3105.0, 3090.0],
+        "geopotential_height_600hPa": [4410.0, 4395.0, 4380.0],
+        "geopotential_height_500hPa": [5820.0, 5805.0, 5790.0],
+        "geopotential_height_400hPa": [7340.0, 7320.0, 7300.0],
+        "geopotential_height_300hPa": [9220.0, 9195.0, 9170.0],
         "soil_temperature_0cm": [29.8, 28.6, 27.1],
         "soil_temperature_6cm": [27.5, 27.0, 26.4],
         "soil_temperature_18cm": [25.2, 25.0, 24.8],
@@ -613,6 +623,11 @@ def test_series_keeps_units_separate_for_split_axes():
     temperature_400hPa = by_label["400hPaの気温"]
     temperature_300hPa = by_label["300hPaの気温"]
     freezing_level = by_label["凍結高度"]
+    geopotential_height_700hPa = by_label["700hPaの高度"]
+    geopotential_height_600hPa = by_label["600hPaの高度"]
+    geopotential_height_500hPa = by_label["500hPaの高度"]
+    geopotential_height_400hPa = by_label["400hPaの高度"]
+    geopotential_height_300hPa = by_label["300hPaの高度"]
     soil_temperature_0cm = by_label["土の温度(地表)"]
     soil_temperature_6cm = by_label["土の温度(6cm)"]
     soil_temperature_18cm = by_label["土の温度(18cm)"]
@@ -692,6 +707,16 @@ def test_series_keeps_units_separate_for_split_axes():
     assert temperature_300hPa["unit"] == "°C"
     assert freezing_level["label"] == "凍結高度"
     assert freezing_level["unit"] == "m"
+    assert geopotential_height_700hPa["label"] == "700hPaの高度"
+    assert geopotential_height_700hPa["unit"] == "m"
+    assert geopotential_height_600hPa["label"] == "600hPaの高度"
+    assert geopotential_height_600hPa["unit"] == "m"
+    assert geopotential_height_500hPa["label"] == "500hPaの高度"
+    assert geopotential_height_500hPa["unit"] == "m"
+    assert geopotential_height_400hPa["label"] == "400hPaの高度"
+    assert geopotential_height_400hPa["unit"] == "m"
+    assert geopotential_height_300hPa["label"] == "300hPaの高度"
+    assert geopotential_height_300hPa["unit"] == "m"
     assert soil_temperature_0cm["label"] == "土の温度(地表)"
     assert soil_temperature_0cm["unit"] == "°C"
     assert soil_temperature_6cm["label"] == "土の温度(6cm)"
@@ -818,6 +843,11 @@ def test_series_exposes_min_max_for_axis_scaling():
     temperature_400hPa = by_label["400hPaの気温"]
     temperature_300hPa = by_label["300hPaの気温"]
     freezing_level = by_label["凍結高度"]
+    geopotential_height_700hPa = by_label["700hPaの高度"]
+    geopotential_height_600hPa = by_label["600hPaの高度"]
+    geopotential_height_500hPa = by_label["500hPaの高度"]
+    geopotential_height_400hPa = by_label["400hPaの高度"]
+    geopotential_height_300hPa = by_label["300hPaの高度"]
     soil_temperature_0cm = by_label["土の温度(地表)"]
     soil_temperature_6cm = by_label["土の温度(6cm)"]
     soil_temperature_18cm = by_label["土の温度(18cm)"]
@@ -885,6 +915,11 @@ def test_series_exposes_min_max_for_axis_scaling():
     assert (temperature_400hPa["min"], temperature_400hPa["max"]) == (-18.2, -16.8)
     assert (temperature_300hPa["min"], temperature_300hPa["max"]) == (-32.0, -30.4)
     assert (freezing_level["min"], freezing_level["max"]) == (3000.0, 3200.0)
+    assert (geopotential_height_700hPa["min"], geopotential_height_700hPa["max"]) == (3090.0, 3120.0)
+    assert (geopotential_height_600hPa["min"], geopotential_height_600hPa["max"]) == (4380.0, 4410.0)
+    assert (geopotential_height_500hPa["min"], geopotential_height_500hPa["max"]) == (5790.0, 5820.0)
+    assert (geopotential_height_400hPa["min"], geopotential_height_400hPa["max"]) == (7300.0, 7340.0)
+    assert (geopotential_height_300hPa["min"], geopotential_height_300hPa["max"]) == (9170.0, 9220.0)
     assert (soil_temperature_0cm["min"], soil_temperature_0cm["max"]) == (27.1, 29.8)
     assert (soil_temperature_6cm["min"], soil_temperature_6cm["max"]) == (26.4, 27.5)
     assert (soil_temperature_18cm["min"], soil_temperature_18cm["max"]) == (24.8, 25.2)

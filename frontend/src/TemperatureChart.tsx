@@ -30,6 +30,11 @@ function toChartData(data: SeriesResponse) {
   const temperature400hPa = data.series.find((s) => s.label === "400hPaの気温");
   const temperature300hPa = data.series.find((s) => s.label === "300hPaの気温");
   const freezingLevel = data.series.find((s) => s.label === "凍結高度");
+  const geopotentialHeight700hPa = data.series.find((s) => s.label === "700hPaの高度");
+  const geopotentialHeight600hPa = data.series.find((s) => s.label === "600hPaの高度");
+  const geopotentialHeight500hPa = data.series.find((s) => s.label === "500hPaの高度");
+  const geopotentialHeight400hPa = data.series.find((s) => s.label === "400hPaの高度");
+  const geopotentialHeight300hPa = data.series.find((s) => s.label === "300hPaの高度");
   const soilTemperature0cm = data.series.find((s) => s.label === "土の温度(地表)");
   const soilTemperature6cm = data.series.find((s) => s.label === "土の温度(6cm)");
   const soilTemperature18cm = data.series.find((s) => s.label === "土の温度(18cm)");
@@ -109,6 +114,11 @@ function toChartData(data: SeriesResponse) {
       temperature400hPa: undefined,
       temperature300hPa: undefined,
       freezingLevel: undefined,
+      geopotentialHeight700hPa: undefined,
+      geopotentialHeight600hPa: undefined,
+      geopotentialHeight500hPa: undefined,
+      geopotentialHeight400hPa: undefined,
+      geopotentialHeight300hPa: undefined,
       soilTemperature0cm: undefined,
       soilTemperature6cm: undefined,
       soilTemperature18cm: undefined,
@@ -183,6 +193,11 @@ function toChartData(data: SeriesResponse) {
     temperature400hPa: temperature400hPa?.values[i] ?? null,
     temperature300hPa: temperature300hPa?.values[i] ?? null,
     freezingLevel: freezingLevel?.values[i] ?? null,
+    geopotentialHeight700hPa: geopotentialHeight700hPa?.values[i] ?? null,
+    geopotentialHeight600hPa: geopotentialHeight600hPa?.values[i] ?? null,
+    geopotentialHeight500hPa: geopotentialHeight500hPa?.values[i] ?? null,
+    geopotentialHeight400hPa: geopotentialHeight400hPa?.values[i] ?? null,
+    geopotentialHeight300hPa: geopotentialHeight300hPa?.values[i] ?? null,
     soilTemperature0cm: soilTemperature0cm?.values[i] ?? null,
     soilTemperature6cm: soilTemperature6cm?.values[i] ?? null,
     soilTemperature18cm: soilTemperature18cm?.values[i] ?? null,
@@ -260,6 +275,11 @@ function toChartData(data: SeriesResponse) {
     temperature400hPa,
     temperature300hPa,
     freezingLevel,
+    geopotentialHeight700hPa,
+    geopotentialHeight600hPa,
+    geopotentialHeight500hPa,
+    geopotentialHeight400hPa,
+    geopotentialHeight300hPa,
     soilTemperature0cm,
     soilTemperature6cm,
     soilTemperature18cm,
@@ -658,6 +678,11 @@ const SECONDARY_SERIES = [
   { key: "liftedIndex", label: "Lifted Index", category: "環境" },
   { key: "boundaryLayerHeight", label: "境界層の高さ", category: "環境" },
   { key: "freezingLevel", label: "凍結高度", category: "環境" },
+  { key: "geopotentialHeight700hPa", label: "700hPaの高度", category: "環境" },
+  { key: "geopotentialHeight600hPa", label: "600hPaの高度", category: "環境" },
+  { key: "geopotentialHeight500hPa", label: "500hPaの高度", category: "環境" },
+  { key: "geopotentialHeight400hPa", label: "400hPaの高度", category: "環境" },
+  { key: "geopotentialHeight300hPa", label: "300hPaの高度", category: "環境" },
   { key: "uvIndex", label: "紫外線指数", category: "環境" },
   { key: "shortwaveRadiation", label: "日射量", category: "環境" },
   { key: "globalTiltedIrradiance", label: "傾斜面日射量(発電目安)", category: "環境" },
@@ -755,6 +780,11 @@ const SECONDARY_SERIES_COLOR: Record<SecondarySeriesKey, string> = {
   liftedIndex: "#f06595",
   boundaryLayerHeight: "#099268",
   freezingLevel: "#4263eb",
+  geopotentialHeight700hPa: "#7c2d12",
+  geopotentialHeight600hPa: "#9a3412",
+  geopotentialHeight500hPa: "#c2410c",
+  geopotentialHeight400hPa: "#ea580c",
+  geopotentialHeight300hPa: "#fb923c",
   uvIndex: "#ffd43b",
   shortwaveRadiation: "#fd7e14",
   globalTiltedIrradiance: "#d9480f",
@@ -969,6 +999,11 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     temperature400hPa,
     temperature300hPa,
     freezingLevel,
+    geopotentialHeight700hPa,
+    geopotentialHeight600hPa,
+    geopotentialHeight500hPa,
+    geopotentialHeight400hPa,
+    geopotentialHeight300hPa,
     soilTemperature0cm,
     soilTemperature6cm,
     soilTemperature18cm,
@@ -1095,6 +1130,16 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             return Boolean(temperature300hPa);
           case "freezingLevel":
             return Boolean(freezingLevel);
+          case "geopotentialHeight700hPa":
+            return Boolean(geopotentialHeight700hPa);
+          case "geopotentialHeight600hPa":
+            return Boolean(geopotentialHeight600hPa);
+          case "geopotentialHeight500hPa":
+            return Boolean(geopotentialHeight500hPa);
+          case "geopotentialHeight400hPa":
+            return Boolean(geopotentialHeight400hPa);
+          case "geopotentialHeight300hPa":
+            return Boolean(geopotentialHeight300hPa);
           case "soilTemperature0cm":
             return Boolean(soilTemperature0cm);
           case "soilTemperature6cm":
@@ -1215,6 +1260,11 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
       temperature400hPa,
       temperature300hPa,
       freezingLevel,
+      geopotentialHeight700hPa,
+      geopotentialHeight600hPa,
+      geopotentialHeight500hPa,
+      geopotentialHeight400hPa,
+      geopotentialHeight300hPa,
       soilTemperature0cm,
       soilTemperature6cm,
       soilTemperature18cm,
@@ -1342,6 +1392,16 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
   const showTemperature400hPa = temperature400hPa && visibleSecondary.has("temperature400hPa");
   const showTemperature300hPa = temperature300hPa && visibleSecondary.has("temperature300hPa");
   const showFreezingLevel = freezingLevel && visibleSecondary.has("freezingLevel");
+  const showGeopotentialHeight700hPa =
+    geopotentialHeight700hPa && visibleSecondary.has("geopotentialHeight700hPa");
+  const showGeopotentialHeight600hPa =
+    geopotentialHeight600hPa && visibleSecondary.has("geopotentialHeight600hPa");
+  const showGeopotentialHeight500hPa =
+    geopotentialHeight500hPa && visibleSecondary.has("geopotentialHeight500hPa");
+  const showGeopotentialHeight400hPa =
+    geopotentialHeight400hPa && visibleSecondary.has("geopotentialHeight400hPa");
+  const showGeopotentialHeight300hPa =
+    geopotentialHeight300hPa && visibleSecondary.has("geopotentialHeight300hPa");
   const showSoilTemperature0cm = soilTemperature0cm && visibleSecondary.has("soilTemperature0cm");
   const showSoilTemperature6cm = soilTemperature6cm && visibleSecondary.has("soilTemperature6cm");
   const showSoilTemperature18cm = soilTemperature18cm && visibleSecondary.has("soilTemperature18cm");
@@ -1962,6 +2022,42 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             domain={[0, Math.max(freezingLevel!.max ?? 0, 1) + 50]}
           />
         )}
+        {showGeopotentialHeight700hPa && (
+          // 気圧面の高度は m 単位で他系列よりスケールが大きく違うので、独立した軸にする。
+          <YAxis
+            yAxisId="geopotentialHeight700hPa"
+            hide
+            domain={[0, Math.max(geopotentialHeight700hPa!.max ?? 0, 1) + 50]}
+          />
+        )}
+        {showGeopotentialHeight600hPa && (
+          <YAxis
+            yAxisId="geopotentialHeight600hPa"
+            hide
+            domain={[0, Math.max(geopotentialHeight600hPa!.max ?? 0, 1) + 50]}
+          />
+        )}
+        {showGeopotentialHeight500hPa && (
+          <YAxis
+            yAxisId="geopotentialHeight500hPa"
+            hide
+            domain={[0, Math.max(geopotentialHeight500hPa!.max ?? 0, 1) + 50]}
+          />
+        )}
+        {showGeopotentialHeight400hPa && (
+          <YAxis
+            yAxisId="geopotentialHeight400hPa"
+            hide
+            domain={[0, Math.max(geopotentialHeight400hPa!.max ?? 0, 1) + 50]}
+          />
+        )}
+        {showGeopotentialHeight300hPa && (
+          <YAxis
+            yAxisId="geopotentialHeight300hPa"
+            hide
+            domain={[0, Math.max(geopotentialHeight300hPa!.max ?? 0, 1) + 50]}
+          />
+        )}
         {showShortwaveRadiation && (
           // 日射量（W/m²）も他系列と単位・スケールが違うので、独立した軸にする。
           <YAxis
@@ -2014,6 +2110,16 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
                     ? temperature300hPa?.unit
                   : name === "凍結高度"
                     ? freezingLevel?.unit
+                  : name === "700hPaの高度"
+                    ? geopotentialHeight700hPa?.unit
+                  : name === "600hPaの高度"
+                    ? geopotentialHeight600hPa?.unit
+                  : name === "500hPaの高度"
+                    ? geopotentialHeight500hPa?.unit
+                  : name === "400hPaの高度"
+                    ? geopotentialHeight400hPa?.unit
+                  : name === "300hPaの高度"
+                    ? geopotentialHeight300hPa?.unit
                   : name === "土の温度(地表)"
                     ? soilTemperature0cm?.unit
                   : name === "土の温度(6cm)"
@@ -2312,6 +2418,76 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             dot={false}
             isAnimationActive={false}
             name="凍結高度"
+            connectNulls
+          />
+        )}
+        {showGeopotentialHeight700hPa && (
+          <Line
+            yAxisId="geopotentialHeight700hPa"
+            type="monotone"
+            dataKey="geopotentialHeight700hPa"
+            stroke="#7c2d12"
+            strokeOpacity={isDay === false ? 0.72 : 1}
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="700hPaの高度"
+            connectNulls
+          />
+        )}
+        {showGeopotentialHeight600hPa && (
+          <Line
+            yAxisId="geopotentialHeight600hPa"
+            type="monotone"
+            dataKey="geopotentialHeight600hPa"
+            stroke="#9a3412"
+            strokeOpacity={isDay === false ? 0.72 : 1}
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="600hPaの高度"
+            connectNulls
+          />
+        )}
+        {showGeopotentialHeight500hPa && (
+          <Line
+            yAxisId="geopotentialHeight500hPa"
+            type="monotone"
+            dataKey="geopotentialHeight500hPa"
+            stroke="#c2410c"
+            strokeOpacity={isDay === false ? 0.72 : 1}
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="500hPaの高度"
+            connectNulls
+          />
+        )}
+        {showGeopotentialHeight400hPa && (
+          <Line
+            yAxisId="geopotentialHeight400hPa"
+            type="monotone"
+            dataKey="geopotentialHeight400hPa"
+            stroke="#ea580c"
+            strokeOpacity={isDay === false ? 0.72 : 1}
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="400hPaの高度"
+            connectNulls
+          />
+        )}
+        {showGeopotentialHeight300hPa && (
+          <Line
+            yAxisId="geopotentialHeight300hPa"
+            type="monotone"
+            dataKey="geopotentialHeight300hPa"
+            stroke="#fb923c"
+            strokeOpacity={isDay === false ? 0.72 : 1}
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="300hPaの高度"
             connectNulls
           />
         )}
