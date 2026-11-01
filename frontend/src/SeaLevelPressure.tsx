@@ -14,9 +14,12 @@ export function seaLevelPressureDescription(pressureHpa: number): string {
   return "平年並み";
 }
 
+// もう少し細かい桁数で見たいという声を受け、小数第1位から第2位に変更する
+// （Issue #665。Pressure.tsx の formatPressure / app/weather.py の
+// PRESSURE_PRECISION と揃える）。
 export function formatSeaLevelPressure(data: WeatherResponse): string {
   const { value, unit } = data.sea_level_pressure;
-  const rounded = Math.round(value * 10) / 10;
+  const rounded = Math.round(value * 100) / 100;
   return `海面気圧 ${rounded}${unit}（${seaLevelPressureDescription(value)}）`;
 }
 
