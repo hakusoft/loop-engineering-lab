@@ -43,10 +43,17 @@ const KMH_TO_MS = 1 / 3.6;
 // 小数第1位まで表示する。
 export function formatWindSpeed(data: WeatherResponse): string {
   const { value, unit } = data.wind_speed;
-  const { abbreviation } = data.wind_direction;
   const rounded = value.toFixed(1);
   const roundedMs = (value * KMH_TO_MS).toFixed(1);
-  return `風速 ${rounded}${unit}（${roundedMs}m/s）（${abbreviation}・${windSpeedDescription(value)}）`;
+  return `風速 ${rounded}${unit}（${roundedMs}m/s）`;
+}
+
+// 風速の数字に対して方角の表示が小さく見づらいという声を受け、formatWindSpeed
+// から分離する（Issue #670）。Wind コンポーネント側でこちらだけ大きめの
+// フォントサイズで表示する。
+export function formatWindDirectionLabel(data: WeatherResponse): string {
+  const { abbreviation } = data.wind_direction;
+  return `${abbreviation}・${windSpeedDescription(data.wind_speed.value)}`;
 }
 
 export function formatWindSpeedMax(data: WeatherResponse): string {
@@ -83,6 +90,8 @@ export function Wind({ data }: { data: WeatherResponse }) {
         }}
       >
         {formatWindSpeed(data)}
+        {"　"}
+        <span style={{ fontSize: 18 }}>（{formatWindDirectionLabel(data)}）</span>
       </p>
       <p style={{ color: "var(--text-tertiary)", fontSize: 13, margin: "0 0 2px" }}>
         {formatWindSpeedMax(data)}
