@@ -448,6 +448,10 @@ STUB_SERIES = {
         "vapour_pressure_deficit": "kPa",
         "relative_humidity_2m": "%",
         "relative_humidity_700hPa": "%",
+        "relative_humidity_600hPa": "%",
+        "relative_humidity_500hPa": "%",
+        "relative_humidity_400hPa": "%",
+        "relative_humidity_300hPa": "%",
         "relative_humidity_850hPa": "%",
         "total_column_integrated_water_vapour": "mm",
         "rain": "mm",
@@ -528,6 +532,10 @@ STUB_SERIES = {
         "vapour_pressure_deficit": [0.85, 0.78, 0.68],
         "relative_humidity_2m": [78, 81, 85],
         "relative_humidity_700hPa": [55.0, 60.0, 62.0],
+        "relative_humidity_600hPa": [48.0, 52.0, 54.0],
+        "relative_humidity_500hPa": [40.0, 43.0, 45.0],
+        "relative_humidity_400hPa": [32.0, 34.0, 36.0],
+        "relative_humidity_300hPa": [25.0, 27.0, 28.0],
         "relative_humidity_850hPa": [68.0, 71.0, 74.0],
         "total_column_integrated_water_vapour": [42.5, 45.1, 48.3],
         "rain": [0.0, 0.5, 1.2],
@@ -639,6 +647,10 @@ def test_series_keeps_units_separate_for_split_axes():
     vapor_pressure_deficit = by_label["飽差(VPD)"]
     humidity = by_label["湿度"]
     humidity_700hpa = by_label["700hPaの湿度"]
+    humidity_600hpa = by_label["600hPaの湿度"]
+    humidity_500hpa = by_label["500hPaの湿度"]
+    humidity_400hpa = by_label["400hPaの湿度"]
+    humidity_300hpa = by_label["300hPaの湿度"]
     humidity_850hpa = by_label["850hPaの湿度"]
     rain = by_label["雨量"]
     showers = by_label["にわか雨量"]
@@ -740,6 +752,14 @@ def test_series_keeps_units_separate_for_split_axes():
     assert humidity_700hpa["label"] == "700hPaの湿度"
     assert humidity_700hpa["unit"] == "%"
     assert humidity_850hpa["label"] == "850hPaの湿度"
+    assert humidity_600hpa["label"] == "600hPaの湿度"
+    assert humidity_600hpa["unit"] == "%"
+    assert humidity_500hpa["label"] == "500hPaの湿度"
+    assert humidity_500hpa["unit"] == "%"
+    assert humidity_400hpa["label"] == "400hPaの湿度"
+    assert humidity_400hpa["unit"] == "%"
+    assert humidity_300hpa["label"] == "300hPaの湿度"
+    assert humidity_300hpa["unit"] == "%"
     assert humidity_850hpa["unit"] == "%"
     assert rain["label"] == "雨量"
     assert rain["unit"] == "mm"
@@ -859,6 +879,10 @@ def test_series_exposes_min_max_for_axis_scaling():
     vapor_pressure_deficit = by_label["飽差(VPD)"]
     humidity = by_label["湿度"]
     humidity_700hpa = by_label["700hPaの湿度"]
+    humidity_600hpa = by_label["600hPaの湿度"]
+    humidity_500hpa = by_label["500hPaの湿度"]
+    humidity_400hpa = by_label["400hPaの湿度"]
+    humidity_300hpa = by_label["300hPaの湿度"]
     humidity_850hpa = by_label["850hPaの湿度"]
     rain = by_label["雨量"]
     showers = by_label["にわか雨量"]
@@ -931,6 +955,10 @@ def test_series_exposes_min_max_for_axis_scaling():
     assert (vapor_pressure_deficit["min"], vapor_pressure_deficit["max"]) == (0.68, 0.85)
     assert (humidity["min"], humidity["max"]) == (78, 85)
     assert (humidity_700hpa["min"], humidity_700hpa["max"]) == (55.0, 62.0)
+    assert (humidity_600hpa["min"], humidity_600hpa["max"]) == (40.0, 45.0)
+    assert (humidity_500hpa["min"], humidity_500hpa["max"]) == (48.0, 54.0)
+    assert (humidity_400hpa["min"], humidity_400hpa["max"]) == (32.0, 36.0)
+    assert (humidity_300hpa["min"], humidity_300hpa["max"]) == (25.0, 28.0)
     assert (humidity_850hpa["min"], humidity_850hpa["max"]) == (68.0, 74.0)
     assert (rain["min"], rain["max"]) == (0.0, 1.2)
     assert (showers["min"], showers["max"]) == (0.0, 0.8)
