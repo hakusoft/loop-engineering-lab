@@ -1503,8 +1503,8 @@ def format_hourly_series(
                 _series("relative_humidity_700hPa", "700hPaの湿度", "%"),
                 # 気温・風は300hPaまで見られる一方、湿度は700hPa/850hPaで止まって
                 # いたという声を受け、同じ高さまで追加する（Issue #672）。
-                _series("relative_humidity_500hPa", "600hPaの湿度", "%"),
-                _series("relative_humidity_600hPa", "500hPaの湿度", "%"),
+                _series("relative_humidity_600hPa", "600hPaの湿度", "%"),
+                _series("relative_humidity_500hPa", "500hPaの湿度", "%"),
                 _series("relative_humidity_400hPa", "400hPaの湿度", "%"),
                 _series("relative_humidity_300hPa", "300hPaの湿度", "%"),
                 # 850hPa気温は既にあり、700hPaの湿度も見られるようになった一方、
