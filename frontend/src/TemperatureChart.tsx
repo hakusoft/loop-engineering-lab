@@ -46,6 +46,10 @@ function toChartData(data: SeriesResponse) {
   const vaporPressureDeficit = data.series.find((s) => s.label === "飽差(VPD)");
   const humidity = data.series.find((s) => s.label === "湿度");
   const humidity700hPa = data.series.find((s) => s.label === "700hPaの湿度");
+  const humidity600hPa = data.series.find((s) => s.label === "600hPaの湿度");
+  const humidity500hPa = data.series.find((s) => s.label === "500hPaの湿度");
+  const humidity400hPa = data.series.find((s) => s.label === "400hPaの湿度");
+  const humidity300hPa = data.series.find((s) => s.label === "300hPaの湿度");
   const humidity850hPa = data.series.find((s) => s.label === "850hPaの湿度");
   const precipitableWater = data.series.find((s) => s.label === "可降水量");
   const rain = data.series.find((s) => s.label === "雨量");
@@ -130,6 +134,10 @@ function toChartData(data: SeriesResponse) {
       vaporPressureDeficit: undefined,
       humidity: undefined,
       humidity700hPa: undefined,
+      humidity600hPa: undefined,
+      humidity500hPa: undefined,
+      humidity400hPa: undefined,
+      humidity300hPa: undefined,
       humidity850hPa: undefined,
       precipitableWater: undefined,
       rain: undefined,
@@ -209,6 +217,10 @@ function toChartData(data: SeriesResponse) {
     vaporPressureDeficit: vaporPressureDeficit?.values[i] ?? null,
     humidity: humidity?.values[i] ?? null,
     humidity700hPa: humidity700hPa?.values[i] ?? null,
+    humidity600hPa: humidity600hPa?.values[i] ?? null,
+    humidity500hPa: humidity500hPa?.values[i] ?? null,
+    humidity400hPa: humidity400hPa?.values[i] ?? null,
+    humidity300hPa: humidity300hPa?.values[i] ?? null,
     humidity850hPa: humidity850hPa?.values[i] ?? null,
     precipitableWater: precipitableWater?.values[i] ?? null,
     rain: rain?.values[i] ?? null,
@@ -291,6 +303,10 @@ function toChartData(data: SeriesResponse) {
     vaporPressureDeficit,
     humidity,
     humidity700hPa,
+    humidity600hPa,
+    humidity500hPa,
+    humidity400hPa,
+    humidity300hPa,
     humidity850hPa,
     precipitableWater,
     rain,
@@ -663,6 +679,10 @@ const SECONDARY_SERIES = [
   { key: "soilMoisture", label: "土の水分量(表層)", category: "降水・湿度" },
   { key: "humidity", label: "湿度", category: "降水・湿度" },
   { key: "humidity700hPa", label: "700hPaの湿度", category: "降水・湿度" },
+  { key: "humidity600hPa", label: "600hPaの湿度", category: "降水・湿度" },
+  { key: "humidity500hPa", label: "500hPaの湿度", category: "降水・湿度" },
+  { key: "humidity400hPa", label: "400hPaの湿度", category: "降水・湿度" },
+  { key: "humidity300hPa", label: "300hPaの湿度", category: "降水・湿度" },
   { key: "humidity850hPa", label: "850hPaの湿度", category: "降水・湿度" },
   { key: "precipitableWater", label: "可降水量", category: "降水・湿度" },
   { key: "snowDepth", label: "積雪の深さ", category: "降水・湿度" },
@@ -765,6 +785,10 @@ const SECONDARY_SERIES_COLOR: Record<SecondarySeriesKey, string> = {
   soilMoisture: "#1864ab",
   humidity: "#2c7be2",
   humidity700hPa: "#339af0",
+  humidity600hPa: "#4dabf7",
+  humidity500hPa: "#228be6",
+  humidity400hPa: "#1971c2",
+  humidity300hPa: "#1864ab",
   humidity850hPa: "#1c7ed6",
   precipitableWater: "#0c8599",
   snowDepth: "#364fc7",
@@ -1015,6 +1039,10 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     vaporPressureDeficit,
     humidity,
     humidity700hPa,
+    humidity600hPa,
+    humidity500hPa,
+    humidity400hPa,
+    humidity300hPa,
     humidity850hPa,
     precipitableWater,
     rain,
@@ -1162,6 +1190,14 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             return Boolean(humidity);
           case "humidity700hPa":
             return Boolean(humidity700hPa);
+          case "humidity600hPa":
+            return Boolean(humidity600hPa);
+          case "humidity500hPa":
+            return Boolean(humidity500hPa);
+          case "humidity400hPa":
+            return Boolean(humidity400hPa);
+          case "humidity300hPa":
+            return Boolean(humidity300hPa);
           case "humidity850hPa":
             return Boolean(humidity850hPa);
           case "precipitableWater":
@@ -1274,6 +1310,10 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
       dewPoint,
       humidity,
       humidity700hPa,
+      humidity600hPa,
+      humidity500hPa,
+      humidity400hPa,
+      humidity300hPa,
       humidity850hPa,
       precipitableWater,
       snowDepth,
@@ -1413,6 +1453,10 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
   const showVaporPressureDeficit = vaporPressureDeficit && visibleSecondary.has("vaporPressureDeficit");
   const showHumidity = humidity && visibleSecondary.has("humidity");
   const showHumidity700hPa = humidity700hPa && visibleSecondary.has("humidity700hPa");
+  const showHumidity600hPa = humidity600hPa && visibleSecondary.has("humidity600hPa");
+  const showHumidity500hPa = humidity500hPa && visibleSecondary.has("humidity500hPa");
+  const showHumidity400hPa = humidity400hPa && visibleSecondary.has("humidity400hPa");
+  const showHumidity300hPa = humidity300hPa && visibleSecondary.has("humidity300hPa");
   const showHumidity850hPa = humidity850hPa && visibleSecondary.has("humidity850hPa");
   const showPrecipitableWater = precipitableWater && visibleSecondary.has("precipitableWater");
   const showSnowDepth = snowDepth && visibleSecondary.has("snowDepth");
@@ -1756,6 +1800,22 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             domain={[humidity!.min as number, humidity!.max as number]}
             tick={{ fontSize: tickFontSize }}
           />
+        )}
+        {showHumidity600hPa && (
+          // 600hPaの湿度も0〜100%固定なので、700hPaの湿度と同じく固定スケールの軸にする。
+          <YAxis yAxisId="humidity600hPa" hide domain={[0, 100]} />
+        )}
+        {showHumidity500hPa && (
+          // 500hPaの湿度も同様に固定スケールの軸にする。
+          <YAxis yAxisId="humidity500hPa" hide domain={[0, 100]} />
+        )}
+        {showHumidity400hPa && (
+          // 400hPaの湿度も同様に固定スケールの軸にする。
+          <YAxis yAxisId="humidity400hPa" hide domain={[0, 100]} />
+        )}
+        {showHumidity300hPa && (
+          // 300hPaの湿度も同様に固定スケールの軸にする。
+          <YAxis yAxisId="humidity300hPa" hide domain={[0, 100]} />
         )}
         {showHumidity700hPa && (
           // 700hPaの湿度は0〜100%固定なので、雲量と同じく固定スケールの軸にする。
@@ -2142,6 +2202,14 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
                     ? humidity?.unit
                     : name === "700hPaの湿度"
                     ? humidity700hPa?.unit
+                    : name === "600hPaの湿度"
+                    ? humidity600hPa?.unit
+                    : name === "500hPaの湿度"
+                    ? humidity500hPa?.unit
+                    : name === "400hPaの湿度"
+                    ? humidity400hPa?.unit
+                    : name === "300hPaの湿度"
+                    ? humidity300hPa?.unit
                     : name === "850hPaの湿度"
                     ? humidity850hPa?.unit
                     : name === "可降水量"
@@ -2644,6 +2712,62 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             dot={false}
             isAnimationActive={false}
             name="700hPaの湿度"
+            connectNulls
+          />
+        )}
+        {showHumidity600hPa && (
+          <Line
+            yAxisId="humidity600hPa"
+            type="monotone"
+            dataKey="humidity600hPa"
+            stroke="#4dabf7"
+            strokeOpacity={isDay === false ? 0.72 : 1}
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="600hPaの湿度"
+            connectNulls
+          />
+        )}
+        {showHumidity500hPa && (
+          <Line
+            yAxisId="humidity500hPa"
+            type="monotone"
+            dataKey="humidity500hPa"
+            stroke="#228be6"
+            strokeOpacity={isDay === false ? 0.72 : 1}
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="500hPaの湿度"
+            connectNulls
+          />
+        )}
+        {showHumidity400hPa && (
+          <Line
+            yAxisId="humidity400hPa"
+            type="monotone"
+            dataKey="humidity400hPa"
+            stroke="#1971c2"
+            strokeOpacity={isDay === false ? 0.72 : 1}
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="400hPaの湿度"
+            connectNulls
+          />
+        )}
+        {showHumidity300hPa && (
+          <Line
+            yAxisId="humidity300hPa"
+            type="monotone"
+            dataKey="humidity300hPa"
+            stroke="#1864ab"
+            strokeOpacity={isDay === false ? 0.72 : 1}
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="300hPaの湿度"
             connectNulls
           />
         )}
