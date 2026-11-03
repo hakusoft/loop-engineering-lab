@@ -10,6 +10,7 @@
 // import("./moreDisplayItems") から読み込むことで、個別に数十チャンクへ
 // 分割するのではなく「もっと見る」1回分の追加チャンクにまとめる。
 export { HeatStrokeRisk } from "./HeatStrokeRisk";
+export { FrostRisk } from "./FrostRisk";
 export { ApparentTemperature } from "./ApparentTemperature";
 export { ApparentTemperatureRange } from "./ApparentTemperatureRange";
 export { ApparentTemperatureMean } from "./ApparentTemperatureMean";
@@ -44,6 +45,7 @@ export { GardenWatering } from "./GardenWatering";
 export { ActionGuidance } from "./ActionGuidance";
 export { SeaLevelPressure } from "./SeaLevelPressure";
 export { CloudCoverLayers } from "./CloudCoverLayers";
+export { StargazingOutlook } from "./StargazingOutlook";
 export { Visibility } from "./Visibility";
 export { FreezingLevel } from "./FreezingLevel";
 export { SolarRadiation } from "./SolarRadiation";
