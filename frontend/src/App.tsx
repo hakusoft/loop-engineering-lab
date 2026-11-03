@@ -51,6 +51,10 @@ const CATEGORY_OPEN_STORAGE_PREFIX = "loop-engineering-lab:category-open:";
 // カテゴリごとに分けて保存する（Issue #628）。
 const MORE_EXPANDED_STORAGE_PREFIX = "loop-engineering-lab:more-expanded:";
 
+// よく見るカテゴリを上に固定したいという声を受け、ピン留めしたカテゴリ名を
+// 1つのキーにまとめて保存する（Issue #675）。
+const PINNED_CATEGORIES_STORAGE_KEY = "loop-engineering-lab:pinned-categories";
+
 // localStorage が使えない環境（プライベートブラウジング等）でも落ちないようにする。
 function readStoredFlag(prefix: string, key: string): boolean | undefined {
   try {
@@ -75,6 +79,26 @@ function readStoredCategoryOpen(title: string): boolean | undefined {
 
 function writeStoredCategoryOpen(title: string, open: boolean) {
   writeStoredFlag(CATEGORY_OPEN_STORAGE_PREFIX, title, open);
+}
+
+// localStorage が使えない・保存内容が壊れている場合でも落ちないようにする。
+function readStoredPinnedCategories(): Set<string> {
+  try {
+    const stored = localStorage.getItem(PINNED_CATEGORIES_STORAGE_KEY);
+    if (!stored) return new Set();
+    const parsed = JSON.parse(stored);
+    return Array.isArray(parsed) ? new Set(parsed.filter((v) => typeof v === "string")) : new Set();
+  } catch {
+    return new Set();
+  }
+}
+
+function writeStoredPinnedCategories(pinned: Set<string>) {
+  try {
+    localStorage.setItem(PINNED_CATEGORIES_STORAGE_KEY, JSON.stringify([...pinned]));
+  } catch {
+    // 保存できなくても表示は続行する。
+  }
 }
 
 // 表示項目をカテゴリごとに区切る。値・表示ロジックは各コンポーネントのまま変えない。
@@ -108,6 +132,8 @@ function CategoryGroup({
   onOpenChange,
   bulkToggle,
   summaryValue,
+  pinned,
+  onTogglePin,
   children,
 }: {
   title: string;
@@ -115,6 +141,8 @@ function CategoryGroup({
   onOpenChange: (title: string, open: boolean) => void;
   bulkToggle: BulkToggleSignal | null;
   summaryValue?: string | null;
+  pinned: boolean;
+  onTogglePin: (title: string) => void;
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(() => readStoredCategoryOpen(title) ?? defaultOpen);
@@ -178,6 +206,30 @@ function CategoryGroup({
         {summaryValue && (
           <span style={{ fontWeight: 400, marginLeft: 8 }}>{summaryValue}</span>
         )}
+        <button
+          type="button"
+          aria-pressed={pinned}
+          aria-label={pinned ? `${title}の固定を解除` : `${title}を上に固定`}
+          title={pinned ? "固定を解除" : "上に固定"}
+          onClick={(e) => {
+            // <summary> 内のクリックは <details> の開閉にも伝わるため、
+            // ピン留めの切り替えだけで済むように止める。
+            e.preventDefault();
+            e.stopPropagation();
+            onTogglePin(title);
+          }}
+          style={{
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            marginLeft: 8,
+            fontSize: 13,
+            color: pinned ? "var(--text-secondary)" : "var(--text-tertiary)",
+            opacity: pinned ? 1 : 0.5,
+          }}
+        >
+          📌
+        </button>
       </summary>
       <div style={{ display: "flex", flexDirection: "column", gap: 14, marginTop: 8 }}>
         {children}
@@ -615,6 +667,28 @@ export default function App() {
     });
   };
 
+  // よく見るカテゴリを上に固定したいという声を受けたピン留め（Issue #675）。
+  // ピン留めした中では CATEGORY_ORDER の相対順を保ち、残りも CATEGORY_ORDER の順のまま。
+  const [pinnedCategories, setPinnedCategories] = useState<Set<string>>(() =>
+    readStoredPinnedCategories(),
+  );
+  const handleTogglePin = (title: string) => {
+    setPinnedCategories((prev) => {
+      const next = new Set(prev);
+      if (next.has(title)) {
+        next.delete(title);
+      } else {
+        next.add(title);
+      }
+      writeStoredPinnedCategories(next);
+      return next;
+    });
+  };
+  const orderedCategories = [
+    ...CATEGORY_ORDER.filter((category) => pinnedCategories.has(category)),
+    ...CATEGORY_ORDER.filter((category) => !pinnedCategories.has(category)),
+  ];
+
   const effectiveIsDay = forceDark
     ? false
     : weatherState.status === "ready"
@@ -779,7 +853,7 @@ export default function App() {
 
       {weatherState.status === "ready" && (
         <div style={{ display: "flex", flexDirection: "column", gap: 20, marginBottom: 16 }}>
-          {CATEGORY_ORDER.map((category, categoryIndex) => {
+          {orderedCategories.map((category, categoryIndex) => {
             const items = DISPLAY_ITEMS.filter((item) => item.category === category);
             if (items.length === 0) return null;
             const primary = items
@@ -796,6 +870,8 @@ export default function App() {
                 onOpenChange={handleCategoryOpenChange}
                 bulkToggle={bulkToggle}
                 summaryValue={categorySummaryValue(category, weatherState.data)}
+                pinned={pinnedCategories.has(category)}
+                onTogglePin={handleTogglePin}
               >
                 <ExpandableItems storageKey={category} primary={primary} more={more} />
               </CategoryGroup>
