@@ -222,7 +222,13 @@ function CategoryGroup({
             background: "none",
             border: "none",
             cursor: "pointer",
-            marginLeft: 8,
+            // 絵文字そのものの大きさだけだとタップ領域が狭く、スマホでは
+            // わずかに外れた位置を押すと <summary> 側に当たってカテゴリの
+            // 開閉が起きてしまう。パディングで実際のヒット領域を広げつつ、
+            // 負のマージンで打ち消して周囲のレイアウト・見た目の位置は
+            // これまでと変えない（Issue #680）。
+            padding: 6,
+            margin: "-6px -6px -6px 2px",
             fontSize: 13,
             color: pinned ? "var(--text-secondary)" : "var(--text-tertiary)",
             opacity: pinned ? 1 : 0.5,
