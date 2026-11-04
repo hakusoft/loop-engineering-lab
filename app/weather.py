@@ -585,15 +585,93 @@ NULLABLE_FIELD_REASONS: dict[str, str] = {
 }
 
 
+# /weather/fields にカテゴリ・null理由はあるが単位(℃や%など)が無く、単位だけ
+# 知りたい場合でも /weather 本体を見る必要があるという声を受け、項目名→単位の
+# 対応表も返せるようにする（Issue #681）。値は format_forecast() の各項目が
+# 使っている既定の単位文字列（例: units.get("temperature_2m", "°C") の "°C"）と
+# 揃える。location_name や condition のような文字列・構造体の項目は単位の概念が
+# 無いため、ここには含めない。
+FIELD_UNITS: dict[str, str] = {
+    "elevation": "m",
+    "temperature": "°C",
+    "apparent_temperature": "°C",
+    "dew_point": "°C",
+    "temperature_max": "°C",
+    "temperature_min": "°C",
+    "temperature_mean": "°C",
+    "apparent_temperature_max": "°C",
+    "apparent_temperature_min": "°C",
+    "apparent_temperature_mean": "°C",
+    "temperature_aloft": "°C",
+    "temperature_diff_ground_aloft": "°C",
+    "vapor_pressure_deficit": "kPa",
+    "wet_bulb_temperature": "°C",
+    "wind_speed": "km/h",
+    "wind_direction": "°",
+    "wind_gusts": "km/h",
+    "wind_speed_max": "km/h",
+    "wind_gusts_max": "km/h",
+    "wind_direction_dominant": "°",
+    "humidity": "%",
+    "humidity_max": "%",
+    "humidity_min": "%",
+    "humidity_mean": "%",
+    "humidity_aloft": "%",
+    "humidity_diff_ground_aloft": "%",
+    "soil_temperature": "°C",
+    "soil_temperature_deep": "°C",
+    "soil_temperature_deeper": "°C",
+    "soil_temperature_deepest": "°C",
+    "soil_moisture": "m³/m³",
+    "soil_moisture_deep": "m³/m³",
+    "soil_moisture_deeper": "m³/m³",
+    "soil_moisture_deepest": "m³/m³",
+    "soil_moisture_bedrock": "m³/m³",
+    "precipitation": "mm",
+    "precipitation_probability": "%",
+    "precipitation_probability_mean": "%",
+    "precipitation_probability_min": "%",
+    "precipitation_hours": "h",
+    "precipitation_sum": "mm",
+    "rain_sum": "mm",
+    "showers_sum": "mm",
+    "snowfall_sum": "cm",
+    "rain": "mm",
+    "showers": "mm",
+    "snowfall": "cm",
+    "snow_depth": "m",
+    "evapotranspiration": "mm",
+    "pressure": "hPa",
+    "sea_level_pressure": "hPa",
+    "cloud_cover": "%",
+    "cloud_cover_low": "%",
+    "cloud_cover_mid": "%",
+    "cloud_cover_high": "%",
+    "visibility": "m",
+    "freezing_level_height": "m",
+    "solar_radiation": "W/m²",
+    "solar_radiation_direct": "W/m²",
+    "solar_radiation_diffuse": "W/m²",
+    "solar_radiation_direct_normal": "W/m²",
+    "solar_radiation_sum": "MJ/m²",
+    "uv_index": "",
+    "uv_index_max": "",
+    "uv_index_clear_sky_max": "",
+    "daylight_duration": "h",
+    "sunshine_duration": "h",
+}
+
+
 def weather_field_metadata() -> dict[str, Any]:
-    """/weather の各項目について、カテゴリと null になり得る理由を返す。
+    """/weather の各項目について、カテゴリ・null になり得る理由・単位を返す。
 
     /weather 自体のレスポンス構造は変えず、別のエンドポイントとして提供する
-    （Issue #605）。
+    （Issue #605）。単位(units)は後から追加した（Issue #681）。
     """
     return {
         "categories": dict(FIELD_CATEGORIES),
         "nullable_fields": dict(NULLABLE_FIELD_REASONS),
+        "units": dict(FIELD_UNITS),
     }
 
 

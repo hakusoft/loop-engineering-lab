@@ -23,6 +23,7 @@ from app.weather import (
     DAILY_FIELDS,
     HOURLY_FIELDS,
     FIELD_CATEGORIES,
+    FIELD_UNITS,
     NULLABLE_FIELD_REASONS,
     SERIES_LABEL_CATEGORIES,
     weather_field_metadata,
@@ -2407,6 +2408,15 @@ def test_nullable_field_reasons_are_subset_of_field_categories():
     assert set(NULLABLE_FIELD_REASONS.keys()) <= set(FIELD_CATEGORIES.keys())
 
 
+def test_field_units_are_subset_of_field_categories():
+    """FIELD_UNITS のキーは FIELD_CATEGORIES のキーの部分集合。
+
+    単位を持つ項目は、必ずカテゴリも持つはず(NULLABLE_FIELD_REASONS と同じ方針、
+    Issue #681)。
+    """
+    assert set(FIELD_UNITS.keys()) <= set(FIELD_CATEGORIES.keys())
+
+
 def test_series_label_categories_cover_every_format_hourly_series_label():
     """SERIES_LABEL_CATEGORIES に format_hourly_series() の全系列のラベルがある。
 
@@ -2438,3 +2448,8 @@ def test_weather_field_metadata_returns_categories_and_nullable_reasons():
     assert result["categories"]["sunrise"] == "日照・時刻"
     assert result["categories"]["location_name"] == "位置情報"
     assert "temperature_aloft" in result["nullable_fields"]
+    assert result["units"]["temperature"] == "°C"
+    assert result["units"]["humidity"] == "%"
+    assert result["units"]["pressure"] == "hPa"
+    assert result["units"]["wind_speed"] == "km/h"
+    assert "location_name" not in result["units"]
