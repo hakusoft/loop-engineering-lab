@@ -456,6 +456,48 @@ export function thunderstormRanges(
   return ranges;
 }
 
+// 時刻(0〜23)を「朝・昼・夕方・夜」に割り当てる。境界は app/weather.py の
+// _time_of_day() と揃える。
+function timeOfDayPeriod(hour: number): "朝" | "昼" | "夕方" | "夜" {
+  if (hour >= 5 && hour < 11) return "朝";
+  if (hour >= 11 && hour < 16) return "昼";
+  if (hour >= 16 && hour < 19) return "夕方";
+  return "夜";
+}
+
+// timestamps（rows と同じ並び）を朝・昼・夕方の連続区間にまとめ、thunderstormRanges
+// と同じ要領でグラフに ReferenceArea で塗れる範囲（x1〜x2）を返す。夜間は既存の
+// nightRanges（API の is_day を使った既存の背景）と役割が重なるため対象外にする。
+//
+// 気温グラフの背景が常に無地で、どの時間帯を見ているか掴みにくいという声を
+// 受けて追加する（Issue #682）。日の出・日の入りの実際の時刻ではなく、
+// 固定の時間帯区分（_time_of_day と同じ）で十分という方針。
+export function timeOfDayRanges(
+  timestamps: string[],
+  rows: { time: string }[],
+): { x1: string; x2: string; period: "朝" | "昼" | "夕方" }[] {
+  if (timestamps.length === 0 || timestamps.length !== rows.length) {
+    return [];
+  }
+  const ranges: { x1: string; x2: string; period: "朝" | "昼" | "夕方" }[] = [];
+  let start: number | null = null;
+  let currentPeriod: "朝" | "昼" | "夕方" | "夜" | null = null;
+  for (let i = 0; i < timestamps.length; i++) {
+    const period = timeOfDayPeriod(Number(timestamps[i].slice(11, 13)));
+    if (period !== currentPeriod) {
+      if (start !== null && currentPeriod !== null && currentPeriod !== "夜") {
+        ranges.push({ x1: rows[start].time, x2: rows[i - 1].time, period: currentPeriod });
+      }
+      start = i;
+      currentPeriod = period;
+    }
+  }
+  if (start !== null && currentPeriod !== null && currentPeriod !== "夜") {
+    ranges.push({ x1: rows[start].time, x2: rows[timestamps.length - 1].time, period: currentPeriod });
+  }
+  return ranges;
+}
+
 // night_hours（夜間(is_day=0)の時刻一覧、timestamps の部分集合）を、thunderstormRanges
 // と同じ考え方でグラフに ReferenceArea で塗れる連続した範囲（x1〜x2）にまとめる。
 // 雨の時間帯（雷雨帯）と合わせて夜の時間帯も背景の色で分かるようにしたいという
@@ -590,6 +632,9 @@ function chartColors(isDay: boolean | undefined) {
       precipitation: "#4dabf7",
       uvStrong: "#ffd43b",
       today: "#20c997",
+      // 朝・昼・夕方の背景の色味（Issue #682）。夜間配色では他の背景帯が
+      // すでに濃い色のため、さらに控えめな色にする。
+      timeOfDay: { 朝: "#ffd43b", 昼: "#4dabf7", 夕方: "#ff922b" },
     };
   }
   return {
@@ -604,6 +649,8 @@ function chartColors(isDay: boolean | undefined) {
     precipitation: "#1971c2",
     uvStrong: "#f08c00",
     today: "#12b886",
+    // 朝・昼・夕方の背景の色味（Issue #682）。
+    timeOfDay: { 朝: "#ffd43b", 昼: "#74c0fc", 夕方: "#ff922b" },
   };
 }
 
@@ -1110,6 +1157,7 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
   const colors = chartColors(isDay);
   const stormRanges = thunderstormRanges(data.timestamps, data.thunderstorm_hours, rows);
   const nightBackgroundRanges = nightRanges(data.timestamps, data.night_hours, rows);
+  const timeOfDayBackgroundRanges = timeOfDayRanges(data.timestamps, rows);
   const wetRanges = precipitationRanges(data.timestamps, precipitationProbability?.values, rows);
   const uvStrongBackgroundRanges = uvStrongRanges(data.timestamps, uvIndex?.values, rows);
 
@@ -1706,6 +1754,18 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
         </defs>
         <CartesianGrid strokeDasharray="3 3" stroke={colors.grid} />
         <XAxis dataKey="time" minTickGap={40} tick={{ fontSize: tickFontSize, fill: colors.tick }} />
+        {timeOfDayBackgroundRanges.map((range) => (
+          <ReferenceArea
+            key={`timeofday-${range.x1}`}
+            yAxisId="temperature"
+            x1={range.x1}
+            x2={range.x2}
+            fill={colors.timeOfDay[range.period]}
+            fillOpacity={0.06}
+            stroke="none"
+            ifOverflow="extendDomain"
+          />
+        ))}
         {todayBackgroundRange && (
           <ReferenceArea
             yAxisId="temperature"
