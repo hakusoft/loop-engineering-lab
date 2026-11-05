@@ -8,8 +8,8 @@ import { umbrellaGuidance } from "./ActionGuidance";
 // そのまま残す。
 export function formatUmbrellaAdvice(data: WeatherResponse): string {
   const guidance = umbrellaGuidance(
-    data.precipitation_sum.value,
     data.precipitation_probability.value,
+    data.precipitation_sum.value,
   );
   return `傘の目安: ${guidance}`;
 }
