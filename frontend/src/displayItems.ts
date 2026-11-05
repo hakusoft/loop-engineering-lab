@@ -11,6 +11,7 @@ import { PrecipitationSum } from "./PrecipitationSum";
 import { Pressure } from "./Pressure";
 import { SunTimes } from "./SunTimes";
 import { TemperatureRange } from "./TemperatureRange";
+import { UmbrellaAdvice } from "./UmbrellaAdvice";
 import { Wind } from "./Wind";
 
 // 表示項目の一覧。App.tsx はこれを読んで描くだけで、項目そのものは持たない。
@@ -87,6 +88,7 @@ export const DISPLAY_ITEMS: DisplayItem[] = [
   { category: "降水・湿度", component: lazyMoreItem("PrecipitationType"), tier: "more" },
   { category: "降水・湿度", component: lazyMoreItem("Showers"), tier: "more" },
   { category: "降水・湿度", component: PrecipitationProbability, tier: "primary" },
+  { category: "降水・湿度", component: UmbrellaAdvice, tier: "primary" },
   { category: "降水・湿度", component: lazyMoreItem("PrecipitationProbabilityMean"), tier: "more" },
   { category: "降水・湿度", component: lazyMoreItem("PrecipitationProbabilityMin"), tier: "more" },
   { category: "降水・湿度", component: lazyMoreItem("PrecipitationHours"), tier: "more" },
