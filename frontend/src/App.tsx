@@ -721,7 +721,9 @@ export default function App() {
               声を受け、ページ最上部にも大きく表示する（Issue #577）。現在の天気
               （Condition.tsx と同じ formatConditionIcon）を使う。 */}
           {weatherState.status === "ready" && formatConditionIcon(weatherState.data) && (
-            <span aria-hidden="true" style={{ fontSize: 36, marginRight: 8, lineHeight: 1 }}>
+            // アイコン・気温・観測時刻が詰まって窮屈に見えるという声を受け、
+            // 間隔を広げる（Issue #690）。見た目の大きさ自体は変えない。
+            <span aria-hidden="true" style={{ fontSize: 36, marginRight: 12, lineHeight: 1 }}>
               {formatConditionIcon(weatherState.data)}
             </span>
           )}
@@ -730,7 +732,7 @@ export default function App() {
               値は CurrentTemperature.tsx（カテゴリ内の大きい表示）と同じ
               formatTemperature を使い、表示ロジックは重複させない。 */}
           {weatherState.status === "ready" && (
-            <span style={{ fontSize: 28, fontWeight: 700, marginRight: 8, lineHeight: 1 }}>
+            <span style={{ fontSize: 28, fontWeight: 700, marginRight: 12, lineHeight: 1 }}>
               {formatTemperature(weatherState.data)}
             </span>
           )}
