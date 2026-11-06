@@ -898,6 +898,14 @@ export default function App() {
           <HourlyConditions data={state.data} />
         </>
       )}
+      {/* どの気象データを使っているか出典が分からないという声を受け、画面の
+          一番下に小さく出典を表示する（Issue #688）。 */}
+      <p style={{ color: "var(--text-tertiary)", fontSize: 12, marginTop: 24 }}>
+        気象データ:{" "}
+        <a href="https://open-meteo.com/" style={{ color: "inherit" }}>
+          Open-Meteo
+        </a>
+      </p>
       <BackToTopButton />
       <BackToBottomButton />
     </main>
