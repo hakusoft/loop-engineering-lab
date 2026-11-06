@@ -1081,7 +1081,7 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
             "unit": units.get("direct_radiation", "W/m²"),
         },
         "solar_radiation_diffuse": {
-            "value": current["diffuse_radiation"],
+            "value": _zero_solar_radiation_at_night(current["diffuse_radiation"], is_day_now),
             "unit": units.get("diffuse_radiation", "W/m²"),
         },
         # パネルの角度に関係ない直射日光の強さ（太陽に正対する面で測った直達日射量）

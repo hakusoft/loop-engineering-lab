@@ -1203,6 +1203,7 @@ def test_format_forecast_zeroes_solar_radiation_at_night():
 
     assert result["solar_radiation"]["value"] == 0.0
     assert result["solar_radiation_direct"]["value"] == 0.0
+    assert result["solar_radiation_diffuse"]["value"] == 0.0
     assert result["solar_radiation_direct_normal"]["value"] == 0.0
 
 
@@ -1212,6 +1213,7 @@ def test_format_forecast_keeps_solar_radiation_during_day():
 
     assert result["solar_radiation"]["value"] == 412.0
     assert result["solar_radiation_direct"]["value"] == 298.0
+    assert result["solar_radiation_diffuse"]["value"] == 114.0
     assert result["solar_radiation_direct_normal"]["value"] == 612.5
 
 
