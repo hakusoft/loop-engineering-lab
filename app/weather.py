@@ -288,6 +288,17 @@ def _zero_uv_index_at_night(
     return [0.0 if (v is not None and day == 0) else v for v, day in zip(values, is_day)]
 
 
+def _zero_solar_radiation_at_night(value: float | None, is_day: int) -> float | None:
+    """夜間（is_day=0）の日射量を0にする。
+
+    Open-Meteo は日没直後の時間帯で、補間によりごく小さい正の値
+    （例: 1〜2 W/m²）を残すことがある。日射量は夜間0のはずなので、
+    _zero_uv_index_at_night と同じ考え方で、is_day を使って
+    夜間の値を0に補正する。欠測（None）はそのまま返す。
+    """
+    return 0.0 if (value is not None and is_day == 0) else value
+
+
 def _daylight_duration_hours(sunrise: str, sunset: str) -> float:
     """sunrise / sunset（ISO8601）から可照時間を時間単位で計算する。"""
     return (datetime.fromisoformat(sunset) - datetime.fromisoformat(sunrise)).total_seconds() / 3600
@@ -778,6 +789,11 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
     # と同じ方針）。
     humidity_aloft_value = current.get("relative_humidity_850hPa")
 
+    # 日射量が夜間にもごく小さい正の値（1〜2 W/m²程度）で残ることがあるという
+    # 声を受け、_zero_uv_index_at_night と同じ考え方で is_day を使って補正する
+    # （Issue #692）。current["is_day"] は CURRENT_FIELDS に常に含まれる。
+    is_day_now = current["is_day"]
+
     return {
         "location_name": DEFAULT_LOCATION_NAME,
         "prefecture_name": DEFAULT_PREFECTURE_NAME,
@@ -1057,11 +1073,11 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
             "unit": units.get("freezing_level_height", "m"),
         },
         "solar_radiation": {
-            "value": current["shortwave_radiation"],
+            "value": _zero_solar_radiation_at_night(current["shortwave_radiation"], is_day_now),
             "unit": units.get("shortwave_radiation", "W/m²"),
         },
         "solar_radiation_direct": {
-            "value": current["direct_radiation"],
+            "value": _zero_solar_radiation_at_night(current["direct_radiation"], is_day_now),
             "unit": units.get("direct_radiation", "W/m²"),
         },
         "solar_radiation_diffuse": {
@@ -1072,7 +1088,9 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
         # がほしいという声を受けて追加する（Issue #478）。direct_radiation は水平面
         # 基準のため、パネル角度の影響を受けない値としては別の項目になる。
         "solar_radiation_direct_normal": {
-            "value": current.get("direct_normal_irradiance"),
+            "value": _zero_solar_radiation_at_night(
+                current.get("direct_normal_irradiance"), is_day_now
+            ),
             "unit": units.get("direct_normal_irradiance", "W/m²"),
         },
         "solar_radiation_sum": {

@@ -47,6 +47,7 @@ from app.weather import (
     _weather_description,
     _weather_description_en,
     _zero_uv_index_at_night,
+    _zero_solar_radiation_at_night,
     format_forecast,
     format_hourly_series,
 )
@@ -1192,6 +1193,30 @@ def test_format_forecast_maps_is_day_false_at_night():
     result = format_forecast(raw)
 
     assert result["is_day"] is False
+
+
+def test_format_forecast_zeroes_solar_radiation_at_night():
+    """夜間(is_day=0)は日射量が補間でごく小さい正の値を残すことがあるため0にする。"""
+    raw = {**STUB_RESPONSE, "current": {**STUB_RESPONSE["current"], "is_day": 0}}
+
+    result = format_forecast(raw)
+
+    assert result["solar_radiation"]["value"] == 0.0
+    assert result["solar_radiation_direct"]["value"] == 0.0
+    assert result["solar_radiation_direct_normal"]["value"] == 0.0
+
+
+def test_format_forecast_keeps_solar_radiation_during_day():
+    """is_day=1 のときは既存の値をそのまま返す。"""
+    result = format_forecast(STUB_RESPONSE)
+
+    assert result["solar_radiation"]["value"] == 412.0
+    assert result["solar_radiation_direct"]["value"] == 298.0
+    assert result["solar_radiation_direct_normal"]["value"] == 612.5
+
+
+def test_zero_solar_radiation_at_night_passes_through_missing_value():
+    assert _zero_solar_radiation_at_night(None, 0) is None
 
 
 def test_weather_description_maps_representative_codes():
