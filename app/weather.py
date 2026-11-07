@@ -442,6 +442,7 @@ HOURLY_FIELDS = [
     "snow_depth",
     "precipitation_probability",
     "et0_fao_evapotranspiration",
+    "evapotranspiration",
     "apparent_temperature",
     "surface_pressure",
     "pressure_msl",
@@ -733,6 +734,7 @@ SERIES_LABEL_CATEGORIES: dict[str, str] = {
     "積雪の深さ": "降水・湿度",
     "降水確率": "降水・湿度",
     "蒸発散量": "降水・湿度",
+    "実蒸発散量": "降水・湿度",
     "気圧": "環境",
     "海面気圧": "環境",
     "対流抑制(CIN)": "環境",
@@ -1425,6 +1427,11 @@ def format_hourly_series(
             _round_evapotranspiration(v) for v in hourly["et0_fao_evapotranspiration"]
         ]
 
+    if "evapotranspiration" in hourly:
+        hourly["evapotranspiration"] = [
+            _round_evapotranspiration(v) for v in hourly["evapotranspiration"]
+        ]
+
     if "dew_point_2m" in hourly:
         hourly["dew_point_2m"] = [_round_temperature(v) for v in hourly["dew_point_2m"]]
 
@@ -1617,6 +1624,7 @@ def format_hourly_series(
                 _series("snow_depth", "積雪の深さ", "m"),
                 _series("precipitation_probability", "降水確率", "%"),
                 _series("et0_fao_evapotranspiration", "蒸発散量", "mm"),
+                _series("evapotranspiration", "実蒸発散量", "mm"),
                 _series("surface_pressure", "気圧", "hPa"),
                 _series("pressure_msl", "海面気圧", "hPa"),
                 _series("convective_inhibition", "対流抑制(CIN)", "J/kg"),

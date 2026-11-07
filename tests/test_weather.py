@@ -462,6 +462,7 @@ STUB_SERIES = {
         "snow_depth": "m",
         "precipitation_probability": "%",
         "et0_fao_evapotranspiration": "mm",
+        "evapotranspiration": "mm",
         "surface_pressure": "hPa",
         "pressure_msl": "hPa",
         "wind_speed_10m": "km/h",
@@ -546,6 +547,7 @@ STUB_SERIES = {
         "snow_depth": [0.02, 0.02, 0.03],
         "precipitation_probability": [10, 30, 60],
         "et0_fao_evapotranspiration": [0.1, 0.2, 0.3],
+        "evapotranspiration": [0.3, 0.5, 0.9],
         "surface_pressure": [1008.2, 1008.0, 1007.6],
         "pressure_msl": [1010.5, 1010.3, 1009.9],
         "wind_speed_10m": [8.1, 9.4, 10.2],
@@ -660,6 +662,7 @@ def test_series_keeps_units_separate_for_split_axes():
     snow_depth = by_label["積雪の深さ"]
     precipitation_probability = by_label["降水確率"]
     evapotranspiration = by_label["蒸発散量"]
+    evapotranspiration_actual = by_label["実蒸発散量"]
     pressure = by_label["気圧"]
     sea_level_pressure = by_label["海面気圧"]
     cloud_cover = by_label["雲量"]
@@ -775,6 +778,8 @@ def test_series_keeps_units_separate_for_split_axes():
     assert precipitation_probability["unit"] == "%"
     assert evapotranspiration["label"] == "蒸発散量"
     assert evapotranspiration["unit"] == "mm"
+    assert evapotranspiration_actual["label"] == "実蒸発散量"
+    assert evapotranspiration_actual["unit"] == "mm"
     assert pressure["label"] == "気圧"
     assert pressure["unit"] == "hPa"
     assert sea_level_pressure["label"] == "海面気圧"
@@ -892,6 +897,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     snow_depth = by_label["積雪の深さ"]
     precipitation_probability = by_label["降水確率"]
     evapotranspiration = by_label["蒸発散量"]
+    evapotranspiration_actual = by_label["実蒸発散量"]
     pressure = by_label["気圧"]
     sea_level_pressure = by_label["海面気圧"]
     cloud_cover = by_label["雲量"]
@@ -968,6 +974,7 @@ def test_series_exposes_min_max_for_axis_scaling():
     assert (snow_depth["min"], snow_depth["max"]) == (0.02, 0.03)
     assert (precipitation_probability["min"], precipitation_probability["max"]) == (10, 60)
     assert (evapotranspiration["min"], evapotranspiration["max"]) == (0.1, 0.3)
+    assert (evapotranspiration_actual["min"], evapotranspiration_actual["max"]) == (0.3, 0.9)
     assert (pressure["min"], pressure["max"]) == (1007.6, 1008.2)
     assert (sea_level_pressure["min"], sea_level_pressure["max"]) == (1009.9, 1010.5)
     assert (cloud_cover["min"], cloud_cover["max"]) == (20, 90)
