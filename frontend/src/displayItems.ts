@@ -1,5 +1,6 @@
 import { lazy, type ComponentType } from "react";
 import type { WeatherResponse } from "./api";
+import { ApparentTemperature } from "./ApparentTemperature";
 import { CloudCover } from "./CloudCover";
 import { Condition } from "./Condition";
 import { CurrentTemperature } from "./CurrentTemperature";
@@ -66,7 +67,9 @@ export const CATEGORY_ORDER: DisplayCategory[] = [
 export const DISPLAY_ITEMS: DisplayItem[] = [
   { category: "気温", component: Condition, tier: "primary" },
   { category: "気温", component: CurrentTemperature, tier: "primary" },
-  { category: "気温", component: lazyMoreItem("ApparentTemperature"), tier: "more" },
+  // 気づいたら「もっと見る」の中に隠れていて気温と同じくらい最初から見える位置が
+  // 良いという声を受け、primary に変える（Issue #700）。
+  { category: "気温", component: ApparentTemperature, tier: "primary" },
   { category: "気温", component: lazyMoreItem("HeatStrokeRisk"), tier: "more" },
   { category: "気温", component: lazyMoreItem("FrostRisk"), tier: "more" },
   { category: "気温", component: lazyMoreItem("ApparentTemperatureRange"), tier: "more" },

@@ -11,7 +11,6 @@
 // 分割するのではなく「もっと見る」1回分の追加チャンクにまとめる。
 export { HeatStrokeRisk } from "./HeatStrokeRisk";
 export { FrostRisk } from "./FrostRisk";
-export { ApparentTemperature } from "./ApparentTemperature";
 export { ApparentTemperatureRange } from "./ApparentTemperatureRange";
 export { ApparentTemperatureMean } from "./ApparentTemperatureMean";
 export { TemperatureMean } from "./TemperatureMean";
