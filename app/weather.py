@@ -840,6 +840,32 @@ def fetch_hourly_series(
     return response.json()
 
 
+def _dedupe_consecutive_hours(hourly: dict[str, Any]) -> dict[str, Any]:
+    """hourly["time"] に隣接する重複があれば、各キーの配列から同じインデックスを取り除く。
+
+    /weather/series で同じ時刻が連続して出ることがあるという報告を受けた対応
+    （Issue #697）。この実行環境は Open-Meteo に到達できず根本原因（Open-Meteo
+    側の挙動かどうか）を確認できていないため、原因を直さず出力側で防御的に
+    取り除く。timestamps 以外の全ての時系列（time と同じ長さの配列）に同じ
+    インデックスを適用し、ずれが起きないようにする。
+    """
+    times = hourly.get("time", [])
+    keep_indices: list[int] = []
+    previous: str | None = None
+    for index, time in enumerate(times):
+        if time != previous:
+            keep_indices.append(index)
+            previous = time
+    if len(keep_indices) == len(times):
+        return hourly
+    return {
+        key: [values[i] for i in keep_indices]
+        if isinstance(values, list) and len(values) == len(times)
+        else values
+        for key, values in hourly.items()
+    }
+
+
 def _format_observed_at_display(observed_at: str) -> str:
     """observed_at（Open-MeteoのISO8601文字列、timezone=Asia/Tokyoでの地方時）を
     読みやすい形式にする。タイムゾーンのオフセットは付かないため、JSTを明記する。
@@ -1397,7 +1423,7 @@ def format_hourly_series(
     固定時刻を注入できるよう now を引数で受け取る。
     """
     fetched_at = now if now is not None else datetime.now(JST)
-    hourly = raw["hourly"]
+    hourly = _dedupe_consecutive_hours(raw["hourly"])
     units = raw.get("hourly_units", {})
     timestamps = hourly["time"]
 

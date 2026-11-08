@@ -49,6 +49,7 @@ from app.weather import (
     _weather_description_en,
     _zero_uv_index_at_night,
     _zero_solar_radiation_at_night,
+    _dedupe_consecutive_hours,
     format_forecast,
     format_hourly_series,
 )
@@ -2038,6 +2039,45 @@ def test_format_forecast_works_against_real_api_shape():
         "snow_depth",
         "uv_index",
     }
+
+
+def test_dedupe_consecutive_hours_removes_adjacent_duplicate_time():
+    hourly = {
+        "time": ["2026-07-21T00:00", "2026-07-21T00:00", "2026-07-21T01:00"],
+        "temperature_2m": [20.0, 20.0, 21.0],
+        "weather_code": [0, 0, 1],
+    }
+    result = _dedupe_consecutive_hours(hourly)
+    assert result["time"] == ["2026-07-21T00:00", "2026-07-21T01:00"]
+    assert result["temperature_2m"] == [20.0, 21.0]
+    assert result["weather_code"] == [0, 1]
+
+
+def test_dedupe_consecutive_hours_keeps_non_adjacent_repeated_time():
+    """隣接していない同じ時刻（通常起きないが）は重複とみなさず残す。"""
+    hourly = {"time": ["00:00", "01:00", "00:00"], "temperature_2m": [1.0, 2.0, 3.0]}
+    result = _dedupe_consecutive_hours(hourly)
+    assert result["time"] == ["00:00", "01:00", "00:00"]
+    assert result["temperature_2m"] == [1.0, 2.0, 3.0]
+
+
+def test_dedupe_consecutive_hours_is_noop_without_duplicates():
+    result = _dedupe_consecutive_hours(STUB_SERIES["hourly"])
+    assert result == STUB_SERIES["hourly"]
+
+
+def test_format_hourly_series_dedupes_adjacent_duplicate_timestamps():
+    """/weather/series で同じ時刻が連続して出ることがあるという報告への対応（Issue #697）。"""
+    hourly = {
+        key: [values[0], *values] for key, values in STUB_SERIES["hourly"].items()
+    }
+    raw = {**STUB_SERIES, "hourly": hourly}
+
+    result = format_hourly_series(raw)
+
+    assert result["timestamps"] == STUB_SERIES["hourly"]["time"]
+    temperature = next(s for s in result["series"] if s["label"] == "気温")
+    assert temperature["values"] == STUB_SERIES["hourly"]["temperature_2m"]
 
 
 def test_format_hourly_series_works_against_real_api_shape():
