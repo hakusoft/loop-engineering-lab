@@ -613,6 +613,30 @@ def test_series_shares_one_timeline():
         assert len(series["values"]) == len(result["timestamps"])
 
 
+def test_format_hourly_series_includes_by_time():
+    """series（項目ごとの配列）が見づらいという声を受け、時刻でまとめた形も
+    別キーで返す（Issue #701）。既存の timestamps / series は変更しない。
+    """
+    result = format_hourly_series(STUB_SERIES)
+
+    assert len(result["by_time"]) == len(result["timestamps"])
+    for index, time in enumerate(result["timestamps"]):
+        entry = result["by_time"][index]
+        assert entry["time"] == time
+        for series in result["series"]:
+            assert entry["values"][series["label"]] == series["values"][index]
+
+
+def test_series_by_time_omits_labels_for_missing_series():
+    """系列が無い項目（_series が None を返すもの）は by_time にも出さない。"""
+    hourly = {k: v for k, v in STUB_SERIES["hourly"].items() if k != "lifted_index"}
+    raw = {**STUB_SERIES, "hourly": hourly}
+
+    result = format_hourly_series(raw)
+
+    assert all("Lifted Index" not in entry["values"] for entry in result["by_time"])
+
+
 def test_format_hourly_series_includes_daily_condition():
     """今日一日を代表する1つの天気コードを返す（weather_code=[0, 3, 61] は全て1回ずつ
     なので、時系列で先頭の 0 が選ばれる）。"""

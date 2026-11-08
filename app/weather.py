@@ -1408,6 +1408,27 @@ def _format_fetched_at_display(fetched_at: datetime) -> str:
     return fetched_at.strftime("%Y-%m-%d %H:%M JST")
 
 
+def _series_by_time(
+    timestamps: list[str], series_list: list[dict[str, Any]]
+) -> list[dict[str, Any]]:
+    """series（項目ごとに values 配列を持つ列指向の形）を、時刻ごとにまとめた
+    行指向の形に変換する。
+
+    「項目ごとに配列が分かれてて見づらい」という声を受け、既存の timestamps /
+    series はグラフ描画がそのまま使うため変更せず、別のキーで追加する
+    （Issue #701）。
+    """
+    return [
+        {
+            "time": time,
+            "values": {
+                series["label"]: series["values"][index] for series in series_list
+            },
+        }
+        for index, time in enumerate(timestamps)
+    ]
+
+
 def format_hourly_series(
     raw: dict[str, Any], now: datetime | None = None
 ) -> dict[str, Any]:
@@ -1561,6 +1582,121 @@ def format_hourly_series(
         [hourly["shortwave_radiation"][i] for i in today_index],
     )
 
+    series_list = [
+        s
+        for s in [
+            _series("temperature_2m", "気温", "°C"),
+            _series("temperature_80m", "上空の気温(80m)", "°C"),
+            _series("temperature_120m", "上空の気温(120m)", "°C"),
+            _series("temperature_180m", "上空の気温(180m)", "°C"),
+            _series("temperature_1000hPa", "1000hPaの気温", "°C"),
+            _series("temperature_925hPa", "925hPaの気温", "°C"),
+            # 風は700hPaまで系列があり、湿度も700hPaの系列が既にある
+            # （relative_humidity_700hPa、Issue #502）一方、気温だけ700hPaが
+            # 無いという声を受けて追加する（Issue #533）。
+            _series("temperature_700hPa", "700hPaの気温", "°C"),
+            # 風・湿度は既に600hPaまであり（風はIssue #515）、気温は700hPaまで
+            # 見られるようになった一方、600hPaが無いという声を受けて追加する
+            # （Issue #542）。
+            _series("temperature_600hPa", "600hPaの気温", "°C"),
+            # 500hPaの風向き・風速（Issue #487）は既にあり、気温だけ600hPaで
+            # 止まっていたという声を受けて追加する。
+            _series("temperature_500hPa", "500hPaの気温", "°C"),
+            # 500hPaまで見られるようになった一方、400hPaも追加してほしいという
+            # 声を受けて追加する（Issue #610）。
+            _series("temperature_400hPa", "400hPaの気温", "°C"),
+            # 400hPaまで見られるようになった一方、300hPaも追加してほしいという
+            # 声を受けて追加する（Issue #644）。
+            _series("temperature_300hPa", "300hPaの気温", "°C"),
+            _series("freezing_level_height", "凍結高度", "m"),
+            _series("geopotential_height_700hPa", "700hPaの高度", "m"),
+            _series("geopotential_height_600hPa", "600hPaの高度", "m"),
+            _series("geopotential_height_500hPa", "500hPaの高度", "m"),
+            _series("geopotential_height_400hPa", "400hPaの高度", "m"),
+            _series("geopotential_height_300hPa", "300hPaの高度", "m"),
+            _series("soil_temperature_0cm", "土の温度(地表)", "°C"),
+            _series("soil_temperature_6cm", "土の温度(6cm)", "°C"),
+            _series("soil_temperature_18cm", "土の温度(18cm)", "°C"),
+            _series("soil_temperature_54cm", "土の温度(54cm)", "°C"),
+            _series("soil_moisture_0_to_1cm", "土の水分量(表層)", "m³/m³"),
+            _series("apparent_temperature", "体感温度", "°C"),
+            _series("dew_point_2m", "露点温度", "°C"),
+            _series("wet_bulb_temperature_2m", "湿球温度", "°C"),
+            _series("vapour_pressure_deficit", "飽差(VPD)", "kPa"),
+            _series("relative_humidity_2m", "湿度", "%"),
+            # 850hPa気温・湿度は既にあり、風は700hPaまで見られるようになった一方、
+            # 700hPaの湿度が無いという声を受けて追加する（Issue #502）。
+            _series("relative_humidity_700hPa", "700hPaの湿度", "%"),
+            # 気温・風は300hPaまで見られる一方、湿度は700hPa/850hPaで止まって
+            # いたという声を受け、同じ高さまで追加する（Issue #672）。
+            _series("relative_humidity_600hPa", "600hPaの湿度", "%"),
+            _series("relative_humidity_500hPa", "500hPaの湿度", "%"),
+            _series("relative_humidity_400hPa", "400hPaの湿度", "%"),
+            _series("relative_humidity_300hPa", "300hPaの湿度", "%"),
+            # 850hPa気温は既にあり、700hPaの湿度も見られるようになった一方、
+            # 850hPaの湿度が無いという声を受けて追加する（Issue #576）。
+            _series("relative_humidity_850hPa", "850hPaの湿度", "%"),
+            _series("total_column_integrated_water_vapour", "可降水量", "mm"),
+            _series("rain", "雨量", "mm"),
+            # まとまった雨なのか一時的な雨なのか時間帯ごとに見分けたいという
+            # 声を受けて追加する（Issue #607）。現在値・本日合計では既に
+            # 「雨」と「にわか雨」が分かれている（Showers.tsx）が、時間ごとの
+            # 系列は「雨量」(rain) しか無かった。
+            _series("showers", "にわか雨量", "mm"),
+            _series("snowfall", "降雪量", "cm"),
+            _series("snow_depth", "積雪の深さ", "m"),
+            _series("precipitation_probability", "降水確率", "%"),
+            _series("et0_fao_evapotranspiration", "蒸発散量", "mm"),
+            _series("evapotranspiration", "実蒸発散量", "mm"),
+            _series("surface_pressure", "気圧", "hPa"),
+            _series("pressure_msl", "海面気圧", "hPa"),
+            _series("convective_inhibition", "対流抑制(CIN)", "J/kg"),
+            # CAPE 以外の大気不安定指数もほしいという声を受けて追加する
+            # （Issue #480）。値が低い/負であるほど大気が不安定とされる。
+            _series("lifted_index", "Lifted Index", "°C"),
+            _series("boundary_layer_height", "境界層の高さ", "m"),
+            _series("cloud_cover", "雲量", "%"),
+            _series("cloud_cover_low", "雲量(低層)", "%"),
+            _series("cloud_cover_mid", "雲量(中層)", "%"),
+            _series("cloud_cover_high", "雲量(高層)", "%"),
+            _series("wind_speed_10m", "風速", "km/h"),
+            _series("wind_direction_10m", "風向き", "°"),
+            _series("wind_gusts_10m", "瞬間風速", "km/h"),
+            _series("wind_speed_700hPa", "700hPaの風速", "km/h"),
+            _series("wind_direction_700hPa", "700hPaの風向き", "°"),
+            _series("wind_speed_600hPa", "600hPaの風速", "km/h"),
+            _series("wind_direction_600hPa", "600hPaの風向き", "°"),
+            _series("wind_speed_500hPa", "500hPaの風速", "km/h"),
+            _series("wind_direction_500hPa", "500hPaの風向き", "°"),
+            # 気温の400hPa追加（Issue #610）に合わせて、風も同じ高さまで見られる
+            # ようにする。
+            _series("wind_speed_400hPa", "400hPaの風速", "km/h"),
+            _series("wind_direction_400hPa", "400hPaの風向き", "°"),
+            # 気温の300hPa追加（Issue #644）に合わせて、風も同じ高さまで見られる
+            # ようにする。
+            _series("wind_speed_300hPa", "300hPaの風速", "km/h"),
+            _series("wind_direction_300hPa", "300hPaの風向き", "°"),
+            _series("wind_speed_850hPa", "上空の風速", "km/h"),
+            _series("wind_direction_850hPa", "上空の風向き", "°"),
+            _series("wind_speed_925hPa", "925hPaの風速", "km/h"),
+            _series("wind_direction_925hPa", "925hPaの風向き", "°"),
+            _series("wind_speed_80m", "上空の風速(80m)", "km/h"),
+            _series("wind_direction_80m", "上空の風向き(80m)", "°"),
+            _series("wind_speed_120m", "上空の風速(120m)", "km/h"),
+            _series("wind_direction_120m", "上空の風向き(120m)", "°"),
+            _series("wind_speed_180m", "上空の風速(180m)", "km/h"),
+            _series("wind_direction_180m", "上空の風向き(180m)", "°"),
+            _series("uv_index", "紫外線指数", ""),
+            _series("uv_index_clear_sky", "紫外線指数(快晴時の目安)", ""),
+            _series("shortwave_radiation", "日射量", "W/m²"),
+            _series("global_tilted_irradiance", "傾斜面日射量(発電目安)", "W/m²"),
+            _series("sunshine_duration", "日照時間", "s"),
+            _series("visibility", "視程", "m"),
+        ]
+        if s is not None
+    ]
+    series_by_time = _series_by_time(timestamps, series_list)
+
     return {
         # /weather の location_name 等と揃える。地点が固定のため format_forecast と
         # 同じ定数を使う（Issue #568）。
@@ -1585,119 +1721,8 @@ def format_hourly_series(
         "apparent_temperature_peak": apparent_temperature_peak_today,
         "apparent_temperature_trough": apparent_temperature_trough_today,
         "shortwave_radiation_peak": shortwave_radiation_peak_today,
-        "series": [
-            s
-            for s in [
-                _series("temperature_2m", "気温", "°C"),
-                _series("temperature_80m", "上空の気温(80m)", "°C"),
-                _series("temperature_120m", "上空の気温(120m)", "°C"),
-                _series("temperature_180m", "上空の気温(180m)", "°C"),
-                _series("temperature_1000hPa", "1000hPaの気温", "°C"),
-                _series("temperature_925hPa", "925hPaの気温", "°C"),
-                # 風は700hPaまで系列があり、湿度も700hPaの系列が既にある
-                # （relative_humidity_700hPa、Issue #502）一方、気温だけ700hPaが
-                # 無いという声を受けて追加する（Issue #533）。
-                _series("temperature_700hPa", "700hPaの気温", "°C"),
-                # 風・湿度は既に600hPaまであり（風はIssue #515）、気温は700hPaまで
-                # 見られるようになった一方、600hPaが無いという声を受けて追加する
-                # （Issue #542）。
-                _series("temperature_600hPa", "600hPaの気温", "°C"),
-                # 500hPaの風向き・風速（Issue #487）は既にあり、気温だけ600hPaで
-                # 止まっていたという声を受けて追加する。
-                _series("temperature_500hPa", "500hPaの気温", "°C"),
-                # 500hPaまで見られるようになった一方、400hPaも追加してほしいという
-                # 声を受けて追加する（Issue #610）。
-                _series("temperature_400hPa", "400hPaの気温", "°C"),
-                # 400hPaまで見られるようになった一方、300hPaも追加してほしいという
-                # 声を受けて追加する（Issue #644）。
-                _series("temperature_300hPa", "300hPaの気温", "°C"),
-                _series("freezing_level_height", "凍結高度", "m"),
-                _series("geopotential_height_700hPa", "700hPaの高度", "m"),
-                _series("geopotential_height_600hPa", "600hPaの高度", "m"),
-                _series("geopotential_height_500hPa", "500hPaの高度", "m"),
-                _series("geopotential_height_400hPa", "400hPaの高度", "m"),
-                _series("geopotential_height_300hPa", "300hPaの高度", "m"),
-                _series("soil_temperature_0cm", "土の温度(地表)", "°C"),
-                _series("soil_temperature_6cm", "土の温度(6cm)", "°C"),
-                _series("soil_temperature_18cm", "土の温度(18cm)", "°C"),
-                _series("soil_temperature_54cm", "土の温度(54cm)", "°C"),
-                _series("soil_moisture_0_to_1cm", "土の水分量(表層)", "m³/m³"),
-                _series("apparent_temperature", "体感温度", "°C"),
-                _series("dew_point_2m", "露点温度", "°C"),
-                _series("wet_bulb_temperature_2m", "湿球温度", "°C"),
-                _series("vapour_pressure_deficit", "飽差(VPD)", "kPa"),
-                _series("relative_humidity_2m", "湿度", "%"),
-                # 850hPa気温・湿度は既にあり、風は700hPaまで見られるようになった一方、
-                # 700hPaの湿度が無いという声を受けて追加する（Issue #502）。
-                _series("relative_humidity_700hPa", "700hPaの湿度", "%"),
-                # 気温・風は300hPaまで見られる一方、湿度は700hPa/850hPaで止まって
-                # いたという声を受け、同じ高さまで追加する（Issue #672）。
-                _series("relative_humidity_600hPa", "600hPaの湿度", "%"),
-                _series("relative_humidity_500hPa", "500hPaの湿度", "%"),
-                _series("relative_humidity_400hPa", "400hPaの湿度", "%"),
-                _series("relative_humidity_300hPa", "300hPaの湿度", "%"),
-                # 850hPa気温は既にあり、700hPaの湿度も見られるようになった一方、
-                # 850hPaの湿度が無いという声を受けて追加する（Issue #576）。
-                _series("relative_humidity_850hPa", "850hPaの湿度", "%"),
-                _series("total_column_integrated_water_vapour", "可降水量", "mm"),
-                _series("rain", "雨量", "mm"),
-                # まとまった雨なのか一時的な雨なのか時間帯ごとに見分けたいという
-                # 声を受けて追加する（Issue #607）。現在値・本日合計では既に
-                # 「雨」と「にわか雨」が分かれている（Showers.tsx）が、時間ごとの
-                # 系列は「雨量」(rain) しか無かった。
-                _series("showers", "にわか雨量", "mm"),
-                _series("snowfall", "降雪量", "cm"),
-                _series("snow_depth", "積雪の深さ", "m"),
-                _series("precipitation_probability", "降水確率", "%"),
-                _series("et0_fao_evapotranspiration", "蒸発散量", "mm"),
-                _series("evapotranspiration", "実蒸発散量", "mm"),
-                _series("surface_pressure", "気圧", "hPa"),
-                _series("pressure_msl", "海面気圧", "hPa"),
-                _series("convective_inhibition", "対流抑制(CIN)", "J/kg"),
-                # CAPE 以外の大気不安定指数もほしいという声を受けて追加する
-                # （Issue #480）。値が低い/負であるほど大気が不安定とされる。
-                _series("lifted_index", "Lifted Index", "°C"),
-                _series("boundary_layer_height", "境界層の高さ", "m"),
-                _series("cloud_cover", "雲量", "%"),
-                _series("cloud_cover_low", "雲量(低層)", "%"),
-                _series("cloud_cover_mid", "雲量(中層)", "%"),
-                _series("cloud_cover_high", "雲量(高層)", "%"),
-                _series("wind_speed_10m", "風速", "km/h"),
-                _series("wind_direction_10m", "風向き", "°"),
-                _series("wind_gusts_10m", "瞬間風速", "km/h"),
-                _series("wind_speed_700hPa", "700hPaの風速", "km/h"),
-                _series("wind_direction_700hPa", "700hPaの風向き", "°"),
-                _series("wind_speed_600hPa", "600hPaの風速", "km/h"),
-                _series("wind_direction_600hPa", "600hPaの風向き", "°"),
-                _series("wind_speed_500hPa", "500hPaの風速", "km/h"),
-                _series("wind_direction_500hPa", "500hPaの風向き", "°"),
-                # 気温の400hPa追加（Issue #610）に合わせて、風も同じ高さまで見られる
-                # ようにする。
-                _series("wind_speed_400hPa", "400hPaの風速", "km/h"),
-                _series("wind_direction_400hPa", "400hPaの風向き", "°"),
-                # 気温の300hPa追加（Issue #644）に合わせて、風も同じ高さまで見られる
-                # ようにする。
-                _series("wind_speed_300hPa", "300hPaの風速", "km/h"),
-                _series("wind_direction_300hPa", "300hPaの風向き", "°"),
-                _series("wind_speed_850hPa", "上空の風速", "km/h"),
-                _series("wind_direction_850hPa", "上空の風向き", "°"),
-                _series("wind_speed_925hPa", "925hPaの風速", "km/h"),
-                _series("wind_direction_925hPa", "925hPaの風向き", "°"),
-                _series("wind_speed_80m", "上空の風速(80m)", "km/h"),
-                _series("wind_direction_80m", "上空の風向き(80m)", "°"),
-                _series("wind_speed_120m", "上空の風速(120m)", "km/h"),
-                _series("wind_direction_120m", "上空の風向き(120m)", "°"),
-                _series("wind_speed_180m", "上空の風速(180m)", "km/h"),
-                _series("wind_direction_180m", "上空の風向き(180m)", "°"),
-                _series("uv_index", "紫外線指数", ""),
-                _series("uv_index_clear_sky", "紫外線指数(快晴時の目安)", ""),
-                _series("shortwave_radiation", "日射量", "W/m²"),
-                _series("global_tilted_irradiance", "傾斜面日射量(発電目安)", "W/m²"),
-                _series("sunshine_duration", "日照時間", "s"),
-                _series("visibility", "視程", "m"),
-            ]
-            if s is not None
-        ],
+        "series": series_list,
+        "by_time": series_by_time,
         "coordinates": {
             "latitude": _round_coordinate(raw["latitude"]),
             "longitude": _round_coordinate(raw["longitude"]),
