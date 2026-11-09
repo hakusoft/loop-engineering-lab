@@ -613,6 +613,20 @@ def test_series_shares_one_timeline():
         assert len(series["values"]) == len(result["timestamps"])
 
 
+def test_series_includes_utc_timestamps():
+    """timestamps(JST)の変換が地味に面倒という声を受けて追加する（Issue #707）。
+    既存の timestamps キーの形式・値は変更しない。
+    """
+    result = format_hourly_series(STUB_SERIES)
+
+    assert len(result["timestamps_utc"]) == len(result["timestamps"])
+    assert result["timestamps_utc"] == [
+        "2026-07-21T15:00Z",
+        "2026-07-21T16:00Z",
+        "2026-07-21T17:00Z",
+    ]
+
+
 def test_format_hourly_series_includes_by_time():
     """series（項目ごとの配列）が見づらいという声を受け、時刻でまとめた形も
     別キーで返す（Issue #701）。既存の timestamps / series は変更しない。

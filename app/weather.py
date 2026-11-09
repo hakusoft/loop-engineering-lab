@@ -873,6 +873,18 @@ def _format_observed_at_display(observed_at: str) -> str:
     return datetime.fromisoformat(observed_at).strftime("%Y-%m-%d %H:%M JST")
 
 
+def _to_utc_timestamp(jst_timestamp: str) -> str:
+    """/weather/series の timestamps（JSTの地方時、オフセット無し）をUTCに変換する。
+
+    他所で使う際にいちいち変換するのが面倒という声を受けて追加する（Issue #707）。
+    """
+    dt = datetime.fromisoformat(jst_timestamp)
+    utc_hour = dt.hour - 9
+    if utc_hour < 0:
+        utc_hour += 24
+    return dt.replace(hour=utc_hour).strftime("%Y-%m-%dT%H:%MZ")
+
+
 def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
     """Open-Meteo の生 JSON を、API が返す形に整える。
 
@@ -1708,6 +1720,7 @@ def format_hourly_series(
         "fetched_at": fetched_at.isoformat(),
         "fetched_at_display": _format_fetched_at_display(fetched_at),
         "timestamps": timestamps,
+        "timestamps_utc": [_to_utc_timestamp(t) for t in timestamps],
         "conditions": conditions,
         "daily_summary": daily_summary,
         "daily_condition": daily_condition,
