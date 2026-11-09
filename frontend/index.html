@@ -4,6 +4,22 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>loop-engineering-lab — 気温</title>
+    <script>
+      // 「暗めの表示」を手動ONにしていると、React がマウントして App.tsx の
+      // インラインスタイルを適用するまでの間、ブラウザ既定の白い背景が一瞬
+      // 見えてしまう（Issue #706）。React の読み込みを待たず、HTML解析中に
+      // 同期的に実行して先に背景色を合わせておく。キー名は App.tsx の
+      // DARK_MODE_OVERRIDE_STORAGE_KEY と一致させる必要がある。
+      (function () {
+        try {
+          if (localStorage.getItem("loop-engineering-lab:dark-mode-override") === "true") {
+            document.documentElement.style.backgroundColor = "#1a1a2e";
+          }
+        } catch (e) {
+          // localStorage が使えない場合は既定の白背景のままにする。
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
