@@ -5,7 +5,7 @@
 CI が赤いとき「外部 API が落ちた」ではなく「コードが壊れた」と読めるようにするため。
 """
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any
 from zoneinfo import ZoneInfo
 
@@ -877,12 +877,11 @@ def _to_utc_timestamp(jst_timestamp: str) -> str:
     """/weather/series の timestamps（JSTの地方時、オフセット無し）をUTCに変換する。
 
     他所で使う際にいちいち変換するのが面倒という声を受けて追加する（Issue #707）。
+    JST 0時〜8時台は日付も1日戻るため、timedelta で日付のアンダーフローも
+    自動で処理させる（時刻だけの引き算だと日付がずれたままになる）。
     """
-    dt = datetime.fromisoformat(jst_timestamp)
-    utc_hour = dt.hour - 9
-    if utc_hour < 0:
-        utc_hour += 24
-    return dt.replace(hour=utc_hour).strftime("%Y-%m-%dT%H:%MZ")
+    dt = datetime.fromisoformat(jst_timestamp) - timedelta(hours=9)
+    return dt.strftime("%Y-%m-%dT%H:%MZ")
 
 
 def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:

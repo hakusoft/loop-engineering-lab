@@ -50,6 +50,7 @@ from app.weather import (
     _zero_uv_index_at_night,
     _zero_solar_radiation_at_night,
     _dedupe_consecutive_hours,
+    _to_utc_timestamp,
     format_forecast,
     format_hourly_series,
 )
@@ -616,15 +617,26 @@ def test_series_shares_one_timeline():
 def test_series_includes_utc_timestamps():
     """timestamps(JST)の変換が地味に面倒という声を受けて追加する（Issue #707）。
     既存の timestamps キーの形式・値は変更しない。
+
+    STUB_SERIES の時刻(00:00〜02:00 JST)はUTCとの日付の境目(JST 9時)を
+    跨ぐため、日付が1日戻ることも合わせて確認する。
     """
     result = format_hourly_series(STUB_SERIES)
 
     assert len(result["timestamps_utc"]) == len(result["timestamps"])
     assert result["timestamps_utc"] == [
-        "2026-07-21T15:00Z",
-        "2026-07-21T16:00Z",
-        "2026-07-21T17:00Z",
+        "2026-07-20T15:00Z",
+        "2026-07-20T16:00Z",
+        "2026-07-20T17:00Z",
     ]
+
+
+def test_to_utc_timestamp_crosses_date_boundary():
+    """JST 0時〜8時台はUTCでは前日になる。日付を跨がない時間帯との両方を確認する。"""
+    assert _to_utc_timestamp("2026-07-21T00:00") == "2026-07-20T15:00Z"
+    assert _to_utc_timestamp("2026-07-21T08:00") == "2026-07-20T23:00Z"
+    assert _to_utc_timestamp("2026-07-21T09:00") == "2026-07-21T00:00Z"
+    assert _to_utc_timestamp("2026-07-21T23:00") == "2026-07-21T14:00Z"
 
 
 def test_format_hourly_series_includes_by_time():
