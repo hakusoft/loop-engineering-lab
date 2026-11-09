@@ -459,6 +459,8 @@ HOURLY_FIELDS = [
     "wind_direction_400hPa",
     "wind_speed_300hPa",
     "wind_direction_300hPa",
+    "wind_speed_200hPa",
+    "wind_direction_200hPa",
     "wind_speed_850hPa",
     "wind_direction_850hPa",
     "wind_speed_925hPa",
@@ -757,6 +759,8 @@ SERIES_LABEL_CATEGORIES: dict[str, str] = {
     "400hPaの風向き": "風",
     "300hPaの風速": "風",
     "300hPaの風向き": "風",
+    "200hPaの風速": "風",
+    "200hPaの風向き": "風",
     "上空の風速": "風",
     "上空の風向き": "風",
     "925hPaの風速": "風",
@@ -1676,6 +1680,10 @@ def format_hourly_series(
             # ようにする。
             _series("wind_speed_300hPa", "300hPaの風速", "km/h"),
             _series("wind_direction_300hPa", "300hPaの風向き", "°"),
+            # 300hPaまで見られるようになった一方、旅客機が飛ぶ高さ(200hPa)も
+            # 見たいという声を受けて追加する（Issue #705）。
+            _series("wind_speed_200hPa", "200hPaの風速", "km/h"),
+            _series("wind_direction_200hPa", "200hPaの風向き", "°"),
             _series("wind_speed_850hPa", "上空の風速", "km/h"),
             _series("wind_direction_850hPa", "上空の風向き", "°"),
             _series("wind_speed_925hPa", "925hPaの風速", "km/h"),

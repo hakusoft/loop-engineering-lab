@@ -88,6 +88,8 @@ function toChartData(data: SeriesResponse) {
   const windDirection400hPa = data.series.find((s) => s.label === "400hPaの風向き");
   const windSpeed300hPa = data.series.find((s) => s.label === "300hPaの風速");
   const windDirection300hPa = data.series.find((s) => s.label === "300hPaの風向き");
+  const windSpeed200hPa = data.series.find((s) => s.label === "200hPaの風速");
+  const windDirection200hPa = data.series.find((s) => s.label === "200hPaの風向き");
   const upperWindSpeed = data.series.find((s) => s.label === "上空の風速");
   const upperWindDirection = data.series.find((s) => s.label === "上空の風向き");
   const upperWindSpeed80m = data.series.find((s) => s.label === "上空の風速(80m)");
@@ -168,6 +170,8 @@ function toChartData(data: SeriesResponse) {
       windDirection400hPa: undefined,
       windSpeed300hPa: undefined,
       windDirection300hPa: undefined,
+      windSpeed200hPa: undefined,
+      windDirection200hPa: undefined,
       upperWindSpeed: undefined,
       upperWindDirection: undefined,
       upperWindSpeed80m: undefined,
@@ -251,6 +255,8 @@ function toChartData(data: SeriesResponse) {
     windDirection400hPa: windDirection400hPa?.values[i] ?? null,
     windSpeed300hPa: windSpeed300hPa?.values[i] ?? null,
     windDirection300hPa: windDirection300hPa?.values[i] ?? null,
+    windSpeed200hPa: windSpeed200hPa?.values[i] ?? null,
+    windDirection200hPa: windDirection200hPa?.values[i] ?? null,
     upperWindSpeed: upperWindSpeed?.values[i] ?? null,
     upperWindDirection: upperWindDirection?.values[i] ?? null,
     upperWindSpeed80m: upperWindSpeed80m?.values[i] ?? null,
@@ -339,6 +345,8 @@ function toChartData(data: SeriesResponse) {
     windDirection400hPa,
     windSpeed300hPa,
     windDirection300hPa,
+    windSpeed200hPa,
+    windDirection200hPa,
     upperWindSpeed,
     upperWindDirection,
     upperWindSpeed80m,
@@ -768,6 +776,8 @@ const SECONDARY_SERIES = [
   { key: "windDirection400hPa", label: "400hPaの風向き", category: "風" },
   { key: "windSpeed300hPa", label: "300hPaの風速", category: "風" },
   { key: "windDirection300hPa", label: "300hPaの風向き", category: "風" },
+  { key: "windSpeed200hPa", label: "200hPaの風速", category: "風" },
+  { key: "windDirection200hPa", label: "200hPaの風向き", category: "風" },
   { key: "upperWindSpeed", label: "上空の風速", category: "風" },
   { key: "upperWindDirection", label: "上空の風向き", category: "風" },
   { key: "upperWindSpeed80m", label: "上空の風速(80m)", category: "風" },
@@ -792,6 +802,7 @@ const WIND_DIRECTION_SERIES_NAMES = new Set([
   "500hPaの風向き",
   "400hPaの風向き",
   "300hPaの風向き",
+  "200hPaの風向き",
   "上空の風向き",
   "上空の風向き(80m)",
   "上空の風向き(120m)",
@@ -874,6 +885,8 @@ const SECONDARY_SERIES_COLOR: Record<SecondarySeriesKey, string> = {
   windDirection400hPa: "#f08c00",
   windSpeed300hPa: "#087f5b",
   windDirection300hPa: "#e8590c",
+  windSpeed200hPa: "#5f3dc4",
+  windDirection200hPa: "#2b8a3e",
   upperWindSpeed: "#7048e8",
   upperWindDirection: "#1864ab",
   upperWindSpeed80m: "#9c36b5",
@@ -1122,6 +1135,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
     windDirection400hPa,
     windSpeed300hPa,
     windDirection300hPa,
+    windSpeed200hPa,
+    windDirection200hPa,
     upperWindSpeed,
     upperWindDirection,
     upperWindSpeed80m,
@@ -1296,6 +1311,10 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             return Boolean(windSpeed300hPa);
           case "windDirection300hPa":
             return Boolean(windDirection300hPa);
+          case "windSpeed200hPa":
+            return Boolean(windSpeed200hPa);
+          case "windDirection200hPa":
+            return Boolean(windDirection200hPa);
           case "upperWindSpeed":
             return Boolean(upperWindSpeed);
           case "upperWindDirection":
@@ -1387,6 +1406,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
       windDirection400hPa,
       windSpeed300hPa,
       windDirection300hPa,
+      windSpeed200hPa,
+      windDirection200hPa,
       upperWindSpeed,
       upperWindDirection,
       upperWindSpeed80m,
@@ -1532,6 +1553,8 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
   const showWindDirection400hPa = windDirection400hPa && visibleSecondary.has("windDirection400hPa");
   const showWindSpeed300hPa = windSpeed300hPa && visibleSecondary.has("windSpeed300hPa");
   const showWindDirection300hPa = windDirection300hPa && visibleSecondary.has("windDirection300hPa");
+  const showWindSpeed200hPa = windSpeed200hPa && visibleSecondary.has("windSpeed200hPa");
+  const showWindDirection200hPa = windDirection200hPa && visibleSecondary.has("windDirection200hPa");
   const showUpperWindSpeed = upperWindSpeed && visibleSecondary.has("upperWindSpeed");
   const showUpperWindDirection = upperWindDirection && visibleSecondary.has("upperWindDirection");
   const showUpperWindSpeed80m = upperWindSpeed80m && visibleSecondary.has("upperWindSpeed80m");
@@ -2016,6 +2039,18 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
           // 300hPa の風向きも度数（0〜360）固定なので、他の風向き系列とは別軸にする。
           <YAxis yAxisId="windDirection300hPa" hide domain={[0, 360]} />
         )}
+        {showWindSpeed200hPa && (
+          // 200hPa の風速も他の風速系列とスケールが異なるため、軸を分ける。
+          <YAxis
+            yAxisId="windSpeed200hPa"
+            hide
+            domain={[0, Math.max(windSpeed200hPa!.max ?? 0, 1) + 1]}
+          />
+        )}
+        {showWindDirection200hPa && (
+          // 200hPa の風向きも度数（0〜360）固定なので、他の風向き系列とは別軸にする。
+          <YAxis yAxisId="windDirection200hPa" hide domain={[0, 360]} />
+        )}
         {showUpperWindSpeed && (
           // 上空の風速は地上より大きくなるので、地上の風速とも軸を分ける。
           <YAxis
@@ -2328,6 +2363,10 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
                                         ? windSpeed300hPa?.unit
                                         : name === "300hPaの風向き"
                                           ? windDirection300hPa?.unit
+                                      : name === "200hPaの風速"
+                                        ? windSpeed200hPa?.unit
+                                        : name === "200hPaの風向き"
+                                          ? windDirection200hPa?.unit
                                     : name === "上空の風速"
                                     ? upperWindSpeed?.unit
                                     : name === "上空の風向き"
@@ -3254,6 +3293,34 @@ export function TemperatureChart({ data, isDay }: { data: SeriesResponse; isDay?
             dot={false}
             isAnimationActive={false}
             name="300hPaの風向き"
+            connectNulls
+          />
+        )}
+        {showWindSpeed200hPa && (
+          <Line
+            yAxisId="windSpeed200hPa"
+            type="monotone"
+            dataKey="windSpeed200hPa"
+            stroke="#5f3dc4"
+            strokeWidth={2}
+            strokeDasharray="4 2"
+            dot={false}
+            isAnimationActive={false}
+            name="200hPaの風速"
+            connectNulls
+          />
+        )}
+        {showWindDirection200hPa && (
+          <Line
+            yAxisId="windDirection200hPa"
+            type="monotone"
+            dataKey="windDirection200hPa"
+            stroke="#2b8a3e"
+            strokeWidth={2}
+            strokeDasharray="4 2"
+            dot={false}
+            isAnimationActive={false}
+            name="200hPaの風向き"
             connectNulls
           />
         )}
