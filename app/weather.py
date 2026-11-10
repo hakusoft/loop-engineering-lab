@@ -5,7 +5,7 @@
 CI が赤いとき「外部 API が落ちた」ではなく「コードが壊れた」と読めるようにするため。
 """
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any
 from zoneinfo import ZoneInfo
 
@@ -877,6 +877,17 @@ def _format_observed_at_display(observed_at: str) -> str:
     return datetime.fromisoformat(observed_at).strftime("%Y-%m-%d %H:%M JST")
 
 
+def _to_utc_timestamp(jst_timestamp: str) -> str:
+    """/weather/series の timestamps（JSTの地方時、オフセット無し）をUTCに変換する。
+
+    他所で使う際にいちいち変換するのが面倒という声を受けて追加する（Issue #707）。
+    JST 0時〜8時台は日付も1日戻るため、timedelta で日付のアンダーフローも
+    自動で処理させる（時刻だけの引き算だと日付がずれたままになる）。
+    """
+    dt = datetime.fromisoformat(jst_timestamp) - timedelta(hours=9)
+    return dt.strftime("%Y-%m-%dT%H:%MZ")
+
+
 def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
     """Open-Meteo の生 JSON を、API が返す形に整える。
 
@@ -1716,6 +1727,7 @@ def format_hourly_series(
         "fetched_at": fetched_at.isoformat(),
         "fetched_at_display": _format_fetched_at_display(fetched_at),
         "timestamps": timestamps,
+        "timestamps_utc": [_to_utc_timestamp(t) for t in timestamps],
         "conditions": conditions,
         "daily_summary": daily_summary,
         "daily_condition": daily_condition,
