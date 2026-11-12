@@ -5,6 +5,7 @@ import { categorySummaryValue } from "./categorySummary";
 import { LocationName } from "./LocationName";
 import { DateWeekday } from "./DateWeekday";
 import { Coordinates } from "./Coordinates";
+import { LocationMap } from "./LocationMap";
 import { formatConditionIcon } from "./Condition";
 import { DailySummary } from "./DailySummary";
 import { DailyCondition } from "./DailyCondition";
@@ -758,6 +759,7 @@ export default function App() {
             <>
               <LocationName data={weatherState.data} />
               <Coordinates data={state.data} />
+              <LocationMap data={state.data} />
             </>
           )}
         </div>
