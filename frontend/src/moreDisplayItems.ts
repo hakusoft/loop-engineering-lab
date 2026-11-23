@@ -26,6 +26,7 @@ export { Showers } from "./Showers";
 export { PrecipitationProbabilityMean } from "./PrecipitationProbabilityMean";
 export { PrecipitationProbabilityMin } from "./PrecipitationProbabilityMin";
 export { PrecipitationHours } from "./PrecipitationHours";
+export { PrecipitationSum } from "./PrecipitationSum";
 export { PrecipitationSumByType } from "./PrecipitationSumByType";
 export { SnowDepth } from "./SnowDepth";
 export { LaundryDryness } from "./LaundryDryness";
