@@ -172,16 +172,17 @@ STUB_RESPONSE = {
         "relative_humidity_2m_mean": "%",
     },
     "daily": {
-        "time": ["2026-07-21"],
+        "time": ["2026-07-21", "2026-07-22"],
+        "weathercode": [1, 61],
         "uv_index_max": [7.8],
         "uv_index_clear_sky_max": [8.1],
         "shortwave_radiation_sum": [23.4],
         "sunrise": ["2026-07-21T04:44"],
         "sunset": ["2026-07-21T18:47"],
-        "temperature_2m_max": [33.2],
-        "temperature_2m_min": [24.7],
+        "temperature_2m_max": [33.2, 29.5],
+        "temperature_2m_min": [24.7, 22.0],
         "temperature_2m_mean": [28.9],
-        "precipitation_probability_max": [20],
+        "precipitation_probability_max": [20, 70],
         "precipitation_probability_mean": [11],
         "precipitation_probability_min": [2],
         "sunshine_duration": [36420.0],
@@ -299,6 +300,17 @@ def test_format_forecast_maps_values_and_units():
         "description": "晴れ",
         "description_en": "Mainly clear",
         "sentence": "晴れ、気温28.4°C、西南西の風 12.3km/h",
+    }
+    assert result["tomorrow"] == {
+        "date": "2026-07-22",
+        "condition": {
+            "code": 61,
+            "description": "雨（弱い）",
+            "description_en": "Light rain",
+        },
+        "temperature_max": {"value": 29.5, "unit": "°C"},
+        "temperature_min": {"value": 22.0, "unit": "°C"},
+        "precipitation_probability_max": {"value": 70, "unit": "%"},
     }
     assert result["coordinates"] == {"latitude": 35.68, "longitude": 139.76}
     assert result["location_name"] == "東京都千代田区"
@@ -2058,6 +2070,11 @@ def _fixture_with_stub_defaults(name: str) -> dict:
     見たいのは「フィクスチャに在るキーを実装が正しく読めるか」なので、
     足りない分だけ補う。フィクスチャに在るキーは実応答の値がそのまま残るため、
     #164 のようなキー名の取り違えは引き続き検出できる。
+
+    daily はフィクスチャが forecast_days=1 で記録されたままのため、各配列が
+    1件分しかない（Issue #639 で forecast_days=2 にする前の記録）。既にある
+    キーでも配列がスタブより短い場合は、スタブの続きの要素で埋めて2件目
+    （明日分）を補う。1件目は実応答の値のままなので、取り違えの検出は変わらない。
     """
     raw = _load_fixture(name)
     if "hourly" in raw:
@@ -2071,7 +2088,14 @@ def _fixture_with_stub_defaults(name: str) -> dict:
             ("daily", STUB_RESPONSE["daily"]),
         ):
             for key, value in stub.items():
-                raw[section].setdefault(key, value)
+                if key not in raw[section]:
+                    raw[section][key] = value
+                elif (
+                    isinstance(value, list)
+                    and isinstance(raw[section][key], list)
+                    and len(raw[section][key]) < len(value)
+                ):
+                    raw[section][key] = raw[section][key] + value[len(raw[section][key]) :]
     return raw
 
 

@@ -13,6 +13,7 @@ export { HeatStrokeRisk } from "./HeatStrokeRisk";
 export { FrostRisk } from "./FrostRisk";
 export { ApparentTemperatureRange } from "./ApparentTemperatureRange";
 export { ApparentTemperatureMean } from "./ApparentTemperatureMean";
+export { TomorrowForecast } from "./TomorrowForecast";
 export { TemperatureMean } from "./TemperatureMean";
 export { DewPoint } from "./DewPoint";
 export { WetBulbTemperature } from "./WetBulbTemperature";
