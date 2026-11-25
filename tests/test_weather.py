@@ -173,7 +173,7 @@ STUB_RESPONSE = {
     },
     "daily": {
         "time": ["2026-07-21", "2026-07-22"],
-        "weathercode": [1, 61],
+        "weather_code": [1, 61],
         "uv_index_max": [7.8],
         "uv_index_clear_sky_max": [8.1],
         "shortwave_radiation_sum": [23.4],

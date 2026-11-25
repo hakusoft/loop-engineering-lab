@@ -361,7 +361,7 @@ CURRENT_FIELDS = [
 ]
 
 DAILY_FIELDS = [
-    "weathercode",
+    "weather_code",
     "uv_index_max",
     "uv_index_clear_sky_max",
     "shortwave_radiation_sum",
@@ -1278,9 +1278,9 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
         "tomorrow": {
             "date": daily["time"][1],
             "condition": {
-                "code": daily["weathercode"][1],
-                "description": _weather_description(daily["weathercode"][1]),
-                "description_en": _weather_description_en(daily["weathercode"][1]),
+                "code": daily["weather_code"][1],
+                "description": _weather_description(daily["weather_code"][1]),
+                "description_en": _weather_description_en(daily["weather_code"][1]),
             },
             "temperature_max": {
                 "value": daily["temperature_2m_max"][1],
