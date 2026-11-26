@@ -361,6 +361,7 @@ CURRENT_FIELDS = [
 ]
 
 DAILY_FIELDS = [
+    "weather_code",
     "uv_index_max",
     "uv_index_clear_sky_max",
     "shortwave_radiation_sum",
@@ -508,6 +509,7 @@ FIELD_CATEGORIES: dict[str, str] = {
     "vapor_pressure_deficit": "気温",
     "wet_bulb_temperature": "気温",
     "condition": "気温",
+    "tomorrow": "気温",
     "wind_speed": "風",
     "wind_direction": "風",
     "wind_gusts": "風",
@@ -805,7 +807,12 @@ def fetch_forecast(
             "current": ",".join(CURRENT_FIELDS),
             "daily": ",".join(DAILY_FIELDS),
             "timezone": "Asia/Tokyo",
-            "forecast_days": 1,
+            # 明日の天気も見たいという声を受け、今日分(forecast_days=1)に加えて
+            # 明日分も daily に含める（Issue #639）。current（今の値）は forecast_days
+            # に関係なく常に1件のスナップショットのため、この変更の影響を受けない。
+            # hourly は別の fetch_hourly_series() が forecast_days=1 で取得しており、
+            # ここでは触れていないため /weather/series の時系列には影響しない。
+            "forecast_days": 2,
         },
         timeout=timeout,
     )
@@ -1263,6 +1270,30 @@ def format_forecast(raw: dict[str, Any]) -> dict[str, Any]:
                 current["wind_speed_10m"],
                 _compass_direction(current["wind_direction_10m"]),
             ),
+        },
+        # 今日の分だけじゃなく明日の天気も見たいという声を受けて追加する
+        # （Issue #639）。相談の結果、表示するのは明日分のみで、画面も新しい
+        # ページを作らず今の画面に項目を増やす形でよいとの回答だったため、
+        # daily の2件目（明日）をそのままこの1項目にまとめる。
+        "tomorrow": {
+            "date": daily["time"][1],
+            "condition": {
+                "code": daily["weather_code"][1],
+                "description": _weather_description(daily["weather_code"][1]),
+                "description_en": _weather_description_en(daily["weather_code"][1]),
+            },
+            "temperature_max": {
+                "value": daily["temperature_2m_max"][1],
+                "unit": daily_units.get("temperature_2m_max", "°C"),
+            },
+            "temperature_min": {
+                "value": daily["temperature_2m_min"][1],
+                "unit": daily_units.get("temperature_2m_min", "°C"),
+            },
+            "precipitation_probability_max": {
+                "value": daily["precipitation_probability_max"][1],
+                "unit": daily_units.get("precipitation_probability_max", "%"),
+            },
         },
         "elevation": {
             "value": raw["elevation"],

@@ -73,6 +73,8 @@ export const DISPLAY_ITEMS: DisplayItem[] = [
   { category: "気温", component: lazyMoreItem("FrostRisk"), tier: "more" },
   { category: "気温", component: lazyMoreItem("ApparentTemperatureRange"), tier: "more" },
   { category: "気温", component: lazyMoreItem("ApparentTemperatureMean"), tier: "more" },
+  // 今日の分だけじゃなく明日の天気も見たいという声を受けて追加する（Issue #639）。
+  { category: "気温", component: lazyMoreItem("TomorrowForecast"), tier: "more" },
   { category: "気温", component: TemperatureRange, tier: "primary" },
   { category: "気温", component: lazyMoreItem("TemperatureMean"), tier: "more" },
   { category: "気温", component: lazyMoreItem("DewPoint"), tier: "more" },
