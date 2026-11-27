@@ -1045,7 +1045,9 @@ function WrappingLegend({
         listStyle: "none",
         // 文字が小さいという声（Issue #445）を受けて、14px に統一した
         // （元は isNarrow ? 12 : 13 で、狭い画面のほうがむしろ小さかった）。
-        fontSize: 14,
+        // その後もスマホでまだ小さいという声があり、狭い画面ではさらに大きくする
+        // （Issue #717。PC幅（isNarrow が false）の見た目は変えない）。
+        fontSize: isNarrow ? 16 : 14,
         color,
       }}
     >
